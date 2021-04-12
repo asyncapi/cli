@@ -1,0 +1,26 @@
+{
+  "name": "cli",
+  "version": "1.0.0",
+  "description": "WORK IN PROGRESS",
+  "main": "bin/index.js",
+  "bin": {
+    "asyncapi": "./bin/asyncapi.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Souvikns/cli.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Souvikns/cli/issues"
+  },
+  "homepage": "https://github.com/Souvikns/cli#readme",
+  "dependencies": {
+    "commander": "^7.2.0"
+  }
+}
