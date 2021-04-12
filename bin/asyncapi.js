@@ -22,7 +22,14 @@ program
 
 program
     .command("validate")
+    .description("validate the spec file")
     .option('-v, --version <asyncapi-version>', "version of asyncapi spec")
+    .option('-c, --context <spec>', "path to the spec file")
+
+
+program
+    .command("create")
+    .description("create spec file")
     .option('-c, --context <spec>', "path to the spec file")
 
 
