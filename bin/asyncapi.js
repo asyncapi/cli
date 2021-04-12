@@ -10,8 +10,19 @@ program
     .version(package.version);
 
 
-// asyncapi <asyncapi-ref> <action/verb> <resource>
+// asyncapi  <action/verb> <resource>
 
+/**
+ * Probable commands 
+ * - validate 
+ * - generate 
+ * - create
+ * - also connect diff 
+ */
+
+program
+    .command("validate <asyncapi-ref>")
+    .option('-v, --version <asyncapi-version>', "version of asyncapi spec")
 
 
 program.on('command:*', (command) => {
