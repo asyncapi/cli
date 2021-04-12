@@ -21,8 +21,9 @@ program
  */
 
 program
-    .command("validate <asyncapi-ref>")
+    .command("validate")
     .option('-v, --version <asyncapi-version>', "version of asyncapi spec")
+    .option('-c, --context <spec>', "path to the spec file")
 
 
 program.on('command:*', (command) => {
