@@ -1,0 +1,53 @@
+{
+	"name": "cli",
+	"version": "0.0.0",
+	"license": "MIT",
+	"bin": {
+		"asyncapi": "dist/cli.js",
+		"@asyncapi/cli": "dist/cli.js"
+	},
+	"engines": {
+		"node": ">=10"
+	},
+	"scripts": {
+		"build": "tsc",
+		"start": "npm run build && dist/cli.js",
+		"pretest": "npm run build",
+		"test": "jest"
+	},
+	"files": [
+		"dist/cli.js"
+	],
+	"dependencies": {
+		"commander": "^7.1.0",
+		"ink": "^3.0.8",
+		"meow": "^9.0.0",
+		"react": "^17.0.1"
+	},
+	"devDependencies": {
+		"@sindresorhus/tsconfig": "^0.9.0",
+		"@types/jest": "^26.0.20",
+		"@types/react": "^17.0.2",
+		"chalk": "^4.1.0",
+		"eslint-plugin-react": "^7.22.0",
+		"eslint-plugin-react-hooks": "^4.2.0",
+		"ink-testing-library": "^2.1.0",
+		"jest": "^26.6.3",
+		"ts-jest": "^26.5.3",
+		"typescript": "^4.2.3"
+	},
+	"jest": {
+		"transform": {
+			"^.+\\.tsx?$": "ts-jest"
+		},
+		"testRegex": "(/tests/.*|(\\.|/)(test|spec))\\.(tsx?)$",
+		"moduleFileExtensions": [
+			"ts",
+			"tsx",
+			"js",
+			"jsx",
+			"json",
+			"node"
+		]
+	}
+}
