@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Project Communication
+    url: https://github.com/asyncapi/asyncapi/issues/115
+    about: Check out all the options to communicate with AsyncAPI community.
+  - name: Slack
+    url: https://www.asyncapi.com/slack-invite/
+    about: Don't open issues for questions or support, better talk to us on Slack first.
+  - name: AsyncAPI Website
+    url: https://www.asyncapi.com/
+    about: For more information about AsyncAPI visit our website.
