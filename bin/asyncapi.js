@@ -44,7 +44,7 @@ program
     .option('-c, --context <spec>', "path to the spec file")
     .option('-t, --template <template>', "name of the template")
     .option('-o, --output <outputDir>', "path to the output directory")
-    .option('-m, --model <model>', "generator template")
+    .option('-m, --model <model>', "")
     .action((command) => {
 
     });
