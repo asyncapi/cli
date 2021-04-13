@@ -25,12 +25,18 @@ program
     .description("validate the spec file")
     .option('-v, --version <asyncapi-version>', "version of asyncapi spec")
     .option('-c, --context <spec>', "path to the spec file")
+    .action((command) => {
+
+    });
 
 
 program
     .command("create")
     .description("create spec file")
     .option('-c, --context <spec>', "path to the spec file")
+    .action((command) => {
+
+    });
 
 
 program
@@ -39,6 +45,9 @@ program
     .option('-t, --template <template>', "name of the template")
     .option('-o, --output <outputDir>', "path to the output directory")
     .option('-m, --model <model>', "")
+    .action((command) => {
+
+    });
 
 
 program.on('command:*', (command) => {
