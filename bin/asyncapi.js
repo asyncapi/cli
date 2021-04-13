@@ -33,6 +33,14 @@ program
     .option('-c, --context <spec>', "path to the spec file")
 
 
+program
+    .command("generate")
+    .option('-c, --context <spec>', "path to the spec file")
+    .option('-t, --template <template>', "name of the template")
+    .option('-o, --output <outputDir>', "path to the output directory")
+    .option('-m, --model <model>', "")
+
+
 program.on('command:*', (command) => {
     console.error(`error: invalid command ${command}`);
     program.help();
