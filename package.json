@@ -13,16 +13,20 @@
 		"build": "tsc",
 		"start": "npm run build && dist/cli.js",
 		"pretest": "npm run build",
+		"algo": "dist/cli.js validate -f test/specification.yml",
 		"test": "jest"
 	},
 	"files": [
 		"dist/cli.js"
 	],
 	"dependencies": {
+		"@asyncapi/parser": "^1.4.5",
 		"commander": "^7.1.0",
 		"ink": "^3.0.8",
 		"meow": "^9.0.0",
-		"react": "^17.0.1"
+		"react": "^17.0.1",
+		"reflect-metadata": "^0.1.13",
+		"tsyringe": "^4.5.0"
 	},
 	"devDependencies": {
 		"@sindresorhus/tsconfig": "^0.9.0",
@@ -37,6 +41,9 @@
 		"typescript": "^4.2.3"
 	},
 	"jest": {
+		"setupFilesAfterEnv": [
+			"<rootDir>/test/setupTests.ts"
+		],
 		"transform": {
 			"^.+\\.tsx?$": "ts-jest"
 		},

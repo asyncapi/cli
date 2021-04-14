@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import 'reflect-metadata'
 import React from 'react';
 import { render } from 'ink';
 import meow from 'meow';
@@ -31,4 +32,16 @@ const cli = meow(`
 	}
 });
 
-render(<App file={cli.flags.file} watch={cli.flags.watch}/>);
+console.log(cli.input)
+
+// const [actor, ...arguments] = cli.input;
+//
+// const actorsDictionary = (arguments, context) => ({
+// 	['get']: <Get argumnets={arguments} context={context}/>,
+// 	['validate']: <Validate />
+// })
+//
+// actorsDictionary(arguments, { file: cli.flags.file, watch: cli.flags.watch })[actor]
+
+
+render(<App context={ { file: cli.flags.file, watch: cli.flags.watch } }/>);

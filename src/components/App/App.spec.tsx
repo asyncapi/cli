@@ -5,7 +5,7 @@ import chalk from "chalk";
 
 
 function renderAppWith(file: string, watch: boolean) {
-  return render(<App file={file} watch={watch}/>);
+  return render(<App context={ { file, watch } }/>);
 }
 
 describe('App should', () => {
