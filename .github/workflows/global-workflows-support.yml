@@ -1,0 +1,27 @@
+name: Global workflow to rule them all
+
+on:
+  push:
+      branches: [ master ]
+
+jobs:
+
+  replicate_changes:
+
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Replicating global workflows
+        uses: derberg/global-workflows-support@v0.0.8
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          # this action will not replicate to other repos workflows listed here
+          files_to_ignore: global-workflows-support.yml
+          # workflows will not be replicated to repos listed here
+          repos_to_ignore: shape-up-process,marketing,event-gateway
+          committer_username: asyncapi-bot
+          committer_email: info@asyncapi.io
+          # it is both, commit message and PR title
+          commit_message: "ci: update global workflows"
