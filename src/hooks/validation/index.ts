@@ -1,8 +1,8 @@
-import { UseValidate } from "./UseValidate";
+import { useValidate } from "./hook";
 
 import { SpecificationFile } from "./models";
 
 export {
-  UseValidate,
+  useValidate,
   SpecificationFile,
 }

@@ -21,17 +21,4 @@ export class ValidationService {
         });
     }));
   }
-
-
-//   constructor(props) {
-//     super(props);
-//   }
-//
-// }
-// const useValidate = (myService = new service()) => {
-//   const [message, setMessage] = React.useState('')
-//   setMessage(myService.sayHello())
-//   return {
-//     validate: () => {myService.sayHello()}
-//   }
 }
