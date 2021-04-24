@@ -5,7 +5,8 @@
 		"emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
 		"jsx": "react",
 		"esModuleInterop": true,
-		"outDir": "dist"
+		"outDir": "dist",
+		"sourceMap": true
 	},
 	"include": [
       "src"
