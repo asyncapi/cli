@@ -9,7 +9,7 @@ export class SpecificationFile {
     this.name = path.join(localDirectory, name);
   }
 
-  isNotAFile(): boolean {
+  isNotValid(): boolean {
     return !fs.existsSync(this.name) || !fs.lstatSync(this.name).isFile();
   }
 
