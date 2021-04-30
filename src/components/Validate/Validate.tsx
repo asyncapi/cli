@@ -7,7 +7,6 @@ interface ValidateInput {
 }
 
 const Validate: FC<ValidateInput> = ({ options }) => {
-	console.log(options)
 
 	// const [result, setResult] = useState();
 	//

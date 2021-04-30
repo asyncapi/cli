@@ -13,7 +13,6 @@
 		"build": "tsc",
 		"start": "npm run build && node dist/cli.js",
 		"pretest": "npm run build",
-		"algo": "dist/cli.js validate -f test/specification.yml",
 		"test": "jest"
 	},
 	"files": [

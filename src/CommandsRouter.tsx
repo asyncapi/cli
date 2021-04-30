@@ -1,16 +1,16 @@
 import React from "react";
 import Validate from "./components/Validate/Validate";
 import Help from "./components/Help/Help";
-import { CliInput, HelpMessage, Options } from "./CliModels";
+import { CliInput } from "./CliModels";
 
 
-const commandsDictionary = (options: Options, helpMessage: HelpMessage) => ({
-  ['help']: <Help message={helpMessage}/>,
-  ['validate']: <Validate options={options}/>,
+const commandsDictionary = (cliInput: CliInput) => ({
+  ['help']: <Help message={cliInput.helpMessage}/>,
+  ['validate']: <Validate options={cliInput.options}/>,
 });
 
 export const commandsRouter = (cli: any) => {
   const cliInput = CliInput.createFromMeow(cli);
   // @ts-ignore
-  return commandsDictionary(cliInput.options, cliInput.helpMessage)[cliInput.command];
+  return commandsDictionary(cliInput)[cliInput.command];
 };
