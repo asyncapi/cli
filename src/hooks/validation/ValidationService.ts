@@ -8,17 +8,12 @@ export class ValidationService {
 
   constructor() {}
 
-  execute(file: SpecificationFile): ValidationResponse {
-    return new Promise(((resolve, reject) => {
-      parser.parse(file.read())
-        .then(() => resolve('The definition file is correct!!'))
-        .catch((err: any) => {
-          if (err.detail) {
-            reject(err.detail);
-          } else {
-            reject(err.validationErrors.map((e: any) => `${e.title} ${e.location.startLine}:${e.location.startColumn}`));
-          }
-        });
-    }));
+  async execute(file: SpecificationFile): Promise<ValidationResponse> {
+    try {
+      await parser.parse(file.read());
+      return Promise.resolve(ValidationResponse.createSuccess());
+    } catch (err) {
+      return Promise.resolve(ValidationResponse.createError(err));
+    }
   }
 }

@@ -33,7 +33,8 @@ export class CliInput {
 
   static createFromMeow(meowOutput: any): CliInput {
     const [command] = meowOutput.input;
-    const { context, watch, help } = meowOutput.flags;
-    return new CliInput(command, { context, watch }, help);
+    const help = meowOutput.help;
+    const { context, watch } = meowOutput.flags;
+    return new CliInput(command || 'help', { context, watch }, help);
   }
 }

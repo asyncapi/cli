@@ -1,31 +1,46 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Newline, Text } from 'ink';
 import { Options } from "../../CliModels";
+import { SpecificationFile, useValidate } from "../../hooks/validation";
+import { UseValidateResponse } from "../../hooks/validation/models";
 
 interface ValidateInput {
 	options: Options,
 }
 
 const Validate: FC<ValidateInput> = ({ options }) => {
+	const validationInput = {
+		file: new SpecificationFile(options.context),
+		watchMode: options.watch,
+	};
 
-	// const [result, setResult] = useState();
-	//
-	// const validationInput = {
-	// 	file: new SpecificationFile(file),
-	// 	watchMode: watch,
-	// };
-	//
-	// useValidate().validate(validationInput).then(setResult);
+	const [result, setResult] = useState<UseValidateResponse>();
+
+	const renderResultFromValidationResponse = (response: UseValidateResponse | undefined) => {
+		if (response) {
+			if (response.success) {
+				return (
+					<Text color={"green"}>{response.message}</Text>
+				);
+			} else {
+				return response.errors.map((error, index) => (
+					<Text key={index}>
+						<Text color={"red"}>{error}</Text>
+						<Newline/>
+					</Text>
+				));
+			}
+		}
+		return null;
+	}
+
+	useEffect(() => {
+		useValidate().validate(validationInput).then(setResult);
+	}, []);
 
 	return (
-		<Text>
-			<Text>Validation Component</Text>
-			<Newline/>
-			<Text>With context {options.context}</Text>
-			<Newline/>
-			<Text>With watchMode {options.watch.toString()}</Text>
-		</Text>
-	);
+		<Text>{renderResultFromValidationResponse(result)}</Text>
+	)
 }
 
 module.exports = Validate;

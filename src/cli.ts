@@ -11,13 +11,12 @@ const cli = meow(`
 	  
 	Commands
 		validate 
-		Options
-			-c --context  Your AsyncAPI specification
-			-w --watch Enable watchMode
+			Options
+				-c --context  Your AsyncAPI specification
+				-w --watch Enable watchMode
 
 	Examples
-	  $ asyncapi --context=specification.yml
-	  Hello, Jane
+	  $ asyncapi validate --context=specification.yml
 `, {
 	flags: {
 		context: {

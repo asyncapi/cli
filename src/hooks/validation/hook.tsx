@@ -1,29 +1,27 @@
 import { container } from "tsyringe";
 
-import { ValidationInput } from "./models";
+import { UseValidateResponse, ValidationInput, ValidationResponse } from "./models";
 import { ValidationService } from "./ValidationService";
 
 export function useValidate() {
   const validationService: ValidationService = container.resolve(ValidationService);
 
-  // @ts-ignore
-  const withWatchModeOn = () => {
-
-  };
-
   return {
     // @ts-ignore
-    validate: async function ({ file, watchMode }: ValidationInput): Promise<any> {
+    validate: async function ({ file, watchMode }: ValidationInput): Promise<UseValidateResponse> {
       try {
         if (file.isNotValid()) {
-          return Promise.resolve(`File: ${file.getFileName()} - does not exists or is not a file!`);
+          return Promise.resolve(UseValidateResponse.withError(`File: ${file.getFileName()} - does not exists or is not a file!`));
         }
-
-        return Promise.resolve(await validationService.execute(file));
+        const response: ValidationResponse = await validationService.execute(file);
+        if (response.success) {
+          return Promise.resolve(UseValidateResponse.withMessage(`File: ${file.getFileName()} - was validated successfully!`));
+        } else {
+          return Promise.resolve(UseValidateResponse.withErrors(response.errors));
+        }
       } catch (error) {
-        return Promise.resolve(error);
+        return Promise.resolve(UseValidateResponse.withError(error.message));
       }
     }
   }
 }
-
