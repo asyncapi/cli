@@ -1,7 +1,7 @@
 import { injectable } from "tsyringe";
 import { SpecificationFile, ValidationResponse } from "./models";
 
-const parser = require('@asyncapi/parser');
+import parser from "@asyncapi/parser";
 
 @injectable()
 export class ValidationService {
