@@ -3,15 +3,6 @@ import { SpecificationFile, ValidationInput, ValidationResponse } from "./models
 import { ValidationService } from "./ValidationService";
 import { useValidate } from "./hook";
 
-
-// function makeValidationServiceReturn(response: ValidationResponse) {
-//   container.registerInstance(ValidationService, {
-//     execute: function () {
-//       return Promise.resolve(response);
-//     }
-//   });
-// }
-
 function ValidationServiceMock() {
   return {
     makeReturn: function (response: ValidationResponse) {
