@@ -24,11 +24,12 @@ describe('Validate component should', () => {
       watch: false,
     };
 
-    makeUseValidateReturn(UseValidateResponse.withMessage('All good!'));
+    const message = 'All good!';
+    makeUseValidateReturn(UseValidateResponse.withMessage(message));
     const { lastFrame } = renderValidationComponentWith(options);
 
     setTimeout(() => {
-      expect(lastFrame()).toBe(`${chalk.green('All good!')}`);
+      expect(lastFrame()).toBe(`${chalk.green(message)}`);
       done();
     }, 200);
   });
@@ -39,11 +40,12 @@ describe('Validate component should', () => {
       watch: false,
     };
 
-    makeUseValidateReturn(UseValidateResponse.withError('File not found!'));
+    const errorMessage = 'File not found!';
+    makeUseValidateReturn(UseValidateResponse.withError(errorMessage));
     const { lastFrame } = renderValidationComponentWith(options);
 
     setTimeout(() => {
-      expect(lastFrame()).toBe(`${chalk.red('File not found!')}\n`);
+      expect(lastFrame()).toBe(`${chalk.red(errorMessage)}\n`);
       done();
     }, 200);
   });
@@ -54,11 +56,12 @@ describe('Validate component should', () => {
       watch: false,
     };
 
-    makeUseValidateReturn(UseValidateResponse.withErrors(['Error1', 'Error2']));
+    const errorMessages = ['Error1', 'Error2'];
+    makeUseValidateReturn(UseValidateResponse.withErrors(errorMessages));
     const { lastFrame } = renderValidationComponentWith(options);
 
     setTimeout(() => {
-      expect(lastFrame()).toBe(`${chalk.red('Error1')}\n${chalk.red('Error2')}\n`);
+      expect(lastFrame()).toBe(`${chalk.red(errorMessages[0])}\n${chalk.red(errorMessages[1])}\n`);
       done();
     }, 200);
   });
