@@ -13,8 +13,9 @@
 		"build": "tsc",
 		"start": "npm run build && node dist/cli.js",
 		"pretest": "npm run build",
+		"pretest:coverage": "npm run build",
 		"test": "jest",
-		"personal": "npm run build && node dist/cli.js validate --context test/specification.yml"
+		"test:coverage": "jest --verbose --coverage"
 	},
 	"files": [
 		"dist/cli.js"
