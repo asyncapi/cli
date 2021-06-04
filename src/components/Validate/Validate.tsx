@@ -43,5 +43,4 @@ const Validate: FC<ValidateInput> = ({ options }) => {
 	)
 }
 
-module.exports = Validate;
 export default Validate;
