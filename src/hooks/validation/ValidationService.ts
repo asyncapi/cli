@@ -5,9 +5,6 @@ import parser from "@asyncapi/parser";
 
 @injectable()
 export class ValidationService {
-
-  constructor() {}
-
   async execute(file: SpecificationFile): Promise<ValidationResponse> {
     try {
       await parser.parse(file.read());
