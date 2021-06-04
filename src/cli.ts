@@ -7,7 +7,7 @@ import { commandsRouter } from "./CommandsRouter";
 
 const cli = meow(`
 	Usage
-	  $ asyncapi
+	  $ asyncapi command options
 	  
 	Commands
 		validate 
