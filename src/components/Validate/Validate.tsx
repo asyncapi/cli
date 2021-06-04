@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import { Newline, Text } from 'ink';
 import { Options } from "../../CliModels";
 import { SpecificationFile, useValidate } from "../../hooks/validation";
@@ -8,7 +8,7 @@ interface ValidateInput {
 	options: Options,
 }
 
-const Validate: FC<ValidateInput> = ({ options }) => {
+const Validate: FunctionComponent<ValidateInput> = ({ options }) => {
 	const validationInput = {
 		file: new SpecificationFile(options.context),
 		watchMode: options.watch,
