@@ -15,7 +15,11 @@
 		"pretest": "npm run build",
 		"pretest:coverage": "npm run build",
 		"test": "jest",
-		"test:coverage": "jest --verbose --coverage"
+		"test:coverage": "jest --verbose --coverage",
+		"lint": "echo 'To Be Implemented'",
+		"generate:assets": "echo 'Nothing generated'",
+		"bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
+		"release": "semantic-release"
 	},
 	"files": [
 		"dist/cli.js"
