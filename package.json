@@ -7,7 +7,7 @@
 		"@asyncapi/cli": "dist/cli.js"
 	},
 	"engines": {
-		"node": ">=10"
+		"node": ">12.16"
 	},
 	"scripts": {
 		"build": "tsc",
