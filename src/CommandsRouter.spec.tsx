@@ -22,7 +22,7 @@ describe('CommandsRouter should', () => {
     const file = new SpecificationFile('test/specification.yml');
 
     setTimeout(() => {
-      expect(lastFrame()).toBe(chalk.green(`File: ${file.getFileName()} - was validated successfully!`));
+      expect(lastFrame()).toBe(chalk.green(`File: ${file.getFileName()} successfully validated!`));
       done();
     }, 200);
   });

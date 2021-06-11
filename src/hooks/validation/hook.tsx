@@ -11,11 +11,11 @@ export function useValidate() {
     validate: async function ({ file, watchMode }: ValidationInput): Promise<UseValidateResponse> {
       try {
         if (file.isNotValid()) {
-          return Promise.resolve(UseValidateResponse.withError(`File: ${file.getFileName()} - does not exists or is not a file!`));
+          return Promise.resolve(UseValidateResponse.withError(`File: ${file.getFileName()} does not exists or is not a file!`));
         }
         const response: ValidationResponse = await validationService.execute(file);
         if (response.success) {
-          return Promise.resolve(UseValidateResponse.withMessage(`File: ${file.getFileName()} - was validated successfully!`));
+          return Promise.resolve(UseValidateResponse.withMessage(`File: ${file.getFileName()} successfully validated!`));
         } else {
           return Promise.resolve(UseValidateResponse.withErrors(response.errors));
         }
