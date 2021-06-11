@@ -11,22 +11,24 @@ Feel free to jump into the issues/PRs section and give your feedback on what we 
 ## Install
 
 ```bash
-$ npm install --global cli
+$ npm install --global @asyncapi/cli
 ```
 
 
 ## CLI
 
 ```
-$ cli --help
+$ asyncapi --help
 
-  Usage
-    $ cli
+Usage
+  $ asyncapi command options
+  
+Commands
+  validate 
+   Options
+     -c --context  Your AsyncAPI specification
+     -w --watch Enable watchMode
 
-  Options
-    --name  Your name
-
-  Examples
-    $ cli --name=Jane
-    Hello, Jane
+Examples
+  $ asyncapi validate --context=specification.yml
 ```
