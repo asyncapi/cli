@@ -8,18 +8,6 @@ function renderAux(cli: any) {
 }
 
 describe('CommandsRouter should', () => {
-  test('route to help component when no command passed', () => {
-    const { lastFrame } = renderAux({
-      input: [],
-      help: 'Help Message',
-      flags: {
-        context: '',
-        watch: false,
-      },
-    });
-    expect(lastFrame()).toBe('Help Message');
-  });
-
   test('route to validate component when validate command passed', (done) => {
     const { lastFrame } = renderAux({
       input: ['validate'],
