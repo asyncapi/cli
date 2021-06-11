@@ -21,7 +21,7 @@
 		"dist/cli.js"
 	],
 	"dependencies": {
-		"@asyncapi/parser": "^1.4.5",
+		"@asyncapi/parser": "^1.5.0",
 		"commander": "^7.1.0",
 		"ink": "^3.0.8",
 		"meow": "^9.0.0",
