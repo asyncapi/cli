@@ -2,10 +2,10 @@
   <br>
   <a href="https://www.asyncapi.org"><img src="https://github.com/asyncapi/parser-nodejs/raw/master/assets/logo.png" alt="AsyncAPI logo" width="200"></a>
   <br>
-  AsyncAPI Generator
+  AsyncAPI CLI
 </h5>
 <p align="center">
-  <em>Use your AsyncAPI definition to generate literally anything. Markdown documentation, Node.js code, HTML documentation, anything!</em>
+  <em>CLI to work with your AsyncAPI files. Currently supports validation, but it is under development for more features.</em>
 </p>
 
 ### Install
