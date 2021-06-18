@@ -12,7 +12,7 @@ export class SpecificationFile implements Specification {
 
   constructor(name: string) {
     const localDirectory = process.cwd();
-    this.name = path.join(localDirectory, name);
+    this.name = path.resolve(localDirectory, name);
   }
 
   isNotValid(): boolean {
