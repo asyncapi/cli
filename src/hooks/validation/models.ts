@@ -20,7 +20,7 @@ export class SpecificationFile implements Specification {
   }
 
   read(): string {
-    return fs.readFileSync(this.name).toString();
+    return fs.readFileSync(this.name, 'utf8');
   }
 
   getSpecificationName(): string {
