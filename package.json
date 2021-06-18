@@ -22,7 +22,7 @@
 		"prepublishOnly": "npm run build"
 	},
 	"files": [
-		"dist/cli.js"
+		"dist"
 	],
 	"dependencies": {
 		"@asyncapi/parser": "^1.5.0",
