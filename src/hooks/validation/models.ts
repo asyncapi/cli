@@ -53,7 +53,10 @@ export class ValidationResponse {
 
   public static createError(err: any): ValidationResponse {
     const errorsInfo: Array<String> = [];
-    if (err.detail) {
+
+    if (err.type === 'missing-asyncapi-field') {
+      errorsInfo.push(err.title);
+    } else if (err.detail) {
       errorsInfo.push(err.detail);
     } else {
       err.validationErrors.forEach((e: any) =>
