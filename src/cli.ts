@@ -13,7 +13,7 @@ const cli = meow(`
 		validate 
 			Options
 				-c --context  Your AsyncAPI specification
-				-w --watch Enable watchMode
+				-w --watch Enable watchMode (not implemented yet)
 
 	Examples
 	  $ asyncapi validate --context=specification.yml

@@ -56,9 +56,11 @@ export class ValidationResponse {
 
     if (err.type === 'missing-asyncapi-field') {
       errorsInfo.push(err.title);
-    } else if (err.detail) {
+    }
+    if (err.detail) {
       errorsInfo.push(err.detail);
-    } else {
+    }
+    if (err.validationErrors) {
       err.validationErrors.forEach((e: any) =>
         errorsInfo.push(`${e.title} ${e.location.startLine}:${e.location.startColumn}`)
       );
