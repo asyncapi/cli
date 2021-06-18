@@ -18,7 +18,8 @@
 		"lint": "echo 'Not Implemented Yet'",
 		"generate:assets": "echo 'Nothing Generated'",
 		"bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
-		"release": "semantic-release"
+		"release": "semantic-release",
+		"prepublishOnly": "npm run build"
 	},
 	"files": [
 		"dist/cli.js"
