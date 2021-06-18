@@ -1,5 +1,4 @@
 
-// ToDo: Change name
 export type Command = string;
 export type HelpMessage = string;
 

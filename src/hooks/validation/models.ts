@@ -1,7 +1,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-export class SpecificationFile {
+interface Specification {
+  isNotValid(): boolean;
+  read(): string;
+  getSpecificationName(): string;
+}
+
+export class SpecificationFile implements Specification {
   private readonly name: string;
 
   constructor(name: string) {
@@ -17,7 +23,7 @@ export class SpecificationFile {
     return fs.readFileSync(this.name).toString();
   }
 
-  getFileName(): string {
+  getSpecificationName(): string {
     return this.name;
   }
 }

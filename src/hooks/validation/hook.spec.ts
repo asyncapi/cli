@@ -41,7 +41,7 @@ describe('UseValidate should', () => {
 
     expect(useValidateResponse.success).toBeFalsy();
     expect(useValidateResponse.message).toEqual('');
-    expect(useValidateResponse.errors[0]).toBe(`File: ${invalidFileValidationInput.file.getFileName()} does not exists or is not a file!`)
+    expect(useValidateResponse.errors[0]).toBe(`File: ${invalidFileValidationInput.file.getSpecificationName()} does not exists or is not a file!`)
   });
 
   test('return success when the validation is correct', async () => {
@@ -49,7 +49,7 @@ describe('UseValidate should', () => {
 
     const useValidateResponse = await useValidate().validate(fileThatExistsValidationInput);
     expect(useValidateResponse.success).toBeTruthy();
-    expect(useValidateResponse.message).toEqual(`File: ${fileThatExistsValidationInput.file.getFileName()} successfully validated!`);
+    expect(useValidateResponse.message).toEqual(`File: ${fileThatExistsValidationInput.file.getSpecificationName()} successfully validated!`);
   });
 
   test('return validation service errors when the validation has failed', async () => {
