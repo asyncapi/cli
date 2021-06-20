@@ -27,7 +27,7 @@ const cli = meow(`
 		context: {
 			alias: 'c',
 			type: 'string',
-			isRequired: true
+			isRequired: false
 		},
 		watch: {
 			alias: 'w',
