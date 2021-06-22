@@ -1,7 +1,8 @@
 import React, { FunctionComponent } from 'react';
 import { Text } from 'ink';
 import { Options } from '../../CliModels';
-import { useContextFile } from '../../hooks/context/hook';
+import List from './list';
+import Current from './current';
 
 interface ContextInput {
 	options: Options,
@@ -10,22 +11,17 @@ interface ContextInput {
 
 const Context: FunctionComponent<ContextInput> = ({ args }) => {
 	let [subcommand] = args;
-	let { context, setContextFile } = useContextFile();
-
 
 	switch (subcommand) {
 		case 'current':
-			return <Text>Fetching current set context</Text>
+			return <Current />
 		case 'list':
-			console.log(context);
-			return <Text></Text>
-		case 'removing':
+			return <List />
+		case 'remove':
 			return <Text>Removing the current set context</Text>
 		case 'use':
 			return <Text>Using a context</Text>
 		case 'create':
-			if (args[1] && args[2]) setContextFile(args[1], args[2])
-			console.log(context);
 			return <Text></Text>
 		default:
 			return <Text>Unsupported command</Text>
