@@ -15,10 +15,11 @@ const cli = meow(`
 				-c --context  Your AsyncAPI specification
 				-w --watch Enable watchMode (not implemented yet)
 		context
-			current                show the current set context
-			list     			   list all the contexts
-			remove  			   remove the current set context 
-			use <fileName|URL>     set/update context 
+			current  show the current set context
+			list  list all the contexts
+			remove  remove the current set context 
+			set <context-name> <filePath | URL>  Set/update contexts
+			use <fileName|URL>  set/update context 
 
 	Examples
 	  $ asyncapi validate --context=specification.yml
