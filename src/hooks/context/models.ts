@@ -1,6 +1,7 @@
 import * as fs from 'fs';
-import * as os from 'os';
 import * as path from 'path';
+import { SpecificationFile } from '../validation';
+import { CONTEXTFILE_PATH, ALLOWED_SPECFILE_NAME } from './constants';
 
 
 export interface Contexts {
@@ -30,21 +31,38 @@ export class ContextFile {
 		this._current = key;
 	}
 
-	addContext(key: string, pathToSpecOrURL: string) {
-		this._contexts[key] = pathToSpecOrURL;
+	addContext(key: string, specFile: SpecificationFile) {
+		this._contexts[key] = specFile.getSpecificationName();
 	}
 
 	static save(contextFile: ContextFile) {
-		const contextFilePath = path.resolve(os.homedir(), '.asyncapi');
-		fs.writeFileSync(contextFilePath, JSON.stringify(contextFile), { encoding: 'utf-8' });
+		fs.writeFileSync(CONTEXTFILE_PATH, JSON.stringify(contextFile), { encoding: 'utf-8' });
 	}
 
 	static load(): ContextFile {
-		const contextFilePath = path.resolve(os.homedir(), '.asyncapi');
-		if (!fs.existsSync(contextFilePath)) throw new Error('.asyncapi file not present');
+		if (!fs.existsSync(CONTEXTFILE_PATH)) throw new Error('.asyncapi file not present');
 
-		const { _contexts, _current }: ContextContent = JSON.parse(fs.readFileSync(contextFilePath, 'utf-8')) as ContextContent;
+		const { _contexts, _current }: ContextContent = JSON.parse(fs.readFileSync(CONTEXTFILE_PATH, 'utf-8')) as ContextContent;
 
 		return new ContextFile(_current, _contexts);
 	}
+
+	static loadSpecFile() {
+		let specFilePath = autoDetectSpecFile();
+		if (specFilePath) {
+			return new SpecificationFile(specFilePath);
+		}
+
+		try {
+			let contextFile = ContextFile.load();
+			//@ts-ignore
+			return new SpecificationFile(contextFile.contexts[contextFile.current]);
+		} catch (error) {
+			throw error;
+		}
+	}
+}
+
+export const autoDetectSpecFile = () => {
+	return ALLOWED_SPECFILE_NAME.find(specName => fs.existsSync(path.resolve(process.cwd(), specName)));
 }

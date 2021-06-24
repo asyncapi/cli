@@ -1,4 +1,5 @@
 import { injectable } from 'tsyringe';
+import { SpecificationFile } from '../validation';
 import { ContextFile } from './models';
 
 @injectable()
@@ -11,4 +12,14 @@ export class ContextService {
 			return new ContextFile('', {});
 		}
 	}
+
+	loadSpecFile(): SpecificationFile {
+		try {
+			let specFile: SpecificationFile = ContextFile.loadSpecFile();
+			return specFile
+		} catch (error) {
+			throw error
+		}
+	}
+
 }
