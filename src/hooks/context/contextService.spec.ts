@@ -1,4 +1,4 @@
-import { ContextService } from './ContextService';
+import { ContextService } from './contextService';
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs';

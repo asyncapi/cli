@@ -1,6 +1,6 @@
 import { container } from 'tsyringe';
 
-import { ContextService } from './ContextService';
+import { ContextService } from './contextService';
 import { ContextFile } from './models';
 
 export function useContextFile() {
