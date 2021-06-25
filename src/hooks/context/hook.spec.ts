@@ -1,22 +1,57 @@
-import {useContextFile} from './hook';
-import * as os from 'os';
+import { useContextFile } from './hooks';
+import { CONTEXTFILE_PATH } from './constants';
+import { Context } from './models';
 import * as fs from 'fs';
-import * as path from 'path';
-import { ContextFile } from './models';
+import { SpecificationFile } from '../validation';
+import { ContextFileNotFoundError } from './errors';
 
-const contextFilePath = path.resolve(os.homedir(), '.asyncapi');
+let context: Context = {
+	current: 'home',
+	store: {
+		home: '/home/projects/asyncapi.yml',
+	}
+}
 
-describe('useContextFile should', () => {
+let deleteContextFile = () => {
+	if (fs.existsSync(CONTEXTFILE_PATH)) fs.unlinkSync(CONTEXTFILE_PATH);
+}
 
-	beforeAll(() => {
-		fs.writeFileSync(contextFilePath, JSON.stringify({_current: 'home', _contexts: {
-			home: '/path',
-			notHome: '/some/path'
-		}}), {encoding: 'utf-8'});
+let createDummyContext = () => {
+
+	fs.writeFileSync(CONTEXTFILE_PATH, JSON.stringify(context), { encoding: 'utf-8' });
+}
+
+describe('useContextFile().list() ', () => {
+
+	test('should return error', () => {
+		deleteContextFile();
+		let { context, error } = useContextFile().list();
+		expect(context).toBeUndefined();
+		expect(error instanceof Error).toBeTruthy();
 	})
 
-	test('return contextFileInstance', () => {
-		let contextFile: ContextFile = useContextFile().list();
-		expect(contextFile.current).toMatch('home');
+	test('should return context', () => {
+		createDummyContext();
+		let {context, error} = useContextFile().list();
+		expect(error).toBeUndefined();
+		expect(context).toEqual(context);
 	})
 })
+
+describe('useContextFile().addContext() ', () => {
+	test('should throw error', () => {
+		deleteContextFile();
+
+		let {context, error} = useContextFile().addContext('program', new SpecificationFile('asyncapi.yml'))
+		expect(context).toBeUndefined();
+		expect(error instanceof ContextFileNotFoundError).toBeTruthy();
+	})
+
+	test('should return context ', () => {
+		createDummyContext();
+		let {context,error} = useContextFile().addContext('program', new SpecificationFile('asyncapi.yml'));
+		expect(context).toBeTruthy();
+		expect(error).toBeUndefined();
+	})
+})
+

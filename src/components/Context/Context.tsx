@@ -1,8 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { Text } from 'ink';
 import { Options } from '../../CliModels';
-import List from './list';
-import Current from './current';
 
 interface ContextInput {
 	options: Options,
@@ -14,9 +12,9 @@ const Context: FunctionComponent<ContextInput> = ({ args }) => {
 
 	switch (subcommand) {
 		case 'current':
-			return <Current />
+			return <Text></Text>
 		case 'list':
-			return <List />
+			return <Text></Text>
 		case 'remove':
 			return <Text>Removing the current set context</Text>
 		case 'use':
@@ -24,7 +22,7 @@ const Context: FunctionComponent<ContextInput> = ({ args }) => {
 		case 'create':
 			return <Text></Text>
 		default:
-			return <Text>Unsupported command</Text>
+			return <Text color="red">Unsupported command</Text>
 	}
 }
 
