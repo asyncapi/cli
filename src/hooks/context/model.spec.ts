@@ -1,13 +1,14 @@
 import { ContextFile, Context } from './models';
 import { CONTEXTFILE_PATH } from './constants';
 import * as fs from 'fs';
-import { ContextFileNotFoundError } from './errors';
+import { ContextFileNotFoundError, ContextNotFoundError } from './errors';
 import { SpecificationFile } from '../validation';
 
 let context: Context = {
 	current: 'home',
 	store: {
 		home: '/home/projects/asyncapi.yml',
+		code: '/home/projects/asyncapi.yaml'
 	}
 }
 
@@ -70,4 +71,42 @@ describe('ContextFile.addContext() ', () => {
 			
 		}
 	})
+})
+
+describe('ContextFile.updateCurrent ', () => {
+	test("throw error that key does not exist", () => {
+		createDummyContext();
+
+		try {
+			//@ts-ignore
+			let ctx = ContextFile.updateContext('proj');
+		} catch (error) {
+			expect(error instanceof ContextNotFoundError).toBeTruthy();
+		}
+	})
+
+	test("should update the current", () => {
+		createDummyContext();
+		try {
+			let ctx = ContextFile.updateContext('code');
+			expect(ctx.current).toMatch('code');
+		} catch (error) {
+			
+		}
+	})
+})
+
+describe('Contextfile ', () => {
+	it("save the context object", () => {
+		let context: Context = {
+			current: 'home',
+			store: {
+				home: 'home/asynapi.yml'
+			}
+		};
+
+		ContextFile.save(context);
+		let loadedContext: Context = ContextFile.loadContextFile();
+		expect(loadedContext).toEqual(context);
+	});
 })

@@ -9,3 +9,14 @@ export class ContextFileNotFoundError extends Error {
 		return this._message;
 	}
 }
+
+export class ContextNotFoundError extends Error {
+	private readonly _message = "Context not found";
+	constructor(){
+		super();
+	}
+
+	get message(){
+		return this._message;
+	}
+}
