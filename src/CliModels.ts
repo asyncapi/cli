@@ -44,3 +44,28 @@ export class CliInput {
     return new CliInput(command || 'help', { context, watch }, help, args);
   }
 }
+
+export class Router {
+  command: string | undefined;
+  arguments: string[];
+  options: any;
+
+  constructor(inputs: string[], flags: any){
+    let [command, ...args] = inputs;
+    this.command = command;
+    this.arguments = args;
+    this.options = flags;
+  }
+
+  static createFromMeow(meowOutput: any): Router {
+    let router = new Router(meowOutput.input, meowOutput.flags);
+
+    return router;
+  }
+}
+
+export const createCommandDictionary = (router: Router, callback: any) => {
+  let commandRouter = new Router(router.arguments, router.options);
+  //@ts-ignore
+  return callback(commandRouter)[router.command];
+}
