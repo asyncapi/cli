@@ -1,6 +1,7 @@
 import { ContextFile, Context } from './models';
 import { CONTEXTFILE_PATH } from './constants';
 import * as fs from 'fs';
+import * as path from 'path';
 import { ContextFileNotFoundError, ContextNotFoundError } from './errors';
 import { SpecificationFile } from '../validation';
 
@@ -109,4 +110,24 @@ describe('Contextfile ', () => {
 		let loadedContext: Context = ContextFile.loadContextFile();
 		expect(loadedContext).toEqual(context);
 	});
+})
+
+describe('ContextFile.loadSpecFile', () => {
+	beforeAll(() => {
+		fs.writeFileSync(path.resolve(process.cwd(), 'asyncapi.yml'), '');
+	})
+
+	afterAll(() => {
+		fs.unlinkSync(path.resolve(process.cwd(), 'asyncapi.yml'));
+	})
+	test("auto detect spec file", () => {
+		try {
+			let specFile = ContextFile.loadSpecFile();
+			expect(specFile instanceof SpecificationFile).toBeTruthy();
+		} catch (error) {
+			
+		}
+	})
+
+	test.todo("should return error")
 })

@@ -1,5 +1,6 @@
 import { CONTEXTFILE_PATH } from './constants';
 import * as fs from 'fs';
+import * as path from 'path';
 import { ContextFileNotFoundError, ContextNotFoundError } from './errors';
 import { SpecificationFile } from '../validation';
 
@@ -22,7 +23,24 @@ export class ContextFile {
 	}
 
 	static loadSpecFile() {
+		//autodetect spec file or load from context 
+		const allowedSpecFileNames = ['asyncapi.yml', 'asyncapi.yaml', 'asyncapi.json'];
+		let autoDetectedSpecFile = allowedSpecFileNames.find(specName => fs.existsSync(path.resolve(process.cwd(), specName)));
+		if(autoDetectedSpecFile){
+			return new SpecificationFile(autoDetectedSpecFile);
+		}
 
+		try {
+			let context: Context = ContextFile.loadContextFile();
+			if(context.current && context.store[context.current]){
+				//@ts-ignore
+				return new SpecificationFile(context.store[context.current]);
+			}
+
+			throw new Error("No context found");
+		} catch (error) {
+			throw error;
+		}
 	}
 
 	static addContext(key: string, specFile: SpecificationFile): Context {
