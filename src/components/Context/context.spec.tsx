@@ -69,7 +69,7 @@ describe('SetContext ', () => {
 	test('Should render error message is key is not in store', () => {
 		createDummyContext();
 		let { lastFrame } = render(<SetCurrent args={['name']} options={{}} />)
-		expect(lastFrame()).toMatch('Key not found');
+		expect(lastFrame()).toMatch('The context you are trying to use is not present');
 	});
 
 	test('Should render the update context', () => {
