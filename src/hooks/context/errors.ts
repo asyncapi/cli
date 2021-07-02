@@ -20,7 +20,7 @@ export class KeyNotFoundError extends Error {
 	}
 }
 
-export class DeletingCurrentContext extends Error {
+export class DeletingCurrentContextError extends Error {
 	constructor() {
 		super();
 		this.message = "Deleting Current Context";

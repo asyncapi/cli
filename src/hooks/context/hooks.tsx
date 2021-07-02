@@ -55,6 +55,17 @@ export const useContextFile = () => {
 			} catch (error) {
 				return { undefined, error };
 			}
+		},
+		deleteContext: (key: string) => {
+			try {
+				let ctx = contextService.loadContextFile();
+				let updatedContext = contextService.deleteContext(ctx, key);
+				contextService.save(updatedContext);
+				const response = "context deleted successfully";
+				return { response }
+			} catch (error) {
+				return { undefined, error };
+			}
 		}
 	}
 }

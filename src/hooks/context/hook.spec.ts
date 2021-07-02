@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { Context } from './models';
 import { CONTEXTFILE_PATH } from './constants';
 import { SpecificationFile } from '../validation';
-import { ContextFileNotFoundError, KeyNotFoundError } from './errors';
+import { ContextFileNotFoundError, DeletingCurrentContextError, KeyNotFoundError } from './errors';
 
 let context: Context = {
 	current: 'home',
@@ -18,7 +18,7 @@ let deleteContextFile = () => {
 }
 
 let createDummyContext = () => {
-	if(fs.existsSync(CONTEXTFILE_PATH)) fs.unlinkSync(CONTEXTFILE_PATH);
+	if (fs.existsSync(CONTEXTFILE_PATH)) fs.unlinkSync(CONTEXTFILE_PATH);
 	fs.writeFileSync(CONTEXTFILE_PATH, JSON.stringify(context), { encoding: 'utf-8' });
 }
 
@@ -90,9 +90,24 @@ describe('useContextFile.updateCurrent ', () => {
 
 	test('Should update the current context', () => {
 		createDummyContext();
-		let {response, error} = useContextFile().setCurrent('code')
+		let { response, error } = useContextFile().setCurrent('code')
 		expect(error).toBeUndefined();
 		expect(response?.key).toMatch('code');
 	});
 })
 
+describe('useContextFile().deleteContext ', () => {
+	test("return response string", () => {
+		createDummyContext();
+		let { response, error } = useContextFile().deleteContext('code');
+		expect(error).toBeUndefined();
+		expect(response).toMatch('context deleted successfully');
+	});
+
+	test('return error if deleting current context', () => {
+		createDummyContext();
+		let {response, error} = useContextFile().deleteContext('home');
+		expect(response).toBeUndefined();
+		expect(error instanceof DeletingCurrentContextError).toBeTruthy();
+	})
+})

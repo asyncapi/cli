@@ -1,6 +1,6 @@
 import React from "react";
 import Validate from "./components/Validate/Validate";
-import { ListContexts, ShowCurrentContext, SetCurrent, AddContext } from './components/Context';
+import { ListContexts, ShowCurrentContext, SetCurrent, AddContext, RemoveContext } from './components/Context';
 import { CliInput, Router, createCommandDictionary } from "./CliModels";
 
 // //@ts-ignore
@@ -19,7 +19,8 @@ export const commandsRouter = (cli: any) => {
       ['list']: <ListContexts />,
       ['current']: <ShowCurrentContext />,
       ['use']: <SetCurrent options={router.options} args={router.inputs} />,
-      ['add']: <AddContext options={router.options} args={router.inputs} />
+      ['add']: <AddContext options={router.options} args={router.inputs} />,
+      ['remove']: <RemoveContext options={router.options} args={router.inputs} />
     }))
   }))
 };

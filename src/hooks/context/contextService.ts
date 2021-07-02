@@ -4,7 +4,7 @@ import { CONTEXTFILE_PATH } from './constants';
 import * as fs from 'fs';
 import * as path from 'path';
 import { SpecificationFile } from '../validation';
-import { ContextFileNotFoundError, KeyNotFoundError, DeletingCurrentContext } from './errors';
+import { ContextFileNotFoundError, KeyNotFoundError, DeletingCurrentContextError } from './errors';
 
 @injectable()
 export class ContextService {
@@ -29,7 +29,7 @@ export class ContextService {
 	}
 
 	deleteContext(context: Context, key: string): Context {
-		if(context.current === key) throw new DeletingCurrentContext();
+		if(context.current === key) throw new DeletingCurrentContextError();
 		delete context.store[key];
 		return context;
 	}

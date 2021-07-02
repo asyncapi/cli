@@ -51,7 +51,7 @@ export const AddContext: FunctionComponent<{ options: any, args: string[] }> = (
 }
 
 export const SetCurrent: FunctionComponent<{ options: any, args: string[] }> = ({ args }) => {
-	let [key, ] = args;
+	let [key,] = args;
 
 	if (!key) {
 		return <ContextError error={new Error("missing arguments")} />
@@ -68,4 +68,20 @@ export const SetCurrent: FunctionComponent<{ options: any, args: string[] }> = (
 	}
 
 	return <></>
+}
+
+export const RemoveContext: FunctionComponent<{ options: any, args: string[] }> = ({ args }) => {
+	let [key] = args;
+
+	if (!key) {
+		return <ContextError error={new Error("missing arguments")} />
+	}
+
+	let { response, error } = useContextFile().deleteContext(key);
+
+	if (error) {
+		return <ContextError error={error} />
+	}
+
+	return <Text>{response}</Text>
 }
