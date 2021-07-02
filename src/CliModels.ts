@@ -47,13 +47,15 @@ export class CliInput {
 
 export class Router {
   command: string | undefined;
-  arguments: string[];
+  args: string[];
   options: any;
+  inputs: string[];
 
-  constructor(inputs: string[], flags: any){
+  constructor(inputs: string[], flags: any) {
+    this.inputs = inputs;
     let [command, ...args] = inputs;
     this.command = command;
-    this.arguments = args;
+    this.args = args;
     this.options = flags;
   }
 
@@ -65,7 +67,7 @@ export class Router {
 }
 
 export const createCommandDictionary = (router: Router, callback: any) => {
-  let commandRouter = new Router(router.arguments, router.options);
+  let commandRouter = new Router(router.args, router.options);
   //@ts-ignore
   return callback(commandRouter)[router.command];
 }

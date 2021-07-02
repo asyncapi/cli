@@ -1,22 +1,28 @@
 
 export class ContextFileNotFoundError extends Error {
-	private readonly _message = "Context file not found in the home directory";
 	constructor() {
 		super();
-	}
-
-	get message() {
-		return this._message;
+		this.message = "Context file not found in the home directory";
 	}
 }
 
 export class ContextNotFoundError extends Error {
-	private readonly _message = "Context not found";
-	constructor(){
+	constructor() {
 		super();
+		this.message = "Context not found";
 	}
+}
 
-	get message(){
-		return this._message;
+export class KeyNotFoundError extends Error {
+	constructor() {
+		super();
+		this.message = "Key not found";
+	}
+}
+
+export class DeletingCurrentContext extends Error {
+	constructor() {
+		super();
+		this.message = "Deleting Current Context";
 	}
 }

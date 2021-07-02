@@ -1,29 +1,71 @@
+import { useContextFile } from '../../hooks/context';
 import React, { FunctionComponent } from 'react';
-import { Text } from 'ink';
-import { Options } from '../../CliModels';
+import { Box, Text } from 'ink';
+import ContextError from './contexterror';
+import { SpecificationFile } from '../../hooks/validation';
 
-interface ContextInput {
-	options: Options,
-	args: string[]
-}
+export const ListContexts: FunctionComponent = () => {
+	let { response, error } = useContextFile().list();
 
-const Context: FunctionComponent<ContextInput> = ({ args }) => {
-	let [subcommand] = args;
-
-	switch (subcommand) {
-		case 'current':
-			return <Text></Text>
-		case 'list':
-			return <Text></Text>
-		case 'remove':
-			return <Text>Removing the current set context</Text>
-		case 'use':
-			return <Text>Using a context</Text>
-		case 'create':
-			return <Text></Text>
-		default:
-			return <Text color="red">Unsupported command</Text>
+	if (error) {
+		return <ContextError error={error} />
 	}
+
+	if (response) {
+		return <Box flexDirection="column">
+			{response.map(el => <Text key={el.key}>{el.key} : {el.path}</Text>)}
+		</Box>
+	}
+
+	return <></>
 }
 
-export default Context;
+export const ShowCurrentContext: FunctionComponent = () => {
+	let { response, error } = useContextFile().current();
+
+	if (error) {
+		return <ContextError error={error} />
+	}
+
+	if (response) {
+		return <Text>{response.key} : {response.path}</Text>
+	}
+
+	return <></>
+}
+
+export const AddContext: FunctionComponent<{ options: any, args: string[] }> = ({ args }) => {
+	let [key, path] = args
+
+	if (!key || !path) {
+		return <ContextError error={new Error("missing arguments")} />
+	}
+
+	let { response, error } = useContextFile().addContext(key, new SpecificationFile(path));
+
+	if (error) {
+		return <ContextError error={error} />
+	}
+
+	return <Text>{response}</Text>
+}
+
+export const SetCurrent: FunctionComponent<{ options: any, args: string[] }> = ({ args }) => {
+	let [key, ] = args;
+
+	if (!key) {
+		return <ContextError error={new Error("missing arguments")} />
+	}
+
+	let { response, error } = useContextFile().setCurrent(key);
+
+	if (error) {
+		return <ContextError error={error} />
+	}
+
+	if (response) {
+		return <Text>{response.key} : {response.path}</Text>
+	}
+
+	return <></>
+}
