@@ -38,7 +38,7 @@ export const useContextFile = () => {
 				if (error instanceof ContextFileNotFoundError) {
 					let context: Context = { current: '', store: {} };
 					let newContext = contextService.addContext(context, key, specFile);
-					contextService.save(newContext);
+					contextService.save(contextService.updateCurrent(newContext, key));
 					let response = "New context added";
 					return { response };
 				}

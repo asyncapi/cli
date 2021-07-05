@@ -71,6 +71,17 @@ describe('useContextFile().addContext ', () => {
 		expect(error).toBeUndefined();
 		expect(response).toMatch('New context added');
 	})
+
+	test("Auto set current when when adding context for the fist time", () => {
+		deleteContextFile();
+		let {response, error} = useContextFile().addContext('home', new SpecificationFile("asyncapi.yml"));
+		expect(error).toBeUndefined();
+		expect(response).toMatch("New context added");
+		let {response: res, error:err} = useContextFile().current();
+		expect(err).toBeUndefined();
+		expect(res?.key).toMatch("home");
+		deleteContextFile();
+	})
 });
 
 describe('useContextFile.updateCurrent ', () => {
