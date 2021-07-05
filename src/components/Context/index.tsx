@@ -1,7 +1,6 @@
 import React from 'react';
-export * from './context';
 import { CliInput } from '../../CliModels';
-import { ListContexts,AddContext,RemoveContext,ShowCurrentContext,SetCurrent } from './context';
+import { ListContexts,AddContext,RemoveContext,ShowCurrentContext,SetCurrent } from './Context';
 
 //@ts-ignore
 const commandDictionary = (cliInput: CliInput) => ({

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from 'ink-testing-library';
-import { ListContexts, ShowCurrentContext, AddContext, SetCurrent } from './context';
+import { ListContexts, ShowCurrentContext, AddContext, SetCurrent } from './Context';
 import { Context } from '../../hooks/context';
 import { CONTEXTFILE_PATH } from '../../hooks/context/constants';
 import * as fs from 'fs';
