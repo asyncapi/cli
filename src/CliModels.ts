@@ -11,13 +11,11 @@ export interface Options {
 export class CliInput {
   private readonly _command: Command
   private readonly _options: Options
-  private readonly _helpMessage: HelpMessage
   private readonly _arguments: Arguments
 
-  private constructor(command: Command, options: Options, helpMessage: HelpMessage, args: Arguments) {
+  private constructor(command: Command, options: Options,  args: Arguments) {
     this._command = command;
     this._options = options;
-    this._helpMessage = helpMessage;
     this._arguments = args;
   }
 
@@ -29,9 +27,6 @@ export class CliInput {
     return this._options;
   }
 
-  get helpMessage(): HelpMessage {
-    return this._helpMessage;
-  }
 
   get arguments(): Arguments {
     return this._arguments;
@@ -39,35 +34,13 @@ export class CliInput {
 
   static createFromMeow(meowOutput: any): CliInput {
     const [command, ...args] = meowOutput.input;
-    const help = meowOutput.help;
     const { context, watch } = meowOutput.flags;
-    return new CliInput(command || 'help', { context, watch }, help, args);
+    return new CliInput(command || 'help', { context, watch }, args);
+  }
+
+  static createSubCommand(cliInput: CliInput): CliInput {
+    const [command, ...args] = cliInput.arguments;
+    return new CliInput(command || "help", cliInput.options, args);
   }
 }
 
-export class Router {
-  command: string | undefined;
-  args: string[];
-  options: any;
-  inputs: string[];
-
-  constructor(inputs: string[], flags: any) {
-    this.inputs = inputs;
-    let [command, ...args] = inputs;
-    this.command = command;
-    this.args = args;
-    this.options = flags;
-  }
-
-  static createFromMeow(meowOutput: any): Router {
-    let router = new Router(meowOutput.input, meowOutput.flags);
-
-    return router;
-  }
-}
-
-export const createCommandDictionary = (router: Router, callback: any) => {
-  let commandRouter = new Router(router.args, router.options);
-  //@ts-ignore
-  return callback(commandRouter)[router.command];
-}
