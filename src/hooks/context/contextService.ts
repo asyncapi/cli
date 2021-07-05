@@ -1,10 +1,9 @@
 import { injectable } from 'tsyringe';
-import { Context } from './models';
+import { Context, ContextFileNotFoundError,KeyNotFoundError, DeletingCurrentContextError } from './models';
 import { CONTEXTFILE_PATH } from './constants';
 import * as fs from 'fs';
 import * as path from 'path';
 import { SpecificationFile } from '../validation';
-import { ContextFileNotFoundError, KeyNotFoundError, DeletingCurrentContextError } from './errors';
 
 @injectable()
 export class ContextService {

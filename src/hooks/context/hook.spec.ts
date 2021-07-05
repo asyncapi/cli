@@ -1,9 +1,8 @@
 import { useContextFile } from './hooks';
 import * as fs from 'fs';
-import { Context } from './models';
+import { Context, ContextFileNotFoundError, KeyNotFoundError, DeletingCurrentContextError } from './models';
 import { CONTEXTFILE_PATH } from './constants';
 import { SpecificationFile } from '../validation';
-import { ContextFileNotFoundError, DeletingCurrentContextError, KeyNotFoundError } from './errors';
 
 let context: Context = {
 	current: 'home',
@@ -74,10 +73,10 @@ describe('useContextFile().addContext ', () => {
 
 	test("Auto set current when when adding context for the fist time", () => {
 		deleteContextFile();
-		let {response, error} = useContextFile().addContext('home', new SpecificationFile("asyncapi.yml"));
+		let { response, error } = useContextFile().addContext('home', new SpecificationFile("asyncapi.yml"));
 		expect(error).toBeUndefined();
 		expect(response).toMatch("New context added");
-		let {response: res, error:err} = useContextFile().current();
+		let { response: res, error: err } = useContextFile().current();
 		expect(err).toBeUndefined();
 		expect(res?.key).toMatch("home");
 		deleteContextFile();
@@ -117,7 +116,7 @@ describe('useContextFile().deleteContext ', () => {
 
 	test('return error if deleting current context', () => {
 		createDummyContext();
-		let {response, error} = useContextFile().deleteContext('home');
+		let { response, error } = useContextFile().deleteContext('home');
 		expect(response).toBeUndefined();
 		expect(error instanceof DeletingCurrentContextError).toBeTruthy();
 	})

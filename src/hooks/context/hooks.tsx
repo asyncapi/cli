@@ -1,8 +1,7 @@
-import { Context } from './models';
+import { Context, ContextFileNotFoundError } from './models';
 import { ContextService } from './contextService';
 import { container } from 'tsyringe';
 import { SpecificationFile } from '../validation';
-import { ContextFileNotFoundError } from './errors';
 
 export const useContextFile = () => {
 	const contextService: ContextService = container.resolve(ContextService);

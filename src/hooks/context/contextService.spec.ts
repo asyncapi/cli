@@ -1,10 +1,9 @@
 import { ContextService } from './contextService';
-import { Context } from './models';
+import { Context, ContextFileNotFoundError } from './models';
 import { CONTEXTFILE_PATH } from './constants';
 import * as fs from 'fs';
 import * as path from 'path';
 import { SpecificationFile } from '../validation';
-import { ContextFileNotFoundError } from './errors';
 
 let context: Context = {
 	current: 'home',
