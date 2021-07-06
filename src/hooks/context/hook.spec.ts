@@ -1,37 +1,22 @@
 import { useContextFile } from './hooks';
-import * as fs from 'fs';
-import { Context, ContextFileNotFoundError, KeyNotFoundError, DeletingCurrentContextError } from './models';
-import { CONTEXTFILE_PATH } from './constants';
+import { ContextFileNotFoundError, KeyNotFoundError, DeletingCurrentContextError } from './models';
+import { TestingVariables } from './constants';
 import { SpecificationFile } from '../validation';
 
-let context: Context = {
-	current: 'home',
-	store: {
-		home: '/home/projects/asyncapi.yml',
-		code: '/home/projects/asyncapi.yaml'
-	}
-}
+let testingVariables = new TestingVariables();
 
-let deleteContextFile = () => {
-	if (fs.existsSync(CONTEXTFILE_PATH)) fs.unlinkSync(CONTEXTFILE_PATH);
-}
-
-let createDummyContext = () => {
-	if (fs.existsSync(CONTEXTFILE_PATH)) fs.unlinkSync(CONTEXTFILE_PATH);
-	fs.writeFileSync(CONTEXTFILE_PATH, JSON.stringify(context), { encoding: 'utf-8' });
-}
 
 describe('useContextHook().list', () => {
 
 	test('should return error', () => {
-		deleteContextFile();
+		testingVariables.deleteDummyContextFile();
 		let { response, error } = useContextFile().list();
 		expect(response).toBeUndefined();
 		expect(error).toBeTruthy();
 	})
 
 	test('Should return context list ', () => {
-		createDummyContext();
+		testingVariables.createDummyContextFile();
 		let { response, error } = useContextFile().list();
 		expect(error).toBeUndefined();
 		expect(response).toBeTruthy();
@@ -40,16 +25,16 @@ describe('useContextHook().list', () => {
 
 describe('useContextFile().current', () => {
 	test("should return error if no context file found", () => {
-		deleteContextFile();
+		testingVariables.deleteDummyContextFile();
 		let { response, error } = useContextFile().current();
 		expect(response).toBeUndefined();
 		expect(error).toBeTruthy();
 	});
 
 	test("should return current key and path", () => {
-		createDummyContext();
+		testingVariables.createDummyContextFile();
 		let { response, error } = useContextFile().current();
-		expect(response).toEqual({ key: 'home', path: '/home/projects/asyncapi.yml' });
+		expect(response).toEqual({ key: 'home', path: testingVariables.getPath('home') });
 		expect(error).toBeUndefined();
 	})
 })
@@ -57,49 +42,49 @@ describe('useContextFile().current', () => {
 
 describe('useContextFile().addContext ', () => {
 	test("Should save context even if no file is present", () => {
-		deleteContextFile();
+		testingVariables.deleteDummyContextFile();
 		let { response, error } = useContextFile().addContext('home', new SpecificationFile('asyncapi.yml'));
 		expect(error).toBeUndefined();
 		expect(response).toMatch("New context added")
-		deleteContextFile();
+		testingVariables.deleteDummyContextFile();
 	})
 
 	test("should save when context file is present", () => {
-		createDummyContext();
+		testingVariables.createDummyContextFile();
 		let { response, error } = useContextFile().addContext('home', new SpecificationFile('asyncapi.json'));
 		expect(error).toBeUndefined();
 		expect(response).toMatch('New context added');
 	})
 
 	test("Auto set current when when adding context for the fist time", () => {
-		deleteContextFile();
+		testingVariables.deleteDummyContextFile();
 		let { response, error } = useContextFile().addContext('home', new SpecificationFile("asyncapi.yml"));
 		expect(error).toBeUndefined();
 		expect(response).toMatch("New context added");
 		let { response: res, error: err } = useContextFile().current();
 		expect(err).toBeUndefined();
 		expect(res?.key).toMatch("home");
-		deleteContextFile();
+		testingVariables.deleteDummyContextFile();
 	})
 });
 
 describe('useContextFile.updateCurrent ', () => {
 	test("Should throw ContextFileNotFoundError", () => {
-		deleteContextFile();
+		testingVariables.deleteDummyContextFile();
 		let { response, error } = useContextFile().setCurrent('code');
 		expect(response).toBeUndefined();
 		expect(error instanceof ContextFileNotFoundError).toBeTruthy();
 	});
 
 	test("Should throw KeyNotFoundError", () => {
-		createDummyContext();
+		testingVariables.createDummyContextFile();
 		let { response, error } = useContextFile().setCurrent("name");
 		expect(response).toBeUndefined();
 		expect(error instanceof KeyNotFoundError).toBeTruthy();
 	});
 
 	test('Should update the current context', () => {
-		createDummyContext();
+		testingVariables.createDummyContextFile();
 		let { response, error } = useContextFile().setCurrent('code')
 		expect(error).toBeUndefined();
 		expect(response?.key).toMatch('code');
@@ -108,16 +93,25 @@ describe('useContextFile.updateCurrent ', () => {
 
 describe('useContextFile().deleteContext ', () => {
 	test("return response string", () => {
-		createDummyContext();
+		testingVariables.createDummyContextFile();
 		let { response, error } = useContextFile().deleteContext('code');
 		expect(error).toBeUndefined();
 		expect(response).toMatch('context deleted successfully');
 	});
 
 	test('return error if deleting current context', () => {
-		createDummyContext();
+		testingVariables.createDummyContextFile();
 		let { response, error } = useContextFile().deleteContext('home');
 		expect(response).toBeUndefined();
 		expect(error instanceof DeletingCurrentContextError).toBeTruthy();
 	})
+})
+
+
+describe('useContextFile().getContext', () => {
+	test.todo("Should throw ContextFileNotFoundError");
+
+	test.todo("Should throw ContextNotFoundError");
+
+	test.todo("Should return the appropriate spec file");
 })

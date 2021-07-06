@@ -1,26 +1,11 @@
 import { ContextService } from './contextService';
 import { Context, ContextFileNotFoundError } from './models';
-import { CONTEXTFILE_PATH } from './constants';
+import { TestingVariables } from './constants';
 import * as fs from 'fs';
 import * as path from 'path';
 import { SpecificationFile } from '../validation';
 
-let context: Context = {
-	current: 'home',
-	store: {
-		home: '/home/projects/asyncapi.yml',
-		code: '/home/projects/asyncapi.yaml'
-	}
-}
-
-let deleteContextFile = () => {
-	if (fs.existsSync(CONTEXTFILE_PATH)) fs.unlinkSync(CONTEXTFILE_PATH);
-}
-
-let createDummyContext = () => {
-
-	fs.writeFileSync(CONTEXTFILE_PATH, JSON.stringify(context), { encoding: 'utf-8' });
-}
+let testing = new TestingVariables();
 
 
 
@@ -28,7 +13,7 @@ describe('ContextService ', () => {
 	let contextService = new ContextService();
 
 	test("thorw error while loading contextFile from home directory", () => {
-		deleteContextFile();
+		testing.deleteDummyContextFile();
 		try {
 			contextService.loadContextFile();
 		} catch (error) {
@@ -37,21 +22,21 @@ describe('ContextService ', () => {
 	})
 
 	test("Load contextFile from the home directory", () => {
-		createDummyContext();
+		testing.createDummyContextFile();
 		try {
 			let ctx = contextService.loadContextFile();
-			expect(ctx).toEqual(context);
+			expect(ctx).toEqual(testing.context);
 		} catch (error) {
 
 		}
 	})
 
 	test("Should save a given context", () => {
-		contextService.save(context);
+		contextService.save(testing.context);
 
 		try {
 			let ctx = contextService.loadContextFile();
-			expect(ctx).toEqual(context);
+			expect(ctx).toEqual(testing.context);
 		} catch (error) {
 
 		}
@@ -84,7 +69,7 @@ describe('ContextService.autoDetect', () => {
 describe('ContextService.addContext', () => {
 	const contextService = new ContextService();
 	test("return changed context object", () => {
-		let ctx = contextService.addContext(context, 'random', new SpecificationFile('asyncapi.yml'));
+		let ctx = contextService.addContext(testing.context, 'random', new SpecificationFile('asyncapi.yml'));
 		expect(ctx).toBeTruthy();
 		expect(ctx.store['random']).toMatch(path.resolve(process.cwd(), 'asyncapi.yml'));
 	})
@@ -94,7 +79,7 @@ describe('ContextService.deleteContext', () => {
 	const contextService = new ContextService();
 
 	test("Return changed context object", () => {
-		const ctx: Context = contextService.deleteContext(context, 'code');
+		const ctx: Context = contextService.deleteContext(testing.context, 'code');
 		expect(ctx.store['code']).toBeUndefined();
 	});
 })
@@ -103,7 +88,7 @@ describe('ContextService.updateCurrent ', () => {
 	const contextService = new ContextService();
 	test("Should return Context Object with changed current context", () => {
 		try {
-			const ctx: Context = contextService.updateCurrent(context, "code");
+			const ctx: Context = contextService.updateCurrent(testing.context, "code");
 			expect(ctx.current).toMatch('code');
 		} catch (error) {
 
