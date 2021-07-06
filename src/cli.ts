@@ -17,12 +17,13 @@ const cli = meow(`
 		context
 			current  show the current set context
 			list  list all the contexts
-			remove  remove the current set context 
-			set <context-name> <filePath | URL>  Set/update contexts
-			use <fileName|URL>  set/update context 
+			remove  <context-name> remove a context from the store
+			use <context-name>  set any context as current
+			add <context-name> <filename|URL> add/update new context
 
 	Examples
 	  $ asyncapi validate --context=specification.yml
+	  $ asyncapi context list
 `, {
 	flags: {
 		context: {
