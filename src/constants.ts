@@ -1,8 +1,8 @@
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs';
-import { SpecificationFile } from '../validation';
-import { Context } from './models';
+import { SpecificationFile } from './hooks/validation';
+import { Context } from './hooks/context/models';
 
 export const CONTEXTFILE_PATH = path.resolve(os.homedir(), '.asyncapi');
 

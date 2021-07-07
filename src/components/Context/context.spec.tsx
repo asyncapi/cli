@@ -1,64 +1,44 @@
 import React from 'react';
 import { render } from 'ink-testing-library';
 import { ListContexts, ShowCurrentContext, AddContext, SetCurrent } from './Context';
-import { Context } from '../../hooks/context';
-import { CONTEXTFILE_PATH } from '../../hooks/context/constants';
-import * as fs from 'fs';
+import { TestingVariables } from '../../constants';
 
-let context: Context = {
-	current: 'home',
-	store: {
-		home: '/home/projects/asyncapi.yml',
-		code: '/home/projects/asyncapi.yaml'
-	}
-}
-
-let deleteContextFile = () => {
-	if (fs.existsSync(CONTEXTFILE_PATH)) fs.unlinkSync(CONTEXTFILE_PATH);
-}
-
-let createDummyContext = () => {
-
-	fs.writeFileSync(CONTEXTFILE_PATH, JSON.stringify(context), { encoding: 'utf-8' });
-}
-
-
-
+let testing = new TestingVariables();
 
 describe('listing contexts', () => {
 	test("should render error when no context file found", () => {
-		deleteContextFile()
+		testing.deleteDummyContextFile();
 		let { lastFrame } = render(<ListContexts />);
 		expect(lastFrame()).toMatch("No contexts saved yet.");
 	})
 
 	test("Should render the context list", () => {
-		createDummyContext();
+		testing.createDummyContextFile()
 		let { lastFrame } = render(<ListContexts />);
 		expect(lastFrame()).toMatch(
-			"home : /home/projects/asyncapi.yml\n" +
-			"code : /home/projects/asyncapi.yaml"
-		)
+			`home : ${testing.context.store["home"]}\n` +
+			`code : ${testing.context.store["code"]}`
+		);
 	})
 })
 
 describe('rendering current context', () => {
 	test('showing error if now current context is found', () => {
-		deleteContextFile();
+		testing.deleteDummyContextFile();
 		let { lastFrame } = render(<ShowCurrentContext />);
 		expect(lastFrame()).toMatch('No contexts saved yet.');
 	})
 
 	test('showing current context ', () => {
-		createDummyContext();
+		testing.createDummyContextFile();
 		let { lastFrame } = render(<ShowCurrentContext />);
-		expect(lastFrame()).toMatch("home : /home/projects/asyncapi.yml");
+		expect(lastFrame()).toMatch(`home : ${testing.context.store["home"]}`);
 	})
 })
 
 describe('AddContext ', () => {
 	test("should return message", () => {
-		createDummyContext();
+		testing.createDummyContextFile();
 		let { lastFrame } = render(<AddContext options={{}} args={['home', 'path']} />);
 		expect(lastFrame()).toMatch('New context added');
 	})
@@ -67,14 +47,14 @@ describe('AddContext ', () => {
 describe('SetContext ', () => {
 
 	test('Should render error message is key is not in store', () => {
-		createDummyContext();
+		testing.createDummyContextFile();
 		let { lastFrame } = render(<SetCurrent args={['name']} options={{}} />)
 		expect(lastFrame()).toMatch('The context you are trying to use is not present');
 	});
 
 	test('Should render the update context', () => {
-		createDummyContext();
+		testing.createDummyContextFile();
 		let { lastFrame } = render(<SetCurrent args={['code']} options={{}} />)
-		expect(lastFrame()).toMatch("code : /home/projects/asyncapi.yaml");
+		expect(lastFrame()).toMatch(`code : ${testing.context.store['code']}`);
 	});
 })

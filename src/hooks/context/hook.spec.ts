@@ -1,6 +1,6 @@
 import { useContextFile } from './hooks';
 import { ContextFileNotFoundError, KeyNotFoundError, DeletingCurrentContextError, ContextNotFoundError } from './models';
-import { TestingVariables } from './constants';
+import { TestingVariables } from '../../constants';
 import { SpecificationFile } from '../validation';
 
 let testingVariables = new TestingVariables();

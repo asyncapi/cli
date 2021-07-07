@@ -1,6 +1,6 @@
 import { ContextService } from './contextService';
 import { Context, ContextFileNotFoundError } from './models';
-import { TestingVariables } from './constants';
+import { TestingVariables } from '../../constants';
 import * as fs from 'fs';
 import * as path from 'path';
 import { SpecificationFile } from '../validation';
