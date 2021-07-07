@@ -1,5 +1,5 @@
 import { useContextFile } from './hooks';
-import { ContextFileNotFoundError, KeyNotFoundError, DeletingCurrentContextError } from './models';
+import { ContextFileNotFoundError, KeyNotFoundError, DeletingCurrentContextError, ContextNotFoundError } from './models';
 import { TestingVariables } from './constants';
 import { SpecificationFile } from '../validation';
 
@@ -109,9 +109,25 @@ describe('useContextFile().deleteContext ', () => {
 
 
 describe('useContextFile().getContext', () => {
-	test.todo("Should throw ContextFileNotFoundError");
+	test("Should throw ContextFileNotFoundError", () => {
+		testingVariables.deleteDummyContextFile();
 
-	test.todo("Should throw ContextNotFoundError");
+		let { response, error } = useContextFile().getContext('home');
+		expect(response).toBeUndefined();
+		expect(error instanceof ContextFileNotFoundError).toBeTruthy();
+	});
 
-	test.todo("Should return the appropriate spec file");
+	test("Should throw ContextNotFoundError", () => {
+		testingVariables.createDummyContextFile();
+		let { response, error } = useContextFile().getContext("random");
+		expect(response).toBeUndefined();
+		expect(error instanceof ContextNotFoundError).toBeTruthy();
+	});
+
+	test("Should return the appropriate spec file", () => {
+		testingVariables.createDummyContextFile();
+		let {response,error} = useContextFile().getContext('home');
+		expect(error).toBeUndefined();
+		expect(response instanceof SpecificationFile).toBeTruthy();
+	});
 })

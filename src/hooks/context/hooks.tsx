@@ -1,4 +1,4 @@
-import { Context, ContextFileNotFoundError } from './models';
+import { Context, ContextFileNotFoundError, ContextNotFoundError } from './models';
 import { ContextService } from './contextService';
 import { container } from 'tsyringe';
 import { SpecificationFile } from '../validation';
@@ -61,6 +61,34 @@ export const useContextFile = () => {
 				let updatedContext = contextService.deleteContext(ctx, key);
 				contextService.save(updatedContext);
 				const response = "context deleted successfully";
+				return { response }
+			} catch (error) {
+				return { undefined, error };
+			}
+		},
+		loadSpecFile: () => {
+			try {
+				let response: SpecificationFile;
+				let autoDetectedSpecFile = contextService.autoDetectSpecFile();
+				if (autoDetectedSpecFile) {
+					response = new SpecificationFile(autoDetectedSpecFile);
+					return { response };
+				}
+				let context = contextService.loadContextFile();
+				//@ts-ignore
+				response = new SpecificationFile(context.store[context.current]);
+				return { response };
+
+			} catch (error) {
+				return { undefined, error };
+			}
+		},
+		getContext: (key: string) => {
+			try {
+				let ctx = contextService.loadContextFile();
+				if (!ctx.store[key]) throw new ContextNotFoundError();
+				//@ts-ignore
+				let response = new SpecificationFile(ctx.store[key]);
 				return { response }
 			} catch (error) {
 				return { undefined, error };
