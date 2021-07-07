@@ -8,14 +8,14 @@ export interface Context {
 export class ContextFileNotFoundError extends Error {
 	constructor() {
 		super();
-		this.message = "Context file not found in the home directory";
+		this.message = "No contexts saved yet, run asyncapi --help to know more.";
 	}
 }
 
 export class ContextNotFoundError extends Error {
 	constructor() {
 		super();
-		this.message = "Context not found";
+		this.message = "This context key does not exist.";
 	}
 }
 
@@ -29,6 +29,6 @@ export class KeyNotFoundError extends Error {
 export class DeletingCurrentContextError extends Error {
 	constructor() {
 		super();
-		this.message = "Deleting Current Context";
+		this.message = "You are trying to delete a context that is currently in use";
 	}
 }

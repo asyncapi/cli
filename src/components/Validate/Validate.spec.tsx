@@ -39,9 +39,10 @@ describe('Validate component should', () => {
     }, 200);
   });
 
-  test.skip('render the single error message in red color when the file is not valid', (done) => {
+  test('render the single error message in red color when the file is not valid', (done) => {
+    testing.createDummyContextFile();
     const options: Options = {
-      context: 'oneFile.yml',
+      context: 'home',
       watch: false,
     };
 
@@ -55,9 +56,10 @@ describe('Validate component should', () => {
     }, 200);
   });
 
-  test.skip('render the different error messages in red color when the validation fails', (done) => {
+  test('render the different error messages in red color when the validation fails', (done) => {
+    testing.createDummyContextFile();
     const options: Options = {
-      context: 'oneFile.yml',
+      context: 'home',
       watch: false,
     };
 
