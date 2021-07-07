@@ -1,5 +1,5 @@
 import { useContextFile } from './hooks';
-import { ContextFileNotFoundError, KeyNotFoundError, DeletingCurrentContextError, ContextNotFoundError } from './models';
+import { ContextFileNotFoundError, KeyNotFoundError, ContextNotFoundError } from './models';
 import { TestingVariables } from '../../constants';
 import { SpecificationFile } from '../validation';
 
@@ -102,8 +102,8 @@ describe('useContextFile().deleteContext ', () => {
 	test('return error if deleting current context', () => {
 		testingVariables.createDummyContextFile();
 		let { response, error } = useContextFile().deleteContext('home');
-		expect(response).toBeUndefined();
-		expect(error instanceof DeletingCurrentContextError).toBeTruthy();
+		expect(response).toMatch("context deleted successfully");
+		expect(error).toBeUndefined();
 	})
 })
 
@@ -126,7 +126,7 @@ describe('useContextFile().getContext', () => {
 
 	test("Should return the appropriate spec file", () => {
 		testingVariables.createDummyContextFile();
-		let {response,error} = useContextFile().getContext('home');
+		let { response, error } = useContextFile().getContext('home');
 		expect(error).toBeUndefined();
 		expect(response instanceof SpecificationFile).toBeTruthy();
 	});

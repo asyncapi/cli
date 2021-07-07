@@ -32,3 +32,10 @@ export class DeletingCurrentContextError extends Error {
 		this.message = "You are trying to delete a context that is currently in use";
 	}
 }
+
+export class MissingCurrentContextError extends Error {
+	constructor(){
+		super();
+		this.message = "No context is set as current, please set a current context."
+	}
+}

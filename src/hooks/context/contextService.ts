@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import { Context, ContextFileNotFoundError,KeyNotFoundError, DeletingCurrentContextError } from './models';
+import { Context, ContextFileNotFoundError,KeyNotFoundError } from './models';
 import { CONTEXTFILE_PATH } from '../../constants';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -10,6 +10,10 @@ export class ContextService {
 	loadContextFile(): Context {
 		if (!fs.existsSync(CONTEXTFILE_PATH)) throw new ContextFileNotFoundError();
 		return JSON.parse(fs.readFileSync(CONTEXTFILE_PATH, 'utf-8')) as Context;
+	}
+
+	deleteContextFile() {
+		if(fs.existsSync(CONTEXTFILE_PATH)) fs.unlinkSync(CONTEXTFILE_PATH);
 	}
 
 	save(context: Context) {
@@ -28,7 +32,8 @@ export class ContextService {
 	}
 
 	deleteContext(context: Context, key: string): Context {
-		if(context.current === key) throw new DeletingCurrentContextError();
+		//@ts-ignore
+		if(context.current === key) delete context.current 
 		delete context.store[key];
 		return context;
 	}

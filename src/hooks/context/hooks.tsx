@@ -1,4 +1,4 @@
-import { Context, ContextFileNotFoundError, ContextNotFoundError } from './models';
+import { Context, ContextFileNotFoundError, ContextNotFoundError, MissingCurrentContextError } from './models';
 import { ContextService } from './contextService';
 import { container } from 'tsyringe';
 import { SpecificationFile } from '../validation';
@@ -20,6 +20,7 @@ export const useContextFile = () => {
 		current: () => {
 			try {
 				let ctx: Context = contextService.loadContextFile();
+				if (!ctx.current) throw new MissingCurrentContextError();
 				let response = { key: ctx.current, path: ctx.store[ctx.current] };
 				return { response };
 			} catch (error) {
@@ -58,6 +59,10 @@ export const useContextFile = () => {
 		deleteContext: (key: string) => {
 			try {
 				let ctx = contextService.loadContextFile();
+				if (Object.keys(ctx.store).length === 1) {
+					contextService.deleteContextFile();
+					return { response: "context deleted successfully" };
+				}
 				let updatedContext = contextService.deleteContext(ctx, key);
 				contextService.save(updatedContext);
 				const response = "context deleted successfully";
