@@ -1,6 +1,7 @@
 
 export type Command = string;
 export type HelpMessage = string;
+export type Arguments = string[];
 
 export interface Options {
   context: string,
@@ -10,12 +11,12 @@ export interface Options {
 export class CliInput {
   private readonly _command: Command
   private readonly _options: Options
-  private readonly _helpMessage: HelpMessage
+  private readonly _arguments: Arguments
 
-  private constructor(command: Command, options: Options, helpMessage: HelpMessage) {
+  private constructor(command: Command, options: Options, args: Arguments) {
     this._command = command;
     this._options = options;
-    this._helpMessage = helpMessage;
+    this._arguments = args;
   }
 
   get command(): Command {
@@ -26,14 +27,20 @@ export class CliInput {
     return this._options;
   }
 
-  get helpMessage(): HelpMessage {
-    return this._helpMessage;
+
+  get arguments(): Arguments {
+    return this._arguments;
   }
 
   static createFromMeow(meowOutput: any): CliInput {
-    const [command] = meowOutput.input;
-    const help = meowOutput.help;
+    const [command, ...args] = meowOutput.input;
     const { context, watch } = meowOutput.flags;
-    return new CliInput(command || 'help', { context, watch }, help);
+    return new CliInput(command || 'help', { context, watch }, args);
+  }
+
+  static createSubCommand(cliInput: CliInput): CliInput {
+    const [command, ...args] = cliInput.arguments;
+    return new CliInput(command || 'help', cliInput.options, args);
   }
 }
+

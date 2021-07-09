@@ -23,7 +23,7 @@ describe('CommandsRouter should', () => {
 
     setTimeout(() => {
       expect(lastFrame()).toBe(chalk.green(`File: ${file.getSpecificationName()} successfully validated!`));
-      done();
     }, 200);
+    done();
   });
 });

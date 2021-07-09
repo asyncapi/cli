@@ -3,14 +3,20 @@ import { Newline, Text } from 'ink';
 import { Options } from "../../CliModels";
 import { SpecificationFile, useValidate } from "../../hooks/validation";
 import { UseValidateResponse } from "../../hooks/validation/models";
+import { useContextFile } from '../../hooks/context';
 
 interface ValidateInput {
 	options: Options,
 }
 
 const Validate: FunctionComponent<ValidateInput> = ({ options }) => {
+	let { response, error } = useContextFile().getContext(options.context);
+	if (error || !response) {
+		if(error) return <Text color="red">{error.message}</Text>
+	}
+
 	const validationInput = {
-		file: new SpecificationFile(options.context),
+		file: new SpecificationFile(response.getSpecificationName()),
 		watchMode: options.watch,
 	};
 
@@ -26,7 +32,7 @@ const Validate: FunctionComponent<ValidateInput> = ({ options }) => {
 				return response.errors.map((error, index) => (
 					<Text key={index}>
 						<Text color={"red"}>{error}</Text>
-						<Newline/>
+						<Newline />
 					</Text>
 				));
 			}

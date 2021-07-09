@@ -62,11 +62,15 @@ export class ValidationResponse {
     }
     if (err.validationErrors) {
       err.validationErrors.forEach((e: any) => {
-        const errorHasLocation = e.location !== null;
+        const errorHasTitle = !!e.title
+        const errorHasLocation = !!e.location;
         if (errorHasLocation) {
           return errorsInfo.push(`${e.title} ${e.location.startLine}:${e.location.startColumn}`);
         }
-        return errorsInfo.push(`${e.title}`);
+        if (errorHasTitle) {
+          return errorsInfo.push(`${e.title}`);
+        }
+        return errorsInfo;
       });
     }
     return new ValidationResponse(false, errorsInfo);
