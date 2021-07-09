@@ -5,6 +5,13 @@ export interface Context {
 	}
 }
 
+export class SpecFileNotFoundError extends Error {
+	constructor() {
+		super();
+		this.message = "specification file not found in that path";
+	}
+}
+
 export class ContextFileNotFoundError extends Error {
 	constructor() {
 		super();

@@ -43,7 +43,7 @@ describe('useContextFile().current', () => {
 describe('useContextFile().addContext ', () => {
 	test("Should save context even if no file is present", () => {
 		testingVariables.deleteDummyContextFile();
-		let { response, error } = useContextFile().addContext('home', new SpecificationFile('asyncapi.yml'));
+		let { response, error } = useContextFile().addContext('home', new SpecificationFile('./test/specification.yml'));
 		expect(error).toBeUndefined();
 		expect(response).toMatch("New context added")
 		testingVariables.deleteDummyContextFile();
@@ -51,14 +51,14 @@ describe('useContextFile().addContext ', () => {
 
 	test("should save when context file is present", () => {
 		testingVariables.createDummyContextFile();
-		let { response, error } = useContextFile().addContext('home', new SpecificationFile('asyncapi.json'));
+		let { response, error } = useContextFile().addContext('home', new SpecificationFile('./test/specification.yml'));
 		expect(error).toBeUndefined();
 		expect(response).toMatch('New context added');
 	})
 
 	test("Auto set current when when adding context for the fist time", () => {
 		testingVariables.deleteDummyContextFile();
-		let { response, error } = useContextFile().addContext('home', new SpecificationFile("asyncapi.yml"));
+		let { response, error } = useContextFile().addContext('home', new SpecificationFile("./test/specification.yml"));
 		expect(error).toBeUndefined();
 		expect(response).toMatch("New context added");
 		let { response: res, error: err } = useContextFile().current();

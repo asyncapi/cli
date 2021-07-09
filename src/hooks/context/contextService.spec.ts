@@ -69,9 +69,9 @@ describe('ContextService.autoDetect', () => {
 describe('ContextService.addContext', () => {
 	const contextService = new ContextService();
 	test("return changed context object", () => {
-		let ctx = contextService.addContext(testing.context, 'random', new SpecificationFile('asyncapi.yml'));
+		let ctx = contextService.addContext(testing.context, 'random', new SpecificationFile('./test/specification.yml'));
 		expect(ctx).toBeTruthy();
-		expect(ctx.store['random']).toMatch(path.resolve(process.cwd(), 'asyncapi.yml'));
+		expect(ctx.store['random']).toMatch(path.resolve(process.cwd(), './test/specification.yml'));
 	})
 })
 

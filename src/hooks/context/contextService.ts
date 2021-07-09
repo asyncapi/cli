@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import { Context, ContextFileNotFoundError,KeyNotFoundError } from './models';
+import { Context, ContextFileNotFoundError,KeyNotFoundError, SpecFileNotFoundError } from './models';
 import { CONTEXTFILE_PATH } from '../../constants';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -27,6 +27,7 @@ export class ContextService {
 	}
 
 	addContext(context: Context, key: string, specFile: SpecificationFile): Context {
+		if(specFile.isNotValid()) throw new SpecFileNotFoundError();
 		context.store[key] = specFile.getSpecificationName();
 		return context;
 	}

@@ -39,7 +39,7 @@ describe('rendering current context', () => {
 describe('AddContext ', () => {
 	test("should return message", () => {
 		testing.createDummyContextFile();
-		let { lastFrame } = render(<AddContext options={{}} args={['home', 'path']} />);
+		let { lastFrame } = render(<AddContext options={{}} args={['home', './test/specification.yml']} />);
 		expect(lastFrame()).toMatch('New context added');
 	})
 })
