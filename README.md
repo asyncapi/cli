@@ -37,3 +37,5 @@ Examples
   $ asyncapi context add dummy ./asyncapi.yml
 	  $ asyncapi validate --context=dummy
 ```
+
+> For now --context flag is requried to run validate command
