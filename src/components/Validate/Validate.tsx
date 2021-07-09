@@ -12,7 +12,7 @@ interface ValidateInput {
 const Validate: FunctionComponent<ValidateInput> = ({ options }) => {
 	let { response, error } = useContextFile().getContext(options.context);
 	if (error || !response) {
-		return <Text color="red">{error.message}</Text>
+		if(error) return <Text color="red">{error.message}</Text>
 	}
 
 	const validationInput = {

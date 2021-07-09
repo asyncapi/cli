@@ -1,9 +1,9 @@
 import React from 'react';
 import { render } from 'ink-testing-library';
 import { ListContexts, ShowCurrentContext, AddContext, SetCurrent } from './Context';
-import { TestingVariables } from '../../constants';
+import { ContextTestingHelper } from '../../constants';
 
-let testing = new TestingVariables();
+let testing = new ContextTestingHelper();
 
 describe('listing contexts', () => {
 	test("should render error when no context file found", () => {

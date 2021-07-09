@@ -1,9 +1,9 @@
 import { useContextFile } from './hooks';
 import { ContextFileNotFoundError, KeyNotFoundError, ContextNotFoundError } from './models';
-import { TestingVariables } from '../../constants';
+import { ContextTestingHelper } from '../../constants';
 import { SpecificationFile } from '../validation';
 
-let testingVariables = new TestingVariables();
+let testingVariables = new ContextTestingHelper();
 
 
 describe('useContextHook().list', () => {

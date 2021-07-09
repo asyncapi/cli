@@ -6,7 +6,7 @@ import { Context } from './hooks/context/models';
 
 export const CONTEXTFILE_PATH = path.resolve(os.homedir(), '.asyncapi');
 
-export class TestingVariables {
+export class ContextTestingHelper {
 	private _context: Context;
 	constructor() {
 		let homeSpecFile = new SpecificationFile('test/specification.yml');

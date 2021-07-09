@@ -1,11 +1,11 @@
 import { ContextService } from './contextService';
 import { Context, ContextFileNotFoundError } from './models';
-import { TestingVariables } from '../../constants';
+import { ContextTestingHelper } from '../../constants';
 import * as fs from 'fs';
 import * as path from 'path';
 import { SpecificationFile } from '../validation';
 
-let testing = new TestingVariables();
+let testing = new ContextTestingHelper();
 
 
 

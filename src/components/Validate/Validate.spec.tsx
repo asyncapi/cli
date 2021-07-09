@@ -5,7 +5,7 @@ import { Options } from "../../CliModels";
 import { UseValidateResponse } from "../../hooks/validation/models";
 import chalk from "chalk";
 import * as validationHook from '../../hooks/validation';
-import { TestingVariables } from '../../constants';
+import { ContextTestingHelper } from '../../constants';
 
 
 
@@ -19,7 +19,7 @@ function renderValidationComponentWith(options: Options) {
   return render(<Validate options={options} />);
 }
 
-const testing = new TestingVariables();
+const testing = new ContextTestingHelper();
 
 describe('Validate component should', () => {
   test('render the success message in green color when the specification is correct', (done) => {

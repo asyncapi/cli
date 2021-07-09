@@ -3,31 +3,36 @@ import { ContextService } from './contextService';
 import { container } from 'tsyringe';
 import { SpecificationFile } from '../validation';
 
+export type Result = {
+	response?: any,
+	error?: Error
+}
+
 export const useContextFile = () => {
 	const contextService: ContextService = container.resolve(ContextService);
 
 
 	return {
-		list: () => {
+		list: (): Result => {
 			try {
 				let ctx: Context = contextService.loadContextFile();
 				let response = Object.keys(ctx.store).map(c => ({ key: c, path: ctx.store[c] }));
 				return { response };
 			} catch (error) {
-				return { undefined, error };
+				return { error };
 			}
 		},
-		current: () => {
+		current: (): Result => {
 			try {
 				let ctx: Context = contextService.loadContextFile();
 				if (!ctx.current) throw new MissingCurrentContextError();
 				let response = { key: ctx.current, path: ctx.store[ctx.current] };
 				return { response };
 			} catch (error) {
-				return { undefined, error };
+				return { error };
 			}
 		},
-		addContext: (key: string, specFile: SpecificationFile) => {
+		addContext: (key: string, specFile: SpecificationFile): Result => {
 			try {
 				let ctx = contextService.loadContextFile();
 				let updatedContext = contextService.addContext(ctx, key, specFile);
@@ -42,10 +47,10 @@ export const useContextFile = () => {
 					let response = "New context added";
 					return { response };
 				}
-				return { undefined, error }
+				return { error }
 			}
 		},
-		setCurrent: (key: string) => {
+		setCurrent: (key: string): Result => {
 			try {
 				let ctx = contextService.loadContextFile();
 				let updateCurrent = contextService.updateCurrent(ctx, key);
@@ -53,10 +58,10 @@ export const useContextFile = () => {
 				let response = { key: updateCurrent.current, path: updateCurrent.store[updateCurrent.current] };
 				return { response };
 			} catch (error) {
-				return { undefined, error };
+				return { error };
 			}
 		},
-		deleteContext: (key: string) => {
+		deleteContext: (key: string): Result => {
 			try {
 				let ctx = contextService.loadContextFile();
 				if (Object.keys(ctx.store).length === 1) {
@@ -68,10 +73,10 @@ export const useContextFile = () => {
 				const response = "context deleted successfully";
 				return { response }
 			} catch (error) {
-				return { undefined, error };
+				return { error };
 			}
 		},
-		loadSpecFile: () => {
+		loadSpecFile: (): Result => {
 			try {
 				let response: SpecificationFile;
 				let autoDetectedSpecFile = contextService.autoDetectSpecFile();
@@ -85,10 +90,10 @@ export const useContextFile = () => {
 				return { response };
 
 			} catch (error) {
-				return { undefined, error };
+				return { error };
 			}
 		},
-		getContext: (key: string) => {
+		getContext: (key: string): Result => {
 			try {
 				let ctx = contextService.loadContextFile();
 				if (!ctx.store[key]) throw new ContextNotFoundError();
@@ -96,7 +101,7 @@ export const useContextFile = () => {
 				let response = new SpecificationFile(ctx.store[key]);
 				return { response }
 			} catch (error) {
-				return { undefined, error };
+				return { error };
 			}
 		}
 	}

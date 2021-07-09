@@ -13,7 +13,7 @@ export const ListContexts: FunctionComponent = () => {
 
 	if (response) {
 		return <Box flexDirection="column">
-			{response.map(context => <Text key={context.key}>{context.key} : {context.path}</Text>)}
+			{response.map((context: any) => <Text key={context.key}>{context.key} : {context.path}</Text>)}
 		</Box>
 	}
 
