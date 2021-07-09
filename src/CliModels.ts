@@ -13,7 +13,7 @@ export class CliInput {
   private readonly _options: Options
   private readonly _arguments: Arguments
 
-  private constructor(command: Command, options: Options,  args: Arguments) {
+  private constructor(command: Command, options: Options, args: Arguments) {
     this._command = command;
     this._options = options;
     this._arguments = args;
@@ -40,7 +40,7 @@ export class CliInput {
 
   static createSubCommand(cliInput: CliInput): CliInput {
     const [command, ...args] = cliInput.arguments;
-    return new CliInput(command || "help", cliInput.options, args);
+    return new CliInput(command || 'help', cliInput.options, args);
   }
 }
 

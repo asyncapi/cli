@@ -22,14 +22,14 @@ const cli = meow(`
 			add <context-name> <filepath> add/update new context
 
 	Examples
-	  $ asyncapi context add dummy ./specification.yml
+	  $ asyncapi context add dummy ./asyncapi.yml
 	  $ asyncapi validate --context=dummy
 `, {
 	flags: {
 		context: {
 			alias: 'c',
 			type: 'string',
-			isRequired: false
+			isRequired: true
 		},
 		watch: {
 			alias: 'w',
