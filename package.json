@@ -1,6 +1,6 @@
 {
 	"name": "@asyncapi/cli",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"license": "Apache-2.0",
 	"bin": {
 		"asyncapi": "dist/cli.js"
@@ -18,13 +18,14 @@
 		"lint": "echo 'Not Implemented Yet'",
 		"generate:assets": "echo 'Nothing Generated'",
 		"bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
-		"release": "semantic-release"
+		"release": "semantic-release",
+		"prepublishOnly": "npm run build"
 	},
 	"files": [
-		"dist/cli.js"
+		"dist"
 	],
 	"dependencies": {
-		"@asyncapi/parser": "^1.5.0",
+		"@asyncapi/parser": "^1.6.0",
 		"ink": "^3.0.8",
 		"meow": "^9.0.0",
 		"react": "^17.0.1",
