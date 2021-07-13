@@ -4,7 +4,11 @@ import * as fs from 'fs';
 import { SpecificationFile } from './hooks/validation';
 import { Context } from './hooks/context/models';
 
-export const CONTEXTFILE_PATH = path.resolve(os.homedir(), '.asyncapi');
+const isTestEnv = (process.env['NODE_ENV'] === 'test') || (process.env['JEST_WORKER_ID'] !== undefined) || typeof jest !== 'undefined';
+
+export const CONTEXT_FILENAME = isTestEnv ? ".test.asyncapi" : ".asyncapi";
+
+export const CONTEXTFILE_PATH = path.resolve(os.homedir(), CONTEXT_FILENAME);
 
 export class ContextTestingHelper {
 	private _context: Context;
@@ -25,14 +29,14 @@ export class ContextTestingHelper {
 	}
 
 	createDummyContextFile() {
-		fs.writeFileSync(CONTEXTFILE_PATH, JSON.stringify(this._context), {encoding: 'utf-8'});
+		fs.writeFileSync(CONTEXTFILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8' });
 	}
 
 	deleteDummyContextFile() {
-		if(fs.existsSync(CONTEXTFILE_PATH)) fs.unlinkSync(CONTEXTFILE_PATH);
+		if (fs.existsSync(CONTEXTFILE_PATH)) fs.unlinkSync(CONTEXTFILE_PATH);
 	}
 
-	getPath(key: string){
+	getPath(key: string) {
 		return this._context.store[key];
 	}
 }
