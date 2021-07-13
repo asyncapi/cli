@@ -4,7 +4,9 @@ import * as fs from 'fs';
 import { SpecificationFile } from './hooks/validation';
 import { Context } from './hooks/context/models';
 
-export const CONTEXTFILE_PATH = path.resolve(os.homedir(), '.asyncapi');
+export const CONTEXT_FILENAME = (process.env['NODE_ENV'] === "test")? ".test.asyncapi": ".asyncapi";
+
+export const CONTEXTFILE_PATH = path.resolve(os.homedir(), CONTEXT_FILENAME);
 
 export class ContextTestingHelper {
 	private _context: Context;
