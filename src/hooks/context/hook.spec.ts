@@ -1,4 +1,4 @@
-import { useContextFile } from './hooks';
+import { useContextFile, useSpecfile } from './hooks';
 import { ContextFileNotFoundError, KeyNotFoundError, ContextNotFoundError } from './models';
 import { ContextTestingHelper } from '../../constants';
 import { SpecificationFile } from '../validation';
@@ -129,5 +129,33 @@ describe('useContextFile().getContext', () => {
 		let { response, error } = useContextFile().getContext('home');
 		expect(error).toBeUndefined();
 		expect(response instanceof SpecificationFile).toBeTruthy();
+	});
+})
+
+describe('useSpecFile should ', () => {
+	it('Load spec file from --file flag', () => {
+		const { specFile, error } = useSpecfile({ file: './test/specification.yml' });
+		expect(error).toBeUndefined();
+		expect(specFile instanceof SpecificationFile).toBeTruthy();
+	});
+	it('Load spec file from --context flag', () => {
+		testingVariables.createDummyContextFile();
+		const { specFile, error } = useSpecfile({ context: 'home' });
+		expect(error).toBeUndefined();
+		expect(specFile instanceof SpecificationFile).toBeTruthy();
+	});
+	it('Load spec file from current context', () => {
+		testingVariables.createDummyContextFile();
+		const { specFile, error } = useSpecfile({});
+		expect(error).toBeUndefined();
+		expect(specFile).toBeDefined();
+	});
+	it.skip('Load spec file from working directory', () => {
+		testingVariables.createSpecFileAtWorkingDir();
+		testingVariables.deleteDummyContextFile();
+		const { specFile } = useSpecfile({});
+		expect(specFile).toBeDefined();
+
+		testingVariables.deleteSpecFileAtWorkingDir();
 	});
 })

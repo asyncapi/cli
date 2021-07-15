@@ -106,3 +106,51 @@ export const useContextFile = () => {
 		}
 	}
 }
+
+export interface useSpecFileInput {
+	file?: string,
+	context?: string
+}
+
+export interface useSpecFileOutput {
+	specFile?: SpecificationFile,
+	error?: Error
+}
+
+export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
+	const contextService: ContextService = container.resolve(ContextService);
+
+	try {
+		let ctx: Context = contextService.loadContextFile();
+		if (flags.file) {
+			let specFile: SpecificationFile = new SpecificationFile(flags.file);
+			if (specFile.isNotValid()) throw new Error("Invalid spec path");
+			return { specFile };
+		}
+
+		if (flags.context) {
+			if (!ctx.store[flags.context]) throw new ContextNotFoundError();
+			//@ts-ignore
+			const specFile = new SpecificationFile(ctx.store[flags.context]);
+			return { specFile };
+		}
+
+		if (ctx.current) {
+			//@ts-ignore
+			let specFile = new SpecificationFile(ctx.store[ctx.current]);
+			return { specFile };
+		}
+
+		let autoDetectedSpecPath = contextService.autoDetectSpecFile();
+
+		if (typeof autoDetectedSpecPath === 'undefined') throw new Error("No spec path found in your working directory, please use flags or store a context");
+
+		let specFile = new SpecificationFile(autoDetectedSpecPath);
+
+		return { specFile };
+
+	} catch (error) {
+		return { error };
+	}
+
+}
