@@ -14,7 +14,7 @@ const cli = meow(`
 			Options
 				-c --context  context-name saved in the store
 				-w --watch Enable watchMode (not implemented yet)
-				-f --file file path of the specification file
+				-f --file File path of the specification file
 		context
 			current  show the current set context
 			list     show the list of all stored context
@@ -25,6 +25,7 @@ const cli = meow(`
 	Examples
 	  $ asyncapi context add dummy ./asyncapi.yml
       $ asyncapi validate --context=dummy
+	  $ asyncapi validate --file=./asyncapi.yml
 `, {
 	flags: {
 		context: {

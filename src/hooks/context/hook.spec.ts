@@ -150,12 +150,11 @@ describe('useSpecFile should ', () => {
 		expect(error).toBeUndefined();
 		expect(specFile).toBeDefined();
 	});
-	it.skip('Load spec file from working directory', () => {
-		testingVariables.createSpecFileAtWorkingDir();
+	
+	it('Throw error when nothing found', () => {
+		testingVariables.deleteDummyContextFile()
 		testingVariables.deleteDummyContextFile();
-		const { specFile } = useSpecfile({});
-		expect(specFile).toBeDefined();
-
-		testingVariables.deleteSpecFileAtWorkingDir();
+		const { error } = useSpecfile({});
+		expect(error).toBeDefined();
 	});
 })
