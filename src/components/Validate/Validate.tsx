@@ -10,7 +10,7 @@ interface ValidateInput {
 }
 
 const Validate: FunctionComponent<ValidateInput> = ({ options }) => {
-	let { specFile, error } = useSpecfile({context: options.context, })
+	let { specFile, error } = useSpecfile({context: options.context, file: options.file});
 	if (error) {
 		if(error) return <Text color="red">{error.message}</Text>
 	}
