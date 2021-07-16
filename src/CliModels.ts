@@ -4,8 +4,9 @@ export type HelpMessage = string;
 export type Arguments = string[];
 
 export interface Options {
-  context: string,
-  watch: boolean
+  context?: string,
+  watch: boolean,
+  file?: string
 }
 
 export class CliInput {

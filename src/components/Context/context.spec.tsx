@@ -26,7 +26,8 @@ describe('rendering current context', () => {
 	test('showing error if now current context is found', () => {
 		testing.deleteDummyContextFile();
 		let { lastFrame } = render(<ShowCurrentContext />);
-		expect(lastFrame()).toMatch('No contexts saved yet.');
+		let message = lastFrame();
+		expect(message).toMatch('No contexts saved yet.');
 	})
 
 	test('showing current context ', () => {
