@@ -37,7 +37,6 @@ Commands
 Examples
   $ asyncapi context add dummy ./asyncapi.yml
   $ asyncapi validate --context=dummy
-  $ asyncapi validate
   $ asyncapi validate --file=./asyncapi.yml
 ```
 
