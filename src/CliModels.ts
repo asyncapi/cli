@@ -4,8 +4,9 @@ export type HelpMessage = string;
 export type Arguments = string[];
 
 export interface Options {
-  context: string,
-  watch: boolean
+  context?: string,
+  watch: boolean,
+  file?: string
 }
 
 export class CliInput {
@@ -34,8 +35,8 @@ export class CliInput {
 
   static createFromMeow(meowOutput: any): CliInput {
     const [command, ...args] = meowOutput.input;
-    const { context, watch } = meowOutput.flags;
-    return new CliInput(command || 'help', { context, watch }, args);
+    const { context, watch, file } = meowOutput.flags;
+    return new CliInput(command || 'help', { context, watch, file }, args);
   }
 
   static createSubCommand(cliInput: CliInput): CliInput {

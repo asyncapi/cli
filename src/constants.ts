@@ -39,4 +39,12 @@ export class ContextTestingHelper {
 	getPath(key: string) {
 		return this._context.store[key];
 	}
+
+	createSpecFileAtWorkingDir() {
+		if (!fs.existsSync(path.resolve(process.cwd(), 'asyncapi.yml'))) fs.writeFileSync(path.resolve(process.cwd(), 'asyncapi.yml'), '');
+	}
+
+	deleteSpecFileAtWorkingDir() {
+		if (fs.existsSync(path.resolve(process.cwd(), 'asyncapi.yml'))) fs.unlinkSync(path.resolve(process.cwd(), 'asyncapi.yml'));
+	}
 }

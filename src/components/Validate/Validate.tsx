@@ -3,20 +3,24 @@ import { Newline, Text } from 'ink';
 import { Options } from "../../CliModels";
 import { SpecificationFile, useValidate } from "../../hooks/validation";
 import { UseValidateResponse } from "../../hooks/validation/models";
-import { useContextFile } from '../../hooks/context';
+import { useSpecfile } from '../../hooks/context';
 
 interface ValidateInput {
 	options: Options,
 }
 
 const Validate: FunctionComponent<ValidateInput> = ({ options }) => {
-	let { response, error } = useContextFile().getContext(options.context);
-	if (error || !response) {
-		if(error) return <Text color="red">{error.message}</Text>
+	let { specFile, error } = useSpecfile({ context: options.context, file: options.file });
+	if (error) {
+		return <Text color="red">{error.message}</Text>
+	}
+
+	if (!specFile) {
+		return <Text />
 	}
 
 	const validationInput = {
-		file: new SpecificationFile(response.getSpecificationName()),
+		file: new SpecificationFile(specFile.getSpecificationName()),
 		watchMode: options.watch,
 	};
 

@@ -55,6 +55,7 @@ describe('ContextService.autoDetect', () => {
 	const contextService = new ContextService();
 
 	test("Should return undefined when does not detects anyfile", () => {
+		testing.deleteSpecFileAtWorkingDir();
 		expect(contextService.autoDetectSpecFile()).toBeUndefined();
 	});
 

@@ -25,6 +25,7 @@ Commands
    Options
      -c --context  context-name saved in the store
      -w --watch Enable watchMode (not implemented yet)
+     -f --file File path of the specification file
   
   context
     current show the current set context
@@ -35,7 +36,8 @@ Commands
 
 Examples
   $ asyncapi context add dummy ./asyncapi.yml
-	  $ asyncapi validate --context=dummy
+  $ asyncapi validate --context=dummy
+  $ asyncapi validate --file=./asyncapi.yml
 ```
 
 > For now --context flag is requried to run validate command
