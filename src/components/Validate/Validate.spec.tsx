@@ -1,5 +1,3 @@
-/* eslint-disable no-use-before-define */
-/* eslint-disable no-undef */
 import React from 'react';
 import { render } from 'ink-testing-library';
 import Validate from './Validate';

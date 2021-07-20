@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 export type Command = string;
 export type HelpMessage = string;
 export type Arguments = string[];

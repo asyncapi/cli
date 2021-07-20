@@ -1,7 +1,6 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable security/detect-object-injection */
 /* eslint-disable security/detect-non-literal-fs-filename */
-/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-mixed-spaces-and-tabs */
 /* eslint-disable no-undef */
 import * as os from 'os';

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { container } from 'tsyringe';
@@ -11,6 +10,7 @@ export function useValidate() {
 
   return {
     // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async validate({ file, watchMode }: ValidationInput): Promise<UseValidateResponse> {
       try {
         if (file.isNotValid()) {

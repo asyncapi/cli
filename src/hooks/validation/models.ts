@@ -1,5 +1,4 @@
 /* eslint-disable github/array-foreach */
-/* eslint-disable no-underscore-dangle */
 /* eslint-disable security/detect-non-literal-fs-filename */
 /* eslint-disable no-undef */
 import * as fs from 'fs';
