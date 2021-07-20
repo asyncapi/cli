@@ -1,7 +1,8 @@
+/* eslint-disable no-undef */
 import { render } from 'ink-testing-library';
-import { commandsRouter } from "./CommandsRouter";
-import { SpecificationFile } from "./hooks/validation";
-import chalk from "chalk";
+import { commandsRouter } from './CommandsRouter';
+import { SpecificationFile } from './hooks/validation';
+import chalk from 'chalk';
 
 function renderAux(cli: any) {
   return render(commandsRouter(cli));

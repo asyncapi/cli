@@ -1,30 +1,28 @@
-import { container } from "tsyringe";
-import { SpecificationFile, ValidationInput, ValidationResponse } from "./models";
-import { ValidationService } from "./ValidationService";
-import { useValidate } from "./hook";
+import { container } from 'tsyringe';
+import { SpecificationFile, ValidationInput, ValidationResponse } from './models';
+import { ValidationService } from './ValidationService';
+import { useValidate } from './hook';
 
 function ValidationServiceMock() {
   return {
-    makeReturn: function (response: ValidationResponse) {
+    makeReturn (response: ValidationResponse) {
       container.registerInstance(ValidationService, {
-        execute: function () {
+        execute () {
           return Promise.resolve(response);
         }
       });
     },
-    makeThrow: function (error: any) {
+    makeThrow (error: any) {
       container.registerInstance(ValidationService, {
-        execute: function () {
+        execute () {
           throw error;
         }
       });
     }
-  }
+  };
 }
 
-
 describe('UseValidate should', () => {
-
   const invalidFileValidationInput: ValidationInput = {
     file: new SpecificationFile('oneFileThatNotExists.yml'),
     watchMode: false,
@@ -41,7 +39,7 @@ describe('UseValidate should', () => {
 
     expect(useValidateResponse.success).toBeFalsy();
     expect(useValidateResponse.message).toEqual('');
-    expect(useValidateResponse.errors[0]).toBe(`File: ${invalidFileValidationInput.file.getSpecificationName()} does not exists or is not a file!`)
+    expect(useValidateResponse.errors[0]).toBe(`File: ${invalidFileValidationInput.file.getSpecificationName()} does not exists or is not a file!`);
   });
 
   test('return success when the validation is correct', async () => {

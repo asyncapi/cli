@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 
 export type Command = string;
 export type HelpMessage = string;
@@ -27,7 +28,6 @@ export class CliInput {
   get options(): Options {
     return this._options;
   }
-
 
   get arguments(): Arguments {
     return this._arguments;

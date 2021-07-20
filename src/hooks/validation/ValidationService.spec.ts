@@ -1,21 +1,20 @@
-import { SpecificationFile, ValidationResponse } from "./models";
-import { ValidationService } from "./ValidationService";
+import { SpecificationFile, ValidationResponse } from './models';
+import { ValidationService } from './ValidationService';
 
-import parser, { ParserError } from "@asyncapi/parser";
+import parser, { ParserError } from '@asyncapi/parser';
 
 function AsyncParserMock() {
   return {
-    makeThrow: function (error: any) {
+    makeThrow (error: any) {
       jest.spyOn(parser, 'parse').mockImplementation(() => {
         throw error;
       });
     }
-  }
+  };
 }
 
-
 describe('ValidationService should', () => {
-  const file = new SpecificationFile('test/specification.yml')
+  const file = new SpecificationFile('test/specification.yml');
   const validationService = new ValidationService();
 
   test('return a success response if asyncapi/parse does not fail', async () => {

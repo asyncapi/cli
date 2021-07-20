@@ -1,13 +1,13 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-undef */
 import React from 'react';
 import { render } from 'ink-testing-library';
-import Validate from "./Validate";
-import { Options } from "../../CliModels";
-import { UseValidateResponse } from "../../hooks/validation/models";
-import chalk from "chalk";
+import Validate from './Validate';
+import { Options } from '../../CliModels';
+import { UseValidateResponse } from '../../hooks/validation/models';
+import chalk from 'chalk';
 import * as validationHook from '../../hooks/validation';
 import { ContextTestingHelper } from '../../constants';
-
-
 
 function makeUseValidateReturn(response: UseValidateResponse) {
   jest.spyOn(validationHook, 'useValidate').mockImplementation(() => ({
