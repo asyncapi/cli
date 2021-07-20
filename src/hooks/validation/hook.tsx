@@ -10,8 +10,7 @@ export function useValidate() {
 
   return {
     // @ts-ignore
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async validate({ file, watchMode }: ValidationInput): Promise<UseValidateResponse> {
+    async validate({ file }: ValidationInput): Promise<UseValidateResponse> {
       try {
         if (file.isNotValid()) {
           return Promise.resolve(UseValidateResponse.withError(`File: ${file.getSpecificationName()} does not exists or is not a file!`));
