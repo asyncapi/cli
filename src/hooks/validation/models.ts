@@ -1,3 +1,5 @@
+/* eslint-disable security/detect-non-literal-fs-filename */
+/* eslint-disable github/array-foreach */
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -31,19 +33,19 @@ export class SpecificationFile implements Specification {
 export type WatchFlag = boolean;
 
 export class ValidationResponse {
-  private readonly _success: Boolean;
-  private readonly _errors: Array<String>;
+  private readonly _success: boolean;
+  private readonly _errors: Array<string>;
 
-  constructor(success: Boolean, errorsInfo: String[] = []) {
+  constructor(success: boolean, errorsInfo: string[] = []) {
     this._success = success;
     this._errors = errorsInfo;
   }
 
-  get success(): Boolean {
+  get success(): boolean {
     return this._success;
   }
 
-  get errors(): Array<String> {
+  get errors(): Array<string> {
     return this._errors;
   }
 
@@ -52,7 +54,7 @@ export class ValidationResponse {
   }
 
   public static createError(err: any): ValidationResponse {
-    const errorsInfo: Array<String> = [];
+    const errorsInfo: Array<string> = [];
 
     if (err.title) {
       errorsInfo.push(err.title);
@@ -62,7 +64,7 @@ export class ValidationResponse {
     }
     if (err.validationErrors) {
       err.validationErrors.forEach((e: any) => {
-        const errorHasTitle = !!e.title
+        const errorHasTitle = !!e.title;
         const errorHasLocation = !!e.location;
         if (errorHasLocation) {
           return errorsInfo.push(`${e.title} ${e.location.startLine}:${e.location.startColumn}`);
@@ -78,37 +80,37 @@ export class ValidationResponse {
 }
 
 export class UseValidateResponse {
-  private readonly _success: Boolean;
-  private readonly _errors: Array<String>;
-  private readonly _message: String;
+  private readonly _success: boolean;
+  private readonly _errors: Array<string>;
+  private readonly _message: string;
 
-  constructor(message: String, success: Boolean = true, errors: Array<String> = []) {
+  constructor(message: string, success = true, errors: Array<string> = []) {
     this._message = message;
     this._success = success;
     this._errors = errors;
   }
 
-  get success(): Boolean {
+  get success(): boolean {
     return this._success;
   }
 
-  get errors(): Array<String> {
+  get errors(): Array<string> {
     return this._errors;
   }
 
-  get message(): String {
+  get message(): string {
     return this._message;
   }
 
-  public static withMessage(message: String): UseValidateResponse {
+  public static withMessage(message: string): UseValidateResponse {
     return new UseValidateResponse(message);
   }
 
-  public static withErrors(errors: Array<String>): UseValidateResponse {
+  public static withErrors(errors: Array<string>): UseValidateResponse {
     return new UseValidateResponse('', false, errors);
   }
 
-  public static withError(error: String): UseValidateResponse {
+  public static withError(error: string): UseValidateResponse {
     const errors = [];
     errors.push(error);
     return new UseValidateResponse('', false, errors);

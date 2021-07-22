@@ -6,43 +6,43 @@ export interface Context {
 }
 
 export class SpecFileNotFoundError extends Error {
-	constructor() {
-		super();
-		this.message = "specification file not found in that path";
-	}
+  constructor() {
+    super();
+    this.message = 'specification file not found in that path';
+  }
 }
 
 export class ContextFileNotFoundError extends Error {
-	constructor() {
-		super();
-		this.message = "No contexts saved yet, run asyncapi --help to know more.";
-	}
+  constructor() {
+    super();
+    this.message = 'No contexts saved yet, run asyncapi --help to know more.';
+  }
 }
 
 export class ContextNotFoundError extends Error {
-	constructor() {
-		super();
-		this.message = "This context key does not exist.";
-	}
+  constructor() {
+    super();
+    this.message = 'This context key does not exist.';
+  }
 }
 
 export class KeyNotFoundError extends Error {
-	constructor() {
-		super();
-		this.message = "Key not found";
-	}
+  constructor() {
+    super();
+    this.message = 'Key not found';
+  }
 }
 
 export class DeletingCurrentContextError extends Error {
-	constructor() {
-		super();
-		this.message = "You are trying to delete a context that is currently in use";
-	}
+  constructor() {
+    super();
+    this.message = 'You are trying to delete a context that is currently in use';
+  }
 }
 
 export class MissingCurrentContextError extends Error {
-	constructor(){
-		super();
-		this.message = "No context is set as current, please set a current context."
-	}
+  constructor() {
+    super();
+    this.message = 'No context is set as current, please set a current context.';
+  }
 }

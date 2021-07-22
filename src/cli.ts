@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-import 'reflect-metadata'
+import 'reflect-metadata';
 import { render } from 'ink';
 import meow from 'meow';
-import { commandsRouter } from "./CommandsRouter";
-
+import { commandsRouter } from './CommandsRouter';
 
 const cli = meow(`
 	Usage
@@ -27,24 +26,24 @@ const cli = meow(`
 		$ asyncapi validate --context=dummy
 		$ asyncapi validate --file=./asyncapi.yml
 `, {
-	flags: {
-		context: {
-			alias: 'c',
-			type: 'string',
-			isRequired: false
-		},
-		watch: {
-			alias: 'w',
-			type: 'boolean',
-			isRequired: false,
-			default: false
-		},
-		file: {
-			alias: 'f',
-			type: 'string',
-			isRequired: false
-		}
-	}
+  flags: {
+    context: {
+      alias: 'c',
+      type: 'string',
+      isRequired: false
+    },
+    watch: {
+      alias: 'w',
+      type: 'boolean',
+      isRequired: false,
+      default: false
+    },
+    file: {
+      alias: 'f',
+      type: 'string',
+      isRequired: false
+    }
+  }
 });
 
 render(commandsRouter(cli));
