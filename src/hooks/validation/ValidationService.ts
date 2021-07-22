@@ -1,7 +1,7 @@
-import { injectable } from 'tsyringe';
-import { SpecificationFile, ValidationResponse } from './models';
-
 import parser from '@asyncapi/parser';
+import { injectable } from 'tsyringe';
+
+import { SpecificationFile, ValidationResponse } from './models';
 
 @injectable()
 export class ValidationService {

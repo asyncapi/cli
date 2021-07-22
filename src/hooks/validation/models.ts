@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-non-literal-fs-filename */
-/* eslint-disable github/array-foreach */
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -63,17 +61,16 @@ export class ValidationResponse {
       errorsInfo.push(err.detail);
     }
     if (err.validationErrors) {
-      err.validationErrors.forEach((e: any) => {
+      for (const e of err.validationErrors) {
         const errorHasTitle = !!e.title;
         const errorHasLocation = !!e.location;
         if (errorHasLocation) {
-          return errorsInfo.push(`${e.title} ${e.location.startLine}:${e.location.startColumn}`);
+          errorsInfo.push(`${e.title} ${e.location.startLine}:${e.location.startColumn}`);
         }
         if (errorHasTitle) {
-          return errorsInfo.push(`${e.title}`);
+          errorsInfo.push(`${e.title}`);
         }
-        return errorsInfo;
-      });
+      }
     }
     return new ValidationResponse(false, errorsInfo);
   }

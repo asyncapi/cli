@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { container } from 'tsyringe';
 
 import { UseValidateResponse, ValidationInput, ValidationResponse } from './models';
@@ -9,7 +7,6 @@ export function useValidate() {
   const validationService: ValidationService = container.resolve(ValidationService);
 
   return {
-    // @ts-ignore
     async validate({ file }: ValidationInput): Promise<UseValidateResponse> {
       try {
         if (file.isNotValid()) {
