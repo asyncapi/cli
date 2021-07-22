@@ -1,6 +1,3 @@
-/* eslint-disable security/detect-non-literal-fs-filename */
-/* eslint-disable security/detect-object-injection */
-/* eslint-disable no-mixed-spaces-and-tabs */
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -16,41 +13,41 @@ export const CONTEXT_FILENAME = isTestEnv ? '.test.asyncapi' : '.asyncapi';
 export const CONTEXTFILE_PATH = path.resolve(os.homedir(), CONTEXT_FILENAME);
 
 export class ContextTestingHelper {
-	private _context: Context;
-	constructor() {
-	  const homeSpecFile = new SpecificationFile('test/specification.yml');
+  private _context: Context;
+  constructor() {
+    const homeSpecFile = new SpecificationFile('test/specification.yml');
 
-	  const codeSpecFile = new SpecificationFile('test/specification.yml');
-	  this._context = {
-	    current: 'home',
-	    store: {
-	      home: homeSpecFile.getSpecificationName(),
-	      code: codeSpecFile.getSpecificationName()
-	    }
-	  };
-	}
+    const codeSpecFile = new SpecificationFile('test/specification.yml');
+    this._context = {
+      current: 'home',
+      store: {
+        home: homeSpecFile.getSpecificationName(),
+        code: codeSpecFile.getSpecificationName()
+      }
+    };
+  }
 
-	get context(): Context {
-	  return this._context;
-	}
+  get context(): Context {
+    return this._context;
+  }
 
-	createDummyContextFile(): void {
-	  fs.writeFileSync(CONTEXTFILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8' });
-	}
+  createDummyContextFile(): void {
+    fs.writeFileSync(CONTEXTFILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8' });
+  }
 
-	deleteDummyContextFile(): void {
-	  if (fs.existsSync(CONTEXTFILE_PATH)) { fs.unlinkSync(CONTEXTFILE_PATH); }
-	}
+  deleteDummyContextFile(): void {
+    if (fs.existsSync(CONTEXTFILE_PATH)) { fs.unlinkSync(CONTEXTFILE_PATH); }
+  }
 
-	getPath(key: string): string | undefined {
-	  return this._context.store[key];
-	}
+  getPath(key: string): string | undefined {
+    return this._context.store[String(key)];
+  }
 
-	createSpecFileAtWorkingDir(): void {
-	  if (!fs.existsSync(path.resolve(process.cwd(), DIRSPECPATH))) { fs.writeFileSync(path.resolve(process.cwd(), 'asyncapi.yml'), ''); }
-	}
+  createSpecFileAtWorkingDir(): void {
+    if (!fs.existsSync(path.resolve(process.cwd(), DIRSPECPATH))) { fs.writeFileSync(path.resolve(process.cwd(), 'asyncapi.yml'), ''); }
+  }
 
-	deleteSpecFileAtWorkingDir(): void {
-	  if (fs.existsSync(path.resolve(process.cwd(), DIRSPECPATH))) { fs.unlinkSync(path.resolve(process.cwd(), 'asyncapi.yml')); }
-	}
+  deleteSpecFileAtWorkingDir(): void {
+    if (fs.existsSync(path.resolve(process.cwd(), DIRSPECPATH))) { fs.unlinkSync(path.resolve(process.cwd(), 'asyncapi.yml')); }
+  }
 }

@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-object-injection */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Context, ContextFileNotFoundError, ContextNotFoundError, MissingCurrentContextError } from './models';
 import { ContextService } from './contextService';
 import { container } from 'tsyringe';
@@ -17,7 +15,7 @@ export const useContextFile = (): any => {
     list: (): Result => {
       try {
         const ctx: Context = contextService.loadContextFile();
-        const response = Object.keys(ctx.store).map(c => ({ key: c, path: ctx.store[c] }));
+        const response = Object.keys(ctx.store).map(c => ({ key: c, path: ctx.store[String(c)] }));
         return { response };
       } catch (error) {
         return { error };
@@ -86,8 +84,11 @@ export const useContextFile = (): any => {
           return { response };
         }
         const context = contextService.loadContextFile();
-        //@ts-ignore
-        response = new SpecificationFile(context.store[context.current]);
+        const currentCtx = context.store[context.current];
+        if (!currentCtx) {
+          throw new MissingCurrentContextError();
+        }
+        response = new SpecificationFile(currentCtx);
         return { response };
       } catch (error) {
         return { error };
@@ -96,9 +97,9 @@ export const useContextFile = (): any => {
     getContext: (key: string): Result => {
       try {
         const ctx = contextService.loadContextFile();
-        if (!ctx.store[key]) {throw new ContextNotFoundError();}
-        //@ts-ignore
-        const response = new SpecificationFile(ctx.store[key]);
+        const ctxValue = ctx.store[String(key)];
+        if (!ctxValue) {throw new ContextNotFoundError();}
+        const response = new SpecificationFile(ctxValue);
         return { response };
       } catch (error) {
         return { error };

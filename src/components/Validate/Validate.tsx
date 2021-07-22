@@ -1,15 +1,16 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Newline, Text } from 'ink';
-import { Options } from '../../CliModels';
-import { SpecificationFile, useValidate } from '../../hooks/validation';
-import { UseValidateResponse } from '../../hooks/validation/models';
+
 import { useSpecfile } from '../../hooks/context';
+import { UseValidateResponse } from '../../hooks/validation/models';
+import { SpecificationFile, useValidate } from '../../hooks/validation';
+import { Options } from '../../CliModels';
 
 interface ValidateInput {
-	options: Options,
+	options: Options;
 }
 
-const Validate: FunctionComponent<ValidateInput> = ({ options }) => {
+const Validate: React.FunctionComponent<ValidateInput> = ({ options }) => {
   const { specFile, error } = useSpecfile({ context: options.context, file: options.file });
   if (error) {
     return <Text color="red">{error.message}</Text>;

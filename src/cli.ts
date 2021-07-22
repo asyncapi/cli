@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import 'reflect-metadata';
+
+import 'reflect-metadata'; // import globally for `tsyringe` package 
 import { render } from 'ink';
 import meow from 'meow';
 import { commandsRouter } from './CommandsRouter';

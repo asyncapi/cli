@@ -8,7 +8,7 @@ export interface Context {
 export class SpecFileNotFoundError extends Error {
   constructor() {
     super();
-    this.message = 'specification file not found in that path';
+    this.message = 'specification file not found in that path.';
   }
 }
 
@@ -29,14 +29,14 @@ export class ContextNotFoundError extends Error {
 export class KeyNotFoundError extends Error {
   constructor() {
     super();
-    this.message = 'Key not found';
+    this.message = 'Key not found.';
   }
 }
 
 export class DeletingCurrentContextError extends Error {
   constructor() {
     super();
-    this.message = 'You are trying to delete a context that is currently in use';
+    this.message = 'You are trying to delete a context that is currently in use.';
   }
 }
 
@@ -44,5 +44,12 @@ export class MissingCurrentContextError extends Error {
   constructor() {
     super();
     this.message = 'No context is set as current, please set a current context.';
+  }
+}
+
+export class MissingArgumentstError extends Error {
+  constructor() {
+    super();
+    this.message = 'Missing arguments';
   }
 }

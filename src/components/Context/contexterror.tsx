@@ -1,9 +1,9 @@
-/* eslint-disable no-use-before-define */
-import React, { FunctionComponent } from 'react';
+import React from 'react';
 import { Text } from 'ink';
+
 import { ContextFileNotFoundError, DeletingCurrentContextError, KeyNotFoundError } from '../../hooks/context';
 
-const ContextError: FunctionComponent<{ error: Error }> = ({ error }) => {
+const ContextError: React.FunctionComponent<{ error: Error }> = ({ error }) => {
   if (error instanceof ContextFileNotFoundError) {
     return <Text>No contexts saved yet.</Text>;
   }

@@ -1,11 +1,11 @@
-/* eslint-disable sonarjs/no-duplicate-string */
-import { useContextFile } from '../../hooks/context';
-import React, { FunctionComponent } from 'react';
+import React from 'react';
 import { Box, Text } from 'ink';
+
 import ContextError from './contexterror';
+import { useContextFile, MissingArgumentstError } from '../../hooks/context';
 import { SpecificationFile } from '../../hooks/validation';
 
-export const ListContexts: FunctionComponent = () => {
+export const ListContexts: React.FunctionComponent = () => {
   const { response, error } = useContextFile().list();
 
   if (error) {
@@ -13,15 +13,17 @@ export const ListContexts: FunctionComponent = () => {
   }
 
   if (response) {
-    return <Box flexDirection="column">
-      {response.map((context: any) => <Text key={context.key}>{context.key} : {context.path}</Text>)}
-    </Box>;
+    return (
+      <Box flexDirection="column">
+        {response.map((context: any) => <Text key={context.key}>{context.key} : {context.path}</Text>)}
+      </Box>
+    );
   }
 
-  return <></>;
+  return null;
 };
 
-export const ShowCurrentContext: FunctionComponent = () => {
+export const ShowCurrentContext: React.FunctionComponent = () => {
   const { response, error } = useContextFile().current();
 
   if (error) {
@@ -32,14 +34,14 @@ export const ShowCurrentContext: FunctionComponent = () => {
     return <Text>{response.key} : {response.path}</Text>;
   }
 
-  return <></>;
+  return null;
 };
 
-export const AddContext: FunctionComponent<{ options: any, args: string[] }> = ({ args }) => {
+export const AddContext: React.FunctionComponent<{ options: any, args: string[] }> = ({ args }) => {
   const [key, path] = args;
 
   if (!key || !path) {
-    return <ContextError error={new Error('missing arguments')} />;
+    return <ContextError error={new MissingArgumentstError()} />;
   }
 
   const { response, error } = useContextFile().addContext(key, new SpecificationFile(path));
@@ -51,11 +53,11 @@ export const AddContext: FunctionComponent<{ options: any, args: string[] }> = (
   return <Text>{response}</Text>;
 };
 
-export const SetCurrent: FunctionComponent<{ options: any, args: string[] }> = ({ args }) => {
+export const SetCurrent: React.FunctionComponent<{ options: any, args: string[] }> = ({ args }) => {
   const [key,] = args;
 
   if (!key) {
-    return <ContextError error={new Error('missing arguments')} />;
+    return <ContextError error={new MissingArgumentstError()} />;
   }
 
   const { response, error } = useContextFile().setCurrent(key);
@@ -68,14 +70,14 @@ export const SetCurrent: FunctionComponent<{ options: any, args: string[] }> = (
     return <Text>{response.key} : {response.path}</Text>;
   }
 
-  return <></>;
+  return null;
 };
 
-export const RemoveContext: FunctionComponent<{ options: any, args: string[] }> = ({ args }) => {
+export const RemoveContext: React.FunctionComponent<{ options: any, args: string[] }> = ({ args }) => {
   const [key] = args;
 
   if (!key) {
-    return <ContextError error={new Error('missing arguments')} />;
+    return <ContextError error={new MissingArgumentstError()} />;
   }
 
   const { response, error } = useContextFile().deleteContext(key);

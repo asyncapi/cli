@@ -1,6 +1,3 @@
-/* eslint-disable security/detect-object-injection */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable security/detect-non-literal-fs-filename */
 import { injectable } from 'tsyringe';
 import { Context, ContextFileNotFoundError,KeyNotFoundError, SpecFileNotFoundError } from './models';
 import { CONTEXTFILE_PATH } from '../../constants';
@@ -30,19 +27,18 @@ export class ContextService {
 
   addContext(context: Context, key: string, specFile: SpecificationFile): Context {
     if (specFile.isNotValid()) {throw new SpecFileNotFoundError();}
-    context.store[key] = specFile.getSpecificationName();
+    context.store[String(key)] = specFile.getSpecificationName();
     return context;
   }
 
   deleteContext(context: Context, key: string): Context {
-    //@ts-ignore
-    if (context.current === key) {delete context.current;} 
-    delete context.store[key];
+    if (context.current === key) {context.current = '';} 
+    delete context.store[String(key)];
     return context;
   }
 
   updateCurrent(context: Context, key: string): Context {
-    if (!context.store[key]) {throw new KeyNotFoundError();} 
+    if (!context.store[String(key)]) {throw new KeyNotFoundError();} 
     context.current = key;
     return context;
   }
