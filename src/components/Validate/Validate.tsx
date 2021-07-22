@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Newline, Text } from 'ink';
 
 import { useSpecfile } from '../../hooks/context';
@@ -10,7 +10,7 @@ interface ValidateInput {
 	options: Options;
 }
 
-const Validate: FunctionComponent<ValidateInput> = ({ options }) => {
+const Validate: React.FunctionComponent<ValidateInput> = ({ options }) => {
   const { specFile, error } = useSpecfile({ context: options.context, file: options.file });
   if (error) {
     return <Text color="red">{error.message}</Text>;
