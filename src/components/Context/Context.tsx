@@ -1,4 +1,3 @@
-/* eslint-disable no-use-before-define */
 /* eslint-disable sonarjs/no-duplicate-string */
 import { useContextFile } from '../../hooks/context';
 import React, { FunctionComponent } from 'react';

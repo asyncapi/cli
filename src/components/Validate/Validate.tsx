@@ -1,4 +1,3 @@
-/* eslint-disable no-use-before-define */
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { Newline, Text } from 'ink';
 import { Options } from '../../CliModels';

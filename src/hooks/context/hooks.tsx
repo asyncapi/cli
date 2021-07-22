@@ -1,6 +1,5 @@
 /* eslint-disable security/detect-object-injection */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Context, ContextFileNotFoundError, ContextNotFoundError, MissingCurrentContextError } from './models';
 import { ContextService } from './contextService';
 import { container } from 'tsyringe';
@@ -11,7 +10,7 @@ export type Result = {
 	error?: Error
 }
 
-export const useContextFile = () => {
+export const useContextFile = (): any => {
   const contextService: ContextService = container.resolve(ContextService);
 
   return {

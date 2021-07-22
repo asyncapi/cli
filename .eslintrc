@@ -62,10 +62,6 @@
       "outside"
     ],
     "no-shadow": 0,
-    "no-use-before-define": [
-      2,
-      "nofunc"
-    ],
     "no-path-concat": 2,
     "valid-jsdoc": [
       0,
@@ -183,6 +179,9 @@
     "prefer-spread": 2,
     "prefer-template": 2,
     "@typescript-eslint/no-unused-vars": 2
+  },
+  "globals": {
+    "process": "readonly"
   },
   "overrides": [
     {

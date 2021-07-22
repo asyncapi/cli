@@ -1,6 +1,5 @@
 /* eslint-disable security/detect-object-injection */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable no-undef */
 /* eslint-disable security/detect-non-literal-fs-filename */
 import { injectable } from 'tsyringe';
 import { Context, ContextFileNotFoundError,KeyNotFoundError, SpecFileNotFoundError } from './models';

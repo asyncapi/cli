@@ -1,13 +1,13 @@
-/* eslint-disable sonarjs/no-duplicate-string */
-/* eslint-disable security/detect-object-injection */
 /* eslint-disable security/detect-non-literal-fs-filename */
+/* eslint-disable security/detect-object-injection */
 /* eslint-disable no-mixed-spaces-and-tabs */
-/* eslint-disable no-undef */
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs';
 import { SpecificationFile } from './hooks/validation';
 import { Context } from './hooks/context/models';
+
+const DIRSPECPATH = 'asycnapi.yml';
 
 const isTestEnv = (process.env['NODE_ENV'] === 'test') || (process.env['JEST_WORKER_ID'] !== undefined) || typeof jest !== 'undefined';
 
@@ -39,7 +39,7 @@ export class ContextTestingHelper {
 	}
 
 	deleteDummyContextFile(): void {
-	  if (fs.existsSync(CONTEXTFILE_PATH)) {fs.unlinkSync(CONTEXTFILE_PATH);}
+	  if (fs.existsSync(CONTEXTFILE_PATH)) { fs.unlinkSync(CONTEXTFILE_PATH); }
 	}
 
 	getPath(key: string): string | undefined {
@@ -47,10 +47,10 @@ export class ContextTestingHelper {
 	}
 
 	createSpecFileAtWorkingDir(): void {
-	  if (!fs.existsSync(path.resolve(process.cwd(), 'asyncapi.yml'))) {fs.writeFileSync(path.resolve(process.cwd(), 'asyncapi.yml'), '');}
+	  if (!fs.existsSync(path.resolve(process.cwd(), DIRSPECPATH))) { fs.writeFileSync(path.resolve(process.cwd(), 'asyncapi.yml'), ''); }
 	}
 
 	deleteSpecFileAtWorkingDir(): void {
-	  if (fs.existsSync(path.resolve(process.cwd(), 'asyncapi.yml'))) {fs.unlinkSync(path.resolve(process.cwd(), 'asyncapi.yml'));}
+	  if (fs.existsSync(path.resolve(process.cwd(), DIRSPECPATH))) { fs.unlinkSync(path.resolve(process.cwd(), 'asyncapi.yml')); }
 	}
 }
