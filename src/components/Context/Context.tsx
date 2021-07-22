@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Text } from 'ink';
 
-import ContextError from './ContextError';
+import ContextError from './contexterror';
 import { useContextFile, MissingArgumentstError } from '../../hooks/context';
 import { SpecificationFile } from '../../hooks/validation';
 
