@@ -15,7 +15,6 @@ const HELP_FLAG = '-h, --help  display help for command';
 export const Help = {
   root: {
     usage: 'asyncapi [options] [command]',
-    shortHelp: '',
     options: [
       '-v, --version  output the version number',
       HELP_FLAG
@@ -23,6 +22,7 @@ export const Help = {
   },
   validate: {
     usage: 'asyncapi validate [options]',
+    shortDesc: 'Validate an AsyncApi file',
     options: [
       '-f, --file <spec-path>  Path of the spec file',
       '-c, --context <saved-context-name>  context name to use',
