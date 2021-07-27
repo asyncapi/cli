@@ -1,3 +1,4 @@
+import * as messages from '../../messages';
 export interface Context {
 	current: string,
 	store: {
@@ -15,41 +16,41 @@ export class SpecFileNotFoundError extends Error {
 export class ContextFileNotFoundError extends Error {
   constructor() {
     super();
-    this.message = 'No contexts saved yet, run asyncapi --help to know more.';
+    this.message = messages.NO_CONTEXTS_SAVED;
   }
 }
 
 export class ContextNotFoundError extends Error {
   constructor() {
     super();
-    this.message = 'This context key does not exist.';
+    this.message = messages.CONTEXT_NOT_FOUND;
   }
 }
 
 export class KeyNotFoundError extends Error {
   constructor() {
     super();
-    this.message = 'Key not found.';
+    this.message = messages.KEY_NOT_FOUND;
   }
 }
 
 export class DeletingCurrentContextError extends Error {
   constructor() {
     super();
-    this.message = 'You are trying to delete a context that is currently in use.';
+    this.message = messages.DELETING_CURRENT_CONTEXT;
   }
 }
 
 export class MissingCurrentContextError extends Error {
   constructor() {
     super();
-    this.message = 'No context is set as current, please set a current context.';
+    this.message = messages.MISSING_CURRENT_CONTEXT;
   }
 }
 
 export class MissingArgumentstError extends Error {
   constructor() {
     super();
-    this.message = 'Missing arguments';
+    this.message = messages.MISSING_ARGUMENTS;
   }
 }
