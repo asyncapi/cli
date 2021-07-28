@@ -46,6 +46,7 @@ export class Help {
     name: 'context',
     usage: 'asyncapi context [command] [options]',
     shortDescription: 'Manage contexts',
+    longDescription: 'Context is what makes it easier for you to work with multiple AsyncAPI files. You can add multiple different files to a context. This way you do not have to pass --file flag with path to the file every time but just --context flag with reference name. You can also set a default context, so neither --file nor --context flags are needed',
     flags: [
       this._helpFlag
     ],
