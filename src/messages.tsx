@@ -44,7 +44,7 @@ export class Help {
 
   private context: CommandHelp = {
     name: 'context',
-    usage: 'asyncapi context [options] [command]',
+    usage: 'asyncapi context [command] [options]',
     shortDescription: 'Manage contexts',
     flags: [
       this._helpFlag
@@ -71,7 +71,7 @@ export class Help {
     helpString += '\n';
 
     helpString += 'commads:\n';
-    helpString += ` context [options] [command]  ${this.context.shortDescription} \n`;
+    helpString += ` context [command] [options]  ${this.context.shortDescription} \n`;
     helpString += ` validate [options]  ${this.validate.shortDescription}\n`;
     return helpString;
   }
