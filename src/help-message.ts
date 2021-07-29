@@ -74,8 +74,7 @@ export class HelpMessageBuilder {
 
   showCommandHelp(command: CommandName) {
     let helpText = '';
-    // eslint-disable-next-line security/detect-object-injection
-    const commandHelpObject = this.helpMessage.commands[command];
+    const commandHelpObject = this.helpMessage.commands[command as CommandName];
     helpText += `usage: ${commandHelpObject.usage}\n\n`;
 
     if (commandHelpObject.longDescription) {
