@@ -2,6 +2,7 @@ import { useContextFile, useSpecfile } from './hooks';
 import { ContextFileNotFoundError, KeyNotFoundError, ContextNotFoundError } from './models';
 import { ContextTestingHelper } from '../../constants';
 import { SpecificationFile } from '../validation';
+import * as messages from '../../messages';
 
 const testingVariables = new ContextTestingHelper();
 
@@ -42,7 +43,7 @@ describe('useContextFile().addContext ', () => {
     testingVariables.deleteDummyContextFile();
     const { response, error } = useContextFile().addContext('home', new SpecificationFile('./test/specification.yml'));
     expect(error).toBeUndefined();
-    expect(response).toMatch('New context added');
+    expect(response).toMatch(messages.NEW_CONTEXT_ADDED);
     testingVariables.deleteDummyContextFile();
   });
 
@@ -50,7 +51,7 @@ describe('useContextFile().addContext ', () => {
     testingVariables.createDummyContextFile();
     const { response, error } = useContextFile().addContext('home', new SpecificationFile('./test/specification.yml'));
     expect(error).toBeUndefined();
-    expect(response).toMatch('New context added');
+    expect(response).toMatch(messages.NEW_CONTEXT_ADDED);
   });
 
   test('Auto set current when when adding context for the fist time', () => {

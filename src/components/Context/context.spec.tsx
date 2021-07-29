@@ -42,7 +42,7 @@ describe('AddContext ', () => {
   test('should return message', () => {
     testing.createDummyContextFile();
     const { lastFrame } = render(<AddContext options={{}} args={['home', './test/specification.yml']} />);
-    expect(lastFrame()).toMatch('New context added');
+    expect(lastFrame()).toMatch(messages.NEW_CONTEXT_ADDED);
   });
 });
 

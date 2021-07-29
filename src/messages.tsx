@@ -9,3 +9,5 @@ export const DELETING_CURRENT_CONTEXT = 'You are tyring to delete a context that
 export const MISSING_CURRENT_CONTEXT = 'No context is set as current, please set a current context.';
 
 export const MISSING_ARGUMENTS = 'Missing arguments.';
+
+export const NEW_CONTEXT_ADDED = 'New context added.';

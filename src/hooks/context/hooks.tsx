@@ -2,6 +2,7 @@ import { Context, ContextFileNotFoundError, ContextNotFoundError, MissingCurrent
 import { ContextService } from './contextService';
 import { container } from 'tsyringe';
 import { SpecificationFile } from '../validation';
+import * as messages from '../../messages';
 
 export type Result = {
 	response?: any,
@@ -36,14 +37,14 @@ export const useContextFile = (): any => {
         const ctx = contextService.loadContextFile();
         const updatedContext = contextService.addContext(ctx, key, specFile);
         contextService.save(updatedContext);
-        const response = 'New context added';
+        const response = messages.NEW_CONTEXT_ADDED;
         return { response };
       } catch (error) {
         if (error instanceof ContextFileNotFoundError) {
           const context: Context = { current: '', store: {} };
           const newContext = contextService.addContext(context, key, specFile);
           contextService.save(contextService.updateCurrent(newContext, key));
-          const response = 'New context added';
+          const response = messages.NEW_CONTEXT_ADDED;
           return { response };
         }
         return { error };
