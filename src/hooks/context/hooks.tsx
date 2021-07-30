@@ -4,8 +4,8 @@ import { container } from 'tsyringe';
 import { SpecificationFile } from '../validation';
 
 export type Result = {
-	response?: any,
-	error?: Error
+  response?: any,
+  error?: Error
 }
 
 export const useContextFile = (): any => {
@@ -24,7 +24,7 @@ export const useContextFile = (): any => {
     current: (): Result => {
       try {
         const ctx: Context = contextService.loadContextFile();
-        if (!ctx.current) {throw new MissingCurrentContextError();}
+        if (!ctx.current) { throw new MissingCurrentContextError(); }
         const response = { key: ctx.current, path: ctx.store[ctx.current] };
         return { response };
       } catch (error) {
@@ -41,10 +41,14 @@ export const useContextFile = (): any => {
       } catch (error) {
         if (error instanceof ContextFileNotFoundError) {
           const context: Context = { current: '', store: {} };
-          const newContext = contextService.addContext(context, key, specFile);
-          contextService.save(contextService.updateCurrent(newContext, key));
-          const response = 'New context added';
-          return { response };
+          try {
+            const newContext = contextService.addContext(context, key, specFile);
+            contextService.save(contextService.updateCurrent(newContext, key));
+            const response = 'New context added';
+            return { response };
+          } catch (error) {
+            return { error };
+          }
         }
         return { error };
       }
@@ -98,7 +102,7 @@ export const useContextFile = (): any => {
       try {
         const ctx = contextService.loadContextFile();
         const ctxValue = ctx.store[String(key)];
-        if (!ctxValue) {throw new ContextNotFoundError();}
+        if (!ctxValue) { throw new ContextNotFoundError(); }
         const response = new SpecificationFile(ctxValue);
         return { response };
       } catch (error) {
@@ -109,13 +113,13 @@ export const useContextFile = (): any => {
 };
 
 export interface useSpecFileInput {
-	file?: string,
-	context?: string
+  file?: string,
+  context?: string
 }
 
 export interface useSpecFileOutput {
-	specFile?: SpecificationFile,
-	error?: Error
+  specFile?: SpecificationFile,
+  error?: Error
 }
 
 export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
@@ -124,7 +128,7 @@ export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
   try {
     if (flags.file) {
       const specFile: SpecificationFile = new SpecificationFile(flags.file);
-      if (specFile.isNotValid()) {throw new Error('Invalid spec path');}
+      if (specFile.isNotValid()) { throw new Error('Invalid spec path'); }
       return { specFile };
     }
 
@@ -132,21 +136,21 @@ export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
 
     if (flags.context) {
       const ctxFile = ctx.store[flags.context];
-      if (!ctxFile) {throw new ContextNotFoundError();}
+      if (!ctxFile) { throw new ContextNotFoundError(); }
       const specFile = new SpecificationFile(ctxFile);
       return { specFile };
     }
 
     if (ctx.current) {
       const currentFile = ctx.store[ctx.current];
-      if (!currentFile) {throw new MissingCurrentContextError();}
+      if (!currentFile) { throw new MissingCurrentContextError(); }
       const specFile = new SpecificationFile(currentFile);
       return { specFile };
     }
 
     const autoDetectedSpecPath = contextService.autoDetectSpecFile();
 
-    if (typeof autoDetectedSpecPath === 'undefined') {throw new Error('No spec path found in your working directory, please use flags or store a context');}
+    if (typeof autoDetectedSpecPath === 'undefined') { throw new Error('No spec path found in your working directory, please use flags or store a context'); }
 
     const specFile = new SpecificationFile(autoDetectedSpecPath);
 
