@@ -11,3 +11,5 @@ export const MISSING_CURRENT_CONTEXT = 'No context is set as current, please set
 export const MISSING_ARGUMENTS = 'Missing arguments.';
 
 export const NEW_CONTEXT_ADDED = 'New context added.';
+
+export const CONTEXT_DELETED = 'context deleted successfully';

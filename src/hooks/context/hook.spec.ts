@@ -94,13 +94,13 @@ describe('useContextFile().deleteContext ', () => {
     testingVariables.createDummyContextFile();
     const { response, error } = useContextFile().deleteContext('code');
     expect(error).toBeUndefined();
-    expect(response).toMatch('context deleted successfully');
+    expect(response).toMatch(messages.CONTEXT_DELETED);
   });
 
   test('return error if deleting current context', () => {
     testingVariables.createDummyContextFile();
     const { response, error } = useContextFile().deleteContext('home');
-    expect(response).toMatch('context deleted successfully');
+    expect(response).toMatch(messages.CONTEXT_DELETED);
     expect(error).toBeUndefined();
   });
 });

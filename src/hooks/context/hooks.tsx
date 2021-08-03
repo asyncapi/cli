@@ -66,11 +66,11 @@ export const useContextFile = (): any => {
         const ctx = contextService.loadContextFile();
         if (Object.keys(ctx.store).length === 1) {
           contextService.deleteContextFile();
-          return { response: 'context deleted successfully' };
+          return { response: messages.CONTEXT_DELETED };
         }
         const updatedContext = contextService.deleteContext(ctx, key);
         contextService.save(updatedContext);
-        const response = 'context deleted successfully';
+        const response = messages.CONTEXT_DELETED;
         return { response };
       } catch (error) {
         return { error };
