@@ -45,7 +45,7 @@ export const useContextFile = (): any => {
           try {
             const newContext = contextService.addContext(context, key, specFile);
             contextService.save(contextService.updateCurrent(newContext, key));
-            const response = 'New context added';
+            const response = messages.NEW_CONTEXT_ADDED;
             return { response };
           } catch (error) {
             return { error };
