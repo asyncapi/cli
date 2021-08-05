@@ -13,3 +13,8 @@ export const MISSING_ARGUMENTS = 'Missing arguments.';
 export const NEW_CONTEXT_ADDED = 'New context added.';
 
 export const CONTEXT_DELETED = 'context deleted successfully';
+
+export const ValidationMessage = (filePath: string) => ({
+  error: () => `File: ${filePath} does not exists or is not a file!`,
+  message: () => `File: ${filePath} successfully validated!`
+});
