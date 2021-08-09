@@ -37,7 +37,7 @@ export const useContextFile = (): any => {
         const ctx = contextService.loadContextFile();
         const updatedContext = contextService.addContext(ctx, key, specFile);
         contextService.save(updatedContext);
-        const response = messages.NEW_CONTEXT_ADDED;
+        const response = messages.NEW_CONTEXT_ADDED(key);
         return { response };
       } catch (error) {
         if (error instanceof ContextFileNotFoundError) {
@@ -45,7 +45,7 @@ export const useContextFile = (): any => {
           try {
             const newContext = contextService.addContext(context, key, specFile);
             contextService.save(contextService.updateCurrent(newContext, key));
-            const response = messages.NEW_CONTEXT_ADDED;
+            const response = messages.NEW_CONTEXT_ADDED(key);
             return { response };
           } catch (error) {
             return { error };

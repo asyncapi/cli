@@ -29,7 +29,7 @@ export class HelpMessage {
       shortDescription: 'Validate asyncapi file',
       flags: [
         this.helpFlag,
-        '-f, --file <spec-file-path>  Path of the spec file',
+        '-f, --file <spec-file-path>  Path of the AsyncAPI file',
         '-c, --context <saved-context-name>  Context to use',
         '-w, --watch  Watch mode'
       ]
@@ -42,7 +42,7 @@ export class HelpMessage {
       subCommands: [
         'list  list all saved contexts',
         'current  see current context',
-        'use <context-name>  set a context as current',
+        'use <context-name>  set given context as default/current',
         'add <context-name> <spec-file-path>  add/update context',
         'remove <context-name>  remove a context'
       ]

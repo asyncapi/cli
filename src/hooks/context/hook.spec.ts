@@ -43,7 +43,7 @@ describe('useContextFile().addContext ', () => {
     testingVariables.deleteDummyContextFile();
     const { response, error } = useContextFile().addContext('home', new SpecificationFile('./test/specification.yml'));
     expect(error).toBeUndefined();
-    expect(response).toMatch(messages.NEW_CONTEXT_ADDED);
+    expect(response).toMatch(messages.NEW_CONTEXT_ADDED('home'));
     testingVariables.deleteDummyContextFile();
   });
 
@@ -51,14 +51,14 @@ describe('useContextFile().addContext ', () => {
     testingVariables.createDummyContextFile();
     const { response, error } = useContextFile().addContext('home', new SpecificationFile('./test/specification.yml'));
     expect(error).toBeUndefined();
-    expect(response).toMatch(messages.NEW_CONTEXT_ADDED);
+    expect(response).toMatch(messages.NEW_CONTEXT_ADDED('home'));
   });
 
   test('Auto set current when when adding context for the fist time', () => {
     testingVariables.deleteDummyContextFile();
     const { response, error } = useContextFile().addContext('home', new SpecificationFile('./test/specification.yml'));
     expect(error).toBeUndefined();
-    expect(response).toMatch('New context added');
+    expect(response).toMatch(messages.NEW_CONTEXT_ADDED('home'));
     const { response: res, error: err } = useContextFile().current();
     expect(err).toBeUndefined();
     expect(res?.key).toMatch('home');
