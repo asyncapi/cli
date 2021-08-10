@@ -1,5 +1,5 @@
 import { useContextFile, useSpecfile } from './hooks';
-import { ContextFileNotFoundError, KeyNotFoundError, ContextNotFoundError } from './models';
+import { ContextFileNotFoundError, ContextNotFoundError } from './models';
 import { ContextTestingHelper } from '../../constants';
 import { SpecificationFile } from '../validation';
 import * as messages from '../../messages';
@@ -78,7 +78,7 @@ describe('useContextFile.updateCurrent ', () => {
     testingVariables.createDummyContextFile();
     const { response, error } = useContextFile().setCurrent('name');
     expect(response).toBeUndefined();
-    expect(error instanceof KeyNotFoundError).toBeTruthy();
+    expect(error instanceof ContextNotFoundError).toBeTruthy();
   });
 
   test('Should update the current context', () => {

@@ -21,16 +21,9 @@ export class ContextFileNotFoundError extends Error {
 }
 
 export class ContextNotFoundError extends Error {
-  constructor() {
+  constructor(contextName: string) {
     super();
-    this.message = messages.CONTEXT_NOT_FOUND;
-  }
-}
-
-export class KeyNotFoundError extends Error {
-  constructor() {
-    super();
-    this.message = messages.KEY_NOT_FOUND;
+    this.message = messages.CONTEXT_NOT_FOUND(contextName);
   }
 }
 

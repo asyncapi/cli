@@ -103,7 +103,7 @@ export const useContextFile = (): any => {
       try {
         const ctx = contextService.loadContextFile();
         const ctxValue = ctx.store[String(key)];
-        if (!ctxValue) { throw new ContextNotFoundError(); }
+        if (!ctxValue) { throw new ContextNotFoundError(key); }
         const response = new SpecificationFile(ctxValue);
         return { response };
       } catch (error) {
@@ -137,7 +137,7 @@ export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
 
     if (flags.context) {
       const ctxFile = ctx.store[flags.context];
-      if (!ctxFile) { throw new ContextNotFoundError(); }
+      if (!ctxFile) { throw new ContextNotFoundError(flags.context); }
       const specFile = new SpecificationFile(ctxFile);
       return { specFile };
     }
