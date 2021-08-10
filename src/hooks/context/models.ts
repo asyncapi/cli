@@ -27,13 +27,6 @@ export class ContextNotFoundError extends Error {
   }
 }
 
-export class DeletingCurrentContextError extends Error {
-  constructor() {
-    super();
-    this.message = messages.DELETING_CURRENT_CONTEXT;
-  }
-}
-
 export class MissingCurrentContextError extends Error {
   constructor() {
     super();
