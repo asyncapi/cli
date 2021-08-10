@@ -6,7 +6,7 @@ export const MISSING_CURRENT_CONTEXT = 'No context is set as current, please set
 
 export const MISSING_ARGUMENTS = 'Missing arguments.';
 
-export const NEW_CONTEXT_ADDED = (contextName: string) => `New context added.\nYou can set it as your current context:\n asyncapi context use ${contextName}\nYou can use this context when needed with --context flag`;
+export const NEW_CONTEXT_ADDED = (contextName: string) => `New context added.\n\nYou can set it as your current context:\n asyncapi context use ${contextName}\nYou can use this context when needed with --context flag: asyncapi validate --context ${contextName}`;
 
 export const CONTEXT_DELETED = 'context deleted successfully';
 
