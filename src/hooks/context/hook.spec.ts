@@ -1,7 +1,8 @@
 import { useContextFile, useSpecfile } from './hooks';
-import { ContextFileNotFoundError, KeyNotFoundError, ContextNotFoundError } from './models';
+import { ContextFileNotFoundError, ContextNotFoundError } from './models';
 import { ContextTestingHelper } from '../../constants';
 import { SpecificationFile } from '../validation';
+import * as messages from '../../messages';
 
 const testingVariables = new ContextTestingHelper();
 
@@ -42,7 +43,7 @@ describe('useContextFile().addContext ', () => {
     testingVariables.deleteDummyContextFile();
     const { response, error } = useContextFile().addContext('home', new SpecificationFile('./test/specification.yml'));
     expect(error).toBeUndefined();
-    expect(response).toMatch('New context added');
+    expect(response).toMatch(messages.NEW_CONTEXT_ADDED('home'));
     testingVariables.deleteDummyContextFile();
   });
 
@@ -50,14 +51,14 @@ describe('useContextFile().addContext ', () => {
     testingVariables.createDummyContextFile();
     const { response, error } = useContextFile().addContext('home', new SpecificationFile('./test/specification.yml'));
     expect(error).toBeUndefined();
-    expect(response).toMatch('New context added');
+    expect(response).toMatch(messages.NEW_CONTEXT_ADDED('home'));
   });
 
   test('Auto set current when when adding context for the fist time', () => {
     testingVariables.deleteDummyContextFile();
     const { response, error } = useContextFile().addContext('home', new SpecificationFile('./test/specification.yml'));
     expect(error).toBeUndefined();
-    expect(response).toMatch('New context added');
+    expect(response).toMatch(messages.NEW_CONTEXT_ADDED('home'));
     const { response: res, error: err } = useContextFile().current();
     expect(err).toBeUndefined();
     expect(res?.key).toMatch('home');
@@ -77,7 +78,7 @@ describe('useContextFile.updateCurrent ', () => {
     testingVariables.createDummyContextFile();
     const { response, error } = useContextFile().setCurrent('name');
     expect(response).toBeUndefined();
-    expect(error instanceof KeyNotFoundError).toBeTruthy();
+    expect(error instanceof ContextNotFoundError).toBeTruthy();
   });
 
   test('Should update the current context', () => {
@@ -93,13 +94,13 @@ describe('useContextFile().deleteContext ', () => {
     testingVariables.createDummyContextFile();
     const { response, error } = useContextFile().deleteContext('code');
     expect(error).toBeUndefined();
-    expect(response).toMatch('context deleted successfully');
+    expect(response).toMatch(messages.CONTEXT_DELETED);
   });
 
   test('return error if deleting current context', () => {
     testingVariables.createDummyContextFile();
     const { response, error } = useContextFile().deleteContext('home');
-    expect(response).toMatch('context deleted successfully');
+    expect(response).toMatch(messages.CONTEXT_DELETED);
     expect(error).toBeUndefined();
   });
 });

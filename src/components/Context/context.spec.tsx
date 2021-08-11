@@ -2,6 +2,7 @@ import React from 'react';
 import { render } from 'ink-testing-library';
 import { ListContexts, ShowCurrentContext, AddContext, SetCurrent } from './Context';
 import { ContextTestingHelper } from '../../constants';
+import * as messages from '../../messages';
 
 const testing = new ContextTestingHelper();
 
@@ -9,7 +10,7 @@ describe('listing contexts', () => {
   test('should render error when no context file found', () => {
     testing.deleteDummyContextFile();
     const { lastFrame } = render(<ListContexts />);
-    expect(lastFrame()).toMatch('No contexts saved yet.');
+    expect(lastFrame()).toMatch(messages.NO_CONTEXTS_SAVED);
   });
 
   test('Should render the context list', () => {
@@ -27,7 +28,7 @@ describe('rendering current context', () => {
     testing.deleteDummyContextFile();
     const { lastFrame } = render(<ShowCurrentContext />);
     const message = lastFrame();
-    expect(message).toMatch('No contexts saved yet.');
+    expect(message).toMatch(messages.NO_CONTEXTS_SAVED);
   });
 
   test('showing current context ', () => {
@@ -41,7 +42,7 @@ describe('AddContext ', () => {
   test('should return message', () => {
     testing.createDummyContextFile();
     const { lastFrame } = render(<AddContext options={{}} args={['home', './test/specification.yml']} />);
-    expect(lastFrame()).toMatch('New context added');
+    expect(lastFrame()).toMatch(messages.NEW_CONTEXT_ADDED('home'));
   });
 });
 
@@ -49,7 +50,7 @@ describe('SetContext ', () => {
   test('Should render error message is key is not in store', () => {
     testing.createDummyContextFile();
     const { lastFrame } = render(<SetCurrent args={['name']} options={{}} />);
-    expect(lastFrame()).toMatch('The context you are trying to use is not present');
+    expect(lastFrame()).toMatch(messages.CONTEXT_NOT_FOUND('name'));
   });
 
   test('Should render the update context', () => {

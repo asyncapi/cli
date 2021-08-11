@@ -2,6 +2,7 @@ import { container } from 'tsyringe';
 import { SpecificationFile, ValidationInput, ValidationResponse } from './models';
 import { ValidationService } from './ValidationService';
 import { useValidate } from './hook';
+import {ValidationMessage} from '../../messages';
 
 function ValidationServiceMock() {
   return {
@@ -39,7 +40,8 @@ describe('UseValidate should', () => {
 
     expect(useValidateResponse.success).toBeFalsy();
     expect(useValidateResponse.message).toEqual('');
-    expect(useValidateResponse.errors[0]).toBe(`File: ${invalidFileValidationInput.file.getSpecificationName()} does not exists or is not a file!`);
+
+    expect(useValidateResponse.errors[0]).toBe(ValidationMessage(invalidFileValidationInput.file.getSpecificationName()).error());
   });
 
   test('return success when the validation is correct', async () => {
@@ -47,7 +49,7 @@ describe('UseValidate should', () => {
 
     const useValidateResponse = await useValidate().validate(fileThatExistsValidationInput);
     expect(useValidateResponse.success).toBeTruthy();
-    expect(useValidateResponse.message).toEqual(`File: ${fileThatExistsValidationInput.file.getSpecificationName()} successfully validated!`);
+    expect(useValidateResponse.message).toEqual(ValidationMessage(fileThatExistsValidationInput.file.getSpecificationName()).message());
   });
 
   test('return validation service errors when the validation has failed', async () => {

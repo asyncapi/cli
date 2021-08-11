@@ -2,6 +2,7 @@ import { Context, ContextFileNotFoundError, ContextNotFoundError, MissingCurrent
 import { ContextService } from './contextService';
 import { container } from 'tsyringe';
 import { SpecificationFile } from '../validation';
+import * as messages from '../../messages';
 
 export type Result = {
   response?: any,
@@ -36,7 +37,7 @@ export const useContextFile = (): any => {
         const ctx = contextService.loadContextFile();
         const updatedContext = contextService.addContext(ctx, key, specFile);
         contextService.save(updatedContext);
-        const response = 'New context added';
+        const response = messages.NEW_CONTEXT_ADDED(key);
         return { response };
       } catch (error) {
         if (error instanceof ContextFileNotFoundError) {
@@ -44,7 +45,7 @@ export const useContextFile = (): any => {
           try {
             const newContext = contextService.addContext(context, key, specFile);
             contextService.save(contextService.updateCurrent(newContext, key));
-            const response = 'New context added';
+            const response = messages.NEW_CONTEXT_ADDED(key);
             return { response };
           } catch (error) {
             return { error };
@@ -69,11 +70,11 @@ export const useContextFile = (): any => {
         const ctx = contextService.loadContextFile();
         if (Object.keys(ctx.store).length === 1) {
           contextService.deleteContextFile();
-          return { response: 'context deleted successfully' };
+          return { response: messages.CONTEXT_DELETED };
         }
         const updatedContext = contextService.deleteContext(ctx, key);
         contextService.save(updatedContext);
-        const response = 'context deleted successfully';
+        const response = messages.CONTEXT_DELETED;
         return { response };
       } catch (error) {
         return { error };
@@ -102,7 +103,7 @@ export const useContextFile = (): any => {
       try {
         const ctx = contextService.loadContextFile();
         const ctxValue = ctx.store[String(key)];
-        if (!ctxValue) { throw new ContextNotFoundError(); }
+        if (!ctxValue) { throw new ContextNotFoundError(key); }
         const response = new SpecificationFile(ctxValue);
         return { response };
       } catch (error) {
@@ -136,7 +137,7 @@ export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
 
     if (flags.context) {
       const ctxFile = ctx.store[flags.context];
-      if (!ctxFile) { throw new ContextNotFoundError(); }
+      if (!ctxFile) { throw new ContextNotFoundError(flags.context); }
       const specFile = new SpecificationFile(ctxFile);
       return { specFile };
     }
