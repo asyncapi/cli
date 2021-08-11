@@ -1,15 +1,15 @@
 import * as messages from '../../messages';
 export interface Context {
-	current: string,
-	store: {
-		[name: string]: string
-	}
+  current: string,
+  store: {
+    [name: string]: string
+  }
 }
 
 export class SpecFileNotFoundError extends Error {
-  constructor() {
+  constructor(specPath: string) {
     super();
-    this.message = 'specification file not found in that path.';
+    this.message = messages.ValidationMessage(specPath).error();
   }
 }
 

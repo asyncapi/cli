@@ -26,7 +26,7 @@ export class ContextService {
   }
 
   addContext(context: Context, key: string, specFile: SpecificationFile): Context {
-    if (specFile.isNotValid()) {throw new SpecFileNotFoundError();}
+    if (specFile.isNotValid()) {throw new SpecFileNotFoundError(specFile.getSpecificationName());}
     context.store[String(key)] = specFile.getSpecificationName();
     return context;
   }
