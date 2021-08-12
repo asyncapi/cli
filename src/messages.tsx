@@ -6,7 +6,7 @@ export const MISSING_CURRENT_CONTEXT = 'No context is set as current, please set
 
 export const MISSING_ARGUMENTS = 'Missing arguments.';
 
-export const NEW_CONTEXT_ADDED = (contextName: string) => `New context added.\n\nYou can set it as your current context:\n asyncapi context use ${contextName}\nYou can use this context when needed with --context flag: asyncapi validate --context ${contextName}`;
+export const NEW_CONTEXT_ADDED = (contextName: string) => `New context added.\n\nYou can set it as your current context: asyncapi context use ${contextName}\nYou can use this context when needed with --context flag: asyncapi validate --context ${contextName}`;
 
 export const CONTEXT_DELETED = 'context deleted successfully';
 
@@ -15,4 +15,4 @@ export const ValidationMessage = (filePath: string) => ({
   message: () => `File: ${filePath} successfully validated!`
 });
 
-export const NO_SPEC_PATH_FOUND = 'No spec path found in your working directory, please use flags or store a context';
+export const NO_SPEC_FOUND = 'Unable to perform validation. Specify what AsyncAPI file should be validated.\n\nThese are your options to specify in the CLI what AsyncAPI file should be used:\n- You can use --file flag to provide a path to the AsyncAPI file: asyncapi validate --file path/to/file/asyncapi.yml\n- You can use --context flag to provide a name of the context that points to your AsyncAPI file: asyncapi validate --context mycontext\n- In case you did not specify a context that you want to use, the CLI checks if there is a default context and uses it. To set default context run: asyncapi context use mycontext\n- In case you did not provide any reference to AsyncAPI file and there is no default context, the CLI detects if in your current working directory you have files like asyncapi.json, asyncapi.yaml, asyncapi.yml. Just rename your file accordingly.';
