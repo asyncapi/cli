@@ -125,7 +125,6 @@ export interface useSpecFileOutput {
 
 export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
   const contextService: ContextService = container.resolve(ContextService);
-  let autoDetectedSpecFile: string | undefined;
   let specFile: SpecificationFile;
 
   try {
@@ -151,19 +150,13 @@ export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
       return { specFile };
     }
 
-    autoDetectedSpecFile = contextService.autoDetectSpecFile();
-
-    if (typeof autoDetectedSpecFile === 'undefined') { throw new NoSpecPathFoundError(); }
-
-    specFile = new SpecificationFile(autoDetectedSpecFile);
+    specFile = autoDetectSpecFileInWorkingDir(contextService.autoDetectSpecFile());
 
     return { specFile };
   } catch (error) {
     if (error instanceof ContextFileNotFoundError) {
       try {
-        autoDetectedSpecFile = contextService.autoDetectSpecFile();
-        if (typeof autoDetectedSpecFile === 'undefined') { throw new NoSpecPathFoundError(); }
-        specFile = new SpecificationFile(autoDetectedSpecFile);
+        specFile = autoDetectSpecFileInWorkingDir(contextService.autoDetectSpecFile());
         return { specFile };
       } catch (error) {
         return { error };
@@ -171,4 +164,9 @@ export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
     }
     return { error };
   }
+};
+
+const autoDetectSpecFileInWorkingDir = (specFile: string | undefined): SpecificationFile => {
+  if (typeof specFile === 'undefined') { throw new NoSpecPathFoundError(); }
+  return new SpecificationFile(specFile);
 };
