@@ -40,3 +40,10 @@ export class MissingArgumentstError extends Error {
     this.message = messages.MISSING_ARGUMENTS;
   }
 }
+
+export class NoSpecPathFoundError extends Error {
+  constructor() {
+    super();
+    this.message = messages.NO_SPEC_PATH_FOUND;
+  }
+}

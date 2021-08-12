@@ -14,3 +14,5 @@ export const ValidationMessage = (filePath: string) => ({
   error: () => `File: ${filePath} does not exists or is not a file!`,
   message: () => `File: ${filePath} successfully validated!`
 });
+
+export const NO_SPEC_PATH_FOUND = 'No spec path found in your working directory, please use flags or store a context';
