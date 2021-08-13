@@ -3,6 +3,7 @@ import { ContextService } from './contextService';
 import { container } from 'tsyringe';
 import { SpecificationFile } from '../validation';
 import * as messages from '../../messages';
+import { CLIService } from '../cli';
 
 export type Result = {
   response?: any,
@@ -125,6 +126,7 @@ export interface useSpecFileOutput {
 
 export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
   const contextService: ContextService = container.resolve(ContextService);
+  const cliService: CLIService = container.resolve(CLIService);
   let specFile: SpecificationFile;
 
   try {
@@ -150,13 +152,13 @@ export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
       return { specFile };
     }
 
-    specFile = autoDetectSpecFileInWorkingDir(contextService.autoDetectSpecFile());
+    specFile = autoDetectSpecFileInWorkingDir(contextService.autoDetectSpecFile(), cliService.command());
 
     return { specFile };
   } catch (error) {
     if (error instanceof ContextFileNotFoundError) {
       try {
-        specFile = autoDetectSpecFileInWorkingDir(contextService.autoDetectSpecFile());
+        specFile = autoDetectSpecFileInWorkingDir(contextService.autoDetectSpecFile(), cliService.command());
         return { specFile };
       } catch (error) {
         return { error };
@@ -166,7 +168,7 @@ export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
   }
 };
 
-const autoDetectSpecFileInWorkingDir = (specFile: string | undefined): SpecificationFile => {
-  if (typeof specFile === 'undefined') { throw new NoSpecPathFoundError(); }
+const autoDetectSpecFileInWorkingDir = (specFile: string | undefined, command: string): SpecificationFile => {
+  if (typeof specFile === 'undefined') { throw new NoSpecPathFoundError(command); }
   return new SpecificationFile(specFile);
 };

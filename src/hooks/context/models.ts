@@ -42,8 +42,8 @@ export class MissingArgumentstError extends Error {
 }
 
 export class NoSpecPathFoundError extends Error {
-  constructor() {
+  constructor(command: string) {
     super();
-    this.message = messages.NO_SPEC_FOUND;
+    this.message = messages.NO_SPEC_FOUND(command);
   }
 }
