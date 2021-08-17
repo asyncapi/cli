@@ -1,8 +1,9 @@
-import { Context, ContextFileNotFoundError, ContextNotFoundError, MissingCurrentContextError } from './models';
+import { Context, ContextFileNotFoundError, ContextNotFoundError, MissingCurrentContextError, NoSpecPathFoundError } from './models';
 import { ContextService } from './contextService';
 import { container } from 'tsyringe';
 import { SpecificationFile } from '../validation';
 import * as messages from '../../messages';
+import { CLIService } from '../cli';
 
 export type Result = {
   response?: any,
@@ -125,10 +126,12 @@ export interface useSpecFileOutput {
 
 export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
   const contextService: ContextService = container.resolve(ContextService);
+  const cliService: CLIService = container.resolve(CLIService);
+  let specFile: SpecificationFile;
 
   try {
     if (flags.file) {
-      const specFile: SpecificationFile = new SpecificationFile(flags.file);
+      specFile = new SpecificationFile(flags.file);
       if (specFile.isNotValid()) { throw new Error('Invalid spec path'); }
       return { specFile };
     }
@@ -138,25 +141,34 @@ export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
     if (flags.context) {
       const ctxFile = ctx.store[flags.context];
       if (!ctxFile) { throw new ContextNotFoundError(flags.context); }
-      const specFile = new SpecificationFile(ctxFile);
+      specFile = new SpecificationFile(ctxFile);
       return { specFile };
     }
 
     if (ctx.current) {
       const currentFile = ctx.store[ctx.current];
       if (!currentFile) { throw new MissingCurrentContextError(); }
-      const specFile = new SpecificationFile(currentFile);
+      specFile = new SpecificationFile(currentFile);
       return { specFile };
     }
 
-    const autoDetectedSpecPath = contextService.autoDetectSpecFile();
-
-    if (typeof autoDetectedSpecPath === 'undefined') { throw new Error('No spec path found in your working directory, please use flags or store a context'); }
-
-    const specFile = new SpecificationFile(autoDetectedSpecPath);
+    specFile = autoDetectSpecFileInWorkingDir(contextService.autoDetectSpecFile(), cliService.command());
 
     return { specFile };
   } catch (error) {
+    if (error instanceof ContextFileNotFoundError) {
+      try {
+        specFile = autoDetectSpecFileInWorkingDir(contextService.autoDetectSpecFile(), cliService.command());
+        return { specFile };
+      } catch (error) {
+        return { error };
+      }
+    }
     return { error };
   }
+};
+
+const autoDetectSpecFileInWorkingDir = (specFile: string | undefined, command: string): SpecificationFile => {
+  if (typeof specFile === 'undefined') { throw new NoSpecPathFoundError(command); }
+  return new SpecificationFile(specFile);
 };
