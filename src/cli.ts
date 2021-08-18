@@ -27,6 +27,7 @@ const cli = meow(`
 		$ asyncapi validate --context=dummy
 		$ asyncapi validate --file=./asyncapi.yml
 `, {
+  autoHelp: false,
   flags: {
     context: {
       alias: 'c',
@@ -43,6 +44,9 @@ const cli = meow(`
       alias: 'f',
       type: 'string',
       isRequired: false
+    },
+    help: {
+      alias: 'h'
     }
   }
 });

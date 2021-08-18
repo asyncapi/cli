@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import React from 'react';
 
 import { ListContexts,AddContext,RemoveContext,ShowCurrentContext,SetCurrent } from './Context';
@@ -13,5 +14,5 @@ const commandDictionary = (cliInput: CliInput): Record<string, any> => ({
 
 export const contextRouter = (cliInput: CliInput): any => {
   const subCommand = CliInput.createSubCommand(cliInput);
-  return commandDictionary(subCommand)[subCommand.command];
+  return commandDictionary(subCommand)[subCommand.command!];
 };

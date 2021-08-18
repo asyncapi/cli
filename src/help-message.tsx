@@ -1,4 +1,6 @@
 import { injectable, container } from 'tsyringe';
+import React, { FunctionComponent } from 'react';
+import {Text} from 'ink';
 
 export type CommandName = 'validate' | 'context';
 
@@ -52,6 +54,10 @@ export class HelpMessage {
 
 export class HelpMessageBuilder {
   private helpMessage: HelpMessage = container.resolve(HelpMessage);
+
+  HelpComponent: FunctionComponent<any> = () => {
+    return <Text>{this.showHelp()}</Text>;
+  }
 
   showHelp() {
     let helpText = '';
