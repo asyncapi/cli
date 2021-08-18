@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { injectable, container } from 'tsyringe';
 import React, { FunctionComponent } from 'react';
-import {Text} from 'ink';
+import { Text, Newline } from 'ink';
 
 const CommandList = ['validate', 'context'] as const;
 
@@ -40,7 +40,7 @@ export class HelpMessage {
       ]
     },
     context: {
-      usage: 'asyncapi context [command] [options]',
+      usage: 'asyncapi context [options] [command]',
       shortDescription: 'Manage context',
       longDescription: 'Context is what makes it easier for you to work with multiple AsyncAPI files.\nYou can add multiple different files to a context.\nThis way you do not have to pass --file flag with path to the file every time but just --context flag with reference name.\nYou can also set a default context, so neither --file nor --context flags are needed',
       flags: [this.helpFlag],
@@ -58,57 +58,73 @@ export class HelpMessage {
 export class HelpMessageBuilder {
   private helpMessage: HelpMessage = container.resolve(HelpMessage);
 
-  HelpComponent: FunctionComponent<{command?: CommandName}> = ({command}) => {
-    if (!CommandList.includes(command!)) {
-      return <Text color="red">❌ {command} is not supported</Text>;
-    }
+  HelpComponent: FunctionComponent<{ command?: CommandName }> = ({ command }) => {
     if (command) {
-      return <Text>{this.showCommandHelp(command)}</Text>;
+      if (!CommandList.includes(command)) {return <Text color="red">❌{' '} {command} is not a vaild command</Text>;}
+      const HelpComp = this.showCommandHelp;
+      return <HelpComp command={command} />;
     }
-    return <Text>{this.showHelp()}</Text>;
+    const RootHelp = this.showHelp;
+    return <RootHelp />;
   }
 
-  showHelp() {
-    let helpText = '';
-    helpText += `usage: ${this.helpMessage.usage}\n\n`;
-    helpText += 'flags:\n';
-    for (const flag of this.helpMessage.flags) {
-      helpText += ` ${flag}\n`;
-    }
-    helpText += '\n';
+  showHelp: FunctionComponent = () => {
+    return <>
+      <Text backgroundColor="greenBright" bold color="blackBright"> USAGE </Text>
+      <Newline />
+      <Text>
+        <Text color="Bright">{this.helpMessage.usage.split(' ')[0]}</Text>{' '}
+        <Text color="yellowBright">{this.helpMessage.usage.split(' ')[1]}</Text>{' '}
+        <Text color="blueBright">{this.helpMessage.usage.split(' ')[2]}</Text>
+      </Text>
+      <Newline />
 
-    if (this.helpMessage.commands) {
-      helpText += 'commands:\n';
-      for (const [name, obj] of Object.entries(this.helpMessage.commands)) {
-        helpText += ` ${name} [options] [command] ${obj.shortDescription}\n`;
-      }
-    }
+      <Text backgroundColor="yellowBright" bold color="blackBright"> OPTIONS </Text>
+      <Newline />
+      {this.helpMessage.flags.map(flag => <Text key={flag}>
+        <Text color="yellowBright" bold>{flag.split(',')[0]}</Text>,{flag.split(',')[1]}
+      </Text>)}
+      <Newline />
 
-    return helpText;
+      <Text backgroundColor="blueBright" bold> COMMANDS </Text>
+      <Newline />
+      {Object.keys(this.helpMessage.commands).map(command => <Text key={command}>
+        <Text color="blueBright" bold>{command}</Text>{' '} <Text>{this.helpMessage.commands[command as CommandName].shortDescription}</Text>
+      </Text>)}
+    </>;
   }
 
-  showCommandHelp(command: CommandName) {
-    let helpText = '';
+  showCommandHelp: FunctionComponent<{ command: CommandName }> = ({ command }) => {
     const commandHelpObject = this.helpMessage.commands[command as CommandName];
-    helpText += `usage: ${commandHelpObject.usage}\n\n`;
+    return <>
+      <Text backgroundColor="greenBright" bold color="blackBright"> USAGE </Text>
+      <Newline />
+      <Text>
+        <Text color="greenBright">{commandHelpObject.usage.split(' ')[0]}</Text>{' '}
+        <Text>{commandHelpObject.usage.split(' ')[1]}</Text>{' '}
+        <Text color="yellowBright">{commandHelpObject.usage.split(' ')[2]}</Text>{' '}
+        <Text color="blueBright">{commandHelpObject.usage.split(' ')[3]}</Text>
+      </Text>
+      <Newline />
 
-    if (commandHelpObject.longDescription) {
-      helpText += `${commandHelpObject.longDescription}\n\n`;
-    }
+      {commandHelpObject.longDescription ? <Text color="cyan">{commandHelpObject.longDescription}<Newline /></Text> : null}
 
-    helpText += 'flags: \n';
-    for (const flag of commandHelpObject.flags) {
-      helpText += ` ${flag}\n`;
-    }
+      <Text backgroundColor="yellowBright" bold color="blackBright"> OPTIONS </Text>
+      <Newline />
+      {commandHelpObject.flags.map(flag => <Text key={flag}><Text color="yellowBright">{flag.split(',')[0]}</Text>,{flag.split(',')[1]}</Text>)}
+      <Newline />
 
-    if (commandHelpObject.subCommands) {
-      helpText += '\n';
-      helpText += 'commands:\n';
-      for (const command of commandHelpObject.subCommands) {
-        helpText += ` ${command}\n`;
-      }
-    }
+      {commandHelpObject.subCommands ? <>
+        <Text backgroundColor="blueBright" bold> COMMAND </Text>
+        <Newline />
+        {commandHelpObject.subCommands.map(cmd => {
+          const [cmdName, ...rest] = cmd.split(' ');
+          return <Text key={cmd}>
+            <Text color='blueBright'>{cmdName}</Text>{' '} {rest.map(el => <Text key={el}>{el} </Text>)}
+          </Text>;
+        })}
+      </> : null}
 
-    return helpText;
+    </>;
   }
 }
