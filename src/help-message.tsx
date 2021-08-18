@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { injectable, container } from 'tsyringe';
 import React, { FunctionComponent } from 'react';
 import {Text} from 'ink';
 
-export type CommandName = 'validate' | 'context';
+const CommandList = ['validate', 'context'] as const;
+
+export type CommandName = typeof CommandList[number]
 
 export type Command = {
   [name in CommandName]: {
@@ -56,6 +59,9 @@ export class HelpMessageBuilder {
   private helpMessage: HelpMessage = container.resolve(HelpMessage);
 
   HelpComponent: FunctionComponent<{command?: CommandName}> = ({command}) => {
+    if (!CommandList.includes(command!)) {
+      return <Text color="red">❌ {command} is not supported</Text>;
+    }
     if (command) {
       return <Text>{this.showCommandHelp(command)}</Text>;
     }
