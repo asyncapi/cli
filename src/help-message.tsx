@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { injectable, container } from 'tsyringe';
 import React, { FunctionComponent } from 'react';
 import { Text, Newline } from 'ink';
@@ -73,7 +72,7 @@ export class HelpMessageBuilder {
       <Text backgroundColor="greenBright" bold color="blackBright"> USAGE </Text>
       <Newline />
       <Text>
-        <Text color="Bright">{this.helpMessage.usage.split(' ')[0]}</Text>{' '}
+        <Text color="greenBright">{this.helpMessage.usage.split(' ')[0]}</Text>{' '}
         <Text color="yellowBright">{this.helpMessage.usage.split(' ')[1]}</Text>{' '}
         <Text color="blueBright">{this.helpMessage.usage.split(' ')[2]}</Text>
       </Text>
@@ -86,7 +85,7 @@ export class HelpMessageBuilder {
       </Text>)}
       <Newline />
 
-      <Text backgroundColor="blueBright" bold> COMMANDS </Text>
+      <Text backgroundColor="blueBright" bold color="blackBright"> COMMANDS </Text>
       <Newline />
       {Object.keys(this.helpMessage.commands).map(command => <Text key={command}>
         <Text color="blueBright" bold>{command}</Text>{' '} <Text>{this.helpMessage.commands[command as CommandName].shortDescription}</Text>
@@ -115,7 +114,7 @@ export class HelpMessageBuilder {
       <Newline />
 
       {commandHelpObject.subCommands ? <>
-        <Text backgroundColor="blueBright" bold> COMMAND </Text>
+        <Text backgroundColor="blueBright" bold color="blackBright"> COMMAND </Text>
         <Newline />
         {commandHelpObject.subCommands.map(cmd => {
           const [cmdName, ...rest] = cmd.split(' ');
