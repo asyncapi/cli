@@ -1,10 +1,8 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-console */
 import React from 'react';
 import Validate from './components/Validate/Validate';
 import { contextRouter } from './components/Context';
 import { CliInput } from './CliModels';
-import { HelpMessageBuilder } from './help-message';
+import { CommandName, HelpMessageBuilder } from './help-message';
 
 const commandsDictionary = (cliInput: CliInput): Record<string, any> => ({
   validate: <Validate options={cliInput.options} />,
@@ -18,7 +16,7 @@ export const commandsRouter = (cli: any): any => {
     return <helpMessage.HelpComponent />;
   }
   if (cliInput.help) {
-    console.log(cliInput.command, '- help message');
+    return <helpMessage.HelpComponent command={cliInput.command as CommandName} />;
   }
   return commandsDictionary(cliInput)[cliInput.command];
 };

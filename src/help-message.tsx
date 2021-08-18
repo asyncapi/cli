@@ -55,7 +55,10 @@ export class HelpMessage {
 export class HelpMessageBuilder {
   private helpMessage: HelpMessage = container.resolve(HelpMessage);
 
-  HelpComponent: FunctionComponent<any> = () => {
+  HelpComponent: FunctionComponent<{command?: CommandName}> = ({command}) => {
+    if (command) {
+      return <Text>{this.showCommandHelp(command)}</Text>;
+    }
     return <Text>{this.showHelp()}</Text>;
   }
 
