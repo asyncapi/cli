@@ -24,7 +24,6 @@ export class HelpMessage {
 
   readonly flags = [
     this.helpFlag,
-    '-v, --version  output the version number',
   ];
 
   readonly commands: Command = {
