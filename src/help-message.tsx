@@ -35,7 +35,7 @@ export class HelpMessage {
         this.helpFlag,
         '-f, --file <spec-file-path>  Path of the AsyncAPI file',
         '-c, --context <saved-context-name>  Context to use',
-        '-w, --watch  Watch mode'
+        '-w, --watch  Enable watch mode (not implemented yet)'
       ]
     },
     context: {
