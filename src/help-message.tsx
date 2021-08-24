@@ -1,7 +1,6 @@
 import { injectable, container } from 'tsyringe';
 import React, { FunctionComponent } from 'react';
 import { Text, Newline } from 'ink';
-
 const CommandList = ['validate', 'context'] as const;
 
 export type CommandName = typeof CommandList[number]
@@ -24,6 +23,7 @@ export class HelpMessage {
 
   readonly flags = [
     this.helpFlag,
+    '--version, output version string'
   ];
 
   readonly commands: Command = {
@@ -58,7 +58,7 @@ export class HelpMessageBuilder {
 
   HelpComponent: FunctionComponent<{ command?: CommandName }> = ({ command }) => {
     if (command) {
-      if (!CommandList.includes(command)) {return <Text color="red">❌{' '} {command} is not a vaild command</Text>;}
+      if (!CommandList.includes(command)) { return <Text color="red">❌{' '} {command} is not a vaild command</Text>; }
       const HelpComp = this.showCommandHelp;
       return <HelpComp command={command} />;
     }
@@ -79,9 +79,19 @@ export class HelpMessageBuilder {
 
       <Text backgroundColor="yellowBright" bold color="blackBright"> OPTIONS </Text>
       <Newline />
-      {this.helpMessage.flags.map(flag => <Text key={flag}>
-        <Text color="yellowBright" bold>{flag.split(',')[0]}</Text>,{flag.split(',')[1]}
-      </Text>)}
+      {this.helpMessage.flags.map(flag => {
+        const [alias, ...rest] = flag.split(',');
+        const flg = rest[0]?.split(' ')[1];
+        const msg = rest[0]?.split(' ').splice(2, rest[0].length).join(' ');
+        if (alias === '--version') {
+          return <Text key={flag}>
+            <Text color="yellowBright">{alias}</Text> {rest}
+          </Text>;
+        }
+        return <Text key={flag}>
+          <Text color="yellowBright" bold>{alias}</Text>,<Text color='yellowBright'>{flg}</Text> {msg}
+        </Text>;
+      })}
       <Newline />
 
       <Text backgroundColor="blueBright" bold color="blackBright"> COMMANDS </Text>
@@ -109,7 +119,14 @@ export class HelpMessageBuilder {
 
       <Text backgroundColor="yellowBright" bold color="blackBright"> OPTIONS </Text>
       <Newline />
-      {commandHelpObject.flags.map(flag => <Text key={flag}><Text color="yellowBright">{flag.split(',')[0]}</Text>,{flag.split(',')[1]}</Text>)}
+      {commandHelpObject.flags.map(flag => {
+        const [alias, ...rest] = flag.split(',');
+        const flg = rest[0]?.split(' ')[1];
+        const msg = rest[0]?.split(' ').splice(2, rest[0].length).join(' ');
+        return <Text key={flag}>
+          <Text bold color="yellowBright">{alias}</Text>, <Text color="yellowBright">{flg}</Text> {msg}
+        </Text>;
+      })}
       <Newline />
 
       {commandHelpObject.subCommands ? <>
