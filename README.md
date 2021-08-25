@@ -13,6 +13,9 @@
 $ npm install --global @asyncapi/cli
 ```
 
+### Getting Started
+Go ahead and run command `asyncapi --help` to get complete help for using CLI. If having doubt about any particular command do run `asyncapi <command> --help` to get help for that command.  
+
 ### CLI
 ```
 $ asyncapi --help
