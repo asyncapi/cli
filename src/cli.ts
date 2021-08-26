@@ -5,28 +5,8 @@ import { render } from 'ink';
 import meow from 'meow';
 import { commandsRouter } from './CommandsRouter';
 
-const cli = meow(`
-	Usage
-	  $ asyncapi command options
-	  
-	Commands
-		validate 
-			Options
-				-c --context  context-name saved in the store
-				-w --watch Enable watchMode (not implemented yet)
-				-f --file File path of the specification file
-		context
-			current  show the current set context
-			list     show the list of all stored context
-			remove  <context-name> remove a context from the store
-			use <context-name>  set any context as current
-			add <context-name> <filepath> add/update new context
-
-	Examples
-		$ asyncapi context add dummy ./asyncapi.yml
-		$ asyncapi validate --context=dummy
-		$ asyncapi validate --file=./asyncapi.yml
-`, {
+const cli = meow({
+  autoHelp: false,
   flags: {
     context: {
       alias: 'c',
@@ -43,6 +23,9 @@ const cli = meow(`
       alias: 'f',
       type: 'string',
       isRequired: false
+    },
+    help: {
+      alias: 'h'
     }
   }
 });

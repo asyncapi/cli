@@ -13,31 +13,66 @@
 $ npm install --global @asyncapi/cli
 ```
 
+### Getting Started
+Go ahead and run command `asyncapi --help` to get complete help for using CLI. If having doubt about any particular command do run `asyncapi <command> --help` to get help for that command.  
+
 ### CLI
+Help string for all the supported commands
+
+- #### `asyncapi --help`
 ```
-$ asyncapi --help
+USAGE
 
-Usage
-  $ asyncapi command options
-  
-Commands
-  validate 
-   Options
-     -c --context  context-name saved in the store
-     -w --watch Enable watchMode (not implemented yet)
-     -f --file File path of the specification file
-  
-  context
-    current show the current set context
-    list show the list of all stored contexts
-    remove <context-name> remove a context from the store
-    use <context-name> set any context from store as current
-    add <context-name> <filepath> add/update new context
+asyncapi [options] [command]
 
-Examples
-  $ asyncapi context add dummy ./asyncapi.yml
-  $ asyncapi validate --context=dummy
-  $ asyncapi validate --file=./asyncapi.yml
+OPTIONS
+
+-h, --help display help for command
+--version output the version number
+
+COMMANDS
+
+validate validate asyncapi file 
+context  Manage contexts
+```
+
+- #### `asyncapi validate --help`
+```
+USAGE
+
+asyncapi validate [options]
+
+OPTIONS
+
+-h, --help display help for command
+-f, --file <spec-file-path> Path of the asyncapi file
+-c, --context <saved-context-name>  context name to use
+-w, --watch Enable Watch Mode (not implemented yet)
+```
+
+- #### `asyncapi context --help`
+```
+USAGE
+
+asyncapi context [options] [command] 
+
+Context is what makes it easier for you to work with multiple AsyncAPI files.
+You can add multiple different files to a contextThis way you do not have to pass 
+--file flag with path to the file every time but just --context flag with reference name
+You can also set a default context, so neither --file nor --context flags are needed.
+
+OPTIONS
+
+-h, --help display help for command 
+
+COMMANDS
+
+list list of all saved contexts 
+current see current context 
+use <context-name> set given context as default/current
+add <context-name> <spec-file-path> add/update context
+remove <context-name> remove a context
+
 ```
 
 > For now --context flag is requried to run validate command
