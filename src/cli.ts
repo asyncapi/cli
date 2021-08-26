@@ -26,6 +26,9 @@ const cli = meow({
     },
     help: {
       alias: 'h'
+    },
+    version: {
+      alias: 'v'
     }
   }
 });
