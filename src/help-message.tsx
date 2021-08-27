@@ -23,7 +23,7 @@ export class HelpMessage {
 
   readonly flags = [
     this.helpFlag,
-    '-v, --version output version string'
+    '-v, --version output version number'
   ];
 
   readonly commands: Command = {
