@@ -23,7 +23,7 @@ export class HelpMessage {
 
   readonly flags = [
     this.helpFlag,
-    '--version, output version string'
+    '-v, --version output version number'
   ];
 
   readonly commands: Command = {
@@ -83,11 +83,6 @@ export class HelpMessageBuilder {
         const [alias, ...rest] = flag.split(',');
         const flg = rest[0]?.split(' ')[1];
         const msg = rest[0]?.split(' ').splice(2, rest[0].length).join(' ');
-        if (alias === '--version') {
-          return <Text key={flag}>
-            <Text color="yellowBright">{alias}</Text> {rest}
-          </Text>;
-        }
         return <Text key={flag}>
           <Text color="yellowBright" bold>{alias}</Text>,<Text color='yellowBright'>{flg}</Text> {msg}
         </Text>;

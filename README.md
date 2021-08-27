@@ -28,7 +28,7 @@ asyncapi [options] [command]
 OPTIONS
 
 -h, --help display help for command
---version output the version number
+-v, --version output the version number
 
 COMMANDS
 
