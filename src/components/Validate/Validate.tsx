@@ -7,7 +7,8 @@ import { SpecificationFile, useValidate } from '../../hooks/validation';
 import { Options } from '../../CliModels';
 
 interface ValidateInput {
-	options: Options;
+	options: Options,
+  parameter?: string | undefined
 }
 
 const Validate: React.FunctionComponent<ValidateInput> = ({ options }) => {
