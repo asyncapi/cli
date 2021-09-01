@@ -5,7 +5,7 @@ import { CliInput } from './CliModels';
 import { CommandName, HelpMessageBuilder } from './help-message';
 
 const commandsDictionary = (cliInput: CliInput): Record<string, any> => ({
-  validate: <Validate options={cliInput.options} />,
+  validate: <Validate options={cliInput.options} parameter={cliInput.arguments[0]} />,
   context: contextRouter(cliInput)
 });
 

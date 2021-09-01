@@ -1,10 +1,11 @@
+/* eslint-disable security/detect-object-injection */
+/* eslint-disable sonarjs/no-collapsible-if */
 /* eslint-disable no-undef */
 import { container } from 'tsyringe';
 import { ContextService } from '../hooks/context/contextService';
 import { Context, NoSpecPathFoundError } from '../hooks/context';
 import { CLIService } from '../hooks/cli';
 import { SpecificationFile } from '../hooks/validation';
-import * as fs from 'fs';
 
 const loadContext = () => {
   let ctx = undefined;
@@ -36,6 +37,10 @@ const loadSpec = (ctx: Context | undefined) => {
   }
 };
 
+/**
+ * 
+ * not considering the case where the context file does not exits. 
+ */
 const autoDetectSpecFile = () => {
   const contextService = container.resolve(ContextService);
   const cliService = container.resolve(CLIService);
@@ -44,20 +49,25 @@ const autoDetectSpecFile = () => {
   return new SpecificationFile(specFile);
 };
 
-const isFile = (filePath: string) => {
-  return fs.existsSync(filePath) || fs.lstatSync(filePath).isFile();
-};
+// const isFile = (filePath: string) => {
+//   return fs.existsSync(filePath) || fs.lstatSync(filePath).isFile();
+// };
 
-const isURL = (url: string) => {
-  try {
-    const validUrl = new URL(url);
-    return validUrl.protocol === 'http:' || validUrl.protocol === 'https:';
-  } catch (error) {
-    return false;
-  }
-};
+// const isURL = (url: string) => {
+//   try {
+//     const validUrl = new URL(url);
+//     return validUrl.protocol === 'http:' || validUrl.protocol === 'https:';
+//   } catch (error) {
+//     return false;
+//   }
+// };
 
-export const loadSpecFileForValidate = (input?: string) => {
+export interface ValidateInput {
+  specFile?: SpecificationFile,
+  error?: Error | string
+}
+
+export const loadSpecFileForValidate = (input?: string): ValidateInput => {
   /**
    * Steps to complete this 
    * - if no input then we auto load specfile according to the context
@@ -65,17 +75,25 @@ export const loadSpecFileForValidate = (input?: string) => {
    * specfile accordingly
    */
   const { ctx } = loadContext();
+  let specFile;
   if (!input) {
-    return loadSpec(ctx);
+    specFile = loadSpec(ctx);
+    return {specFile};
   }
 
-  if (isFile(input)) {
-    return new SpecificationFile(input);
+  if (ctx) {
+    if (Object.keys(ctx.store).includes(input)) {
+      specFile = new SpecificationFile(ctx.store[input] as string);
+      return {specFile};
+    }
   }
 
-  if (isURL(input)) {
-    return new SpecificationFile(input);
+  specFile = new SpecificationFile(input);
+
+  if (specFile.isNotValid()) {
+    const error = 'Invalid';
+    return { error };
   }
 
-  return new SpecificationFile(ctx?.store[input] as string);
+  return { specFile };
 };
