@@ -12,6 +12,11 @@ export class ContextService {
     return JSON.parse(fs.readFileSync(CONTEXTFILE_PATH, 'utf-8')) as Context;
   }
 
+  isContext(): boolean {
+    if (!fs.existsSync(CONTEXTFILE_PATH)) {return true;}
+    return false;
+  }
+
   deleteContextFile(): void {
     if (fs.existsSync(CONTEXTFILE_PATH)) {fs.unlinkSync(CONTEXTFILE_PATH);}
   }
