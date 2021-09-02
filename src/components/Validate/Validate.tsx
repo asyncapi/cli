@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Newline, Text } from 'ink';
 
-//import { useSpecfile } from '../../hooks/context';
+import { loadSpecFileForValidation } from '../../hooks/context';
 import { UseValidateResponse } from '../../hooks/validation/models';
 import { useValidate } from '../../hooks/validation';
 import { Options } from '../../CliModels';
-import { loadSpecFileForValidate } from '../../utils/spec-loader';
 
 interface ValidateInput {
 	options: Options,
@@ -13,10 +12,10 @@ interface ValidateInput {
 }
 
 const Validate: React.FunctionComponent<ValidateInput> = ({ options, parameter }) => {
-  //const { specFile, error } = useSpecfile({ context: options.context, file: options.file });
-  const {specFile, error} = loadSpecFileForValidate(parameter);
+  const {specFile, error} = loadSpecFileForValidation(parameter);
+
   if (error) {
-    return <Text color="red">{error}</Text>;
+    return <Text color="red">{error.message}</Text>;
   }
 
   if (!specFile) {
