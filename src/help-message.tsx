@@ -28,12 +28,10 @@ export class HelpMessage {
 
   readonly commands: Command = {
     validate: {
-      usage: 'asyncapi validate [options]',
+      usage: 'asyncapi validate <specPath | context-name> [options]',
       shortDescription: 'Validate asyncapi file',
       flags: [
         this.helpFlag,
-        '-f, --file <spec-file-path>  Path of the AsyncAPI file',
-        '-c, --context <saved-context-name>  Context to use',
         '-w, --watch  Enable watch mode (not implemented yet)'
       ]
     },
@@ -103,10 +101,7 @@ export class HelpMessageBuilder {
       <Text backgroundColor="greenBright" bold color="blackBright"> USAGE </Text>
       <Newline />
       <Text>
-        <Text color="greenBright">{commandHelpObject.usage.split(' ')[0]}</Text>{' '}
-        <Text>{commandHelpObject.usage.split(' ')[1]}</Text>{' '}
-        <Text color="yellowBright">{commandHelpObject.usage.split(' ')[2]}</Text>{' '}
-        <Text color="blueBright">{commandHelpObject.usage.split(' ')[3]}</Text>
+        {commandHelpObject.usage}
       </Text>
       <Newline />
 
