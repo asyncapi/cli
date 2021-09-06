@@ -27,7 +27,7 @@
 3. [API Reference](#api-reference)
     - [`validate`](#validate)
     - [`context`](#context)
-
+4. [Contributing](#contributing)
 
 ## Getting Started
 To run `@asyncapi/cli`, ensure that you have NodeJs >=v10. [Install NodeJs via package manager](https://nodejs.org/en/download/package-manager/).
@@ -92,19 +92,33 @@ asyncapi context [options] [command]
 
 **COMMANDS**
 
-|command|arguments|description|
-|-------|---------|-----------|
-|`list`|`none` |lists all saved context|
-|`current`|`none`|set current context|
-|`use` | `<context-name>`| set any context from the list as current|
-|`add`|`<context-name> <spec-file-path>`|add/update a context|
-|`remove`|`<context-name>`|remove a context from the list|
+|command|arguments|description|example|
+|-------|---------|-----------|-------|
+|`list`|`none` |lists all saved context|`asyncapi context list`|
+|`current`|`none`|set current context|`asyncapi context current`|
+|`use` | `<context-name>`| set any context from the list as current|`asyncapi context use test`|
+|`add`|`<context-name> <spec-file-path>`|add/update a context|`asyncapi context add root ./asyncapi.yml`|
+|`remove`|`<context-name>`|remove a context from the list|`asyncapi context remove root`|
 
 **OPTIONS**
 
 ```
 -h, --help display help for command
 ```
+
+[back to top ⏫](#table-of-contents)
+
+
+## Contributing
+
+Read [CONTRIBUTING](https://github.com/asyncapi/CLI/blob/master/CONTRIBUTING.md) guide.
+
+### Setting up development enviornment
+
+Follow these steps - 
+- Clone the repo.
+- Run `npm install` to install all the required dependencies
+- Run `npm run test` to make sure eveything is properly setup. 
 
 [back to top ⏫](#table-of-contents)
 
