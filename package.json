@@ -26,7 +26,7 @@
 		"dist"
 	],
 	"dependencies": {
-		"@asyncapi/parser": "^1.8.1",
+		"@asyncapi/parser": "^1.8.2",
 		"ink": "^3.0.8",
 		"meow": "^9.0.0",
 		"react": "^17.0.1",
