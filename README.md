@@ -40,7 +40,7 @@ context  Manage contexts
 ```
 USAGE
 
-asyncapi validate <specPath | context-name> [options]
+asyncapi validate <spec-file-path | context-name> [options]
 
 OPTIONS
 

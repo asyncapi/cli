@@ -28,7 +28,7 @@ export class HelpMessage {
 
   readonly commands: Command = {
     validate: {
-      usage: 'asyncapi validate <specPath | context-name> [options]',
+      usage: 'asyncapi validate <spec-file-path | context-name> [options]',
       shortDescription: 'Validate asyncapi file',
       flags: [
         this.helpFlag,
