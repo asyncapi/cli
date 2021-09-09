@@ -21,7 +21,7 @@
 
 ## Table of contents
 
-1. [Getting Started](#getting-started)
+1. [Requirements](#requirements)
     - [Installation](#installation)
 2. [Usage](#usage)
 3. [API Reference](#api-reference)
@@ -29,11 +29,19 @@
     - [`context`](#context)
 4. [Contributing](#contributing)
 
-## Getting Started
-To run `@asyncapi/cli`, ensure that you have NodeJs >=v10. [Install NodeJs via package manager](https://nodejs.org/en/download/package-manager/).
+## Requirements
+To run `@asyncapi/cli`, you'll need Node.js >=v10
+
+Run this terminal command to check your Node.js version:
+```
+node -v
+```
+
+If you don't have Node.js installed or NPM, simply [install both via package manager](https://nodejs.org/en/download/package-manager/)
 
 ### Installation
-As of now the only way to install `asyncapi/cli` is using NPM. If you have NodeJs installed, it is most likely that you have NPM installed as well. 
+
+Run this command to install the CLI globally on your system:
 
 ```
 npm install -g @asyncapi/cli
@@ -41,19 +49,20 @@ npm install -g @asyncapi/cli
 
 This installs the cli globaly on your system allowing you to run it from anywhere. If you want to install it locally, just remove the `-g` flag. 
 
-[back to top ⏫](#table-of-contents)
+> Cli will be available for installation brew and other app managers for other systems. 
+
 
 
 ## Usage
 
-As of now `@asyncapi/cli` supports only validation of spcification file, but is under development for mode features.
+As of now, the `@asyncapi/cli` only supports validation of the specification file. (This is still under development for more features.)
 
-We have well documented help commands so just run 
+We have well-documented help commands so just run:
 
 ```
 asyncapi --help 
 ```
-[back to top ⏫](#table-of-contents)
+
 
 
 
@@ -66,7 +75,9 @@ asyncapi --help
 ```
 asyncapi validate <spcPath | context-name> [options]
 ```
-If you have current context set then 
+
+If you already have your current context set, run the following command:
+
 ```
 asyncapi validate
 ```
@@ -78,11 +89,10 @@ asyncapi validate
 -w, --watch Enable watch mode (not implemented yet)
 ```
 
-[back to top ⏫](#table-of-contents)
 
 ## `context`
 
-Context is what makes it easier for you to work with multiple Asyncapi Files. You can add multiple different files to a context. This way you do not have to pass file as a input everytime you use any command. You can also set a default context, so neither you have to pass in filepath or context name as a input. 
+**Context** makes it easier for you to work with multiple AsyncAPI Files. You can add multiple different files to a context so that you don't have to pass the file as an input every time you use any command. You can also set a default context so that you don't have to pass in either file paths or context names as an input.
 
 **USAGE**
 
@@ -106,19 +116,16 @@ asyncapi context [options] [command]
 -h, --help display help for command
 ```
 
-[back to top ⏫](#table-of-contents)
 
 
 ## Contributing
 
 Read [CONTRIBUTING](https://github.com/asyncapi/CLI/blob/master/CONTRIBUTING.md) guide.
 
-### Setting up development enviornment
+### Set up development enviornment
 
-Follow these steps - 
+Follow these steps:
 - Clone the repo.
 - Run `npm install` to install all the required dependencies
-- Run `npm run test` to make sure eveything is properly setup. 
-
-[back to top ⏫](#table-of-contents)
+- Run `npm run test` to make sure everything is properly set up. 
 
