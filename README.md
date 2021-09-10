@@ -21,13 +21,18 @@
 
 ## Table of contents
 
-1. [Requirements](#requirements)
-    - [Installation](#installation)
-2. [Usage](#usage)
-3. [API Reference](#api-reference)
-    - [`validate`](#validate)
-    - [`context`](#context)
-4. [Contributing](#contributing)
+<!-- toc -->
+
+- [Requirements](#requirements)
+  * [Installation](#installation)
+- [Usage](#usage)
+- [API Reference](#api-reference)
+  * [`validate`](#validate)
+  * [`context`](#context)
+- [Contributing](#contributing)
+  * [Set up development enviornment](#set-up-development-enviornment)
+
+<!-- tocstop -->
 
 ## Requirements
 To run `@asyncapi/cli`, you'll need Node.js >=v10
@@ -90,7 +95,7 @@ asyncapi validate
 ```
 
 
-## `context`
+### `context`
 
 **Context** makes it easier for you to work with multiple AsyncAPI Files. You can add multiple different files to a context so that you don't have to pass the file as an input every time you use any command. You can also set a default context so that you don't have to pass in either file paths or context names as an input.
 
@@ -127,5 +132,5 @@ Read [CONTRIBUTING](https://github.com/asyncapi/CLI/blob/master/CONTRIBUTING.md)
 Follow these steps:
 - Clone the repo.
 - Run `npm install` to install all the required dependencies
-- Run `npm run test` to make sure everything is properly set up. 
+- Run `npm run test` to make sure everything is properly set up.
 
