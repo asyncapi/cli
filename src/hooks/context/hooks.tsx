@@ -203,15 +203,19 @@ export const loadSpecFileForValidation = (input: string | undefined): useSpecFil
       }
       throw new NoSpecPathFoundError(cliService.command());
     }
+    
+    specFile = new SpecificationFile(input);
+
+    if (!specFile.isNotValid()) {
+      return {specFile};
+    }
     const ctx = contextService.loadContextFile();
     if (Object.keys(ctx.store).includes(input)) {
       specFile = new SpecificationFile(ctx.store[input] as string);
       return { specFile };
     }
 
-    specFile = new SpecificationFile(input);
-
-    return { specFile };
+    throw new NoSpecPathFoundError(cliService.command());
   } catch (error) {
     if (error instanceof ContextFileNotFoundError) {
       try {
