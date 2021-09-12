@@ -7,7 +7,10 @@ export type CommandName = typeof CommandList[number]
 
 export type Command = {
   [name in CommandName]: {
-    usage: string;
+    usage: {
+      command?: string,
+      options?: string
+    };
     shortDescription: string;
     longDescription?: string;
     flags: string[];
@@ -28,7 +31,9 @@ export class HelpMessage {
 
   readonly commands: Command = {
     validate: {
-      usage: 'asyncapi validate <spec-file-path | context-name> [options]',
+      usage: {
+        command: '<spec-file-path | context-name>'
+      },
       shortDescription: 'Validate asyncapi file',
       flags: [
         this.helpFlag,
@@ -36,7 +41,7 @@ export class HelpMessage {
       ]
     },
     context: {
-      usage: 'asyncapi context [options] [command]',
+      usage: {},
       shortDescription: 'Manage context',
       longDescription: 'Context is what makes it easier for you to work with multiple AsyncAPI files.\nYou can add multiple different files to a context.\nThis way you do not have to pass --file flag with path to the file every time but just --context flag with reference name.\nYou can also set a default context, so neither --file nor --context flags are needed',
       flags: [this.helpFlag],
@@ -101,7 +106,10 @@ export class HelpMessageBuilder {
       <Text backgroundColor="greenBright" bold color="blackBright"> USAGE </Text>
       <Newline />
       <Text>
-        {commandHelpObject.usage}
+        <Text color="greenBright">asyncapi</Text>{' '}
+        <Text>{command}</Text>{' '}
+        <Text color="blueBright">{commandHelpObject.usage.command || '[command]'}</Text>{' '}
+        <Text color="yellowBright">{commandHelpObject.usage.options || '[options]'}</Text>
       </Text>
       <Newline />
 
