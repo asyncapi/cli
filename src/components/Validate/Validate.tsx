@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { Newline, Text } from 'ink';
 
-import { useSpecfile } from '../../hooks/context';
+import { loadSpecFileForValidation } from '../../hooks/context';
 import { UseValidateResponse } from '../../hooks/validation/models';
-import { SpecificationFile, useValidate } from '../../hooks/validation';
+import { useValidate } from '../../hooks/validation';
 import { Options } from '../../CliModels';
 
 interface ValidateInput {
-	options: Options;
+	options: Options,
+  parameter?: string | undefined
 }
 
-const Validate: React.FunctionComponent<ValidateInput> = ({ options }) => {
-  const { specFile, error } = useSpecfile({ context: options.context, file: options.file });
+const Validate: React.FunctionComponent<ValidateInput> = ({ options, parameter }) => {
+  const {specFile, error} = loadSpecFileForValidation(parameter);
+
   if (error) {
     return <Text color="red">{error.message}</Text>;
   }
@@ -21,7 +23,7 @@ const Validate: React.FunctionComponent<ValidateInput> = ({ options }) => {
   }
 
   const validationInput = {
-    file: new SpecificationFile(specFile.getSpecificationName()),
+    file: specFile,
     watchMode: options.watch,
   };
 

@@ -40,13 +40,11 @@ context  Manage contexts
 ```
 USAGE
 
-asyncapi validate [options]
+asyncapi validate <spec-file-path | context-name> [options]
 
 OPTIONS
 
 -h, --help display help for command
--f, --file <spec-file-path> Path of the asyncapi file
--c, --context <saved-context-name>  context name to use
 -w, --watch Enable Watch Mode (not implemented yet)
 ```
 
