@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 import { Context, ContextFileNotFoundError, ContextNotFoundError, MissingCurrentContextError, NoSpecPathFoundError } from './models';
 import { ContextService } from './contextService';
 import { container } from 'tsyringe';
@@ -171,4 +172,60 @@ export const useSpecfile = (flags: useSpecFileInput): useSpecFileOutput => {
 const autoDetectSpecFileInWorkingDir = (specFile: string | undefined, command: string): SpecificationFile => {
   if (typeof specFile === 'undefined') { throw new NoSpecPathFoundError(command); }
   return new SpecificationFile(specFile);
+};
+
+const loadCurrentContext = (contextService: ContextService): { currentContext?: string | undefined, error?: Error } => {
+  let currentContext: string | undefined;
+  try {
+    const ctx = contextService.loadContextFile();
+    currentContext = ctx.store[ctx.current];
+    return { currentContext };
+  } catch (error) {
+    return { error };
+  }
+};
+
+export const loadSpecFileForValidation = (input: string | undefined): useSpecFileOutput => {
+  const contextService: ContextService = container.resolve(ContextService);
+  const cliService: CLIService = container.resolve(CLIService);
+  let specFile: SpecificationFile;
+
+  try {
+    if (!input) {
+      const { currentContext, error } = loadCurrentContext(contextService);
+      if (error) {
+        specFile = autoDetectSpecFileInWorkingDir(contextService.autoDetectSpecFile(), cliService.command());
+        return { specFile };
+      }
+      if (currentContext) {
+        specFile = new SpecificationFile(currentContext);
+        return { specFile };
+      }
+      throw new NoSpecPathFoundError(cliService.command());
+    }
+    
+    specFile = new SpecificationFile(input);
+
+    if (!specFile.isNotValid()) {
+      return {specFile};
+    }
+    const ctx = contextService.loadContextFile();
+    if (Object.keys(ctx.store).includes(input)) {
+      specFile = new SpecificationFile(ctx.store[input] as string);
+      return { specFile };
+    }
+
+    throw new NoSpecPathFoundError(cliService.command());
+  } catch (error) {
+    if (error instanceof ContextFileNotFoundError) {
+      try {
+        specFile = autoDetectSpecFileInWorkingDir(contextService.autoDetectSpecFile(), cliService.command());
+        return { specFile };
+      } catch (error) {
+        return { error };
+      }
+    }
+
+    return { error };
+  }
 };

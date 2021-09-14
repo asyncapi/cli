@@ -7,7 +7,10 @@ export type CommandName = typeof CommandList[number]
 
 export type Command = {
   [name in CommandName]: {
-    usage: string;
+    usage: {
+      command?: string,
+      options?: string
+    };
     shortDescription: string;
     longDescription?: string;
     flags: string[];
@@ -28,17 +31,17 @@ export class HelpMessage {
 
   readonly commands: Command = {
     validate: {
-      usage: 'asyncapi validate [options]',
+      usage: {
+        command: '<spec-file-path | context-name>'
+      },
       shortDescription: 'Validate asyncapi file',
       flags: [
         this.helpFlag,
-        '-f, --file <spec-file-path>  Path of the AsyncAPI file',
-        '-c, --context <saved-context-name>  Context to use',
         '-w, --watch  Enable watch mode (not implemented yet)'
       ]
     },
     context: {
-      usage: 'asyncapi context [options] [command]',
+      usage: {},
       shortDescription: 'Manage context',
       longDescription: 'Context is what makes it easier for you to work with multiple AsyncAPI files.\nYou can add multiple different files to a context.\nThis way you do not have to pass --file flag with path to the file every time but just --context flag with reference name.\nYou can also set a default context, so neither --file nor --context flags are needed',
       flags: [this.helpFlag],
@@ -103,10 +106,10 @@ export class HelpMessageBuilder {
       <Text backgroundColor="greenBright" bold color="blackBright"> USAGE </Text>
       <Newline />
       <Text>
-        <Text color="greenBright">{commandHelpObject.usage.split(' ')[0]}</Text>{' '}
-        <Text>{commandHelpObject.usage.split(' ')[1]}</Text>{' '}
-        <Text color="yellowBright">{commandHelpObject.usage.split(' ')[2]}</Text>{' '}
-        <Text color="blueBright">{commandHelpObject.usage.split(' ')[3]}</Text>
+        <Text color="greenBright">asyncapi</Text>{' '}
+        <Text>{command}</Text>{' '}
+        <Text color="blueBright">{commandHelpObject.usage.command || '[command]'}</Text>{' '}
+        <Text color="yellowBright">{commandHelpObject.usage.options || '[options]'}</Text>
       </Text>
       <Newline />
 
