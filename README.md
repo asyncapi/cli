@@ -8,69 +8,134 @@
   <em>CLI to work with your AsyncAPI files. Currently supports validation, but it is under development for more features.</em>
 </p>
 
-### Install
-```bash
-$ npm install --global @asyncapi/cli
+<p align="center">
+<a href="https://github.com/asyncapi/cli/blob/master/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/asyncapi/cli"></a>
+<a href="https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml">
+<img src="https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml/badge.svg" alt="PR testing - if Node project"  />
+</a>
+<a href="https://www.npmjs.com/package/@asyncapi/cli">
+<img alt="npm" src="https://img.shields.io/npm/dw/@asyncapi/cli">
+</a>
+
+</p>
+
+## Table of contents
+
+<!-- toc -->
+
+- [Requirements](#requirements)
+  * [Installation](#installation)
+- [Usage](#usage)
+- [API Reference](#api-reference)
+  * [`validate`](#validate)
+  * [`context`](#context)
+- [Contributing](#contributing)
+  * [Set up development enviornment](#set-up-development-enviornment)
+
+<!-- tocstop -->
+
+## Requirements
+To run `@asyncapi/cli`, you'll need Node.js >=v10
+
+Run this terminal command to check your Node.js version:
+```
+node -v
 ```
 
-### Getting Started
-Go ahead and run command `asyncapi --help` to get complete help for using CLI. If having doubt about any particular command do run `asyncapi <command> --help` to get help for that command.  
+If you don't have Node.js installed or NPM, simply [install both via package manager](https://nodejs.org/en/download/package-manager/)
 
-### CLI
-Help string for all the supported commands
+### Installation
 
-- #### `asyncapi --help`
+Run this command to install the CLI globally on your system:
+
 ```
-USAGE
+npm install -g @asyncapi/cli
+```
 
-asyncapi [options] [command]
+This installs the cli globaly on your system allowing you to run it from anywhere. If you want to install it locally, just remove the `-g` flag. 
 
-OPTIONS
+> Cli will be available for installation brew and other app managers for other systems. 
 
+
+
+## Usage
+
+As of now, the `@asyncapi/cli` only supports validation of the specification file. (This is still under development for more features.)
+
+We have well-documented help commands so just run:
+
+```
+asyncapi --help 
+```
+
+
+
+
+## API Reference
+
+### `validate`
+
+**USAGE**
+
+```
+asyncapi validate <spcPath | context-name> [options]
+```
+
+If you already have your current context set, run the following command:
+
+```
+asyncapi validate
+```
+
+**OPTIONS** 
+
+```
+-h, --help Display help for command
+-w, --watch Enable watch mode (not implemented yet)
+```
+
+
+### `context`
+
+**Context** makes it easier for you to work with multiple AsyncAPI Files. You can add multiple different files to a context so that you don't have to pass the file as an input every time you use any command. You can also set a default context so that you don't have to pass in either file paths or context names as an input.
+
+**USAGE**
+
+```
+asyncapi context [options] [command]
+```
+
+**COMMANDS**
+
+|command|arguments|description|example|
+|-------|---------|-----------|-------|
+|`list`|`none` |lists all saved context|`asyncapi context list`|
+|`current`|`none`|set current context|`asyncapi context current`|
+|`use` | `<context-name>`| set any context from the list as current|`asyncapi context use test`|
+|`add`|`<context-name> <spec-file-path>`|add/update a context|`asyncapi context add root ./asyncapi.yml`|
+|`remove`|`<context-name>`|remove a context from the list|`asyncapi context remove root`|
+
+**OPTIONS**
+
+```
 -h, --help display help for command
--v, --version output the version number
-
-COMMANDS
-
-validate validate asyncapi file 
-context  Manage contexts
 ```
 
-- #### `asyncapi validate --help`
-```
-USAGE
 
-asyncapi validate <spec-file-path | context-name> [options]
 
-OPTIONS
+## Contributing
 
--h, --help display help for command
--w, --watch Enable Watch Mode (not implemented yet)
-```
+Read [CONTRIBUTING](https://github.com/asyncapi/CLI/blob/master/CONTRIBUTING.md) guide.
 
-- #### `asyncapi context --help`
-```
-USAGE
+### Set up development enviornment
 
-asyncapi context [options] [command] 
+Follow these steps:
+- Clone the repo.
+- Run `npm install` to install all the required dependencies
+- Run `npm run test` to make sure everything is properly set up.
 
-Context is what makes it easier for you to work with multiple AsyncAPI files.
-You can add multiple different files to a contextThis way you do not have to pass 
---file flag with path to the file every time but just --context flag with reference name
-You can also set a default context, so neither --file nor --context flags are needed.
+UX developed for the CLI should be compliant with [Command Line Interface Guideline](https://clig.dev/)
 
-OPTIONS
+### Command Structure and Patterns
 
--h, --help display help for command 
-
-COMMANDS
-
-list list of all saved contexts 
-current see current context 
-use <context-name> set given context as default/current
-add <context-name> <spec-file-path> add/update context
-remove <context-name> remove a context
-
-```
-
-> For now --context flag is requried to run validate command
+We are following `verb + noun` and `namespace + noun + [verb]` pattern for making our commands and arguments. For example `asyncapi validate <spec-file-path>` and `asyncapi config context add <context-name> <spec-file-path>`. 
