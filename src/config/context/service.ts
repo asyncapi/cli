@@ -1,4 +1,4 @@
-import { Context, IContextAllocator } from './model';
+import { Context, IContextAllocator, IContext } from './model';
 import { injectable, inject, container } from 'tsyringe';
 
 @injectable()
@@ -19,11 +19,13 @@ export class ContextService {
       this._context.store[contextName as string] = filePath;
       return this.contextAllocator.save(this._context);
     }
-    return false;
+    this._context = new Context(this.createNewContext(contextName, filePath));
+    return this.contextAllocator.save(this._context);
   }
 
   deleteContext(contextName: string) {
     if (this._context && this._context.store[contextName as string]) {
+      if (this._context.current === contextName) { delete this._context.current; }
       delete this._context.store[contextName as string];
       return this.contextAllocator.save(this._context);
     }
@@ -33,9 +35,6 @@ export class ContextService {
   updateCurrent(contextName: string) {
     if (this._context && this._context.getContext(contextName)) {
       this._context.current = contextName;
-      if (this.contextAllocator.save) {
-        this.contextAllocator.save(this._context);
-      }
       return this.contextAllocator.save(this._context);
     }
     return false;
@@ -43,5 +42,11 @@ export class ContextService {
 
   static instantiate() {
     return container.resolve(ContextService);
+  }
+
+  private createNewContext(contextName: string, filePath: string): IContext {
+    const ctx: IContext = { current: contextName, store: {} };
+    ctx.store[contextName as string] = filePath;
+    return ctx;
   }
 }
