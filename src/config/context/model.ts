@@ -26,7 +26,7 @@ export class Context implements IContext {
 export interface IContextAllocator {
   contextFilePath?: string
   load: () => Context | undefined
-  save: (context: Context) => boolean
+  save: (context: Context) => Context | undefined
 }
 
 @injectable()
@@ -46,9 +46,9 @@ export class ContextAllocator implements IContextAllocator {
         current: context.current,
         store: context.store
       }), { encoding: 'utf8' });
-      return true;
+      return context;
     } catch (error) {
-      return false;
+      return undefined;
     }
   }
 }

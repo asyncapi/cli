@@ -8,7 +8,7 @@ class MockNegativeContextAllocator implements IContextAllocator {
   }
 
   save(_context: Context) {
-    return true;
+    return undefined;
   }
 }
 
@@ -24,7 +24,7 @@ class MockPositiveContextAllocator implements IContextAllocator {
   }
 
   save(context: Context) {
-    return context instanceof Context;
+    return context;
   }
 }
 

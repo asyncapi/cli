@@ -14,7 +14,7 @@ export class ContextService {
     return this._context;
   }
 
-  addContext(contextName: string, filePath: string): boolean {
+  addContext(contextName: string, filePath: string): Context | undefined {
     if (this._context) {
       this._context.store[contextName as string] = filePath;
       return this.contextAllocator.save(this._context);
@@ -23,21 +23,21 @@ export class ContextService {
     return this.contextAllocator.save(this._context);
   }
 
-  deleteContext(contextName: string) {
+  deleteContext(contextName: string): Context | undefined {
     if (this._context && this._context.store[contextName as string]) {
       if (this._context.current === contextName) { delete this._context.current; }
       delete this._context.store[contextName as string];
       return this.contextAllocator.save(this._context);
     }
-    return false;
+    return undefined;
   }
 
-  updateCurrent(contextName: string) {
+  updateCurrent(contextName: string): Context | undefined {
     if (this._context && this._context.getContext(contextName)) {
       this._context.current = contextName;
       return this.contextAllocator.save(this._context);
     }
-    return false;
+    return undefined;
   }
 
   static instantiate() {
