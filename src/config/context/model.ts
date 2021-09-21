@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-console */
 import { injectable } from 'tsyringe';
 import fs from 'fs';
 import { CONTEXTFILE_PATH } from '../../constants';
@@ -38,6 +36,7 @@ export class ContextAllocator implements IContextAllocator {
     try {
       return new Context(JSON.parse(fs.readFileSync(this.contextFilePath, 'utf8')) as IContext);
     } catch (error) {
+      console.warn(error);// eslint-disable-line no-undef, no-console
       return undefined;
     }
   }
@@ -50,7 +49,7 @@ export class ContextAllocator implements IContextAllocator {
       }), { encoding: 'utf8' });
       return context;
     } catch (error) {
-      console.warn(error);
+      console.warn(error);// eslint-disable-line no-undef, no-console
       return undefined;
     }
   }
