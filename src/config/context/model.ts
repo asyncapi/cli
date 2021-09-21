@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-console */
 import { injectable } from 'tsyringe';
 import fs from 'fs';
 import { CONTEXTFILE_PATH } from '../../constants';
@@ -48,6 +50,7 @@ export class ContextAllocator implements IContextAllocator {
       }), { encoding: 'utf8' });
       return context;
     } catch (error) {
+      console.warn(error);
       return undefined;
     }
   }
