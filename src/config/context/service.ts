@@ -1,11 +1,11 @@
-import { Context, IContextAllocator, IContext } from './model';
+import { Context, IContextAllocator, IContext, ContextAllocator } from './model';
 import { injectable, inject, container } from 'tsyringe';
 
 @injectable()
 export class ContextService {
   private _context: Context | undefined
   constructor(
-    @inject('IContextAllocator') private contextAllocator: IContextAllocator
+    @inject(ContextAllocator) private contextAllocator: IContextAllocator
   ) {
     this._context = this.contextAllocator.load();
   }

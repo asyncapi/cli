@@ -1,4 +1,4 @@
-import { injectable, registry, } from 'tsyringe';
+import { injectable } from 'tsyringe';
 import fs from 'fs';
 import { CONTEXTFILE_PATH } from '../../constants';
 
@@ -30,12 +30,6 @@ export interface IContextAllocator {
 }
 
 @injectable()
-@registry([
-  {
-    token: 'IContextAllocator',
-    useToken: ContextAllocator
-  }
-])
 export class ContextAllocator implements IContextAllocator {
   contextFilePath = CONTEXTFILE_PATH;
   load(): Context | undefined {
@@ -48,7 +42,10 @@ export class ContextAllocator implements IContextAllocator {
 
   save(context: Context) {
     try {
-      fs.writeFileSync(this.contextFilePath, JSON.stringify(context), { encoding: 'utf8' });
+      fs.writeFileSync(this.contextFilePath, JSON.stringify({
+        current: context.current,
+        store: context.store
+      }), { encoding: 'utf8' });
       return true;
     } catch (error) {
       return false;
