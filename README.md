@@ -31,6 +31,7 @@
   * [`context`](#context)
 - [Contributing](#contributing)
   * [Set up development enviornment](#set-up-development-enviornment)
+  * [Command Structure and Patterns](#command-structure-and-patterns)
 
 <!-- tocstop -->
 
@@ -138,4 +139,4 @@ UX developed for the CLI should be compliant with [Command Line Interface Guidel
 
 ### Command Structure and Patterns
 
-We are following `verb + noun` and `namespace + noun + [verb]` pattern for making our commands and arguments. For example `asyncapi validate <spec-file-path>` and `asyncapi config context add <context-name> <spec-file-path>`. 
+We are following `verb + noun` and `namespace + noun + [verb]` pattern for making our commands and arguments. For example `asyncapi validate <spec-file-path>` and `asyncapi config context add <context-name> <spec-file-path>`.
