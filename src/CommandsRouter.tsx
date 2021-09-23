@@ -3,10 +3,12 @@ import Validate from './components/Validate/Validate';
 import { contextRouter } from './components/Context';
 import { CliInput } from './CliModels';
 import { CommandName, HelpMessageBuilder } from './help-message';
+import {configRouter} from './commands/config/router';
 
 const commandsDictionary = (cliInput: CliInput): Record<string, any> => ({
   validate: <Validate options={cliInput.options} parameter={cliInput.arguments[0]} />,
-  context: contextRouter(cliInput)
+  context: contextRouter(cliInput),
+  config: configRouter(cliInput)
 });
 
 export const commandsRouter = (cli: any): any => {

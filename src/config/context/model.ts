@@ -36,7 +36,7 @@ export class ContextAllocator implements IContextAllocator {
     try {
       return new Context(JSON.parse(fs.readFileSync(this.contextFilePath, 'utf8')) as IContext);
     } catch (error) {
-      console.warn(error);// eslint-disable-line no-undef, no-console
+      //console.warn(error);// eslint-disable-line no-undef, no-console
       return undefined;
     }
   }
