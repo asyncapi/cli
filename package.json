@@ -10,6 +10,7 @@
 	},
 	"scripts": {
 		"build": "tsc",
+		"dev": "tsc --watch",
 		"start": "npm run build && node dist/cli.js",
 		"pretest": "npm run build",
 		"pretest:coverage": "npm run build",
