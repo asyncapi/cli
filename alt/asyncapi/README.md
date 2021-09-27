@@ -28,25 +28,99 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`asyncapi context [FILE]`](#asyncapi-context-file)
+* [`asyncapi context`](#asyncapi-context)
+* [`asyncapi context:add [CONTEXT-NAME] [ASYNCAPI-FILE-PATH]`](#asyncapi-contextadd-context-name-asyncapi-file-path)
+* [`asyncapi context:current`](#asyncapi-contextcurrent)
+* [`asyncapi context:list`](#asyncapi-contextlist)
+* [`asyncapi context:remove [CONTEXT-NAME]`](#asyncapi-contextremove-context-name)
+* [`asyncapi context:use [CONTEXT-NAME]`](#asyncapi-contextuse-context-name)
 * [`asyncapi help [COMMAND]`](#asyncapi-help-command)
 * [`asyncapi validate [FILE]`](#asyncapi-validate-file)
 
-## `asyncapi context [FILE]`
-
-describe the command here
+## `asyncapi context`
 
 ```
 USAGE
-  $ asyncapi context [FILE]
+  $ asyncapi context
 
 OPTIONS
-  -f, --force
-  -h, --help       show CLI help
-  -n, --name=name  name to print
+  -h, --help  show CLI help
 ```
 
 _See code: [src/commands/context.ts](https://github.com/asyncapi/cli/blob/v0.1.0/src/commands/context.ts)_
+
+## `asyncapi context:add [CONTEXT-NAME] [ASYNCAPI-FILE-PATH]`
+
+add/update a context
+
+```
+USAGE
+  $ asyncapi context add [CONTEXT-NAME] [ASYNCAPI-FILE-PATH]
+
+OPTIONS
+  -h, --help  show CLI help
+```
+
+_See code: [src/commands/context/add.ts](https://github.com/asyncapi/cli/blob/v0.1.0/src/commands/context/add.ts)_
+
+## `asyncapi context:current`
+
+see current context
+
+```
+USAGE
+  $ asyncapi context current
+
+OPTIONS
+  -h, --help  show CLI help
+```
+
+_See code: [src/commands/context/current.ts](https://github.com/asyncapi/cli/blob/v0.1.0/src/commands/context/current.ts)_
+
+## `asyncapi context:list`
+
+list all saved contexts
+
+```
+USAGE
+  $ asyncapi context list
+
+OPTIONS
+  -h, --help  show CLI help
+```
+
+_See code: [src/commands/context/list.ts](https://github.com/asyncapi/cli/blob/v0.1.0/src/commands/context/list.ts)_
+
+## `asyncapi context:remove [CONTEXT-NAME]`
+
+remove a context
+
+```
+USAGE
+  $ asyncapi context remove [CONTEXT-NAME]
+
+OPTIONS
+  -h, --help  show CLI help
+
+ALIASES
+  $ asyncapi context rm
+```
+
+_See code: [src/commands/context/remove.ts](https://github.com/asyncapi/cli/blob/v0.1.0/src/commands/context/remove.ts)_
+
+## `asyncapi context:use [CONTEXT-NAME]`
+
+set given context as default/current
+
+```
+USAGE
+  $ asyncapi context use [CONTEXT-NAME]
+
+OPTIONS
+  -h, --help  show CLI help
+```
+
+_See code: [src/commands/context/use.ts](https://github.com/asyncapi/cli/blob/v0.1.0/src/commands/context/use.ts)_
 
 ## `asyncapi help [COMMAND]`
 
