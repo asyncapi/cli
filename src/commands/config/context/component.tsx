@@ -1,5 +1,5 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import { ReactElement } from 'react';
+import { FunctionComponent, ReactElement } from 'react';
 import { ContextService } from '../../../config/context';
 import { injectable } from 'tsyringe';
 import { ContextMessageWriter, Messages } from './messages';
@@ -38,7 +38,7 @@ export class ContextComponent {
     return this.messageWriter.current(ctx);
   }
 
-  add = (contextName?: string, specPath?: string): ReactElement => {
+  add: FunctionComponent<{ contextName?: string, specPath?: string }> = ({ contextName, specPath }) => {
     if (!contextName) {
       return this.messageWriter.throwError('context-name missing!');
     }
@@ -54,7 +54,7 @@ export class ContextComponent {
     );
   }
 
-  use = (contextName?: string): ReactElement => {
+  use: FunctionComponent<{contextName?: string}> = ({contextName}) => {
     if (!contextName) {
       return this.messageWriter.throwError('Missing context-name');
     }
@@ -63,7 +63,7 @@ export class ContextComponent {
       return this.messageWriter.throwError(
         this.messages.notContextSaved()
       );
-    } 
+    }
 
     if (!this.contextService.context.getContext(contextName)) {
       return this.messageWriter.throwError(
@@ -73,12 +73,12 @@ export class ContextComponent {
 
     const ctx = this.contextService.updateCurrent(contextName);
 
-    if (!ctx) {return this.messageWriter.throwError('Something went wrong');}
+    if (!ctx) { return this.messageWriter.throwError('Something went wrong'); }
 
     return this.messageWriter.use(ctx);
   }
 
-  remove = (contextName?: string): ReactElement => {
+  remove: FunctionComponent<{contextName?: string}> = ({contextName}) => {
     if (!contextName) {
       return this.messageWriter.throwError('Missing context-name');
     }

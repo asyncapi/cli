@@ -19,8 +19,8 @@ class MockContextAllocator implements IContextAllocator {
     return new Context(ctx);
   }
 
-  save = (context: Context): Context | undefined => {
-    return context;
+  save = (context: IContext): Context | undefined => {
+    return new Context(context);
   }
 }
 
@@ -29,8 +29,8 @@ class UndefinedContextAllocator implements IContextAllocator {
     return undefined;
   }
 
-  save(context: Context) {
-    return context;
+  save(context: IContext) {
+    return new Context(context);
   }
 }
 
@@ -63,20 +63,20 @@ describe('ContextComponent Should ', () => {
   });
 
   test('add new context', () => {
-    const actualMessage = render(mockContextComponent.add('test', './test/specification.yml'));
+    const actualMessage = render(<mockContextComponent.add contextName={'test'} specPath={'./test/specification.yml'} />);
     const messages = new Messages();
     const testMessage = render(messageWriter.add(messages.contextAdded('test')));
     expect(actualMessage.lastFrame()).toMatch(testMessage.lastFrame() as string);
   });
 
   test('update current context', () => {
-    const actualMessage = render(mockContextComponent.use('check'));
+    const actualMessage = render(<mockContextComponent.use contextName='check' />);
     const testMessage = render(messageWriter.use(new Context({store: {check: './test/specification.yml'}, current: 'check'})));
     expect(actualMessage.lastFrame()).toMatch(testMessage.lastFrame() as string);
   });
 
   test('remove a context', () => {
-    const actualMessage = render(mockContextComponent.remove('check'));
+    const actualMessage = render(<mockContextComponent.remove contextName="check" />);
     const testMessage = render(messageWriter.remove(new Messages().removeContext()));
     expect(actualMessage.lastFrame()).toMatch(testMessage.lastFrame() as string);
   });

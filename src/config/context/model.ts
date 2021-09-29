@@ -43,7 +43,10 @@ export class ContextAllocator implements IContextAllocator {
 
   save(context: Context) {
     try {
-      fs.writeFileSync(this.contextFilePath, JSON.stringify(context));
+      fs.writeFileSync(this.contextFilePath, JSON.stringify({
+        current: context.current,
+        store: context.store
+      }));
       return context;
     } catch (error) {
       console.warn(error);// eslint-disable-line no-undef, no-console

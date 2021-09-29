@@ -1,5 +1,6 @@
 import { ContextService } from './service';
 import { Context, IContextAllocator } from './model';
+import { IContext } from '.';
 
 class MockNegativeContextAllocator implements IContextAllocator {
   contextFilePath?: string | undefined;
@@ -7,7 +8,7 @@ class MockNegativeContextAllocator implements IContextAllocator {
     return undefined;
   }
 
-  save(_context: Context) {
+  save(_context: IContext) {
     return undefined;
   }
 }
@@ -23,8 +24,8 @@ class MockPositiveContextAllocator implements IContextAllocator {
     });
   }
 
-  save(context: Context) {
-    return context;
+  save(context: IContext) {
+    return new Context(context);
   }
 }
 
