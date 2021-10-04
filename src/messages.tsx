@@ -26,4 +26,4 @@ export const ARGUMENTS = {
   CONTEXT_NAME: 'context-name',
   SPEC_PATH: 'spec-path',
   CONTEXT: 'context'
-}
+};

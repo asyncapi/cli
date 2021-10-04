@@ -42,7 +42,7 @@ export const AddContext: React.FunctionComponent<{ options: any, args: string[] 
 
   if (!key) {
     return <ContextError error={new MissingArgumentstError(ARGUMENTS.CONTEXT_NAME, ARGUMENTS.CONTEXT)} />;
-  }else if(!path){
+  } else if (!path) {
     return <ContextError error={new MissingArgumentstError(ARGUMENTS.SPEC_PATH, ARGUMENTS.CONTEXT)} />;
   }
 
