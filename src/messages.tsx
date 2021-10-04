@@ -5,7 +5,7 @@ export const CONTEXT_NOT_FOUND = (contextName: string) => `Context ${contextName
 
 export const MISSING_CURRENT_CONTEXT = 'No context is set as current, please set a current context.';
 
-export const MISSING_ARGUMENTS = 'Missing arguments.';
+export const MISSING_ARGUMENTS = (argument: string, command: string) => `Missing arguments: ${argument}\nrun asyncapi ${command} --help to know more.`;
 
 export const NEW_CONTEXT_ADDED = (contextName: string) => `New context added.\n\nYou can set it as your current context: asyncapi context use ${contextName}\nYou can use this context when needed by passing ${contextName} as a parameter: asyncapi valiate ${contextName}`;
 

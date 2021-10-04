@@ -40,8 +40,10 @@ export const ShowCurrentContext: React.FunctionComponent = () => {
 export const AddContext: React.FunctionComponent<{ options: any, args: string[] }> = ({ args }) => {
   const [key, path] = args;
 
-  if (!key || !path) {
-    return <ContextError error={new MissingArgumentstError()} />;
+  if (!key) {
+    return <ContextError error={new MissingArgumentstError("context-name","context")} />;
+  }else if(!path){
+    return <ContextError error={new MissingArgumentstError("spec-path","context")} />;
   }
 
   const { response, error } = useContextFile().addContext(key, new SpecificationFile(path));
@@ -57,7 +59,7 @@ export const SetCurrent: React.FunctionComponent<{ options: any, args: string[] 
   const [key,] = args;
 
   if (!key) {
-    return <ContextError error={new MissingArgumentstError()} />;
+    return <ContextError error={new MissingArgumentstError("context-name","context")} />;
   }
 
   const { response, error } = useContextFile().setCurrent(key);
@@ -77,7 +79,7 @@ export const RemoveContext: React.FunctionComponent<{ options: any, args: string
   const [key] = args;
 
   if (!key) {
-    return <ContextError error={new MissingArgumentstError()} />;
+    return <ContextError error={new MissingArgumentstError("context-name","context")} />;
   }
 
   const { response, error } = useContextFile().deleteContext(key);
