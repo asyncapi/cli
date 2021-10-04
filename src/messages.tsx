@@ -21,3 +21,9 @@ export const NO_SPEC_FOUND = (command: string) => `${FALLBACK_MESSAGES[command]}
 export const FALLBACK_MESSAGES: {[name: string]: string} = {
   validate: 'Unable to perform validation. Specify what AsyncAPI file should be validated.'
 };
+
+export const CONTEXT_NAME = 'context-name';
+
+export const SPEC_PATH = 'spec-path';
+
+export const CONTEXT = 'context';
