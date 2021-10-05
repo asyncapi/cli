@@ -1,6 +1,6 @@
 {
 	"name": "@asyncapi/cli",
-	"version": "0.6.3",
+	"version": "0.6.4",
 	"license": "Apache-2.0",
 	"bin": {
 		"asyncapi": "dist/cli.js"
