@@ -130,7 +130,7 @@
     "pretest:coverage": "npm run build",
     "release": "semantic-release",
     "start": "npm run build && node dist/cli.js",
-    "test": "echo NO TESTS",
+    "test": "jest",
     "test:coverage": "jest --verbose --coverage",
     "version": "oclif-dev readme && git add README.md"
   },
