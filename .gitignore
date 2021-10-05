@@ -1,5 +1,12 @@
-
+*-debug.log
+*-error.log
 .DS_Store
-/node_modules/
-/dist/
 .idea
+/.nyc_output
+/dist
+/dist/
+/lib
+/node_modules/
+/tmp
+/yarn.lock
+node_modules
