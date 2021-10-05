@@ -132,7 +132,8 @@
     "start": "npm run build && node dist/cli.js",
     "test": "jest",
     "test:coverage": "jest --verbose --coverage",
-    "version": "oclif-dev readme && git add README.md"
+    "version": "oclif-dev readme && git add README.md",
+    "readme": "oclif readme"
   },
   "types": "lib/index.d.ts"
 }
