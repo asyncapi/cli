@@ -35,9 +35,9 @@ export class MissingCurrentContextError extends Error {
 }
 
 export class MissingArgumentstError extends Error {
-  constructor() {
+  constructor(argument: string, command: string) {
     super();
-    this.message = messages.MISSING_ARGUMENTS;
+    this.message = messages.MISSING_ARGUMENTS(argument, command);
   }
 }
 

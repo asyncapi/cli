@@ -4,7 +4,7 @@ import { Box, Text } from 'ink';
 import ContextError from './contexterror';
 import { useContextFile, MissingArgumentstError } from '../../hooks/context';
 import { SpecificationFile } from '../../hooks/validation';
-
+import { ARGUMENTS } from '../../messages';
 export const ListContexts: React.FunctionComponent = () => {
   const { response, error } = useContextFile().list();
 
@@ -40,8 +40,10 @@ export const ShowCurrentContext: React.FunctionComponent = () => {
 export const AddContext: React.FunctionComponent<{ options: any, args: string[] }> = ({ args }) => {
   const [key, path] = args;
 
-  if (!key || !path) {
-    return <ContextError error={new MissingArgumentstError()} />;
+  if (!key) {
+    return <ContextError error={new MissingArgumentstError(ARGUMENTS.CONTEXT_NAME, ARGUMENTS.CONTEXT)} />;
+  } else if (!path) {
+    return <ContextError error={new MissingArgumentstError(ARGUMENTS.SPEC_PATH, ARGUMENTS.CONTEXT)} />;
   }
 
   const { response, error } = useContextFile().addContext(key, new SpecificationFile(path));
@@ -57,7 +59,7 @@ export const SetCurrent: React.FunctionComponent<{ options: any, args: string[] 
   const [key,] = args;
 
   if (!key) {
-    return <ContextError error={new MissingArgumentstError()} />;
+    return <ContextError error={new MissingArgumentstError(ARGUMENTS.CONTEXT_NAME, ARGUMENTS.CONTEXT)} />;
   }
 
   const { response, error } = useContextFile().setCurrent(key);
@@ -77,7 +79,7 @@ export const RemoveContext: React.FunctionComponent<{ options: any, args: string
   const [key] = args;
 
   if (!key) {
-    return <ContextError error={new MissingArgumentstError()} />;
+    return <ContextError error={new MissingArgumentstError(ARGUMENTS.CONTEXT_NAME, ARGUMENTS.CONTEXT)} />;
   }
 
   const { response, error } = useContextFile().deleteContext(key);
