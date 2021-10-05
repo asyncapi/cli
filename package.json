@@ -1,6 +1,6 @@
 {
 	"name": "@asyncapi/cli",
-	"version": "0.6.0",
+	"version": "0.6.3",
 	"license": "Apache-2.0",
 	"bin": {
 		"asyncapi": "dist/cli.js"
@@ -10,6 +10,7 @@
 	},
 	"scripts": {
 		"build": "tsc",
+		"dev": "tsc --watch",
 		"start": "npm run build && node dist/cli.js",
 		"pretest": "npm run build",
 		"pretest:coverage": "npm run build",
@@ -27,7 +28,7 @@
 		"dist"
 	],
 	"dependencies": {
-		"@asyncapi/parser": "^1.9.0",
+		"@asyncapi/parser": "^1.10.0",
 		"ink": "^3.0.8",
 		"meow": "^9.0.0",
 		"react": "^17.0.1",

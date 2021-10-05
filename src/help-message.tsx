@@ -97,6 +97,7 @@ export class HelpMessageBuilder {
       {Object.keys(this.helpMessage.commands).map(command => <Text key={command}>
         <Text color="blueBright" bold>{command}</Text>{' '} <Text>{this.helpMessage.commands[command as CommandName].shortDescription}</Text>
       </Text>)}
+      <Newline />
     </>;
   }
 
