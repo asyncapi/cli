@@ -23,6 +23,16 @@
 
 <!-- toc -->
 
+- [Requirements](#requirements)
+  * [Installation](#installation)
+- [Usage](#usage)
+- [API Reference](#api-reference)
+  * [`validate`](#validate)
+  * [`context`](#context)
+- [Contributing](#contributing)
+  * [Set up development enviornment](#set-up-development-enviornment)
+  * [Command Structure and Patterns](#command-structure-and-patterns)
+
 <!-- tocstop -->
 
 ## Requirements
