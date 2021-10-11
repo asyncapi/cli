@@ -1,12 +1,12 @@
-type ErrorType = 'parser-error' | 'invalid-file';
+import { ValidationMessage, NO_SPEC_FOUND } from '../messages';
+
+type ErrorType = 'parser-error' | 'invalid-file' | 'no-spec-found';
 
 interface IValidationErrorInput {
   type: ErrorType;
   err?: any,
-  filepath?: string
+  filepath?: string,
 }
-
-import { ValidationMessage } from '../messages';
 
 export class ValidationError extends Error {
   constructor(error: IValidationErrorInput) {
@@ -15,8 +15,12 @@ export class ValidationError extends Error {
       this.buildError(error.err);
     }
     if (error.type === 'invalid-file') {
-      this.name = ValidationMessage(error.filepath as string).error();
+      this.message = ValidationMessage(error.filepath as string).error();
     }
+    if (error.type === 'no-spec-found') {
+      this.message = NO_SPEC_FOUND('validate');
+    }
+    this.name = 'Validation Error';
   }
 
   private buildError(err: any) {

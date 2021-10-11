@@ -1,9 +1,9 @@
 import { Command, flags } from '@oclif/command';
 import { container } from 'tsyringe';
-import { ValidationService } from '../validation';
-import { SpecificationFile } from '../models';
+import { ValidationService, SpecFileLoader } from '../validation';
 
 const validationService = container.resolve(ValidationService);
+const specfileLoader = container.resolve(SpecFileLoader);
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
@@ -18,7 +18,7 @@ export default class Validate extends Command {
 
   async run() {
     const { args } = this.parse(Validate);
-    const specFile = new SpecificationFile(args['spec-file']);
+    const specFile = specfileLoader.load(args['spec-file']);
     const message = await validationService.validate(specFile);
     this.log(message);
   }

@@ -1,1 +1,1 @@
-export {ValidationService} from './service';
+export { ValidationService, SpecFileLoader } from './service';
