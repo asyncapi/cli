@@ -1,4 +1,5 @@
-import { Command, flags } from '@oclif/command';
+import { flags } from '@oclif/command';
+import Command from '../../../base';
 import { ContextService } from '../../../config/context';
 import { container } from 'tsyringe';
 import {

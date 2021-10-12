@@ -1,4 +1,5 @@
-import { Command, flags } from '@oclif/command';
+import {flags } from '@oclif/command';
+import Command from '../base';
 import { container } from 'tsyringe';
 import { ValidationService, SpecFileLoader } from '../validation';
 
@@ -21,9 +22,5 @@ export default class Validate extends Command {
     const specFile = specfileLoader.load(args['spec-file']);
     const message = await validationService.validate(specFile);
     this.log(message);
-  }
-
-  async catch(e: Error) {
-    console.error(`${e.name}: ${e.message}`);
   }
 }
