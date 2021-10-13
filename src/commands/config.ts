@@ -1,4 +1,5 @@
-import {Command, flags} from '@oclif/command';
+import { flags} from '@oclif/command';
+import Command from '../base';
 
 export class Config extends Command {
   static description = 'access configs'

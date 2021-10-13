@@ -1,5 +1,6 @@
 import { ContextService } from './service';
 import { Context, IContextAllocator } from './model';
+import { SpecificationFile } from '../../hooks/validation';
 
 class MockNegativeContextAllocator implements IContextAllocator {
   contextFilePath?: string | undefined;
@@ -48,7 +49,7 @@ describe('ContextService should', () => {
   });
 
   test('successfully save context', () => {
-    expect(ctxService.addContext('home', 'path')).toBeTruthy();
+    expect(ctxService.addContext('home', new SpecificationFile('./test/specdification.yml'))).toBeTruthy();
   });
 
   test('successfully delete context', () => {
