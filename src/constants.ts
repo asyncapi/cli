@@ -1,8 +1,8 @@
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs';
-import { SpecificationFile } from './hooks/validation';
-import { Context } from './hooks/context/models';
+import { SpecificationFile } from './models';
+import { IContext } from './config/context';
 
 const DIRSPECPATH = 'asycnapi.yml';
 
@@ -13,7 +13,7 @@ export const CONTEXT_FILENAME = isTestEnv ? '.test.asyncapi' : '.asyncapi';
 export const CONTEXTFILE_PATH = path.resolve(os.homedir(), CONTEXT_FILENAME);
 
 export class ContextTestingHelper {
-  private _context: Context;
+  private _context: IContext;
   constructor() {
     const homeSpecFile = new SpecificationFile('test/specification.yml');
 
@@ -27,7 +27,7 @@ export class ContextTestingHelper {
     };
   }
 
-  get context(): Context {
+  get context(): IContext {
     return this._context;
   }
 

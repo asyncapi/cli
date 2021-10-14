@@ -1,6 +1,6 @@
 import { Context, IContextAllocator, IContext, ContextAllocator } from './model';
 import { injectable, inject, container } from 'tsyringe';
-import { SpecificationFile } from '../../hooks/validation';
+import { SpecificationFile } from '../../models';
 
 @injectable()
 export class ContextService {

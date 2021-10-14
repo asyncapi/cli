@@ -1,6 +1,6 @@
 import { ContextService } from './service';
 import { Context, IContextAllocator } from './model';
-import { SpecificationFile } from '../../hooks/validation';
+import { SpecificationFile } from '../../models';
 
 class MockNegativeContextAllocator implements IContextAllocator {
   contextFilePath?: string | undefined;
