@@ -6,7 +6,7 @@ import { IContext } from './config/context';
 
 const DIRSPECPATH = 'asycnapi.yml';
 
-const isTestEnv = (process.env['NODE_ENV'] === 'test') || (process.env['JEST_WORKER_ID'] !== undefined) || typeof jest !== 'undefined';
+const isTestEnv = (process.env['NODE_ENV'] === 'test') || (process.env['JEST_WORKER_ID'] !== undefined) || typeof mocha !== 'undefined';
 
 export const CONTEXT_FILENAME = isTestEnv ? '.test.asyncapi' : '.asyncapi';
 

@@ -19,16 +19,19 @@
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1.26.0",
+    "@oclif/test": "^1.2.8",
     "@semantic-release/commit-analyzer": "^8.0.1",
     "@semantic-release/github": "^7.2.3",
     "@semantic-release/npm": "^7.1.3",
     "@semantic-release/release-notes-generator": "^9.0.2",
     "@sindresorhus/tsconfig": "^0.9.0",
-    "@types/jest": "^26.0.20",
+    "@types/chai": "^4.2.22",
+    "@types/mocha": "^9.0.0",
     "@types/node": "^10.17.60",
     "@types/react": "^17.0.2",
     "@typescript-eslint/eslint-plugin": "^4.28.4",
     "@typescript-eslint/parser": "^4.28.4",
+    "chai": "^4.3.4",
     "chalk": "^4.1.0",
     "conventional-changelog-conventionalcommits": "^4.4.0",
     "eslint": "^7.31.0",
@@ -39,11 +42,10 @@
     "eslint-plugin-sonarjs": "^0.9.1",
     "globby": "^10.0.2",
     "ink-testing-library": "^2.1.0",
-    "jest": "^26.6.3",
     "markdown-toc": "^1.2.0",
+    "mocha": "^9.1.3",
     "rimraf": "^3.0.2",
     "semantic-release": "^17.4.3",
-    "ts-jest": "^26.5.3",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.10"
   },
@@ -57,23 +59,6 @@
     "dist"
   ],
   "homepage": "https://github.com/asyncapi/cli",
-  "jest": {
-    "setupFilesAfterEnv": [
-      "<rootDir>/test/setupTests.ts"
-    ],
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "(/tests/.*|(\\.|/)(test|spec))\\.(tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
-  },
   "keywords": [
     "oclif"
   ],
@@ -123,11 +108,11 @@
     "postpack": "rimraf oclif.manifest.json",
     "prepack": "rimraf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "prepublishOnly": "npm run build",
-    "pretest": "npm run build",
+    "pretest": "",
     "pretest:coverage": "npm run build",
     "release": "semantic-release",
     "start": "npm run build && node dist/cli.js",
-    "test": "jest",
+    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
     "test:coverage": "jest --verbose --coverage",
     "version": "oclif-dev readme && git add README.md",
     "readme": "oclif readme"
