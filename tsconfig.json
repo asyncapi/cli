@@ -9,6 +9,7 @@
     "target": "es2017",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "jsx": "react",
     "esModuleInterop": true,
   },
   "include": [
