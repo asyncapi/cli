@@ -27,10 +27,6 @@ describe('context current ', () => {
     testHelper.deleteDummyContextFile();
   });
 
-  afterEach(() => {
-    testHelper.deleteDummyContextFile();
-  });
-
   it('should print the current context', (done) => {
     testHelper.createDummyContextFile();
     exec('node ./bin/run config context current', (code, stdout) => {
@@ -62,11 +58,7 @@ describe('context use ', () => {
   afterAll(() => {
     testHelper.deleteDummyContextFile();
   });
-
-  afterEach(() => {
-    testHelper.deleteDummyContextFile();
-  });
-
+  
   it('should update the current context', (done) => {
     testHelper.createDummyContextFile();
     exec('node ./bin/run config context use code', (code, stdout) => {
