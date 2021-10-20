@@ -6,6 +6,10 @@ import { ContextTestingHelper } from '../../src/constants';
 const testHelper = new ContextTestingHelper();
 
 describe('validate command when file path is passed', () => {
+  afterAll(() => {
+    testHelper.deleteDummyContextFile();
+  });
+
   afterEach(() => {
     testHelper.deleteDummyContextFile();
   });
@@ -33,6 +37,10 @@ describe('validate command when file path is passed', () => {
 });
 
 describe('Validate command when context name is passed', () => {
+  afterAll(() => {
+    testHelper.deleteDummyContextFile();
+  });
+
   afterEach(() => {
     testHelper.deleteDummyContextFile();
   });
@@ -61,6 +69,10 @@ describe('Validate command when context name is passed', () => {
 });
 
 describe('Validate command when no input is passed', () => {
+  afterAll(() => {
+    testHelper.deleteDummyContextFile();
+  });
+  
   afterEach(() => {
     testHelper.deleteDummyContextFile();
   });

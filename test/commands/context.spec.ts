@@ -5,6 +5,10 @@ import * as path from 'path';
 const testHelper = new ContextTestingHelper();
 
 describe('context list', () => {
+  afterAll(() => {
+    testHelper.deleteDummyContextFile();
+  });
+
   afterEach(() => {
     testHelper.deleteDummyContextFile();
   });
@@ -19,6 +23,10 @@ describe('context list', () => {
 });
 
 describe('context current ', () => {
+  afterAll(() => {
+    testHelper.deleteDummyContextFile();
+  });
+
   afterEach(() => {
     testHelper.deleteDummyContextFile();
   });
@@ -35,6 +43,10 @@ describe('context current ', () => {
 });
 
 describe('context add ', () => {
+  afterAll(() => {
+    testHelper.deleteDummyContextFile();
+  });
+
   it('should add new test', (done) => {
     testHelper.createDummyContextFile();
     exec('node ./bin/run config context add test ./test/specification.yml', (code, stdout) => {
@@ -47,6 +59,10 @@ describe('context add ', () => {
 });
 
 describe('context use ', () => {
+  afterAll(() => {
+    testHelper.deleteDummyContextFile();
+  });
+
   afterEach(() => {
     testHelper.deleteDummyContextFile();
   });
@@ -61,7 +77,7 @@ describe('context use ', () => {
 });
 
 describe('context remove ', () => {
-  beforeAll(() => {
+  afterAll(() => {
     testHelper.createDummyContextFile();
   });
 
