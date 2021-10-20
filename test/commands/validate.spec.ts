@@ -61,11 +61,11 @@ describe('Validate command when context name is passed', () => {
 });
 
 describe('Validate command when no input is passed', () => {
-  beforeAll(() => {
+  afterEach(() => {
     testHelper.deleteDummyContextFile();
   });
   
-  it.skip('should validate from current context', (done) => {
+  it('should validate from current context', (done) => {
     testHelper.createDummyContextFile();
     exec('node ./bin/run validate', (code, stdout) => {
       expect(stdout).toMatch(
