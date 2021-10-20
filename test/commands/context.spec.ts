@@ -22,22 +22,6 @@ describe('context list', () => {
   });
 });
 
-describe('context current ', () => {
-  afterAll(() => {
-    testHelper.deleteDummyContextFile();
-  });
-
-  it('should print the current context', (done) => {
-    testHelper.createDummyContextFile();
-    exec('node ./bin/run config context current', (code, stdout) => {
-      expect(stdout).toMatch(
-        `home : ${testHelper.context.store['home']}`
-      );
-      done();
-    });
-  });
-});
-
 describe('context add ', () => {
   afterAll(() => {
     testHelper.deleteDummyContextFile();
