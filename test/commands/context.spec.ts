@@ -67,7 +67,7 @@ describe('context remove ', () => {
 
   it('should remove a context', (done) => {
     testHelper.createDummyContextFile();
-    exec('node ./bin/run config context remove home', (code, stdout) => {
+    exec('node ./bin/run config context remove code', (code, stdout) => {
       expect(stdout).toMatch('code successfully deleted');
       done();
     });
