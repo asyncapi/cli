@@ -1,5 +1,3 @@
-import { ValidationMessage, NO_SPEC_FOUND } from '../messages';
-
 type ErrorType = 'parser-error' | 'invalid-file' | 'no-spec-found';
 
 interface IValidationErrorInput {
@@ -15,12 +13,12 @@ export class ValidationError extends Error {
       this.buildError(error.err);
     }
     if (error.type === 'invalid-file') {
-      this.message = ValidationMessage(error.filepath as string).error();
+      this.message = `There is no file or context with name "${error.filepath}".`;
     }
     if (error.type === 'no-spec-found') {
-      this.message = NO_SPEC_FOUND('validate');
+      this.message = `Unable to perform validation. Specify what AsyncAPI file should be validated.\n\nThese are your options to specify in the CLI what AsyncAPI file should be used:\n- You can provide a path to the AsyncAPI file: asyncapi validate path/to/file/asyncapi.yml\n- You can also pass a saved context that points to your AsyncAPI file: asyncapi validate mycontext\n- In case you did not specify a context that you want to use, the CLI checks if there is a default context and uses it. To set default context run: asyncapi context use mycontext\n- In case you did not provide any reference to AsyncAPI file and there is no default context, the CLI detects if in your current working directory you have files like asyncapi.json, asyncapi.yaml, asyncapi.yml. Just rename your file accordingly.`;
     }
-    this.name = 'Validation Error';
+    this.name = 'ValidationError';
   }
 
   private buildError(err: any) {

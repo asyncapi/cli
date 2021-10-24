@@ -1,8 +1,9 @@
 import { exec } from 'child_process';
-import { ContextTestingHelper } from '../../src/constants';
 import * as path from 'path';
 
-const testHelper = new ContextTestingHelper();
+import TestHelper from '../testHelper';
+
+const testHelper = new TestHelper();
 
 describe('context list', () => {
   afterAll(() => {
@@ -29,10 +30,8 @@ describe('context add ', () => {
 
   it('should add new test', (done) => {
     testHelper.createDummyContextFile();
-    exec('node ./bin/run config context add test ./test/specification.yml', (code, stdout) => {
-      expect(stdout).toMatch(`test: ${path.resolve(
-        process.cwd(), './test/specification.yml'
-      )}`);
+    exec('node ./bin/run config context add test ./test/specification.yml', (code, stdout, stderr) => {
+      expect(stdout).toMatch('Added context \"test\".\n\nYou can set it as your current context: asyncapi context use test\nYou can use this context when needed by passing test as a parameter: asyncapi validate test');
       done();
     });
   });
@@ -45,9 +44,11 @@ describe('context use ', () => {
   
   it('should update the current context', (done) => {
     testHelper.createDummyContextFile();
-    exec('node ./bin/run config context use code', (code, stdout) => {
-      expect(stdout).toMatch('code is set as current');
-      done();
+    exec('node ./bin/run config context add code ./test/specification.yml', () => {
+      exec('node ./bin/run config context use code', (code, stdout, stderr) => {
+        expect(stderr).toMatch('code is set as current');
+        done();
+      });
     });
   });
 });

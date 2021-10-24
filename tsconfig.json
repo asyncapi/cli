@@ -6,11 +6,7 @@
     "outDir": "lib",
     "rootDir": "src",
     "strict": true,
-    "target": "es2017",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "jsx": "react",
-    "esModuleInterop": true,
+    "target": "es2017"
   },
   "include": [
     "src/**/*"

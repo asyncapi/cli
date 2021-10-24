@@ -1,10 +1,6 @@
 import { flags} from '@oclif/command';
 import Command from '../../../base';
-import {container} from 'tsyringe';
-import {ContextService} from '../../../config/context';
-import { MissingContextFileError } from '../../../errors/context-error';
-
-const contextService = container.resolve(ContextService);
+import { loadContextFile } from '../../../models/Context';
 
 export default class ContextList extends Command {
   static description = 'List all the stored context in the store';
@@ -13,14 +9,9 @@ export default class ContextList extends Command {
   }
 
   async run() {
-    const context = contextService.context;
-    if (!context) {throw new MissingContextFileError();}
-    for (const [contextname, contextPath] of Object.entries(context?.store)) {
-      console.log(`${contextname}: ${contextPath}`);
+    const fileContent = await loadContextFile();
+    for (const [contextName, filePath] of Object.entries(fileContent.store)) {
+      this.log(`${contextName}: ${filePath}`);
     }
-  }
-
-  async catch(e: Error) {
-    console.error(`${e.name}: ${e.message}`);
   }
 }

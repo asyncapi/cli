@@ -1,10 +1,6 @@
 import { flags} from '@oclif/command';
 import Command from '../../../base';
-import {ContextService} from '../../../config/context';
-import {container} from 'tsyringe';
-import { SpecificationFile } from '../../../models';
-
-const contextService = container.resolve(ContextService);
+import { addContext } from '../../../models/Context';
 
 export default class ContextAdd extends Command {
   static description='Add or modify a context in the store';
@@ -21,8 +17,8 @@ export default class ContextAdd extends Command {
     const {args} = this.parse(ContextAdd);
     const contextName = args['context-name'];
     const specFilePath = args['spec-file-path'];
-    contextService.addContext(contextName, new SpecificationFile(specFilePath));
-    const context = contextService.context;
-    console.log(`${contextName}: ${context?.getContext(contextName)}`);
+
+    await addContext(contextName, specFilePath);
+    this.log(`Added context "${contextName}".\n\nYou can set it as your current context: asyncapi context use ${contextName}\nYou can use this context when needed by passing ${contextName} as a parameter: asyncapi validate ${contextName}`);
   }
 }

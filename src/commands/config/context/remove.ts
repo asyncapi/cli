@@ -1,12 +1,6 @@
 import { flags } from '@oclif/command';
 import Command from '../../../base';
-import { container } from 'tsyringe';
-import { ContextService } from '../../../config/context';
-import {
-  ContextNotFound
-} from '../../../errors/context-error';
-
-const contextService = container.resolve(ContextService);
+import { removeContext } from '../../../models/Context';
 
 export default class ContextRemove extends Command {
   static description = 'Delete a context from the store';
@@ -19,8 +13,12 @@ export default class ContextRemove extends Command {
   async run() {
     const { args } = this.parse(ContextRemove);
     const contextName = args['context-name'];
-    const context = contextService.deleteContext(contextName);
-    if (!context) { throw new ContextNotFound(contextName); }
-    console.log(`${contextName} successfully deleted`);
+    
+    try {
+      await removeContext(contextName);
+      this.log(`${contextName} successfully deleted`);
+    } catch (err) {
+      this.error(err as Error);
+    }
   }
 }
