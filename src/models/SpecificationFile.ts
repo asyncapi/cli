@@ -1,9 +1,8 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
 
-import { loadContext } from "./Context";
+import { loadContext } from './Context';
 import { ValidationError } from '../errors/validation-error';
-import { ContextNotFound } from '../errors/context-error';
 import { SpecificationFileNotFound } from '../errors/specification-file';
 
 const { readFile, lstat } = fs;
@@ -12,6 +11,8 @@ const allowedFileNames: string[] = [
   'asyncapi.yml',
   'asyncapi.yaml'
 ];
+const TYPE_CONTEXT_NAME = 'context-name';
+const TYPE_FILE_PATH = 'file-path';
 
 export default class SpecificationFile {
   private readonly pathToFile: string;
@@ -32,12 +33,11 @@ export default class SpecificationFile {
 export async function load(filePathOrContextName?: string): Promise<SpecificationFile> {
   if (filePathOrContextName) {
     const type = await nameType(filePathOrContextName);
-    if (type === 'context-name') {
+    if (type === TYPE_CONTEXT_NAME) {
       return loadFromContext(filePathOrContextName);
-    } else {
-      await fileExists(filePathOrContextName);
-      return new SpecificationFile(filePathOrContextName);
-    }
+    } 
+    await fileExists(filePathOrContextName);
+    return new SpecificationFile(filePathOrContextName);
   }
 
   try {
@@ -55,14 +55,17 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
 }
 
 export async function nameType(name: string): Promise<string> {
-  if (name.startsWith('.')) return 'file-path';
+  if (name.startsWith('.')) {
+    return TYPE_FILE_PATH;
+  }
+
   try {
     if (await fileExists(name)) {
-      return 'file-path';
+      return TYPE_FILE_PATH;
     }
-    return 'context-name';
+    return TYPE_CONTEXT_NAME;
   } catch (e) {
-    return 'context-name';
+    return TYPE_CONTEXT_NAME;
   }
 }
 

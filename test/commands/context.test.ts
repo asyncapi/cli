@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { expect, test } from '@oclif/test'
+import { expect, test } from '@oclif/test';
 
 import TestHelper from '../testHelper';
 
@@ -39,7 +39,7 @@ describe('config', () => {
       .command(['config', 'context', 'add', 'test', './test/specification.yml'])
       .it('adds new context called "test"', (ctx, done) => {
         expect(ctx.stdout).to.equals(
-          'Added context \"test\".\n\nYou can set it as your current context: asyncapi context use test\nYou can use this context when needed by passing test as a parameter: asyncapi validate test\n'
+          'Added context "test".\n\nYou can set it as your current context: asyncapi context use test\nYou can use this context when needed by passing test as a parameter: asyncapi validate test\n'
         );
         expect(ctx.stderr).to.equals('');
         done();

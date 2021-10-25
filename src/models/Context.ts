@@ -24,11 +24,11 @@ export async function loadContext(contextName?: string): Promise<string> {
   const fileContent = await loadContextFile();
   if (contextName) {
     const context = fileContent.store[contextName];
-    if (!context) throw new ContextNotFound(contextName);
+    if (!context) {throw new ContextNotFound(contextName);}
     return context;
   } else if (fileContent.current) {
     const context = fileContent.store[fileContent.current];
-    if (!context) throw new ContextNotFound(fileContent.current);
+    if (!context) {throw new ContextNotFound(fileContent.current);}
     return context;
   }
 
@@ -46,7 +46,7 @@ export async function addContext(contextName: string, pathToFile: string) {
         store: {
           [contextName]: pathToFile,
         }
-      }
+      };
     } else {
       throw err;
     }
@@ -73,7 +73,7 @@ export async function getCurrentContext(): Promise<ICurrentContext> {
   return {
     current: fileContent.current as string,
     context,
-  }
+  };
 }
 
 export async function setCurrentContext(contextName: string) {
@@ -87,8 +87,7 @@ export async function setCurrentContext(contextName: string) {
 
 export async function loadContextFile(): Promise<IContextFile> {
   try {
-    const fileContent = JSON.parse(await readFile(DEFAULT_CONTEXT_FILE_PATH, { encoding: 'utf8' })) as IContextFile;
-    return fileContent;
+    return JSON.parse(await readFile(DEFAULT_CONTEXT_FILE_PATH, { encoding: 'utf8' })) as IContextFile;
   } catch (e) {
     throw new MissingContextFileError();
   }

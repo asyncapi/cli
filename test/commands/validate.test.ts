@@ -1,5 +1,7 @@
+/* eslint-disable sonarjs/no-identical-functions */
+
 import * as path from 'path';
-import { expect, test } from '@oclif/test'
+import { expect, test } from '@oclif/test';
 
 import TestHelper from '../testHelper';
 
@@ -22,7 +24,6 @@ describe('validate', () => {
         expect(ctx.stderr).to.equals('');
         done();
       });
-  
     
     test
       .stderr()
@@ -32,8 +33,8 @@ describe('validate', () => {
         expect(ctx.stdout).to.equals('');
         expect(ctx.stderr).to.equals('ValidationError: There is no file or context with name "./test/not-found.yml".\n');
         done();
-      })
-  })
+      });
+  });
   
   describe('with context names', () => {
     afterEach(() => {
@@ -55,7 +56,6 @@ describe('validate', () => {
         expect(ctx.stderr).to.equals('');
         done();
       });
-  
     
     test
       .stderr()
@@ -65,8 +65,8 @@ describe('validate', () => {
         expect(ctx.stdout).to.equals('');
         expect(ctx.stderr).to.equals('ContextError: Context "non-existing-context" does not exists.\n');
         done();
-      })
-  })
+      });
+  });
   
   describe('with no arguments', () => {
     afterEach(() => {
@@ -89,7 +89,6 @@ describe('validate', () => {
         expect(ctx.stderr).to.equals('');
         done();
       });
-  
     
     test
       .stderr()
@@ -103,7 +102,7 @@ describe('validate', () => {
         expect(ctx.stdout).to.equals('');
         expect(ctx.stderr).to.equals('ContextError: No context is set as current, please set a current context.\n');
         done();
-      })
+      });
     
     test
       .stderr()
@@ -116,6 +115,6 @@ describe('validate', () => {
         expect(ctx.stdout).to.equals('');
         expect(ctx.stderr).to.equals('ContextError: No contexts saved yet, run asyncapi --help to learn more\n');
         done();
-      })
-  })
-})
+      });
+  });
+});

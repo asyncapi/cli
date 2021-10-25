@@ -1,8 +1,10 @@
-import { existsSync, writeFileSync, unlinkSync, readFileSync } from 'fs';
+import { existsSync, writeFileSync, unlinkSync } from 'fs';
 import * as path from 'path';
 
 import { IContextFile, DEFAULT_CONTEXT_FILE_PATH } from '../src/models/Context';
 import SpecificationFile from '../src/models/SpecificationFile';
+
+const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'asyncapi.yaml');
 
 export default class ContextTestingHelper {
   private _context: IContextFile;
@@ -44,14 +46,14 @@ export default class ContextTestingHelper {
   }
 
   createSpecFileAtWorkingDir(): void {
-    if (!existsSync(path.resolve(process.cwd(), 'asyncapi.yaml'))) {
-      writeFileSync(path.resolve(process.cwd(), 'asyncapi.yaml'), '');
+    if (!existsSync(ASYNCAPI_FILE_PATH)) {
+      writeFileSync(ASYNCAPI_FILE_PATH, '');
     }
   }
 
   deleteSpecFileAtWorkingDir(): void {
-    if (existsSync(path.resolve(process.cwd(), 'asyncapi.yaml'))) {
-      unlinkSync(path.resolve(process.cwd(), 'asyncapi.yaml'));
+    if (existsSync(ASYNCAPI_FILE_PATH)) {
+      unlinkSync(ASYNCAPI_FILE_PATH);
     }
   }
 }
