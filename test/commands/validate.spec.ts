@@ -77,7 +77,7 @@ describe('Validate command when no input is passed', () => {
     testHelper.deleteDummyContextFile();
   });
   
-  it('should validate from current context', (done) => {
+  it.skip('should validate from current context', (done) => {
     testHelper.createDummyContextFile();
     exec('node ./bin/run validate', (code, stdout) => {
       expect(stdout).toMatch(
