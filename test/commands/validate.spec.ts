@@ -26,8 +26,8 @@ describe('validate command when file path is passed', () => {
   });
 
   it('should throw error if file path is wrong', (done) => {
-    exec('node ./bin/run validate ./spec.yml', (code, stdout) => {
-      expect(stdout).toMatch(`Validation Error: ${ValidationMessage(
+    exec('node ./bin/run validate ./spec.yml', (code, stdout, stderr) => {
+      expect(stderr).toMatch(`Validation Error: ${ValidationMessage(
         path.resolve(process.cwd(), './spec.yml')
       ).error()}`
       );
@@ -59,8 +59,8 @@ describe('Validate command when context name is passed', () => {
 
   it('should throw error id context name is not saved', (done) => {
     testHelper.createDummyContextFile();
-    exec('node ./bin/run validate test', (code, stdout) => {
-      expect(stdout).toMatch(
+    exec('node ./bin/run validate test', (code, stdout, stderr) => {
+      expect(stderr).toMatch(
         `Context Error: ${CONTEXT_NOT_FOUND('test')}`
       );
       done();
@@ -91,8 +91,8 @@ describe('Validate command when no input is passed', () => {
 
   it('should throw error message if no spec path is found', (done) => {
     testHelper.deleteDummyContextFile();
-    exec('node ./bin/run validate', (code, stdout) => {
-      expect(stdout).toMatch(
+    exec('node ./bin/run validate', (code, stdout, stderr) => {
+      expect(stderr).toMatch(
         NO_SPEC_FOUND('validate')
       );
       done();

@@ -46,6 +46,7 @@ describe('context use ', () => {
   it('should update the current context', (done) => {
     testHelper.createDummyContextFile();
     exec('node ./bin/run config context use code', (code, stdout) => {
+      console.log(stdout);
       expect(stdout).toMatch('code is set as current');
       done();
     });
