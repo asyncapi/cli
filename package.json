@@ -30,6 +30,7 @@
     "@typescript-eslint/parser": "^4.28.4",
     "acorn": "^8.5.0",
     "chai": "^4.3.4",
+    "conventional-changelog-conventionalcommits": "^4.4.0",
     "eslint": "^7.31.0",
     "eslint-config-oclif": "^3.1.0",
     "eslint-config-oclif-typescript": "^0.1.0",
