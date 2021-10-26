@@ -110,7 +110,7 @@
     "pretest:coverage": "npm run build",
     "release": "semantic-release",
     "start": "npm run build && node dist/cli.js",
-    "test": "nyc --extension .ts mocha --require ts-node/register --reporter spec --timeout 5000 \"test/**/*.test.ts\"",
+    "test": "TEST=1 nyc --extension .ts mocha --require ts-node/register --reporter spec --timeout 5000 \"test/**/*.test.ts\"",
     "version": "oclif-dev readme && git add README.md",
     "readme": "oclif readme"
   },
