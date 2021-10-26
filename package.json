@@ -31,6 +31,7 @@
     "acorn": "^8.5.0",
     "chai": "^4.3.4",
     "conventional-changelog-conventionalcommits": "^4.4.0",
+    "cross-env": "^7.0.3",
     "eslint": "^7.31.0",
     "eslint-config-oclif": "^3.1.0",
     "eslint-config-oclif-typescript": "^0.1.0",
@@ -110,7 +111,7 @@
     "pretest:coverage": "npm run build",
     "release": "semantic-release",
     "start": "npm run build && node dist/cli.js",
-    "test": "TEST=1 nyc --extension .ts mocha --require ts-node/register --reporter spec --timeout 5000 \"test/**/*.test.ts\"",
+    "test": "cross-env TEST=1 nyc --extension .ts mocha --require ts-node/register --reporter spec --timeout 5000 \"test/**/*.test.ts\"",
     "version": "oclif-dev readme && git add README.md",
     "readme": "oclif readme"
   },
