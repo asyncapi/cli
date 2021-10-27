@@ -30,7 +30,7 @@
   * [`validate`](#validate)
   * [`context`](#context)
 - [Contributing](#contributing)
-  * [Set up development enviornment](#set-up-development-enviornment)
+  * [Set up development environment](#set-up-development-environment)
   * [Command Structure and Patterns](#command-structure-and-patterns)
 
 <!-- tocstop -->
@@ -128,7 +128,7 @@ asyncapi context [options] [command]
 
 Read [CONTRIBUTING](https://github.com/asyncapi/CLI/blob/master/CONTRIBUTING.md) guide.
 
-### Set up development enviornment
+### Set up development environment
 
 Follow these steps:
 - Clone the repo.

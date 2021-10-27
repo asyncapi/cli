@@ -18,7 +18,6 @@
     "github/array-foreach": 2,
     "eol-last": ["error", "always"],
     "@typescript-eslint/no-explicit-any": 0,
-    "require-await": "error",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "sonarjs/no-small-switch": "off",
     "security/detect-non-literal-fs-filename": "off",
@@ -43,7 +42,7 @@
     "no-fallthrough": 1,
     "sonarjs/cognitive-complexity": 1,
     "eqeqeq": 2,
-    "no-undef": 2,
+    "no-undef": "off",
     "no-dupe-keys": 2,
     "no-empty-character-class": 2,
     "no-self-compare": 2,
@@ -152,7 +151,6 @@
         "nonwords": false
       }
     ],
-    "no-console": "error",
     "wrap-regex": 2,
     //"linebreak-style": ["error", "unix"],
     "linebreak-style": 0,
