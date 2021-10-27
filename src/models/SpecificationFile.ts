@@ -41,7 +41,7 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
   }
 
   try {
-    return loadFromContext();
+    return await loadFromContext();
   } catch (e) {
     // We did our best...
   }
