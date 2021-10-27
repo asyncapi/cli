@@ -10,7 +10,7 @@ const CONTEXT_FILENAME = isTestEnv ? '.test.asyncapi' : '.asyncapi';
 export const DEFAULT_CONTEXT_FILE_PATH = path.resolve(os.homedir(), CONTEXT_FILENAME);
 
 export interface IContextFile {
-  current?: string | undefined,
+  current?: string,
   readonly store: {
     [name: string]: string
   }
