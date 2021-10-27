@@ -1,10 +1,9 @@
 import {flags } from '@oclif/command';
+import * as parser from '@asyncapi/parser';
 import Command from '../base';
-import { container } from 'tsyringe';
-import { ValidationService, SpecFileLoader } from '../validation';
-
-const validationService = container.resolve(ValidationService);
-const specfileLoader = container.resolve(SpecFileLoader);
+import { ValidationError } from '../errors/validation-error';
+import { load } from '../models/SpecificationFile';
+import { SpecificationFileNotFound } from '../errors/specification-file';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
@@ -19,8 +18,29 @@ export default class Validate extends Command {
 
   async run() {
     const { args } = this.parse(Validate);
-    const specFile = specfileLoader.load(args['spec-file']);
-    const message = await validationService.validate(specFile);
-    this.log(message);
+    const filePath = args['spec-file'];
+    let specFile;
+    
+    try {
+      specFile = await load(filePath);
+    } catch (err) {
+      if (err instanceof SpecificationFileNotFound) {
+        this.error(new ValidationError({
+          type: 'invalid-file',
+          filepath: filePath
+        }));
+      } else {
+        this.error(err as Error);
+      }
+    }
+    try {
+      await parser.parse(await specFile.read());
+      this.log(`File ${specFile.getPath()} successfully validated!`);
+    } catch (error) {
+      throw new ValidationError({
+        type: 'parser-error',
+        err: error
+      });
+    }
   }
 }
