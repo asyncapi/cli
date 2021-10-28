@@ -11,8 +11,8 @@ const { readFile } = fPromises;
 const sockets: any[] = [];
 const messageQueue: string[] = [];
 
-export function start(fileName:string): void {
-  chokidar.watch(fileName).on('all', (event, path) => {
+export function start(filePath:string): void {
+  chokidar.watch(filePath).on('all', (event, path) => {
     switch (event) {
     case 'add':
     case 'change':
@@ -27,7 +27,7 @@ export function start(fileName:string): void {
     case 'unlink':
       messageQueue.push(JSON.stringify({
         type: 'file:deleted',
-        fileName,
+        filePath,
       }));
       sendQueuedMessages();
       break;
@@ -54,7 +54,7 @@ export function start(fileName:string): void {
 
   wsServer.on('connection', (socket: any) => {
     sockets.push(socket);
-    getFileContent(fileName).then((code: string) => {
+    getFileContent(filePath).then((code: string) => {
       messageQueue.push(JSON.stringify({
         type: 'file:loaded',
         code,
@@ -70,6 +70,7 @@ export function start(fileName:string): void {
   server.listen(3210, () => {
     const url = 'http://localhost:3210?liveServer=3210';
     console.log(`Studio is running at ${url}`);
+    console.log(`Watching changes on file ${filePath}`);
     open(url);
   });
 }
@@ -83,9 +84,9 @@ function sendQueuedMessages() {
   }
 }
 
-function getFileContent(fileName:string): Promise<string> {
+function getFileContent(filePath:string): Promise<string> {
   return new Promise((resolve) => {
-    readFile(fileName, { encoding: 'utf8' })
+    readFile(filePath, { encoding: 'utf8' })
       .then((code: string) => {
         resolve(code);
       })
