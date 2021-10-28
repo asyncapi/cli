@@ -1,7 +1,7 @@
-import {tsPath} from '@oclif/config/lib/ts-node'
+import { tsPath } from '@oclif/config/lib/ts-node'
 import lodashTemplate = require('lodash.template')
-import {IConfig} from '@oclif/config'
-import {HelpBase, HelpOptions} from '@oclif/plugin-help';
+import { IConfig } from '@oclif/config'
+import { HelpBase, HelpOptions } from '@oclif/plugin-help';
 
 export function uniqBy<T>(arr: T[], fn: (cur: T) => any): T[] {
   return arr.filter((a, i) => {
@@ -65,22 +65,22 @@ function extractClass(exported: any): HelpBaseDerived {
 
 export function getHelpClass(config: IConfig, defaultClass = '@oclif/plugin-help'): HelpBaseDerived {
   const pjson = config.pjson
-  const configuredClass = pjson && pjson.oclif &&  pjson.oclif.helpClass
+  const configuredClass = pjson && pjson.oclif && pjson.oclif.helpClass
 
   if (configuredClass) {
     try {
       const exported = extractExport(config, configuredClass)
       return extractClass(exported) as HelpBaseDerived
-    } catch (error: any) {
-      throw new Error(`Unable to load configured help class "${configuredClass}", failed with message:\n${error.message}`)
+    } catch (error) {
+      throw new Error(`Unable to load configured help class "${configuredClass}", failed with message:\n${(error instanceof Error) ? error.message : null}`)
     }
   }
 
   try {
-    const defaultModulePath = require.resolve(defaultClass, {paths: [config.root]})
+    const defaultModulePath = require.resolve(defaultClass, { paths: [config.root] })
     const exported = require(defaultModulePath)
     return extractClass(exported) as HelpBaseDerived
-  } catch (error: any) {
-    throw new Error(`Could not load a help class, consider installing the @oclif/plugin-help package, failed with message:\n${error.message}`)
+  } catch (error) {
+    throw new Error(`Could not load a help class, consider installing the @oclif/plugin-help package, failed with message:\n${(error instanceof Error) ? error.message : null}`)
   }
 }
