@@ -10,7 +10,6 @@ const { readFile, writeFile } = fPromises;
 
 const sockets: any[] = [];
 const messageQueue: string[] = [];
-let blockUpdate: boolean = false;
 
 export function start(fileName: string): void {
   chokidar.watch(fileName).on('all', (event, path) => {
@@ -65,7 +64,6 @@ export function start(fileName: string): void {
     });
 
     socket.on('message', (fileContent: string) => {
-      blockUpdate = true;
       saveFileContent(fileName, fileContent)
     });
   });
@@ -82,8 +80,6 @@ export function start(fileName: string): void {
 }
 
 function sendQueuedMessages() {
-  if (blockUpdate === true) return;
-  
   while (messageQueue.length && sockets.length) {
     const nextMessage = messageQueue.shift();
     for (const socket of sockets) {
@@ -104,8 +100,5 @@ function getFileContent(fileName: string): Promise<string> {
 
 function saveFileContent(fileName: string, fileContent: string): Promise<void> {
   return writeFile(fileName, fileContent, { encoding: 'utf8' })
-    .then(() => {
-      blockUpdate = false;
-    })
     .catch(console.error);
 }
