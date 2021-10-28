@@ -6,12 +6,13 @@ import { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
 import open from 'open';
 
-const { readFile } = fPromises;
+const { readFile, writeFile } = fPromises;
 
 const sockets: any[] = [];
 const messageQueue: string[] = [];
+let blockUpdate: boolean = false;
 
-export function start(filePath:string): void {
+export function start(filePath: string): void {
   chokidar.watch(filePath).on('all', (event, path) => {
     switch (event) {
     case 'add':
@@ -61,6 +62,11 @@ export function start(filePath:string): void {
       }));
       sendQueuedMessages();
     });
+
+    socket.on('message', (fileContent: string) => {
+      blockUpdate = true;
+      saveFileContent(filePath, fileContent)
+    });
   });
   
   wsServer.on('close', (socket: any) => {
@@ -68,7 +74,7 @@ export function start(filePath:string): void {
   });
 
   server.listen(3210, () => {
-    const url = 'http://localhost:3210?liveServer=3210';
+    const url = 'http://localhost:3000?liveServer=3210';
     console.log(`Studio is running at ${url}`);
     console.log(`Watching changes on file ${filePath}`);
     open(url);
@@ -76,6 +82,8 @@ export function start(filePath:string): void {
 }
 
 function sendQueuedMessages() {
+  if (blockUpdate === true) return;
+  
   while (messageQueue.length && sockets.length) {
     const nextMessage = messageQueue.shift();
     for (const socket of sockets) {
@@ -84,7 +92,7 @@ function sendQueuedMessages() {
   }
 }
 
-function getFileContent(filePath:string): Promise<string> {
+function getFileContent(filePath: string): Promise<string> {
   return new Promise((resolve) => {
     readFile(filePath, { encoding: 'utf8' })
       .then((code: string) => {
@@ -92,4 +100,12 @@ function getFileContent(filePath:string): Promise<string> {
       })
       .catch(console.error);
   });
+}
+
+function saveFileContent(filePath: string, fileContent: string): Promise<void> {
+  return writeFile(filePath, fileContent, { encoding: 'utf8' })
+    .then(() => {
+      blockUpdate = false;
+    })
+    .catch(console.error);
 }
