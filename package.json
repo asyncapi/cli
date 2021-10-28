@@ -69,7 +69,8 @@
     "plugins": [
       "@oclif/plugin-help",
       "@fmvilas/oclif-plugin-spaced-commands"
-    ]
+    ],
+    "helpClass": "./src/help"
   },
   "publishConfig": {
     "access": "public"
