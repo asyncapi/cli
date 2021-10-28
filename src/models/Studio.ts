@@ -6,12 +6,13 @@ import { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
 import open from 'open';
 
-const { readFile } = fPromises;
+const { readFile, writeFile } = fPromises;
 
 const sockets: any[] = [];
 const messageQueue: string[] = [];
+let blockUpdate: boolean = false;
 
-export function start(fileName:string): void {
+export function start(fileName: string): void {
   chokidar.watch(fileName).on('all', (event, path) => {
     switch (event) {
     case 'add':
@@ -54,12 +55,18 @@ export function start(fileName:string): void {
 
   wsServer.on('connection', (socket: any) => {
     sockets.push(socket);
+
     getFileContent(fileName).then((code: string) => {
       messageQueue.push(JSON.stringify({
         type: 'file:loaded',
         code,
       }));
       sendQueuedMessages();
+    });
+
+    socket.on('message', (fileContent: string) => {
+      blockUpdate = true;
+      saveFileContent(fileName, fileContent)
     });
   });
   
@@ -68,13 +75,15 @@ export function start(fileName:string): void {
   });
 
   server.listen(3210, () => {
-    const url = 'http://localhost:3210?liveServer=3210';
+    const url = 'http://localhost:3000?liveServer=3210';
     console.log(`Studio is running at ${url}`);
     open(url);
   });
 }
 
 function sendQueuedMessages() {
+  if (blockUpdate === true) return;
+  
   while (messageQueue.length && sockets.length) {
     const nextMessage = messageQueue.shift();
     for (const socket of sockets) {
@@ -83,7 +92,7 @@ function sendQueuedMessages() {
   }
 }
 
-function getFileContent(fileName:string): Promise<string> {
+function getFileContent(fileName: string): Promise<string> {
   return new Promise((resolve) => {
     readFile(fileName, { encoding: 'utf8' })
       .then((code: string) => {
@@ -91,4 +100,12 @@ function getFileContent(fileName:string): Promise<string> {
       })
       .catch(console.error);
   });
+}
+
+function saveFileContent(fileName: string, fileContent: string): Promise<void> {
+  return writeFile(fileName, fileContent, { encoding: 'utf8' })
+    .then(() => {
+      blockUpdate = false;
+    })
+    .catch(console.error);
 }

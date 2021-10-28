@@ -66,7 +66,7 @@ export default class New extends Command {
     }
 
     if (questions.length) {
-      const answers = await inquirer.prompt(questions);
+      const answers: any = await inquirer.prompt(questions);
       if (!fileName) {fileName = answers.filename as string;}
       if (openStudio === undefined) {openStudio = answers.studio;}
     } else {

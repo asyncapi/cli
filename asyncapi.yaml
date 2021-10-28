@@ -1,8 +1,8 @@
 asyncapi: '2.2.0'
 info:
-  title: Account Service
+  title: Account Servicesdsdsdsdsd
   version: 1.0.0
-  description: This service is in charge of processing user signups
+  description: This service is in charge of processing user signups sdsdsddsdsdsdsdsdsdsdsdsdiushiudhosidhoisjoijd dfdfdfdfdfsdoihssdsdoisjdsdsd
 channels:
   user/signedup:
     subscribe:
@@ -16,7 +16,7 @@ components:
         properties:
           displayName:
             type: string
-            description: Name of the user
+            description: Name of the usersdsdsdsdsddsddddsf sdssdsd
           email:
             type: string
             format: email
