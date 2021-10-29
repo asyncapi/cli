@@ -2,7 +2,7 @@ import { promises as fPromises } from 'fs';
 import {flags} from '@oclif/command';
 import Command from '../base';
 import * as inquirer from 'inquirer';
-import { start as startStudio } from '../models/Studio';
+import { start as startStudio, DEFAULT_PORT } from '../models/Studio';
 import { resolve } from 'path';
 
 const { writeFile, readFile } = fPromises;
@@ -15,6 +15,7 @@ export default class New extends Command {
     help: flags.help({ char: 'h' }),
     'file-name': flags.string({ char: 'n', description: 'name of the file' }),
     studio: flags.boolean({ char: 's', description: 'open in Studio' }),
+    port: flags.integer({ char: 'p', description: 'port in which to start Studio' }),
     'no-tty': flags.boolean({ description: 'do not use an interactive terminal' }),
   }
 
@@ -33,7 +34,7 @@ export default class New extends Command {
 
     if (flags.studio) {
       if (isTTY) {
-        startStudio(fileName);
+        startStudio(fileName, flags.port || DEFAULT_PORT);
       } else {
         this.warn('Warning: --studio flag was passed but the terminal is not interactive. Ignoring...');
       }
@@ -74,7 +75,7 @@ export default class New extends Command {
     }
 
     await this.createAsyncapiFile(fileName);
-    if (openStudio) {startStudio(fileName);}
+    if (openStudio) { startStudio(fileName, flags.port || DEFAULT_PORT);}
   }
 
   async createAsyncapiFile(fileName:string) {
@@ -82,11 +83,15 @@ export default class New extends Command {
 
     try {
       const content = await readFile(fileName, { encoding: 'utf8' });
-      if (content !== '') {return;}
+      if (content !== '') {
+        console.log(`File ${fileName} already exists. Ignoring...`);
+        return;
+      }
     } catch (e) {
       // File does not exist. Proceed creating it...
     }
     
     await writeFile(fileName, defaultAsyncapiFile, { encoding: 'utf8' });
+    console.log(`Created file ${fileName}...`);
   }
 }

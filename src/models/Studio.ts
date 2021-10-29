@@ -11,7 +11,9 @@ const { readFile, writeFile } = fPromises;
 const sockets: any[] = [];
 const messageQueue: string[] = [];
 
-export function start(filePath: string, port: number = 3210): void {
+export const DEFAULT_PORT = 3210;
+
+export function start(filePath: string, port: number = DEFAULT_PORT): void {
   chokidar.watch(filePath).on('all', (event, path) => {
     switch (event) {
     case 'add':
