@@ -63,9 +63,19 @@ export function start(filePath: string): void {
       sendQueuedMessages();
     });
 
-    socket.on('message', (fileContent: string) => {
-      blockUpdate = true;
-      saveFileContent(filePath, fileContent)
+    socket.on('message', (event: string) => {
+      try {
+        const json:any = JSON.parse(event);
+        if (json.type === 'file:update') {
+          blockUpdate = true;
+          saveFileContent(filePath, json.code);
+        } else {
+          console.warn('Live Server: An unknown event has been received. See details:');
+          console.log(json);
+        }
+      } catch (e) {
+        console.error(`Live Server: An invalid event has been received. See details:\n${event}`);
+      }      
     });
   });
   
@@ -74,7 +84,7 @@ export function start(filePath: string): void {
   });
 
   server.listen(3210, () => {
-    const url = 'http://localhost:3000?liveServer=3210';
+    const url = 'http://localhost:3210?liveServer=3210';
     console.log(`Studio is running at ${url}`);
     console.log(`Watching changes on file ${filePath}`);
     open(url);
@@ -102,8 +112,8 @@ function getFileContent(filePath: string): Promise<string> {
   });
 }
 
-function saveFileContent(filePath: string, fileContent: string): Promise<void> {
-  return writeFile(filePath, fileContent, { encoding: 'utf8' })
+function saveFileContent(filePath: string, fileContent: string): void {
+  writeFile(filePath, fileContent, { encoding: 'utf8' })
     .then(() => {
       blockUpdate = false;
     })

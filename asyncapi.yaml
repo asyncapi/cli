@@ -1,8 +1,8 @@
 asyncapi: '2.2.0'
 info:
-  title: Account Servicesdsdsdsdsd
+  title: Account Service
   version: 1.0.0
-  description: This service is in charge of processing user signups sdsdsddsdsdsdsdsdsdsdsdsdiushiudhosidhoisjoijd dfdfdfdfdfsdoihssdsdoisjdsdsd
+  description: This service is in charge of processing user signups
 channels:
   user/signedup:
     subscribe:
