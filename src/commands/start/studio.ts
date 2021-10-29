@@ -9,6 +9,7 @@ export default class StartStudio extends Command {
   static flags = {
     help: flags.help({ char: 'h' }),
     file: flags.string({ char: 'f', description: 'path to the AsyncAPI file to link with Studio' }),
+    port: flags.integer({ char: 'p', description: 'port in which to start Studio' }),
   }
 
   static args = []
@@ -16,7 +17,8 @@ export default class StartStudio extends Command {
   async run() {
     const { flags } = this.parse(StartStudio);
     const filePath = flags.file || (await load()).getPath();
+    const port = flags.port;
 
-    startStudio(filePath);
+    startStudio(filePath, port);
   }
 }

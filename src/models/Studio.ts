@@ -12,7 +12,7 @@ const sockets: any[] = [];
 const messageQueue: string[] = [];
 let blockUpdate: boolean = false;
 
-export function start(filePath: string): void {
+export function start(filePath: string, port: number = 3210): void {
   chokidar.watch(filePath).on('all', (event, path) => {
     switch (event) {
     case 'add':
@@ -83,8 +83,8 @@ export function start(filePath: string): void {
     sockets.splice(sockets.findIndex(s => s === socket));
   });
 
-  server.listen(3210, () => {
-    const url = 'http://localhost:3210?liveServer=3210';
+  server.listen(port, () => {
+    const url = `http://localhost:${port}?liveServer=${port}`;
     console.log(`Studio is running at ${url}`);
     console.log(`Watching changes on file ${filePath}`);
     open(url);
