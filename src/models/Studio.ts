@@ -10,7 +10,6 @@ const { readFile, writeFile } = fPromises;
 
 const sockets: any[] = [];
 const messageQueue: string[] = [];
-let blockUpdate: boolean = false;
 
 export function start(filePath: string, port: number = 3210): void {
   chokidar.watch(filePath).on('all', (event, path) => {
@@ -67,7 +66,6 @@ export function start(filePath: string, port: number = 3210): void {
       try {
         const json:any = JSON.parse(event);
         if (json.type === 'file:update') {
-          blockUpdate = true;
           saveFileContent(filePath, json.code);
         } else {
           console.warn('Live Server: An unknown event has been received. See details:');
@@ -92,8 +90,6 @@ export function start(filePath: string, port: number = 3210): void {
 }
 
 function sendQueuedMessages() {
-  if (blockUpdate === true) return;
-  
   while (messageQueue.length && sockets.length) {
     const nextMessage = messageQueue.shift();
     for (const socket of sockets) {
@@ -114,8 +110,5 @@ function getFileContent(filePath: string): Promise<string> {
 
 function saveFileContent(filePath: string, fileContent: string): void {
   writeFile(filePath, fileContent, { encoding: 'utf8' })
-    .then(() => {
-      blockUpdate = false;
-    })
     .catch(console.error);
 }
