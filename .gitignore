@@ -10,3 +10,7 @@
 /tmp
 /yarn.lock
 node_modules
+
+asyncapi.json
+asyncapi.yaml
+asyncapi.yml
