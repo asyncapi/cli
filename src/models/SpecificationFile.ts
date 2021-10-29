@@ -2,7 +2,6 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 
 import { loadContext } from './Context';
-import { ValidationError } from '../errors/validation-error';
 import { SpecificationFileNotFound } from '../errors/specification-file';
 
 const { readFile, lstat } = fs;
@@ -43,7 +42,9 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
   try {
     return await loadFromContext();
   } catch (e) {
-    // We did our best...
+    if (!filePathOrContextName) {
+      throw e;
+    }
   }
   
   const autoDetectedSpecFile = await detectSpecFile();
