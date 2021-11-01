@@ -23,15 +23,13 @@
 
 <!-- toc -->
 
+- [Table of contents](#table-of-contents)
 - [Requirements](#requirements)
-  * [Installation](#installation)
+  - [Installation](#installation)
 - [Usage](#usage)
-- [API Reference](#api-reference)
-  * [`validate`](#validate)
-  * [`context`](#context)
 - [Contributing](#contributing)
-  * [Set up development environment](#set-up-development-environment)
-  * [Command Structure and Patterns](#command-structure-and-patterns)
+  - [Set up development environment](#set-up-development-environment)
+  - [Command Structure and Patterns](#command-structure-and-patterns)
 
 <!-- tocstop -->
 
@@ -69,57 +67,19 @@ We have well-documented help commands so just run:
 asyncapi --help 
 ```
 
-
-
-
-## API Reference
-
-### `validate`
-
-**USAGE**
+It should print something like:
 
 ```
-asyncapi validate <spcPath | context-name> [options]
-```
+All in one CLI for all AsyncAPI tools
 
-If you already have your current context set, run the following command:
+USAGE
+  $ asyncapi [COMMAND]
 
-```
-asyncapi validate
-```
-
-**OPTIONS** 
-
-```
--h, --help Display help for command
--w, --watch Enable watch mode (not implemented yet)
-```
-
-
-### `context`
-
-**Context** makes it easier for you to work with multiple AsyncAPI Files. You can add multiple different files to a context so that you don't have to pass the file as an input every time you use any command. You can also set a default context so that you don't have to pass in either file paths or context names as an input.
-
-**USAGE**
-
-```
-asyncapi context [options] [command]
-```
-
-**COMMANDS**
-
-|command|arguments|description|example|
-|-------|---------|-----------|-------|
-|`list`|`none` |lists all saved context|`asyncapi context list`|
-|`current`|`none`|set current context|`asyncapi context current`|
-|`use` | `<context-name>`| set any context from the list as current|`asyncapi context use test`|
-|`add`|`<context-name> <spec-file-path>`|add/update a context|`asyncapi context add root ./asyncapi.yml`|
-|`remove`|`<context-name>`|remove a context from the list|`asyncapi context remove root`|
-
-**OPTIONS**
-
-```
--h, --help display help for command
+COMMANDS
+  config    access configs
+  help      display help for asyncapi
+  new       creates a new asyncapi file
+  validate  validate asyncapi file
 ```
 
 
