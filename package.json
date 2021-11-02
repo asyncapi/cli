@@ -8,7 +8,7 @@
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
-    "@asyncapi/parser": "^1.10.1",
+    "@asyncapi/parser": "^1.10.2",
     "@asyncapi/studio": "^0.2.1",
     "@fmvilas/oclif-plugin-spaced-commands": "^1.0.4",
     "@oclif/command": "^1.8.0",
