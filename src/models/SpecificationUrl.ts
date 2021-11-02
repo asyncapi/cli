@@ -21,8 +21,8 @@ export default class SpecificationURL {
         let response;
         try {
             response = await fetch(this.url, { method: 'GET' })
-        } catch (error: any) {
-            throw new Error(`fetch-url-error: ${error.message}`)
+        } catch (error) {
+            throw new Error(`fetch-url-error: ${error instanceof Error? error.message:null}`)
         }
 
         return response?.text();

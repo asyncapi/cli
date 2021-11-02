@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs';
+import fetch from 'node-fetch';
 import * as path from 'path';
 
 import { loadContext } from './Context';
@@ -13,13 +14,24 @@ const allowedFileNames: string[] = [
 const TYPE_CONTEXT_NAME = 'context-name';
 const TYPE_FILE_PATH = 'file-path';
 
+export class Specification {
+  private readonly spec: string;
+  constructor(spec: string) {
+    this.spec = spec;
+  }
+
+  text() {
+    return this.spec
+  }
+}
+
 export default class SpecificationFile {
   private readonly pathToFile: string;
 
   constructor(filePath: string) {
     this.pathToFile = filePath;
   }
-  
+
   getPath(): string {
     return this.pathToFile;
   }
@@ -34,7 +46,7 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
     const type = await nameType(filePathOrContextName);
     if (type === TYPE_CONTEXT_NAME) {
       return loadFromContext(filePathOrContextName);
-    } 
+    }
     await fileExists(filePathOrContextName);
     return new SpecificationFile(filePathOrContextName);
   }
@@ -46,7 +58,7 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
       throw e;
     }
   }
-  
+
   const autoDetectedSpecFile = await detectSpecFile();
   if (autoDetectedSpecFile) {
     return new SpecificationFile(autoDetectedSpecFile);
@@ -84,6 +96,16 @@ export async function fileExists(name: string): Promise<boolean> {
 async function loadFromContext(contextName?: string): Promise<SpecificationFile> {
   const context = await loadContext(contextName);
   return new SpecificationFile(context);
+}
+
+async function loadFromUrl(url: string): Promise<Specification> {
+  const response = await fetch(url, {method: 'GET'});
+  const text = await response.text();
+  return new Specification(text);
+}
+
+async function loadFromFile(filepath: string) {
+  return readFile(filepath, 'utf8');
 }
 
 async function detectSpecFile(): Promise<string | undefined> {
