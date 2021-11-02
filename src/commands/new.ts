@@ -7,6 +7,7 @@ import { resolve } from 'path';
 
 const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
+const DEFAULT_ASYNCAPI_TEMPLATE = 'basic.yaml';
 
 export default class New extends Command {
   static description = 'creates a new asyncapi file';
@@ -14,6 +15,7 @@ export default class New extends Command {
   static flags = {
     help: flags.help({ char: 'h' }),
     'file-name': flags.string({ char: 'n', description: 'name of the file' }),
+    'selected-template': flags.string({ char: 'n', description: 'name of the template to use' }),
     studio: flags.boolean({ char: 's', description: 'open in Studio' }),
     port: flags.integer({ char: 'p', description: 'port in which to start Studio' }),
     'no-tty': flags.boolean({ description: 'do not use an interactive terminal' }),
@@ -30,7 +32,9 @@ export default class New extends Command {
     }
 
     const fileName = flags['file-name'] || DEFAULT_ASYNCAPI_FILE_NAME;
-    this.createAsyncapiFile(fileName);
+    const template = flags['selected-template'] || DEFAULT_ASYNCAPI_TEMPLATE;
+
+    this.createAsyncapiFile(fileName, template);
 
     if (flags.studio) {
       if (isTTY) {
@@ -44,6 +48,7 @@ export default class New extends Command {
   async runInteractive() {
     const { flags } = this.parse(New);
     let fileName = flags['file-name'];
+    let selectedTemplate = flags['selected-template'];
     let openStudio = flags.studio;
 
     const questions = [];
@@ -54,6 +59,32 @@ export default class New extends Command {
         message: 'name of the file?',
         type: 'input',
         default: DEFAULT_ASYNCAPI_FILE_NAME,
+      });
+    }
+
+    if (!selectedTemplate) {
+      questions.push({
+        type: 'list',
+        name: 'selectedTemplate',
+        message: 'What template would you like to use?',
+        choices: [
+          {
+            name: 'Basic - A simple AsyncAPI file',
+            value: 'simple.yaml',
+          },
+          {
+            name: 'Apache Kakfa - The Smartylighting Streetlights example using Kafka protocol',
+            value: 'streetlights-kafka.yaml',
+          },
+          {
+            name: 'MQTT - The Smartylighting Streetlights example using MQTT protocol',
+            value: 'streetlights-mqtt.yaml',
+          },
+          {
+            name: 'WebSocket - Gemini Market Data Websocket API example using WebSocket protocol',
+            value: 'websocket-gemini.yaml',
+          },
+        ]
       });
     }
 
@@ -68,18 +99,21 @@ export default class New extends Command {
 
     if (questions.length) {
       const answers: any = await inquirer.prompt(questions);
+
       if (!fileName) {fileName = answers.filename as string;}
+      if (!selectedTemplate) {selectedTemplate = answers.selectedTemplate as string;}
       if (openStudio === undefined) {openStudio = answers.studio;}
     } else {
       fileName = DEFAULT_ASYNCAPI_FILE_NAME;
+      selectedTemplate = DEFAULT_ASYNCAPI_TEMPLATE;
     }
 
-    await this.createAsyncapiFile(fileName);
+    await this.createAsyncapiFile(fileName, selectedTemplate);
     if (openStudio) { startStudio(fileName, flags.port || DEFAULT_PORT);}
   }
 
-  async createAsyncapiFile(fileName:string) {
-    const defaultAsyncapiFile = await readFile(resolve(__dirname, '../../assets/asyncapi.yaml'), { encoding: 'utf8' });
+  async createAsyncapiFile(fileName:string, selectedTemplate:string) {
+    const defaultAsyncapiFile = await readFile(resolve(__dirname, '../../assets/', selectedTemplate), { encoding: 'utf8' });
 
     try {
       const content = await readFile(fileName, { encoding: 'utf8' });
