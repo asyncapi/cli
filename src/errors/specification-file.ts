@@ -6,12 +6,8 @@ class SpecificationFileError extends Error {
 }
 
 export class SpecificationFileNotFound extends SpecificationFileError {
-  constructor(filePath?: string) {
+  constructor(filePath: string) {
     super();
-    if (filePath) {
-      this.message = `File ${filePath} does not exist.`;
-    } else {
-      this.message = 'We could not find any AsyncAPI file.';
-    }
+    this.message = `File ${filePath} does not exist.`;
   }
 }
