@@ -62,9 +62,9 @@
   },
   "files": [
     "/bin",
+    "/lib",
     "/npm-shrinkwrap.json",
-    "/oclif.manifest.json",
-    "dist"
+    "/oclif.manifest.json"
   ],
   "homepage": "https://github.com/asyncapi/cli",
   "keywords": [
