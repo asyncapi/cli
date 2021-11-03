@@ -1,4 +1,4 @@
-import { promises as fs, read } from 'fs';
+import { promises as fs } from 'fs';
 import * as path from 'path';
 import fetch from 'node-fetch';
 
@@ -13,8 +13,7 @@ const allowedFileNames: string[] = [
 ];
 const TYPE_CONTEXT_NAME = 'context-name';
 const TYPE_FILE_PATH = 'file-path';
-const TYPE_URL_PATH = 'url-path'
-
+const TYPE_URL_PATH = 'url-path';
 
 export class Specification {
   private readonly spec: string;
@@ -31,7 +30,7 @@ export class Specification {
   }
 
   getFilePath() {
-    return this.filePath
+    return this.filePath;
   }
 
   getURLPath() {
@@ -39,7 +38,7 @@ export class Specification {
   }
 
   static async fromFile(filepath: string) {
-    return new Specification(await readFile(filepath, { encoding: 'utf8' }), { filepath: filepath })
+    return new Specification(await readFile(filepath, { encoding: 'utf8' }), { filepath });
   }
 
   static async fromURL(URLpath: string) {
@@ -47,7 +46,7 @@ export class Specification {
     try {
       response = await fetch(URLpath, { method: 'GET' });
     } catch (error) {
-
+      // throw error 
     }
     return new Specification(await response?.text() as string, { URLPath: URLpath });
   }
@@ -93,7 +92,7 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
 
   const autoDetectedSpecFile = await detectSpecFile();
   if (autoDetectedSpecFile) {
-    return loadFromFile(autoDetectedSpecFile);
+    return await Specification.fromFile(autoDetectedSpecFile);
   }
 
   throw new SpecificationFileNotFound();
@@ -110,7 +109,7 @@ export async function nameType(name: string): Promise<string> {
     }
     return TYPE_CONTEXT_NAME;
   } catch (e) {
-    if (await isURL(name)) return TYPE_URL_PATH;
+    if (await isURL(name)) {return TYPE_URL_PATH;}
     return TYPE_CONTEXT_NAME;
   }
 }
@@ -118,9 +117,9 @@ export async function nameType(name: string): Promise<string> {
 export async function isURL(urlpath: string): Promise<boolean> {
   try {
     const url = new URL(urlpath);
-    if (url.protocol === 'http:' || url.protocol === 'https:') return true;
+    if (url.protocol === 'http:' || url.protocol === 'https:') {return true;}
   } catch (error) {
-    return false
+    return false;
   }
   return false;
 }
@@ -139,24 +138,6 @@ export async function fileExists(name: string): Promise<boolean> {
 async function loadFromContext(contextName?: string): Promise<Specification> {
   const context = await loadContext(contextName);
   return await Specification.fromFile(context);
-}
-
-async function loadFromURL(URLpath: string) {
-  let response;
-  try {
-    response = await fetch(URLpath, { method: 'GET' });
-  } catch (error) {
-    // TODO throw proper error
-  }
-
-  return new Specification(await response?.text() as string);
-
-}
-
-async function loadFromFile(filepath: string) {
-  const fileContents = await readFile(filepath, { encoding: 'utf8' });
-  if (!fileContents) { throw new Error('') }
-  return new Specification(fileContents);
 }
 
 async function detectSpecFile(): Promise<string | undefined> {

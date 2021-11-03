@@ -2,7 +2,7 @@ import { flags } from '@oclif/command';
 import * as parser from '@asyncapi/parser';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
-import SpecificationFile, { load } from '../models/SpecificationFile';
+import { load } from '../models/SpecificationFile';
 import { SpecificationFileNotFound } from '../errors/specification-file';
 
 export default class Validate extends Command {
@@ -35,7 +35,7 @@ export default class Validate extends Command {
     }
     try {
       if (specFile.getFilePath()) {
-        await parser.parse(specFile.text())
+        await parser.parse(specFile.text());
         this.log(`File ${specFile.getFilePath()} successfully validated!`);
       }
       if (specFile.getURLPath()) {
