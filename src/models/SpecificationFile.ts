@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 
 import { loadContext } from './Context';
+import { ValidationError } from '../errors/validation-error';
 import { SpecificationFileNotFound } from '../errors/specification-file';
 
 const { readFile, lstat } = fs;
@@ -40,11 +41,9 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
   }
 
   try {
-    return await loadFromContext();
+    return loadFromContext();
   } catch (e) {
-    if (!filePathOrContextName) {
-      throw e;
-    }
+    // We did our best...
   }
   
   const autoDetectedSpecFile = await detectSpecFile();
@@ -52,7 +51,7 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
     return new SpecificationFile(autoDetectedSpecFile);
   }
 
-  throw new SpecificationFileNotFound();
+  throw new ValidationError({ type: 'no-spec-found' });
 }
 
 export async function nameType(name: string): Promise<string> {
@@ -87,14 +86,9 @@ async function loadFromContext(contextName?: string): Promise<SpecificationFile>
 }
 
 async function detectSpecFile(): Promise<string | undefined> {
-  const existingFileNames = await Promise.all(allowedFileNames.map(async filename => {
-    try {
-      const exists = await fileExists(path.resolve(process.cwd(), filename));
-      return exists ? filename : undefined;
-    } catch (e) {
-      // We did our best...
-    }
-  }));
+  const existingFileNames = allowedFileNames.map(async filename => {
+    return (await fileExists(path.resolve(process.cwd(), filename))) ? filename : undefined;
+  });
   return existingFileNames.find(filename => filename !== undefined);
 }
 
