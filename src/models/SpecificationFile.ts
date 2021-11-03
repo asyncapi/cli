@@ -1,6 +1,6 @@
-import { promises as fs } from 'fs';
-import fetch from 'node-fetch';
+import { promises as fs, read } from 'fs';
 import * as path from 'path';
+import fetch from 'node-fetch';
 
 import { loadContext } from './Context';
 import { SpecificationFileNotFound } from '../errors/specification-file';
@@ -13,15 +13,43 @@ const allowedFileNames: string[] = [
 ];
 const TYPE_CONTEXT_NAME = 'context-name';
 const TYPE_FILE_PATH = 'file-path';
+const TYPE_URL_PATH = 'url-path'
+
 
 export class Specification {
   private readonly spec: string;
-  constructor(spec: string) {
+  private readonly filePath?: string;
+  private readonly URLPath?: string;
+  constructor(spec: string, path?: { filepath?: string, URLPath?: string }) {
     this.spec = spec;
+    this.filePath = path?.filepath;
+    this.URLPath = path?.URLPath;
   }
 
   text() {
-    return this.spec
+    return this.spec;
+  }
+
+  getFilePath() {
+    return this.filePath
+  }
+
+  getURLPath() {
+    return this.URLPath;
+  }
+
+  static async fromFile(filepath: string) {
+    return new Specification(await readFile(filepath, { encoding: 'utf8' }), { filepath: filepath })
+  }
+
+  static async fromURL(URLpath: string) {
+    let response;
+    try {
+      response = await fetch(URLpath, { method: 'GET' });
+    } catch (error) {
+
+    }
+    return new Specification(await response?.text() as string, { URLPath: URLpath });
   }
 }
 
@@ -41,14 +69,18 @@ export default class SpecificationFile {
   }
 }
 
-export async function load(filePathOrContextName?: string): Promise<SpecificationFile> {
+export async function load(filePathOrContextName?: string): Promise<Specification> {
   if (filePathOrContextName) {
     const type = await nameType(filePathOrContextName);
     if (type === TYPE_CONTEXT_NAME) {
       return loadFromContext(filePathOrContextName);
     }
+
+    if (type === TYPE_URL_PATH) {
+      return await Specification.fromURL(filePathOrContextName);
+    }
     await fileExists(filePathOrContextName);
-    return new SpecificationFile(filePathOrContextName);
+    return await Specification.fromFile(filePathOrContextName);
   }
 
   try {
@@ -61,7 +93,7 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
 
   const autoDetectedSpecFile = await detectSpecFile();
   if (autoDetectedSpecFile) {
-    return new SpecificationFile(autoDetectedSpecFile);
+    return loadFromFile(autoDetectedSpecFile);
   }
 
   throw new SpecificationFileNotFound();
@@ -78,8 +110,19 @@ export async function nameType(name: string): Promise<string> {
     }
     return TYPE_CONTEXT_NAME;
   } catch (e) {
+    if (await isURL(name)) return TYPE_URL_PATH;
     return TYPE_CONTEXT_NAME;
   }
+}
+
+export async function isURL(urlpath: string): Promise<boolean> {
+  try {
+    const url = new URL(urlpath);
+    if (url.protocol === 'http:' || url.protocol === 'https:') return true;
+  } catch (error) {
+    return false
+  }
+  return false;
 }
 
 export async function fileExists(name: string): Promise<boolean> {
@@ -93,19 +136,27 @@ export async function fileExists(name: string): Promise<boolean> {
   }
 }
 
-async function loadFromContext(contextName?: string): Promise<SpecificationFile> {
+async function loadFromContext(contextName?: string): Promise<Specification> {
   const context = await loadContext(contextName);
-  return new SpecificationFile(context);
+  return await Specification.fromFile(context);
 }
 
-async function loadFromUrl(url: string): Promise<Specification> {
-  const response = await fetch(url, {method: 'GET'});
-  const text = await response.text();
-  return new Specification(text);
+async function loadFromURL(URLpath: string) {
+  let response;
+  try {
+    response = await fetch(URLpath, { method: 'GET' });
+  } catch (error) {
+    // TODO throw proper error
+  }
+
+  return new Specification(await response?.text() as string);
+
 }
 
 async function loadFromFile(filepath: string) {
-  return readFile(filepath, 'utf8');
+  const fileContents = await readFile(filepath, { encoding: 'utf8' });
+  if (!fileContents) { throw new Error('') }
+  return new Specification(fileContents);
 }
 
 async function detectSpecFile(): Promise<string | undefined> {

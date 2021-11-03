@@ -1,7 +1,7 @@
 import { flags } from '@oclif/command';
 import Command from '../../base';
 import { start as startStudio } from '../../models/Studio';
-import { load } from '../../models/SpecificationFile';
+import SpecificationFile, { load } from '../../models/SpecificationFile';
 
 export default class StartStudio extends Command {
   static description = 'starts a new local instance of Studio';
@@ -16,9 +16,9 @@ export default class StartStudio extends Command {
 
   async run() {
     const { flags } = this.parse(StartStudio);
-    const filePath = flags.file || (await load()).getPath();
+    const filePath = flags.file || (await load()).getFilePath();
     const port = flags.port;
 
-    startStudio(filePath, port);
+    startStudio(filePath as string, port);
   }
 }
