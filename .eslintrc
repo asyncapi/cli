@@ -184,7 +184,7 @@
   },
   "overrides": [
     {
-      "files": ["*.spec.ts", "*.spec.tsx"],
+      "files": ["*.spec.ts", "*.spec.tsx", "src/help/command.ts"],
       "rules": {
         "no-undef": "off",
         "security/detect-non-literal-fs-filename": "off",
