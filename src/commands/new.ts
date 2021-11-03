@@ -7,7 +7,7 @@ import { resolve } from 'path';
 
 const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
-const DEFAULT_ASYNCAPI_TEMPLATE = 'basic.yaml';
+const DEFAULT_ASYNCAPI_TEMPLATE = 'simple.yaml';
 
 export default class New extends Command {
   static description = 'creates a new asyncapi file';
@@ -15,7 +15,7 @@ export default class New extends Command {
   static flags = {
     help: flags.help({ char: 'h' }),
     'file-name': flags.string({ char: 'n', description: 'name of the file' }),
-    'selected-template': flags.string({ char: 'n', description: 'name of the template to use' }),
+    example: flags.string({ char: 'e', description: 'name of the example to use' }),
     studio: flags.boolean({ char: 's', description: 'open in Studio' }),
     port: flags.integer({ char: 'p', description: 'port in which to start Studio' }),
     'no-tty': flags.boolean({ description: 'do not use an interactive terminal' }),
@@ -32,7 +32,7 @@ export default class New extends Command {
     }
 
     const fileName = flags['file-name'] || DEFAULT_ASYNCAPI_FILE_NAME;
-    const template = flags['selected-template'] || DEFAULT_ASYNCAPI_TEMPLATE;
+    const template = flags['example'] || DEFAULT_ASYNCAPI_TEMPLATE;
 
     this.createAsyncapiFile(fileName, template);
 
@@ -48,7 +48,7 @@ export default class New extends Command {
   async runInteractive() {
     const { flags } = this.parse(New);
     let fileName = flags['file-name'];
-    let selectedTemplate = flags['selected-template'];
+    let selectedTemplate = flags['example'];
     let openStudio = flags.studio;
 
     const questions = [];
