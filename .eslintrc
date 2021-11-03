@@ -184,7 +184,7 @@
   },
   "overrides": [
     {
-      "files": ["*.spec.ts", "*.spec.tsx", "src/help/command.ts"],
+      "files": ["*.spec.ts", "*.spec.tsx"],
       "rules": {
         "no-undef": "off",
         "security/detect-non-literal-fs-filename": "off",
@@ -194,8 +194,7 @@
         "sonarjs/no-identical-functions": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-unused-vars": "off",
-        "no-use-before-define": "off",
-        "sonarjs/cognitive-complexity": "off"
+        "no-use-before-define": "off"
       }
     }
   ]
