@@ -15,6 +15,7 @@ export default class New extends Command {
   static flags = {
     help: flags.help({ char: 'h' }),
     'file-name': flags.string({ char: 'n', description: 'name of the file' }),
+    'use-example': flags.string({ char: 'u', description: 'boolean if they want to explore examples'}),
     example: flags.string({ char: 'e', description: 'name of the example to use' }),
     studio: flags.boolean({ char: 's', description: 'open in Studio' }),
     port: flags.integer({ char: 'p', description: 'port in which to start Studio' }),
@@ -50,6 +51,7 @@ export default class New extends Command {
     let fileName = flags['file-name'];
     let selectedTemplate = flags['example'];
     let openStudio = flags.studio;
+    let examples = [];
 
     const questions = [];
 
@@ -62,29 +64,28 @@ export default class New extends Command {
       });
     }
 
-    if (!selectedTemplate) {
+    try {
+      const exampleFiles = await readFile(resolve(__dirname, '../../assets/examples/examples.json'), { encoding: 'utf8' });
+      examples = JSON.parse(exampleFiles);
+    } catch (error) {
+      // no examples found
+    }
+
+    if (examples.length > 0) {
+      questions.push({
+        name: 'use-example',
+        message: 'would you like to start your new file from one of our examples? (https://github.com/asyncapi/spec/tree/master/examples)',
+        type: 'confirm',
+        default: true,
+      });
       questions.push({
         type: 'list',
         name: 'selectedTemplate',
-        message: 'What template would you like to use?',
-        choices: [
-          {
-            name: 'Basic - A simple AsyncAPI file',
-            value: 'simple.yaml',
-          },
-          {
-            name: 'Apache Kakfa - The Smartylighting Streetlights example using Kafka protocol',
-            value: 'streetlights-kafka.yaml',
-          },
-          {
-            name: 'MQTT - The Smartylighting Streetlights example using MQTT protocol',
-            value: 'streetlights-mqtt.yaml',
-          },
-          {
-            name: 'WebSocket - Gemini Market Data Websocket API example using WebSocket protocol',
-            value: 'websocket-gemini.yaml',
-          },
-        ]
+        message: 'What example would you like to use?',
+        choices: examples,
+        when: (answers: any) => {
+          return answers['use-example'];
+        },
       });
     }
 
@@ -112,8 +113,12 @@ export default class New extends Command {
     if (openStudio) { startStudio(fileName, flags.port || DEFAULT_PORT);}
   }
 
-  async createAsyncapiFile(fileName:string, selectedTemplate:string) {
-    const defaultAsyncapiFile = await readFile(resolve(__dirname, '../../assets/', selectedTemplate), { encoding: 'utf8' });
+  async createAsyncapiFile(fileName:string, selectedTemplate?:string) {
+    let defaultAsyncapiFile = await readFile(resolve(__dirname, '../../assets/simple.yaml'), { encoding: 'utf8' });
+
+    if (selectedTemplate) {
+      defaultAsyncapiFile = await readFile(resolve(__dirname, '../../assets/examples/', selectedTemplate), { encoding: 'utf8' });
+    } 
 
     try {
       const content = await readFile(fileName, { encoding: 'utf8' });
