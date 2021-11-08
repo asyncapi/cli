@@ -71,6 +71,7 @@ const buildCLIListFromExamples = async () => {
       };
     } catch (error) {
       // Failed for somereason to parse this spec file, ignore for now
+      console.error(error);
     }
   });
 
