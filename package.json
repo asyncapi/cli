@@ -1,14 +1,14 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "0.7.1",
+  "version": "0.8.1",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run"
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
-    "@asyncapi/parser": "^1.9.1",
+    "@asyncapi/parser": "^1.10.2",
     "@asyncapi/studio": "^0.2.1",
     "@fmvilas/oclif-plugin-spaced-commands": "^1.0.4",
     "@oclif/command": "^1.8.0",
@@ -64,9 +64,9 @@
   },
   "files": [
     "/bin",
+    "/lib",
     "/npm-shrinkwrap.json",
-    "/oclif.manifest.json",
-    "dist"
+    "/oclif.manifest.json"
   ],
   "homepage": "https://github.com/asyncapi/cli",
   "keywords": [
