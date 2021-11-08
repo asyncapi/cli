@@ -108,7 +108,7 @@
   },
   "repository": "asyncapi/cli",
   "scripts": {
-    "build": "tsc",
+    "build": "node scripts/fetch-asyncapi-example.js && tsc",
     "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
     "dev": "tsc --watch",
     "generate:assets": "npm run generate:readme:toc",
