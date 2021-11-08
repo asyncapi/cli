@@ -63,7 +63,6 @@ const buildCLIListFromExamples = async () => {
       const parsedSpec = await parser.parse(exampleContent);
       const title = parsedSpec.info().title();
       const protocols = listAllProtocolsForFile(parsedSpec);
-      console.log('protocols', protocols);
       return {
         name: protocols ? `${title} - (protocols: ${protocols})` : title,
         value: example
@@ -75,8 +74,6 @@ const buildCLIListFromExamples = async () => {
 
   const exampleList = await Promise.all(buildExampleList);
   const orderedExampleList = exampleList.sort((a, b) => a.name.localeCompare(b.name));
-
-  console.log('Build examples for CLI use');
 
   fs.writeFileSync(path.join(EXAMPLE_DIRECTORY, 'examples.json'), JSON.stringify(orderedExampleList, null, 4));
 };
