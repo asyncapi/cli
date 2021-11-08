@@ -22,7 +22,7 @@ const fetchAsyncAPIExamplesFromExternalURL = () => {
 };
 
 const unzipAsyncAPIExamples = async () => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     if (!fs.existsSync(EXAMPLE_DIRECTORY)) {
       fs.mkdirSync(EXAMPLE_DIRECTORY);
     }
@@ -41,6 +41,8 @@ const unzipAsyncAPIExamples = async () => {
       }).on('close', () => {
         console.log('Unzipped all examples from zip');
         resolve();
+      }).on('error', () => {
+        reject();
       });
   });
 };

@@ -15,7 +15,6 @@ export default class New extends Command {
   static flags = {
     help: flags.help({ char: 'h' }),
     'file-name': flags.string({ char: 'n', description: 'name of the file' }),
-    'use-example': flags.string({ char: 'u', description: 'boolean if they want to explore examples'}),
     example: flags.string({ char: 'e', description: 'name of the example to use' }),
     studio: flags.boolean({ char: 's', description: 'open in Studio' }),
     port: flags.integer({ char: 'p', description: 'port in which to start Studio' }),
@@ -74,7 +73,7 @@ export default class New extends Command {
     if (examples.length > 0) {
       questions.push({
         name: 'use-example',
-        message: 'would you like to start your new file from one of our examples? (https://github.com/asyncapi/spec/tree/master/examples)',
+        message: 'would you like to start your new file from one of our examples?',
         type: 'confirm',
         default: true,
       });
