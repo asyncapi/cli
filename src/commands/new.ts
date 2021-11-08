@@ -70,7 +70,7 @@ export default class New extends Command {
       // no examples found
     }
 
-    if (examples.length > 0) {
+    if (!selectedTemplate && examples.length > 0) {
       questions.push({
         name: 'use-example',
         message: 'would you like to start your new file from one of our examples?',
