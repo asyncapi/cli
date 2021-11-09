@@ -1,8 +1,8 @@
 import CommandHelp from '@oclif/plugin-help/lib/command';
 import * as Config from '@oclif/config';
 import {renderList} from '@oclif/plugin-help/lib/list';
-import * as chalk from 'chalk';
-import indent = require('indent-string')
+import chalk from 'chalk';
+import indent from 'indent-string';
 
 const {
   underline,
