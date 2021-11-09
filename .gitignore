@@ -9,7 +9,8 @@
 /node_modules/
 /tmp
 /yarn.lock
-/assets/examples/
+/assets/examples/**
+!assets/examples/default-example.yaml
 node_modules
 
 asyncapi.json

@@ -11,12 +11,14 @@ const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
 const TEMP_ZIP_NAME = 'spec-examples.zip';
 
 const fetchAsyncAPIExamplesFromExternalURL = () => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     request(SPEC_EXAMPLES_ZIP_URL)
       .pipe(fs.createWriteStream(TEMP_ZIP_NAME))
       .on('close', () => {
         console.log('Fetched ZIP file');
         resolve();
+      }).on('error', () => {
+        reject();
       });
   });
 };

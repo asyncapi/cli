@@ -7,7 +7,7 @@ import { resolve } from 'path';
 
 const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
-const DEFAULT_ASYNCAPI_TEMPLATE = 'simple.yaml';
+const DEFAULT_ASYNCAPI_TEMPLATE = 'default-example.yaml';
 
 export default class New extends Command {
   static description = 'creates a new asyncapi file';
@@ -103,21 +103,17 @@ export default class New extends Command {
       if (!fileName) {fileName = answers.filename as string;}
       if (!selectedTemplate) {selectedTemplate = answers.selectedTemplate as string;}
       if (openStudio === undefined) {openStudio = answers.studio;}
-    } else {
-      fileName = DEFAULT_ASYNCAPI_FILE_NAME;
-      selectedTemplate = DEFAULT_ASYNCAPI_TEMPLATE;
-    }
+    } 
+
+    fileName = fileName || DEFAULT_ASYNCAPI_FILE_NAME;
+    selectedTemplate = selectedTemplate || DEFAULT_ASYNCAPI_TEMPLATE;
 
     await this.createAsyncapiFile(fileName, selectedTemplate);
     if (openStudio) { startStudio(fileName, flags.port || DEFAULT_PORT);}
   }
 
-  async createAsyncapiFile(fileName:string, selectedTemplate?:string) {
-    let defaultAsyncapiFile = await readFile(resolve(__dirname, '../../assets/simple.yaml'), { encoding: 'utf8' });
-
-    if (selectedTemplate) {
-      defaultAsyncapiFile = await readFile(resolve(__dirname, '../../assets/examples/', selectedTemplate), { encoding: 'utf8' });
-    } 
+  async createAsyncapiFile(fileName:string, selectedTemplate:string) {
+    const asyncApiFile = await readFile(resolve(__dirname, '../../assets/examples/', selectedTemplate), { encoding: 'utf8' });
 
     try {
       const content = await readFile(fileName, { encoding: 'utf8' });
@@ -129,7 +125,7 @@ export default class New extends Command {
       // File does not exist. Proceed creating it...
     }
     
-    await writeFile(fileName, defaultAsyncapiFile, { encoding: 'utf8' });
+    await writeFile(fileName, asyncApiFile, { encoding: 'utf8' });
     console.log(`Created file ${fileName}...`);
   }
 }

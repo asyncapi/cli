@@ -65,6 +65,7 @@
   "files": [
     "/bin",
     "/lib",
+    "/assets",
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
   ],
