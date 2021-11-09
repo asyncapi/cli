@@ -17,9 +17,7 @@ const fetchAsyncAPIExamplesFromExternalURL = () => {
       .on('close', () => {
         console.log('Fetched ZIP file');
         resolve();
-      }).on('error', () => {
-        reject();
-      });
+      }).on('error', reject);
   });
 };
 
