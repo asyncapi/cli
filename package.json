@@ -86,7 +86,7 @@
       "@oclif/plugin-help",
       "@fmvilas/oclif-plugin-spaced-commands"
     ],
-    "helpClass": "./src/help/index.ts"
+    "helpClass": "./lib/help"
   },
   "publishConfig": {
     "access": "public"
