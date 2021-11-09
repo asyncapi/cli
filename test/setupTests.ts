@@ -1,2 +1,1 @@
-// Added as a helper for Dependency Injection library - tsyringe
-import 'reflect-metadata';
+import 'reflect-metadata'; // import globally for `tsyringe` package 
