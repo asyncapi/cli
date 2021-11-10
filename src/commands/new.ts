@@ -115,17 +115,20 @@ export default class New extends Command {
   async createAsyncapiFile(fileName:string, selectedTemplate:string) {
     const asyncApiFile = await readFile(resolve(__dirname, '../../assets/examples/', selectedTemplate), { encoding: 'utf8' });
 
+    const fileNameHasFileExtension = fileName.includes('.');
+    const fileNameToWriteToDisk = fileNameHasFileExtension ? fileName : `${fileName}.yaml`;
+
     try {
-      const content = await readFile(fileName, { encoding: 'utf8' });
+      const content = await readFile(fileNameToWriteToDisk, { encoding: 'utf8' });
       if (content !== '') {
-        console.log(`File ${fileName} already exists. Ignoring...`);
+        console.log(`File ${fileNameToWriteToDisk} already exists. Ignoring...`);
         return;
       }
     } catch (e) {
       // File does not exist. Proceed creating it...
     }
     
-    await writeFile(fileName, asyncApiFile, { encoding: 'utf8' });
-    console.log(`Created file ${fileName}...`);
+    await writeFile(fileNameToWriteToDisk, asyncApiFile, { encoding: 'utf8' });
+    console.log(`Created file ${fileNameToWriteToDisk}...`);
   }
 }
