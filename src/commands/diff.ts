@@ -11,15 +11,29 @@ export default class Diff extends Command {
 
   static flags = {
     help: flags.help({ char: 'h' }),
-    format: flags.string({ char: 'o', description: 'output format', default: 'json' }),
-    breaking: flags.boolean({ description: 'get the breaking changes' }),
-    'non-breaking': flags.boolean({ description: 'get the non-breaking changes' }),
-    unclassified: flags.boolean({ description: 'get the unclassified changes' })
+    format: flags.string({
+      char: 'o',
+      description: 'output format',
+      default: 'json',
+    }),
+    type: flags.string({
+      char: 't',
+      description: 'the type of output',
+      default: 'all',
+    }),
   };
 
   static args = [
-    { name: 'first-spec-file', description: 'first spec path or context-name', required: true },
-    { name: 'second-spec-file', description: 'second spec path or context-name', required: true },
+    {
+      name: 'first-spec-file',
+      description: 'first spec path or context-name',
+      required: true,
+    },
+    {
+      name: 'second-spec-file',
+      description: 'second spec path or context-name',
+      required: true,
+    },
   ];
 
   async run() {
@@ -28,10 +42,7 @@ export default class Diff extends Command {
     const secondDocumentPath = args['second-spec-file'];
 
     const outputFormat = flags['format'];
-
-    const showBreakingChanges = flags['breaking'];
-    const showNonBreakingChanges = flags['non-breaking'];
-    const showUnclassifiedChanges = flags['unclassified'];
+    const outputType = flags['type'];
 
     let firstDocument, secondDocument;
 
@@ -72,16 +83,19 @@ export default class Diff extends Command {
       const secondDocumentParsed = await parser.parse(
         await secondDocument.read()
       );
-      const diffOutput = diff.diff(firstDocumentParsed.json(), secondDocumentParsed.json());
+      const diffOutput = diff.diff(
+        firstDocumentParsed.json(),
+        secondDocumentParsed.json()
+      );
 
       if (outputFormat === 'json') {
-        if (showBreakingChanges) {
+        if (outputType === 'breaking') {
           this.log(JSON.stringify(diffOutput.breaking()));
-        } else if (showNonBreakingChanges) {
+        } else if (outputType === 'non-breaking') {
           this.log(JSON.stringify(diffOutput.nonBreaking()));
-        } else if (showUnclassifiedChanges) {
+        } else if (outputType === 'unclassified') {
           this.log(JSON.stringify(diffOutput.unclassified()));
-        } else {
+        } else if (outputType === 'all') {
           this.log(JSON.stringify(diffOutput.getOutput()));
         }
       }
