@@ -20,8 +20,10 @@
     "inquirer": "^8.2.0",
     "open": "^8.4.0",
     "reflect-metadata": "^0.1.13",
+    "request": "^2.88.2",
     "serve-handler": "^6.1.3",
     "tslib": "^1.14.1",
+    "unzipper": "^0.10.11",
     "ws": "^8.2.3"
   },
   "devDependencies": {
@@ -63,6 +65,7 @@
   "files": [
     "/bin",
     "/lib",
+    "/assets",
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
   ],
@@ -106,7 +109,7 @@
   },
   "repository": "asyncapi/cli",
   "scripts": {
-    "build": "tsc",
+    "build": "node scripts/fetch-asyncapi-example.js && tsc",
     "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
     "dev": "tsc --watch",
     "generate:assets": "npm run generate:readme:toc",

@@ -7,6 +7,7 @@ import { resolve } from 'path';
 
 const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
+const DEFAULT_ASYNCAPI_TEMPLATE = 'default-example.yaml';
 
 export default class New extends Command {
   static description = 'creates a new asyncapi file';
@@ -14,6 +15,7 @@ export default class New extends Command {
   static flags = {
     help: flags.help({ char: 'h' }),
     'file-name': flags.string({ char: 'n', description: 'name of the file' }),
+    example: flags.string({ char: 'e', description: 'name of the example to use' }),
     studio: flags.boolean({ char: 's', description: 'open in Studio' }),
     port: flags.integer({ char: 'p', description: 'port in which to start Studio' }),
     'no-tty': flags.boolean({ description: 'do not use an interactive terminal' }),
@@ -30,7 +32,9 @@ export default class New extends Command {
     }
 
     const fileName = flags['file-name'] || DEFAULT_ASYNCAPI_FILE_NAME;
-    this.createAsyncapiFile(fileName);
+    const template = flags['example'] || DEFAULT_ASYNCAPI_TEMPLATE;
+
+    this.createAsyncapiFile(fileName, template);
 
     if (flags.studio) {
       if (isTTY) {
@@ -44,7 +48,9 @@ export default class New extends Command {
   async runInteractive() {
     const { flags } = this.parse(New);
     let fileName = flags['file-name'];
+    let selectedTemplate = flags['example'];
     let openStudio = flags.studio;
+    let examples = [];
 
     const questions = [];
 
@@ -54,6 +60,31 @@ export default class New extends Command {
         message: 'name of the file?',
         type: 'input',
         default: DEFAULT_ASYNCAPI_FILE_NAME,
+      });
+    }
+
+    try {
+      const exampleFiles = await readFile(resolve(__dirname, '../../assets/examples/examples.json'), { encoding: 'utf8' });
+      examples = JSON.parse(exampleFiles);
+    } catch (error) {
+      // no examples found
+    }
+
+    if (!selectedTemplate && examples.length > 0) {
+      questions.push({
+        name: 'use-example',
+        message: 'would you like to start your new file from one of our examples?',
+        type: 'confirm',
+        default: true,
+      });
+      questions.push({
+        type: 'list',
+        name: 'selectedTemplate',
+        message: 'What example would you like to use?',
+        choices: examples,
+        when: (answers: any) => {
+          return answers['use-example'];
+        },
       });
     }
 
@@ -68,18 +99,21 @@ export default class New extends Command {
 
     if (questions.length) {
       const answers: any = await inquirer.prompt(questions);
-      if (!fileName) {fileName = answers.filename as string;}
-      if (openStudio === undefined) {openStudio = answers.studio;}
-    } else {
-      fileName = DEFAULT_ASYNCAPI_FILE_NAME;
-    }
 
-    await this.createAsyncapiFile(fileName);
+      if (!fileName) {fileName = answers.filename as string;}
+      if (!selectedTemplate) {selectedTemplate = answers.selectedTemplate as string;}
+      if (openStudio === undefined) {openStudio = answers.studio;}
+    } 
+
+    fileName = fileName || DEFAULT_ASYNCAPI_FILE_NAME;
+    selectedTemplate = selectedTemplate || DEFAULT_ASYNCAPI_TEMPLATE;
+
+    await this.createAsyncapiFile(fileName, selectedTemplate);
     if (openStudio) { startStudio(fileName, flags.port || DEFAULT_PORT);}
   }
 
-  async createAsyncapiFile(fileName:string) {
-    const defaultAsyncapiFile = await readFile(resolve(__dirname, '../../assets/asyncapi.yaml'), { encoding: 'utf8' });
+  async createAsyncapiFile(fileName:string, selectedTemplate:string) {
+    const asyncApiFile = await readFile(resolve(__dirname, '../../assets/examples/', selectedTemplate), { encoding: 'utf8' });
 
     const fileNameHasFileExtension = fileName.includes('.');
     const fileNameToWriteToDisk = fileNameHasFileExtension ? fileName : `${fileName}.yaml`;
@@ -94,7 +128,7 @@ export default class New extends Command {
       // File does not exist. Proceed creating it...
     }
     
-    await writeFile(fileNameToWriteToDisk, defaultAsyncapiFile, { encoding: 'utf8' });
+    await writeFile(fileNameToWriteToDisk, asyncApiFile, { encoding: 'utf8' });
     console.log(`Created file ${fileNameToWriteToDisk}...`);
   }
 }
