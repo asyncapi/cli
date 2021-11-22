@@ -1,0 +1,57 @@
+summary: Provides flight status on arrival and destination
+payload:
+  type: object
+  properties:
+    user:
+      type: object
+      properties:
+        userName:
+          type: string
+          minimum: 1
+          description: user name
+          example: "John Smith"
+        phoneNumber:
+          type: string
+          minimum: 5
+          description: phone number where notifications will be received.
+          example: "+13451235"
+    departure:
+      type: object
+      properties:
+        iataCode:
+          type: string
+          description: 2 to 3-character IATA carrier code
+          example: "MAD"
+        scheduledDate:
+          type: string
+          format: date-time
+          description: scheduled datetime of the flight, local to the airport.
+          example: "2020-10-20 19:15"
+        gate:
+          type: string
+          description: departure gate
+          example: "2D"
+        terminal:
+          type: string
+          description: airport terminal
+          example: "4"
+    arrival:
+      type: object
+      properties:
+        iataCode:
+          type: string
+          description: 2 to 3-character IATA carrier code
+          example: "MAD"
+        scheduledDate:
+          type: string
+          format: date-time
+          description: scheduled datetime of the flight, local to the airport.
+          example: "2020-10-20 19:15"
+        gate:
+          type: string
+          description: departure gate
+          example: "2D"
+        terminal:
+          type: string
+          description: airport terminal
+          example: "4"

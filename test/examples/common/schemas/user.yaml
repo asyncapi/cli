@@ -1,0 +1,12 @@
+type: object
+properties:
+  userName:
+    type: string
+    minimum: 1
+    description: user name
+    example: "John Smith"
+  phoneNumber:
+    type: string
+    minimum: 5
+    description: phone number where notifications will be received.
+    example: "+13451235"

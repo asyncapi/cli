@@ -1,0 +1,16 @@
+type: object
+properties:
+  carrierCode:
+    type: string
+    description: 2 to 3-character IATA carrier code
+    example: "LH"
+  flightNumber:
+    type: integer
+    minimum: 1
+    description: 1 to 4-digit number of the flight
+    example: "193"
+  scheduledDepartureDate:
+    type: string
+    format: date-time
+    description: scheduled departure date of the flight, local to the departure airport.
+    example: "2020-10-20"

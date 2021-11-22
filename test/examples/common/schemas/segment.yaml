@@ -1,0 +1,19 @@
+type: object
+properties:
+  iataCode:
+    type: string
+    description: 2 to 3-character IATA carrier code
+    example: "MAD"
+  scheduledDate:
+    type: string
+    format: date-time
+    description: scheduled datetime of the flight, local to the airport.
+    example: "2020-10-20 19:15"
+  gate:
+    type: string
+    description: departure gate
+    example: "2D"
+  terminal:
+    type: string
+    description: airport terminal
+    example: "4"
