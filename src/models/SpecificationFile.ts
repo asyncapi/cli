@@ -30,8 +30,6 @@ export default class SpecificationFile {
 }
 
 export async function load(filePathOrContextName?: string): Promise<SpecificationFile> {
-  console.log('HERE!!!');
-
   if (filePathOrContextName) {
     const type = await nameType(filePathOrContextName);
     if (type === TYPE_CONTEXT_NAME) {
@@ -41,15 +39,14 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
     return new SpecificationFile(filePathOrContextName);
   }
 
-  const autoDetectedSpecFile = await detectSpecFile();
-  if (autoDetectedSpecFile) {
-    return new SpecificationFile(autoDetectedSpecFile);
-  }
-
   try {
     return await loadFromContext();
   } catch (e) {
-    if (!filePathOrContextName) {
+    const autoDetectedSpecFile = await detectSpecFile();
+    if (autoDetectedSpecFile) {
+      return new SpecificationFile(autoDetectedSpecFile);
+    }
+    if (!filePathOrContextName || !autoDetectedSpecFile) {
       throw e;
     }
   }
