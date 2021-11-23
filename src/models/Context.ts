@@ -24,7 +24,7 @@ export interface ICurrentContext {
 export async function loadContext(contextName?: string): Promise<string> {
   const fileContent = await loadContextFile();
   if (contextName) {
-    const context = fileContent.store[contextName];
+    const context = fileContent.store[String(contextName)];
     if (!context) {throw new ContextNotFound(contextName);}
     return context;
   } else if (fileContent.current) {
@@ -52,19 +52,19 @@ export async function addContext(contextName: string, pathToFile: string) {
       throw err;
     }
   }
-  fileContent.store[contextName] = pathToFile;
+  fileContent.store[String(contextName)] = pathToFile;
   await saveContextFile(fileContent);
 }
 
 export async function removeContext(contextName: string) {
   const fileContent = await loadContextFile();
-  if (!fileContent.store[contextName]) {
+  if (!fileContent.store[String(contextName)]) {
     throw new ContextNotFound(contextName);
   }
   if (fileContent.current === contextName) {
     delete fileContent.current;
   }
-  delete fileContent.store[contextName];
+  delete fileContent.store[String(contextName)];
   await saveContextFile(fileContent);
 }
 
@@ -79,7 +79,7 @@ export async function getCurrentContext(): Promise<ICurrentContext> {
 
 export async function setCurrentContext(contextName: string) {
   const fileContent = await loadContextFile();
-  if (!fileContent.store[contextName]) {
+  if (!fileContent.store[String(contextName)]) {
     throw new ContextNotFound(contextName);
   }
   fileContent.current = contextName;
