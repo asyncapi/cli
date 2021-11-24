@@ -86,7 +86,6 @@
     "commands": "./lib/commands",
     "bin": "asyncapi",
     "plugins": [
-      "@oclif/plugin-help",
       "@fmvilas/oclif-plugin-spaced-commands"
     ],
     "helpClass": "./lib/help"

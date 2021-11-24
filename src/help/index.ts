@@ -23,7 +23,7 @@ export default class CustomHelp extends Help {
     const name = topic.name;
     const depth = name.split(':').length;
 
-    const commands = this.sortedCommands.filter(c => c.id.startsWith(`${name }:`) && c.id.split(':').length === depth + 1);
+    const commands = this.sortedCommands.filter(c => c.id.startsWith(`${name}:`) && c.id.split(':').length === depth + 1);
 
     console.log(this.formatTopic(topic));
 
@@ -37,10 +37,10 @@ export default class CustomHelp extends Help {
     const name = command.id;
     const depth = name.split(':').length;
 
-    const subCommands = this.sortedCommands.filter(c => c.id.startsWith(`${name }:`) && c.id.split(':').length === depth + 1);
+    const subCommands = this.sortedCommands.filter(c => c.id.startsWith(`${name}:`) && c.id.split(':').length === depth + 1);
 
     const title = command.description && this.render(command.description).split('\n')[0];
-    if (title) {console.log(`${title }\n`);}
+    if (title) { console.log(`${title}\n`); }
     console.log(this.formatCommand(command));
     console.log('');
 
