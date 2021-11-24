@@ -42,14 +42,13 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
   try {
     return await loadFromContext();
   } catch (e) {
-    if (!filePathOrContextName) {
+    const autoDetectedSpecFile = await detectSpecFile();
+    if (autoDetectedSpecFile) {
+      return new SpecificationFile(autoDetectedSpecFile);
+    }
+    if (!filePathOrContextName || !autoDetectedSpecFile) {
       throw e;
     }
-  }
-  
-  const autoDetectedSpecFile = await detectSpecFile();
-  if (autoDetectedSpecFile) {
-    return new SpecificationFile(autoDetectedSpecFile);
   }
 
   throw new SpecificationFileNotFound();
