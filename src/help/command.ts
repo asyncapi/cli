@@ -1,26 +1,24 @@
 import CommandHelp from '@oclif/plugin-help/lib/command';
 import * as Config from '@oclif/config';
-import {renderList} from '@oclif/plugin-help/lib/list';
+import { renderList } from '@oclif/plugin-help/lib/list';
 import chalk from 'chalk';
 import indent from 'indent-string';
 
 const {
   underline,
   bold,
-} = chalk;
-const {
-  dim,
+  dim
 } = chalk;
 
 export default class CommandHelper extends CommandHelp {
   flags(flags: Config.Command.Flag[]): string | undefined {
-    if (flags.length === 0) {return;}
+    if (flags.length === 0) { return; }
     const body = renderList(flags.map(flag => {
       let left = flag.helpLabel;
 
       if (!left) {
         const label = [];
-        if (flag.char) {label.push(`-${flag.char[0]}`);}
+        if (flag.char) { label.push(`-${flag.char[0]}`); }
         if (flag.name) {
           if (flag.type === 'boolean' && flag.allowNo) {
             label.push(`--[no-]${flag.name.trim()}`);
@@ -36,7 +34,7 @@ export default class CommandHelper extends CommandHelp {
         if (!flag.helpValue && flag.options) {
           value = flag.options.join('|');
         }
-        if (!value.includes('|')) {value = underline(value);}
+        if (!value.includes('|')) { value = underline(value); }
         left += `=${value}`;
       }
 
@@ -45,7 +43,7 @@ export default class CommandHelper extends CommandHelp {
       if (flag.type === 'option' && (flag.default || flag.default?.toString() === '0')) {
         right = `[default: ${flag.default}] ${right}`;
       }
-      if (flag.required) {right = `(required) ${right}`;}
+      if (flag.required) { right = `(required) ${right}`; }
 
       return [left, dim(right.trim())];
     }), { stripAnsi: this.opts.stripAnsi, maxWidth: this.opts.maxWidth - 2 });
