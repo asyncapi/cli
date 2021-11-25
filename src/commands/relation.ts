@@ -6,19 +6,21 @@ import { ValidationError } from '../errors/validation-error';
 import { SpecificationFileNotFound } from '../errors/specification-file';
 
 export default class Relation extends Command {
-  static description = 'Visualize your defined event-driven architecture'
+  static description = 'visualize your defined event-driven architecture'
 
   static flags = {
     help: flags.help({char: 'h'}),
     type: flags.string({
       char: 't', 
-      description: 'the type of output syntax'
+      description: 'the type of output syntax, currently supporting mermaid, plantUML and reactFlow'
     }),
   }
   
   static strict = false;
 
-  static args = [];
+  static args = [
+    { name: 'spec-file', description: 'spec path or context-name', required: true },
+  ];
 
   async loadFiles(files: string[]) {
     const docs: string[] = [];
