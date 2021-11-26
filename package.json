@@ -114,6 +114,9 @@
       "@semantic-release/github"
     ]
   },
+  "optionalDependencies": {
+    "fsevents": "^2.3.2"
+  },
   "repository": "asyncapi/cli",
   "scripts": {
     "build": "node scripts/fetch-asyncapi-example.js && tsc",
