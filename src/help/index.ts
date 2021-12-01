@@ -1,6 +1,6 @@
 import Help from '@oclif/plugin-help';
 import * as Config from '@oclif/config';
-import CommandHelp from './command';
+import CommandHelp from './CommandHelper';
 
 export default class CustomHelp extends Help {
   showRootHelp() {
