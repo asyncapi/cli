@@ -11,7 +11,7 @@ const {
 } = chalk;
 
 export default class CommandHelper extends CommandHelp {
-  flags(flags: Config.Command.Flag[]): string | undefined {
+  flags(flags: Config.Command.Flag[]): string | undefined { // NOSONAR
     if (flags.length === 0) { return; }
     const body = renderList(flags.map(flag => {
       let left = flag.helpLabel;
