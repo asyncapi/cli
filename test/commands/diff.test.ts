@@ -8,7 +8,9 @@ describe('diff', () => {
       .stdout()
       .command(['diff', './test/specification.yml', './test/specification.yml'])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.equal('{"changes":[]}\n');
+        expect(JSON.stringify(ctx.stdout)).to.equal(
+          '"{\\n  \\"changes\\": []\\n}\\n"'
+        );
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -22,11 +24,11 @@ describe('diff', () => {
         'diff',
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
-        '--type=all'
+        '--type=all',
       ])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.equal(
-          '{"changes":[{"action":"edit","path":"/channels/light~1measured/publish/message/x-parser-original-payload/properties/id/minimum","before":0,"after":1,"type":"unclassified"},{"action":"edit","path":"/channels/light~1measured/publish/message/payload/properties/id/minimum","before":0,"after":1,"type":"unclassified"},{"action":"edit","path":"/servers/mosquitto/protocol","before":"mqtt","after":"http","type":"breaking"},{"action":"edit","path":"/servers/mosquitto/url","before":"mqtt://test.mosquitto.org","after":"http://test.mosquitto.org","type":"breaking"},{"action":"edit","path":"/info/title","before":"Streetlights API","after":"Streetlights API V2","type":"non-breaking"}]}\n'
+        expect(JSON.stringify(ctx.stdout)).to.equal(
+          '"{\\n  \\"changes\\": [\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/channels/light~1measured/publish/message/x-parser-original-payload/properties/id/minimum\\",\\n      \\"before\\": 0,\\n      \\"after\\": 1,\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/channels/light~1measured/publish/message/payload/properties/id/minimum\\",\\n      \\"before\\": 0,\\n      \\"after\\": 1,\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/servers/mosquitto/protocol\\",\\n      \\"before\\": \\"mqtt\\",\\n      \\"after\\": \\"http\\",\\n      \\"type\\": \\"breaking\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/servers/mosquitto/url\\",\\n      \\"before\\": \\"mqtt://test.mosquitto.org\\",\\n      \\"after\\": \\"http://test.mosquitto.org\\",\\n      \\"type\\": \\"breaking\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/info/title\\",\\n      \\"before\\": \\"Streetlights API\\",\\n      \\"after\\": \\"Streetlights API V2\\",\\n      \\"type\\": \\"non-breaking\\"\\n    }\\n  ]\\n}\\n"'
         );
         expect(ctx.stderr).to.equal('');
         done();
@@ -44,8 +46,8 @@ describe('diff', () => {
         '--type=breaking',
       ])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.equal(
-          '[{"action":"edit","path":"/servers/mosquitto/protocol","before":"mqtt","after":"http","type":"breaking"},{"action":"edit","path":"/servers/mosquitto/url","before":"mqtt://test.mosquitto.org","after":"http://test.mosquitto.org","type":"breaking"}]\n'
+        expect(JSON.stringify(ctx.stdout)).to.equal(
+          '"[\\n  {\\n    \\"action\\": \\"edit\\",\\n    \\"path\\": \\"/servers/mosquitto/protocol\\",\\n    \\"before\\": \\"mqtt\\",\\n    \\"after\\": \\"http\\",\\n    \\"type\\": \\"breaking\\"\\n  },\\n  {\\n    \\"action\\": \\"edit\\",\\n    \\"path\\": \\"/servers/mosquitto/url\\",\\n    \\"before\\": \\"mqtt://test.mosquitto.org\\",\\n    \\"after\\": \\"http://test.mosquitto.org\\",\\n    \\"type\\": \\"breaking\\"\\n  }\\n]\\n"'
         );
         expect(ctx.stderr).to.equal('');
         done();
@@ -63,8 +65,8 @@ describe('diff', () => {
         '--type=non-breaking',
       ])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.equal(
-          '[{"action":"edit","path":"/info/title","before":"Streetlights API","after":"Streetlights API V2","type":"non-breaking"}]\n'
+        expect(JSON.stringify(ctx.stdout)).to.equal(
+          '"[\\n  {\\n    \\"action\\": \\"edit\\",\\n    \\"path\\": \\"/info/title\\",\\n    \\"before\\": \\"Streetlights API\\",\\n    \\"after\\": \\"Streetlights API V2\\",\\n    \\"type\\": \\"non-breaking\\"\\n  }\\n]\\n"'
         );
         expect(ctx.stderr).to.equal('');
         done();
@@ -82,8 +84,8 @@ describe('diff', () => {
         '--type=unclassified',
       ])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.equal(
-          '[{"action":"edit","path":"/channels/light~1measured/publish/message/x-parser-original-payload/properties/id/minimum","before":0,"after":1,"type":"unclassified"},{"action":"edit","path":"/channels/light~1measured/publish/message/payload/properties/id/minimum","before":0,"after":1,"type":"unclassified"}]\n'
+        expect(JSON.stringify(ctx.stdout)).to.equal(
+          '"[\\n  {\\n    \\"action\\": \\"edit\\",\\n    \\"path\\": \\"/channels/light~1measured/publish/message/x-parser-original-payload/properties/id/minimum\\",\\n    \\"before\\": 0,\\n    \\"after\\": 1,\\n    \\"type\\": \\"unclassified\\"\\n  },\\n  {\\n    \\"action\\": \\"edit\\",\\n    \\"path\\": \\"/channels/light~1measured/publish/message/payload/properties/id/minimum\\",\\n    \\"before\\": 0,\\n    \\"after\\": 1,\\n    \\"type\\": \\"unclassified\\"\\n  }\\n]\\n"'
         );
         expect(ctx.stderr).to.equal('');
         done();
@@ -102,8 +104,8 @@ describe('diff', () => {
       ])
       // eslint-disable-next-line sonarjs/no-identical-functions
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.equal(
-          '{"changes":[{"action":"edit","path":"/channels/light~1measured/publish/message/x-parser-original-payload/properties/id/minimum","before":0,"after":1,"type":"unclassified"},{"action":"edit","path":"/channels/light~1measured/publish/message/payload/properties/id/minimum","before":0,"after":1,"type":"unclassified"},{"action":"edit","path":"/servers/mosquitto/protocol","before":"mqtt","after":"http","type":"breaking"},{"action":"edit","path":"/servers/mosquitto/url","before":"mqtt://test.mosquitto.org","after":"http://test.mosquitto.org","type":"breaking"},{"action":"edit","path":"/info/title","before":"Streetlights API","after":"Streetlights API V2","type":"non-breaking"}]}\n'
+        expect(JSON.stringify(ctx.stdout)).to.equal(
+          '"{\\n  \\"changes\\": [\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/channels/light~1measured/publish/message/x-parser-original-payload/properties/id/minimum\\",\\n      \\"before\\": 0,\\n      \\"after\\": 1,\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/channels/light~1measured/publish/message/payload/properties/id/minimum\\",\\n      \\"before\\": 0,\\n      \\"after\\": 1,\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/servers/mosquitto/protocol\\",\\n      \\"before\\": \\"mqtt\\",\\n      \\"after\\": \\"http\\",\\n      \\"type\\": \\"breaking\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/servers/mosquitto/url\\",\\n      \\"before\\": \\"mqtt://test.mosquitto.org\\",\\n      \\"after\\": \\"http://test.mosquitto.org\\",\\n      \\"type\\": \\"breaking\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/info/title\\",\\n      \\"before\\": \\"Streetlights API\\",\\n      \\"after\\": \\"Streetlights API V2\\",\\n      \\"type\\": \\"non-breaking\\"\\n    }\\n  ]\\n}\\n"'
         );
         expect(ctx.stderr).to.equal('');
         done();
