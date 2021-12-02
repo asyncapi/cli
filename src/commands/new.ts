@@ -24,7 +24,7 @@ export default class New extends Command {
   static args = []
 
   async run() {
-    const { flags } = this.parse(New);
+    const { flags } = this.parse(New); // NOSONAR
     const isTTY = process.stdout.isTTY;
 
     if (!flags['no-tty'] && isTTY) {
@@ -46,8 +46,8 @@ export default class New extends Command {
   }
 
   /* eslint-disable sonarjs/cognitive-complexity */
-  async runInteractive() {
-    const { flags } = this.parse(New);
+  async runInteractive() { // NOSONAR
+    const { flags } = this.parse(New); // NOSONAR
     let fileName = flags['file-name'];
     let selectedTemplate = flags['example'];
     let openStudio = flags.studio;
