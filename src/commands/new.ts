@@ -45,6 +45,7 @@ export default class New extends Command {
     }
   }
 
+  /* eslint-disable sonarjs/cognitive-complexity */
   async runInteractive() {
     const { flags } = this.parse(New);
     let fileName = flags['file-name'];

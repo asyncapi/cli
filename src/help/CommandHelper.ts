@@ -11,6 +11,7 @@ const {
 } = chalk;
 
 export default class CommandHelper extends CommandHelp {
+  /* eslint-disable sonarjs/cognitive-complexity */
   flags(flags: Config.Command.Flag[]): string | undefined { // NOSONAR
     if (flags.length === 0) { return; }
     const body = renderList(flags.map(flag => {
