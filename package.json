@@ -133,7 +133,7 @@
     "pretest:coverage": "npm run build",
     "release": "semantic-release",
     "start": "npm run build && node dist/cli.js",
-    "test": "cross-env TEST=1 nyc --extension .ts mocha --require ts-node/register --reporter spec --timeout 5000 \"test/**/*.test.ts\"",
+    "test": "cross-env TEST=1 nyc --extension .ts mocha --require ts-node/register --reporter spec --timeout 10000 \"test/**/*.test.ts\"",
     "version": "oclif-dev readme && git add README.md",
     "readme": "oclif readme"
   },
