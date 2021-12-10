@@ -87,7 +87,7 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
   } catch (e) {
     const autoDetectedSpecFile = await detectSpecFile();
     if (autoDetectedSpecFile) {
-      return new SpecificationFile(autoDetectedSpecFile);
+      return Specification.fromFile(autoDetectedSpecFile);
     }
     if (!filePathOrContextName || !autoDetectedSpecFile) {
       throw e;
