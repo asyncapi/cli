@@ -5,6 +5,7 @@ import { load } from '../models/SpecificationFile';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { SpecificationFileNotFound } from '../errors/specification-file';
+import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
 
 export default class Diff extends Command {
   static description = 'find diff between two asyncapi files';
@@ -91,19 +92,7 @@ export default class Diff extends Command {
       );
 
       if (outputFormat === 'json') {
-        if (outputType === 'breaking') {
-          this.log(JSON.stringify(diffOutput.breaking(), null, 2));
-        } else if (outputType === 'non-breaking') {
-          this.log(JSON.stringify(diffOutput.nonBreaking(), null, 2));
-        } else if (outputType === 'unclassified') {
-          this.log(JSON.stringify(diffOutput.unclassified(), null, 2));
-        } else if (outputType === 'all') {
-          this.log(JSON.stringify(diffOutput.getOutput(), null, 2));
-        } else {
-          this.log(
-            `The output type ${outputType} is not supported at the moment.`
-          );
-        }
+        this.outputJson(diffOutput, outputType);
       } else {
         this.log(
           `The output format ${outputFormat} is not supported at the moment.`
@@ -114,6 +103,20 @@ export default class Diff extends Command {
         type: 'parser-error',
         err: error,
       });
+    }
+  }
+
+  outputJson(diffOutput: AsyncAPIDiff, outputType: string) {
+    if (outputType === 'breaking') {
+      this.log(JSON.stringify(diffOutput.breaking(), null, 2));
+    } else if (outputType === 'non-breaking') {
+      this.log(JSON.stringify(diffOutput.nonBreaking(), null, 2));
+    } else if (outputType === 'unclassified') {
+      this.log(JSON.stringify(diffOutput.unclassified(), null, 2));
+    } else if (outputType === 'all') {
+      this.log(JSON.stringify(diffOutput.getOutput(), null, 2));
+    } else {
+      this.log(`The output type ${outputType} is not supported at the moment.`);
     }
   }
 }
