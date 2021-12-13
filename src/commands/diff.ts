@@ -27,21 +27,21 @@ export default class Diff extends Command {
 
   static args = [
     {
-      name: 'first-spec-file',
-      description: 'first spec path or context-name',
+      name: 'old',
+      description: 'old spec path or context-name',
       required: true,
     },
     {
-      name: 'second-spec-file',
-      description: 'second spec path or context-name',
+      name: 'new',
+      description: 'new spec path or context-name',
       required: true,
     },
   ];
 
   async run() {
     const { args, flags } = this.parse(Diff);
-    const firstDocumentPath = args['first-spec-file'];
-    const secondDocumentPath = args['second-spec-file'];
+    const firstDocumentPath = args['old'];
+    const secondDocumentPath = args['new'];
 
     const outputFormat = flags['format'];
     const outputType = flags['type'];
