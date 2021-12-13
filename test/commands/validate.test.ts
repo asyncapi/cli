@@ -43,7 +43,7 @@ describe('validate', () => {
         expect(ctx.stdout).to.equals('URL https://bit.ly/asyncapi successfully validated\n');
         expect(ctx.stderr).to.equals('');
         done();
-      })
+      });
   });
   
   describe('with context names', () => {
