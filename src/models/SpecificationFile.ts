@@ -3,7 +3,7 @@ import * as path from 'path';
 import fetch from 'node-fetch';
 
 import { loadContext } from './Context';
-import { SpecificationFileNotFound } from '../errors/specification-file';
+import { SpecificationFileNotFound, SpecificationURLNotFound } from '../errors/specification-file';
 
 const { readFile, lstat } = fs;
 const allowedFileNames: string[] = [
@@ -46,7 +46,7 @@ export class Specification {
     try {
       response = await fetch(URLpath, { method: 'GET' });
     } catch (error) {
-      // throw error 
+      throw new SpecificationURLNotFound(URLpath);
     }
     return new Specification(await response?.text() as string, { URLPath: URLpath });
   }
