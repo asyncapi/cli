@@ -19,10 +19,10 @@ export class Specification {
   private readonly spec: string;
   private readonly filePath?: string;
   private readonly URLPath?: string;
-  constructor(spec: string, path?: { filepath?: string, URLPath?: string }) {
+  constructor(spec: string, options?: { filepath?: string, URLPath?: string }) {
     this.spec = spec;
-    this.filePath = path?.filepath;
-    this.URLPath = path?.URLPath;
+    this.filePath = options?.filepath;
+    this.URLPath = options?.URLPath;
   }
 
   text() {
@@ -76,10 +76,10 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
     }
 
     if (type === TYPE_URL_PATH) {
-      return await Specification.fromURL(filePathOrContextName);
+      return Specification.fromURL(filePathOrContextName);
     }
     await fileExists(filePathOrContextName);
-    return await Specification.fromFile(filePathOrContextName);
+    return Specification.fromFile(filePathOrContextName);
   }
 
   try {
@@ -92,11 +92,6 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
     if (!filePathOrContextName || !autoDetectedSpecFile) {
       throw e;
     }
-  }
-
-  const autoDetectedSpecFile = await detectSpecFile();
-  if (autoDetectedSpecFile) {
-    return await Specification.fromFile(autoDetectedSpecFile);
   }
 
   throw new SpecificationFileNotFound();
@@ -141,7 +136,7 @@ export async function fileExists(name: string): Promise<boolean> {
 
 async function loadFromContext(contextName?: string): Promise<Specification> {
   const context = await loadContext(contextName);
-  return await Specification.fromFile(context);
+  return Specification.fromFile(context);
 }
 
 async function detectSpecFile(): Promise<string | undefined> {
