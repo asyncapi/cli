@@ -13,7 +13,7 @@ export default class Validate extends Command {
   }
 
   static args = [
-    { name: 'spec-file', description: 'spec path or context-name', required: false },
+    { name: 'spec-file', description: 'spec path, context-name or spec url', required: false },
   ]
 
   async run() {
