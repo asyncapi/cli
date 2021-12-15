@@ -18,11 +18,11 @@ const TYPE_URL_PATH = 'url-path';
 export class Specification {
   private readonly spec: string;
   private readonly filePath?: string;
-  private readonly URLPath?: string;
+  private readonly fileURL?: string;
   constructor(spec: string, options?: { filepath?: string, URLPath?: string }) {
     this.spec = spec;
     this.filePath = options?.filepath;
-    this.URLPath = options?.URLPath;
+    this.fileURL = options?.URLPath;
   }
 
   text() {
@@ -33,8 +33,8 @@ export class Specification {
     return this.filePath;
   }
 
-  getURLPath() {
-    return this.URLPath;
+  getFileURL() {
+    return this.fileURL;
   }
 
   static async fromFile(filepath: string) {
@@ -116,11 +116,10 @@ export async function nameType(name: string): Promise<string> {
 export async function isURL(urlpath: string): Promise<boolean> {
   try {
     const url = new URL(urlpath);
-    if (url.protocol === 'http:' || url.protocol === 'https:') {return true;}
+    return (url.protocol === 'http' || url.protocol === 'https');
   } catch (error) {
     return false;
   }
-  return false;
 }
 
 export async function fileExists(name: string): Promise<boolean> {

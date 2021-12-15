@@ -13,7 +13,7 @@ export default class Validate extends Command {
   }
 
   static args = [
-    { name: 'spec-file', description: 'spec path, context-name or spec url', required: false },
+    { name: 'spec-file', description: 'spec path, url, or context-name', required: false },
   ]
 
   async run() {
@@ -37,10 +37,9 @@ export default class Validate extends Command {
       if (specFile.getFilePath()) {
         await parser.parse(specFile.text());
         this.log(`File ${specFile.getFilePath()} successfully validated!`);
-      }
-      if (specFile.getURLPath()) {
+      } else if (specFile.getFileURL()) {
         await parser.parse(specFile.text());
-        this.log(`URL ${specFile.getURLPath()} successfully validated`);
+        this.log(`URL ${specFile.getFileURL()} successfully validated`);
       }
     } catch (error) {
       throw new ValidationError({
