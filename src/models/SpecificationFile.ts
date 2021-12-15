@@ -13,7 +13,7 @@ const allowedFileNames: string[] = [
 ];
 const TYPE_CONTEXT_NAME = 'context-name';
 const TYPE_FILE_PATH = 'file-path';
-const TYPE_URL_PATH = 'url-path';
+const TYPE_URL = 'url-path';
 
 export class Specification {
   private readonly spec: string;
@@ -75,7 +75,7 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
       return loadFromContext(filePathOrContextName);
     }
 
-    if (type === TYPE_URL_PATH) {
+    if (type === TYPE_URL) {
       return Specification.fromURL(filePathOrContextName);
     }
     await fileExists(filePathOrContextName);
@@ -108,7 +108,7 @@ export async function nameType(name: string): Promise<string> {
     }
     return TYPE_CONTEXT_NAME;
   } catch (e) {
-    if (await isURL(name)) {return TYPE_URL_PATH;}
+    if (await isURL(name)) {return TYPE_URL;}
     return TYPE_CONTEXT_NAME;
   }
 }
@@ -116,7 +116,7 @@ export async function nameType(name: string): Promise<string> {
 export async function isURL(urlpath: string): Promise<boolean> {
   try {
     const url = new URL(urlpath);
-    return (url.protocol === 'http' || url.protocol === 'https');
+    return url.protocol === 'http:' || url.protocol === 'https:';
   } catch (error) {
     return false;
   }
