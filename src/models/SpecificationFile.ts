@@ -19,10 +19,10 @@ export class Specification {
   private readonly spec: string;
   private readonly filePath?: string;
   private readonly fileURL?: string;
-  constructor(spec: string, options?: { filepath?: string, URLPath?: string }) {
+  constructor(spec: string, options?: { filepath?: string, fileURL?: string }) {
     this.spec = spec;
     this.filePath = options?.filepath;
-    this.fileURL = options?.URLPath;
+    this.fileURL = options?.fileURL;
   }
 
   text() {
@@ -48,7 +48,7 @@ export class Specification {
     } catch (error) {
       throw new SpecificationURLNotFound(URLpath);
     }
-    return new Specification(await response?.text() as string, { URLPath: URLpath });
+    return new Specification(await response?.text() as string, { fileURL: URLpath });
   }
 }
 
