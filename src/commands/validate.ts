@@ -1,4 +1,4 @@
-import {flags } from '@oclif/command';
+import { flags } from '@oclif/command';
 import * as parser from '@asyncapi/parser';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
@@ -13,14 +13,14 @@ export default class Validate extends Command {
   }
 
   static args = [
-    { name: 'spec-file', description: 'spec path or context-name', required: false },
+    { name: 'spec-file', description: 'spec path, url, or context-name', required: false },
   ]
 
   async run() {
     const { args } = this.parse(Validate);
     const filePath = args['spec-file'];
     let specFile;
-    
+
     try {
       specFile = await load(filePath);
     } catch (err) {
@@ -34,8 +34,13 @@ export default class Validate extends Command {
       }
     }
     try {
-      await parser.parse(await specFile.read());
-      this.log(`File ${specFile.getPath()} successfully validated!`);
+      if (specFile.getFilePath()) {
+        await parser.parse(specFile.text());
+        this.log(`File ${specFile.getFilePath()} successfully validated!`);
+      } else if (specFile.getFileURL()) {
+        await parser.parse(specFile.text());
+        this.log(`URL ${specFile.getFileURL()} successfully validated`);
+      }
     } catch (error) {
       throw new ValidationError({
         type: 'parser-error',
