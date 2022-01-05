@@ -34,6 +34,16 @@ describe('validate', () => {
         expect(ctx.stderr).to.equals('ValidationError: There is no file or context with name "./test/not-found.yml".\n');
         done();
       });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['validate', 'https://bit.ly/asyncapi'])
+      .it('works when url is passed', (ctx, done) => {
+        expect(ctx.stdout).to.equals('URL https://bit.ly/asyncapi successfully validated\n');
+        expect(ctx.stderr).to.equals('');
+        done();
+      });
   });
   
   describe('with context names', () => {
