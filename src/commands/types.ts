@@ -1,4 +1,4 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator } from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger} from '@asyncapi/modelina';
 import { flags } from '@oclif/command';
 import Command from '../base';
 import { load } from '../models/SpecificationFile';
@@ -35,44 +35,55 @@ export default class GenerateTypes extends Command {
     const language = flags.language;
     let fileGenerator;
     let fileOptions = {};
-    if (language === 'typescript') {
-      //fileGenerator = new TypeScriptFileGenerator();
-    } else if (language === 'javascript') {
+    switch (language) {
+    case 'typescript':
+      fileGenerator = new TypeScriptFileGenerator();
+      break;
+    case 'javascript':
       fileGenerator = new JavaScriptFileGenerator();
-    } else if (language === 'csharp') {
+      break;
+    case 'csharp':
       if (flags.csharpNamespace === undefined) {
         throw new Error('Missing namespace option. Add `--csharpNamespace NAMESPACE` to set the desired namespace.');
       }
       fileGenerator = new CSharpFileGenerator();
-      const namespace = flags.csharpNamespace;
       fileOptions = {
-        namespace
+        namespace: flags.csharpNamespace
       };
-    } else if (language === 'golang') {
+      break;
+    case 'golang':
       if (flags.goPackageName === undefined) {
         throw new Error('Missing package name option. Add `--goPackageName PACKAGENAME` to set the desired package name.');
       }
-      const packageName = flags.goPackageName;
-      //fileGenerator = new GoFileGenerator();
+      fileGenerator = new GoFileGenerator();
       fileOptions = {
-        packageName
+        packageName: flags.goPackageName
       };
-    } else if (language === 'java') {
+      break;
+    case 'java':
       if (flags.javaPackageName === undefined) {
         throw new Error('Missing package name option. Add `--javaPackageName PACKAGENAME` to set the desired package name.');
       }
       fileGenerator = new JavaFileGenerator();
-      const packageName = flags.javaPackageName;
       fileOptions = {
-        packageName
+        packageName: flags.javaPackageName
       };
-    }
-    if (fileGenerator === undefined) {
+      break;
+    default:
       throw new Error(`Could not determine generator for language ${language}`);
     }
-    await fileGenerator.generateToFiles(
+    Logger.setLogger({
+      info: this.log,
+      debug: this.debug,
+      warn: this.warn,
+      error: this.error,
+    });
+    const models = await fileGenerator.generateToFiles(
       parsedInput as any, 
       outputDirectory, 
-      fileOptions as any);
+      {...fileOptions, } as any);
+    const generatedModelNames = models.map((model) => {return model.modelName;});
+
+    this.log(`We successfully generated the following models ${generatedModelNames.join(', ')}`);
   }
 }
