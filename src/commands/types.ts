@@ -3,7 +3,7 @@ import { flags } from '@oclif/command';
 import Command from '../base';
 import { load } from '../models/SpecificationFile';
 import { parse } from '@asyncapi/parser';
-export default class GenerateTypes extends Command {
+export default class Types extends Command {
   static description = 'Generates typed models';
 
   static flags = {
@@ -28,11 +28,11 @@ export default class GenerateTypes extends Command {
   static args = []
 
   async run() {
-    const { flags } = this.parse(GenerateTypes);
-    const outputDirectory = flags.outputDirectory;
-    const file = await load(flags.file) || await load();
+    const { args } = this.parse(GenerateTypes);
+    const outputDirectory = args.outputDirectory;
+    const file = await load(args.file) || await load();
     const parsedInput = await parse(await file.read());
-    const language = flags.language;
+    const language = args.language;
     let fileGenerator;
     let fileOptions = {};
     switch (language) {
@@ -43,30 +43,30 @@ export default class GenerateTypes extends Command {
       fileGenerator = new JavaScriptFileGenerator();
       break;
     case 'csharp':
-      if (flags.csharpNamespace === undefined) {
+      if (args.csharpNamespace === undefined) {
         throw new Error('Missing namespace option. Add `--csharpNamespace NAMESPACE` to set the desired namespace.');
       }
       fileGenerator = new CSharpFileGenerator();
       fileOptions = {
-        namespace: flags.csharpNamespace
+        namespace: args.csharpNamespace
       };
       break;
     case 'golang':
-      if (flags.goPackageName === undefined) {
+      if (args.goPackageName === undefined) {
         throw new Error('Missing package name option. Add `--goPackageName PACKAGENAME` to set the desired package name.');
       }
       fileGenerator = new GoFileGenerator();
       fileOptions = {
-        packageName: flags.goPackageName
+        packageName: args.goPackageName
       };
       break;
     case 'java':
-      if (flags.javaPackageName === undefined) {
+      if (args.javaPackageName === undefined) {
         throw new Error('Missing package name option. Add `--javaPackageName PACKAGENAME` to set the desired package name.');
       }
       fileGenerator = new JavaFileGenerator();
       fileOptions = {
-        packageName: flags.javaPackageName
+        packageName: args.javaPackageName
       };
       break;
     default:
