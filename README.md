@@ -69,9 +69,10 @@ USAGE
 
 COMMANDS
   config    access configs
-  help      display help for asyncapi
-  new       creates a new asyncapi file
-  validate  validate asyncapi file
+  help      display help for the CLI
+  new       creates a new AsyncAPI file
+  validate  validate AsyncAPI file
+  types     generate types for the AsyncAPI file
 ```
 
 
