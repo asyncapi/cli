@@ -1,7 +1,7 @@
 import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger} from '@asyncapi/modelina';
 import { flags } from '@oclif/command';
-import Command from '../base';
-import { load } from '../models/SpecificationFile';
+import Command from '../../base';
+import { load } from '../../models/SpecificationFile';
 import { parse } from '@asyncapi/parser';
 export default class Types extends Command {
   static description = 'Generates typed models';
@@ -25,13 +25,12 @@ export default class Types extends Command {
     csharpNamespace: flags.string({description: 'C# specific, define the namespace to use for the generated types', required: false}),
   }
 
-  static args = []
-
   async run() {
-    const { args } = this.parse(GenerateTypes);
+    const passedArguments = this.parse(Types);
+    const args = passedArguments.flags;
     const outputDirectory = args.outputDirectory;
     const file = await load(args.file) || await load();
-    const parsedInput = await parse(await file.read());
+    const parsedInput = await parse(file.text());
     const language = args.language;
     let fileGenerator;
     let fileOptions = {};
@@ -44,7 +43,7 @@ export default class Types extends Command {
       break;
     case 'csharp':
       if (args.csharpNamespace === undefined) {
-        throw new Error('Missing namespace option. Add `--csharpNamespace NAMESPACE` to set the desired namespace.');
+        throw new Error('Missing namespace option. Add `--csharpNamespace=NAMESPACE` to set the desired namespace.');
       }
       fileGenerator = new CSharpFileGenerator();
       fileOptions = {
@@ -53,7 +52,7 @@ export default class Types extends Command {
       break;
     case 'golang':
       if (args.goPackageName === undefined) {
-        throw new Error('Missing package name option. Add `--goPackageName PACKAGENAME` to set the desired package name.');
+        throw new Error('Missing package name option. Add `--goPackageName=PACKAGENAME` to set the desired package name.');
       }
       fileGenerator = new GoFileGenerator();
       fileOptions = {
@@ -62,7 +61,7 @@ export default class Types extends Command {
       break;
     case 'java':
       if (args.javaPackageName === undefined) {
-        throw new Error('Missing package name option. Add `--javaPackageName PACKAGENAME` to set the desired package name.');
+        throw new Error('Missing package name option. Add `--javaPackageName=PACKAGENAME` to set the desired package name.');
       }
       fileGenerator = new JavaFileGenerator();
       fileOptions = {
