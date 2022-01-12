@@ -34,12 +34,10 @@ export class ValidationError extends Error {
 
     if (err.validationErrors) {
       for (const e of err.validationErrors) {
-        const errorHasTitle = !!e.title;
         const errorHasLocation = !!e.location;
         if (errorHasLocation) {
           errorsInfo.push(`${e.title} ${e.location.startLine}:${e.location.startColumn}`);
-        }
-        if (errorHasTitle) {
+        } else {
           errorsInfo.push(`${e.title}`);
         }
       }
