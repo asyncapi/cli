@@ -3,13 +3,15 @@ import * as parser from '@asyncapi/parser';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
-import { SpecificationFileNotFound } from '../errors/specification-file';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
 
   static flags = {
-    help: flags.help({ char: 'h' })
+    help: flags.help({ char: 'h' }),
+    file: flags.boolean({ char: 'f', description: 'Input will be treated as a file path' }),
+    context: flags.boolean({ char: 'c', description: 'Input will be treated as a context name' }),
+    url: flags.boolean({ char: 'u', description: 'Input will be treated as a url' })
   }
 
   static args = [
@@ -17,22 +19,15 @@ export default class Validate extends Command {
   ]
 
   async run() {
-    const { args } = this.parse(Validate);
+    const { args, flags } = this.parse(Validate);
     const filePath = args['spec-file'];
-    let specFile;
 
-    try {
-      specFile = await load(filePath);
-    } catch (err) {
-      if (err instanceof SpecificationFileNotFound) {
-        this.error(new ValidationError({
-          type: 'invalid-file',
-          filepath: filePath
-        }));
-      } else {
-        this.error(err as Error);
-      }
-    }
+    const specFile = await load(filePath, {
+      context: flags.context,
+      file: flags.file,
+      url: flags.url
+    });
+
     try {
       if (specFile.getFilePath()) {
         await parser.parse(specFile.text());
