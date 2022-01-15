@@ -15,3 +15,10 @@ export class SpecificationFileNotFound extends SpecificationFileError {
     }
   }
 }
+
+export class SpecificationURLNotFound extends SpecificationFileError {
+  constructor(URL: string) {
+    super();
+    this.message = `Unable to fetch specification file from url: ${URL}`;
+  }
+}

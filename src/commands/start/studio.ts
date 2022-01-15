@@ -16,9 +16,9 @@ export default class StartStudio extends Command {
 
   async run() {
     const { flags } = this.parse(StartStudio);
-    const filePath = flags.file || (await load()).getPath();
+    const filePath = flags.file || (await load()).getFilePath();
     const port = flags.port;
 
-    startStudio(filePath, port);
+    startStudio(filePath as string, port);
   }
 }
