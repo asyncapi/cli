@@ -80,12 +80,8 @@ export default class Diff extends Command {
     }
 
     try {
-      const firstDocumentParsed = await parser.parse(
-        await firstDocument.read()
-      );
-      const secondDocumentParsed = await parser.parse(
-        await secondDocument.read()
-      );
+      const firstDocumentParsed = await parser.parse(firstDocument.text());
+      const secondDocumentParsed = await parser.parse(secondDocument.text());
       const diffOutput = diff.diff(
         firstDocumentParsed.json(),
         secondDocumentParsed.json()
