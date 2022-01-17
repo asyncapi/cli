@@ -24,7 +24,7 @@ export default class Convert extends Command {
     const { args } = this.parse(Convert);
     const filePath = args['spec-file'];
     let specFile;
-    
+
     // LOAD FILE
     try {
       specFile = await load(filePath);
@@ -54,21 +54,25 @@ export default class Convert extends Command {
         err: error
       });
     }
-    
+
     // CONVERSION
     try {
-      /* if (specFile.getFilePath()) {
+      /* 
+      if (specFile.getFilePath()) {
         await parser.parse(specFile.text());
         this.log(`File ${specFile.getFilePath()} successfully validated!`);
       } else if (specFile.getFileURL()) {
         await parser.parse(specFile.text());
         this.log(`URL ${specFile.getFileURL()} successfully validated`);
-      } */
+        }
+      */
     } catch (error) {
-/*       throw new ValidationError({
+      /*
+      throw new ValidationError({
         type: 'parser-error',
         err: error
       });
- */ }
+      */
+    }
   }
 }
