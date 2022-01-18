@@ -135,7 +135,7 @@
   },
   "repository": "asyncapi/cli",
   "scripts": {
-    "build": "node scripts/fetch-asyncapi-example.js && tsc && npm run pack:macos",
+    "build": "node scripts/fetch-asyncapi-example.js && tsc",
     "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
     "dev": "tsc --watch",
     "generate:assets": "npm run generate:readme:toc",
@@ -146,6 +146,7 @@
     "pack:macos:rename": "node scripts/macosPackRename.js",
     "postpack": "rimraf oclif.manifest.json",
     "prepack": "rimraf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "postpublish": "npm run pack:macos",
     "prepublishOnly": "npm run build",
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",
