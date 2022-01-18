@@ -65,6 +65,7 @@
     "oclif": "^1.18.1",
     "rimraf": "^3.0.2",
     "semantic-release": "^17.4.3",
+    "simple-git": "^2.48.0",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.10"
   },
@@ -90,7 +91,10 @@
     "plugins": [
       "@fmvilas/oclif-plugin-spaced-commands"
     ],
-    "helpClass": "./lib/help"
+    "helpClass": "./lib/help",
+    "macos": {
+      "identifier": "com.asyncapi.cli"
+    }
   },
   "publishConfig": {
     "access": "public"
@@ -113,7 +117,17 @@
         }
       ],
       "@semantic-release/npm",
-      "@semantic-release/github"
+      [
+        "@semantic-release/github",
+        {
+          "assets": [
+            {
+              "path": "dist/macos/asyncapi.pkg",
+              "label": "MacOS PKG"
+            }
+          ]
+        }
+      ]
     ]
   },
   "optionalDependencies": {
@@ -121,20 +135,21 @@
   },
   "repository": "asyncapi/cli",
   "scripts": {
-    "build": "node scripts/fetch-asyncapi-example.js && tsc",
+    "build": "node scripts/fetch-asyncapi-example.js && tsc && npm run pack:macos",
     "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
     "dev": "tsc --watch",
     "generate:assets": "npm run generate:readme:toc",
     "generate:readme:toc": "markdown-toc -i README.md",
     "lint": "eslint --max-warnings 0 --config .eslintrc .",
     "lint:fix": "eslint --max-warnings 5 --config .eslintrc . --fix",
+    "pack:macos": "oclif pack:macos && npm run pack:macos:rename",
+    "pack:macos:rename": "node scripts/macosPackRename.js",
     "postpack": "rimraf oclif.manifest.json",
     "prepack": "rimraf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "prepublishOnly": "npm run build",
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",
     "release": "semantic-release",
-    "start": "npm run build && node dist/cli.js",
     "test": "cross-env TEST=1 nyc --extension .ts mocha --require ts-node/register --reporter spec --timeout 10000 \"test/**/*.test.ts\"",
     "version": "oclif-dev readme && git add README.md",
     "readme": "oclif readme"
