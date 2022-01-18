@@ -111,4 +111,24 @@ describe('diff', () => {
         done();
       });
   });
+
+  describe('with URLs, and both URLs are same', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'diff',
+        'https://raw.githubusercontent.com/asyncapi/asyncapi/v2.2.0/examples/simple.yml',
+        'https://raw.githubusercontent.com/asyncapi/asyncapi/v2.2.0/examples/simple.yml',
+        '--format=json',
+      ])
+      // eslint-disable-next-line sonarjs/no-identical-functions
+      .it('works when URL is passed', (ctx, done) => {
+        expect(JSON.stringify(ctx.stdout)).to.equal(
+          '"{\\n  \\"changes\\": []\\n}\\n"'
+        );
+        expect(ctx.stderr).to.equal('');
+        done();
+      });
+  });
 });

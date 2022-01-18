@@ -1,7 +1,7 @@
 import { flags } from '@oclif/command';
 import * as diff from '@asyncapi/diff';
 import * as parser from '@asyncapi/parser';
-import { load } from '../models/SpecificationFile';
+import { load, Specification } from '../models/SpecificationFile';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { SpecificationFileNotFound } from '../errors/specification-file';
@@ -29,12 +29,12 @@ export default class Diff extends Command {
   static args = [
     {
       name: 'old',
-      description: 'old spec path or context-name',
+      description: 'old spec path, URL or context-name',
       required: true,
     },
     {
       name: 'new',
-      description: 'new spec path or context-name',
+      description: 'new spec path, URL or context-name',
       required: true,
     },
   ];
@@ -47,7 +47,7 @@ export default class Diff extends Command {
     const outputFormat = flags['format'];
     const outputType = flags['type'];
 
-    let firstDocument, secondDocument;
+    let firstDocument: Specification, secondDocument: Specification;
 
     try {
       firstDocument = await load(firstDocumentPath);
