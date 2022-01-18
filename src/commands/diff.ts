@@ -40,7 +40,7 @@ export default class Diff extends Command {
   ];
 
   async run() {
-    const { args, flags } = this.parse(Diff);
+    const { args, flags } = this.parse(Diff); // NOSONAR
     const firstDocumentPath = args['old'];
     const secondDocumentPath = args['new'];
 
