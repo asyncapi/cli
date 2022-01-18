@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "0.11.1",
+  "version": "0.12.4",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run"
@@ -22,6 +22,7 @@
     "indent-string": "^4.0.0",
     "inquirer": "^8.2.0",
     "lodash.template": "^4.4.0",
+    "node-fetch": "^2.0.0",
     "open": "^8.4.0",
     "reflect-metadata": "^0.1.13",
     "request": "^2.88.2",
@@ -43,6 +44,7 @@
     "@types/lodash.template": "^4.4.4",
     "@types/mocha": "^5.2.7",
     "@types/node": "^10.17.60",
+    "@types/node-fetch": "^2.0.2",
     "@types/serve-handler": "^6.1.1",
     "@types/wrap-ansi": "^8.0.1",
     "@typescript-eslint/eslint-plugin": "^4.28.4",
