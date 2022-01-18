@@ -102,8 +102,6 @@ COMMANDS
   validate  validate asyncapi file
 ```
 
-
-
 ## Contributing
 
 Read [CONTRIBUTING](https://github.com/asyncapi/CLI/blob/master/CONTRIBUTING.md) guide.
