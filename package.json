@@ -9,7 +9,7 @@
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
     "@asyncapi/parser": "^1.12.0",
-    "@asyncapi/studio": "^0.5.5",
+    "@asyncapi/studio": "^0.5.6",
     "@fmvilas/oclif-plugin-spaced-commands": "^1.0.4",
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
