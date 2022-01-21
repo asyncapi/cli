@@ -68,11 +68,12 @@ USAGE
   $ asyncapi [COMMAND]
 
 COMMANDS
-  config    access configs
-  help      display help for the CLI
-  new       creates a new AsyncAPI file
-  validate  validate AsyncAPI file
-  types     generate types for the AsyncAPI file
+  config      access configs
+  help        display help for the CLI
+  new         creates a new AsyncAPI file
+  validate    validate AsyncAPI file
+  generates   
+    types       generate all the type models for the AsyncAPI file
 ```
 
 
