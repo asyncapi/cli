@@ -89,4 +89,25 @@ describe('config', () => {
         done();
       });
   });
+  describe('context current', () =>{
+    afterEach(() => {
+      testHelper.deleteDummyContextFile();
+    });
+
+    beforeEach(() => {
+      testHelper.createDummyContextFile();
+    });
+    test
+      .stderr()
+      .stdout()
+      .command(['config', 'context', 'current'])
+      .it('Shows the current context is home',(ctx,done)=>{
+        expect(ctx.stdout).includes(
+         `home: `)
+        expect(ctx.stderr).to.equals('');
+        done();
+      })
+
+  })
 });
+
