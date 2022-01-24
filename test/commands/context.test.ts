@@ -89,7 +89,7 @@ describe('config', () => {
         done();
       });
   });
-  describe('context current', () =>{
+  describe('context current', () => {
     afterEach(() => {
       testHelper.deleteDummyContextFile();
     });
@@ -101,13 +101,12 @@ describe('config', () => {
       .stderr()
       .stdout()
       .command(['config', 'context', 'current'])
-      .it('Shows the current context is home',(ctx,done)=>{
+      .it('Shows the current context is home',(ctx,done) => {
         expect(ctx.stdout).includes(
-         `home: `)
+          'home: ');
         expect(ctx.stderr).to.equals('');
         done();
-      })
-
-  })
+      });
+  });
 });
 
