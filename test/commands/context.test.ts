@@ -2,7 +2,6 @@ import * as path from 'path';
 import { expect, test } from '@oclif/test';
 
 import TestHelper from '../testHelper';
-import { DEFAULT_CONTEXT_FILE_PATH } from '../../src/models/Context';
 
 const testHelper = new TestHelper();
 
@@ -109,5 +108,3 @@ describe('config', () => {
       });
   });
 });
-
-// 7888352036
