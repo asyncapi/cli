@@ -2,6 +2,7 @@ import * as path from 'path';
 import { expect, test } from '@oclif/test';
 
 import TestHelper from '../testHelper';
+import { DEFAULT_CONTEXT_FILE_PATH } from '../../src/models/Context';
 
 const testHelper = new TestHelper();
 
@@ -102,11 +103,11 @@ describe('config', () => {
       .stdout()
       .command(['config', 'context', 'current'])
       .it('Shows the current context is home',(ctx,done) => {
-        expect(ctx.stdout).includes(
-          'home: ');
+        expect(ctx.stdout).to.equals(`${testHelper.context.current}: ${testHelper.context.store['home']}\n`);
         expect(ctx.stderr).to.equals('');
         done();
       });
   });
 });
 
+// 7888352036
