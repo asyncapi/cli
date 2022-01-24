@@ -26,7 +26,7 @@ export default class ContextTestingHelper {
   }
 
   createDummyContextFile(): void {
-    writeFileSync(DEFAULT_CONTEXT_FILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8' });
+    writeFileSync(DEFAULT_CONTEXT_FILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8', flag: 'w+' });
   }
 
   deleteDummyContextFile(): void {
