@@ -27,6 +27,9 @@ export default class ContextTestingHelper {
 
   createDummyContextFile(): void {
     writeFileSync(DEFAULT_CONTEXT_FILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8', flag: 'w+' });
+    if (!existsSync(DEFAULT_CONTEXT_FILE_PATH)) {
+      throw new Error('Context file doesn\'t exist');
+    }
   }
 
   deleteDummyContextFile(): void {
