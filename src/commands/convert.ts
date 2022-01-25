@@ -49,7 +49,7 @@ export default class Convert extends Command {
       if (flags.output) {
         await fPromises.writeFile(`${flags.output}`, convertedFile, { encoding: 'utf8' });
       } else {
-        this.log(`${convertedFile}`);
+        this.log(convertedFile);
       }
     } catch (err) {
       if (err instanceof SpecificationFileNotFound) {
