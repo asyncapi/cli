@@ -23,7 +23,7 @@ export default class Convert extends Command {
   ]
 
   async run() {
-    const { args } = this.parse(Convert);
+    const { args, flags } = this.parse(Convert);
     const filePath = args['spec-file'];
     let specFile;
     let convertedFile;
