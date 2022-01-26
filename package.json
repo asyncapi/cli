@@ -89,8 +89,7 @@
     "bin": "asyncapi",
     "plugins": [
       "@fmvilas/oclif-plugin-spaced-commands"
-    ],
-    "helpClass": "./lib/help"
+    ]
   },
   "publishConfig": {
     "access": "public"
