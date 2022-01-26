@@ -85,7 +85,7 @@ interface LoadType {
 }
 
 /* eslint-disable sonarjs/cognitive-complexity */
-export async function load(filePathOrContextName?: string, loadType?: LoadType): Promise<Specification> {
+export async function load(filePathOrContextName?: string, loadType?: LoadType): Promise<Specification> { // NOSONAR
   if (filePathOrContextName) {
     if (loadType?.file) { return Specification.fromFile(filePathOrContextName); }
     if (loadType?.context) { return loadFromContext(filePathOrContextName); }

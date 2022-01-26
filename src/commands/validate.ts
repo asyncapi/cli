@@ -19,13 +19,13 @@ export default class Validate extends Command {
   ]
 
   async run() {
-    const { args, flags } = this.parse(Validate);
+    const { args, flags: options } = this.parse(Validate);
     const filePath = args['spec-file'];
 
     const specFile = await load(filePath, {
-      context: flags.context,
-      file: flags.file,
-      url: flags.url
+      context: options.context,
+      file: options.file,
+      url: options.url
     });
 
     try {
