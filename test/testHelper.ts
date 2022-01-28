@@ -26,11 +26,10 @@ export default class ContextTestingHelper {
   }
 
   createDummyContextFile(): void {
-    writeFileSync(DEFAULT_CONTEXT_FILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8', flag: 'w+' });
-    if (!existsSync(DEFAULT_CONTEXT_FILE_PATH)) {
-      throw new Error('Context file doesn\'t exist');
+    if (existsSync(DEFAULT_CONTEXT_FILE_PATH)) {
+      accessSync(DEFAULT_CONTEXT_FILE_PATH, constants.R_OK | constants.W_OK); // checks if the file is readable and writable.
     }
-    accessSync(DEFAULT_CONTEXT_FILE_PATH, constants.R_OK | constants.W_OK); // checks if the file is readable and writable.
+    writeFileSync(DEFAULT_CONTEXT_FILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8', flag: 'w+' });
   }
 
   deleteDummyContextFile(): void {
