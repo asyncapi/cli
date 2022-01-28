@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync, unlinkSync } from 'fs';
+import { existsSync, writeFileSync, unlinkSync, accessSync, constants } from 'fs';
 import * as path from 'path';
 
 import { IContextFile, DEFAULT_CONTEXT_FILE_PATH } from '../src/models/Context';
@@ -30,6 +30,7 @@ export default class ContextTestingHelper {
     if (!existsSync(DEFAULT_CONTEXT_FILE_PATH)) {
       throw new Error('Context file doesn\'t exist');
     }
+    accessSync(DEFAULT_CONTEXT_FILE_PATH, constants.R_OK | constants.W_OK); // checks if the file is readable and writable.
   }
 
   deleteDummyContextFile(): void {
