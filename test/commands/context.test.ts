@@ -33,6 +33,10 @@ describe('config', () => {
       testHelper.deleteDummyContextFile();
     });
 
+    beforeEach(() => {
+      testHelper.createDummyContextFile();
+    });
+
     test
       .stderr()
       .stdout()
