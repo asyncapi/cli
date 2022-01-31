@@ -86,7 +86,11 @@
     "bin": "asyncapi",
     "plugins": [
     ],
-    "topicSeparator": " "
+    "topicSeparator": " ",
+    "topics": {
+      "config:context": {},
+      "config": {}
+    }
   },
   "publishConfig": {
     "access": "public"
