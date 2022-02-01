@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync, unlinkSync, accessSync, constants } from 'fs';
+import { existsSync, writeFileSync, unlinkSync } from 'fs';
 import * as path from 'path';
 
 import { IContextFile, DEFAULT_CONTEXT_FILE_PATH } from '../src/models/Context';
@@ -26,10 +26,7 @@ export default class ContextTestingHelper {
   }
 
   createDummyContextFile(): void {
-    if (existsSync(DEFAULT_CONTEXT_FILE_PATH)) {
-      accessSync(DEFAULT_CONTEXT_FILE_PATH, constants.R_OK | constants.W_OK); // checks if the file is readable and writable.
-    }
-    writeFileSync(DEFAULT_CONTEXT_FILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8', flag: 'w+' });
+    writeFileSync(DEFAULT_CONTEXT_FILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8' });
   }
 
   deleteDummyContextFile(): void {
