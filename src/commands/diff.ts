@@ -1,11 +1,14 @@
 import { flags } from '@oclif/command';
 import * as diff from '@asyncapi/diff';
+import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
 import * as parser from '@asyncapi/parser';
+import { promises as fs } from 'fs';
 import { load, Specification } from '../models/SpecificationFile';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { SpecificationFileNotFound } from '../errors/specification-file';
-import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
+
+const { readFile } = fs;
 
 export default class Diff extends Command {
   static description = 'find diff between two asyncapi files';
@@ -23,6 +26,10 @@ export default class Diff extends Command {
       description: 'type of the output',
       default: 'all',
       options: ['breaking', 'non-breaking', 'unclassified', 'all'],
+    }),
+    overrides: flags.string({
+      char: 'o',
+      description: 'path to JSON file containing the override properties',
     }),
   };
 
@@ -46,8 +53,10 @@ export default class Diff extends Command {
 
     const outputFormat = flags['format'];
     const outputType = flags['type'];
+    const overrideFilePath = flags['overrides'];
 
     let firstDocument: Specification, secondDocument: Specification;
+    let overrides = {};
 
     try {
       firstDocument = await load(firstDocumentPath);
@@ -79,12 +88,19 @@ export default class Diff extends Command {
       }
     }
 
+    if (overrideFilePath) {
+      overrides = await readOverrideFile(overrideFilePath);
+    }
+
     try {
       const firstDocumentParsed = await parser.parse(firstDocument.text());
       const secondDocumentParsed = await parser.parse(secondDocument.text());
       const diffOutput = diff.diff(
         firstDocumentParsed.json(),
-        secondDocumentParsed.json()
+        secondDocumentParsed.json(),
+        {
+          override: overrides,
+        }
       );
 
       if (outputFormat === 'json') {
@@ -115,4 +131,9 @@ export default class Diff extends Command {
       this.log(`The output type ${outputType} is not supported at the moment.`);
     }
   }
+}
+
+async function readOverrideFile(path: string): Promise<diff.OverrideObject> {
+  const overrideStringData = await readFile(path, { encoding: 'utf8' });
+  return JSON.parse(overrideStringData);
 }
