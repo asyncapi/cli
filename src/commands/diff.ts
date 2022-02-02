@@ -56,7 +56,6 @@ export default class Diff extends Command {
     const overrideFilePath = flags['overrides'];
 
     let firstDocument: Specification, secondDocument: Specification;
-    let overrides = {};
 
     try {
       firstDocument = await load(firstDocumentPath);
@@ -88,6 +87,7 @@ export default class Diff extends Command {
       }
     }
 
+    let overrides = {};
     if (overrideFilePath) {
       overrides = await readOverrideFile(overrideFilePath);
     }
