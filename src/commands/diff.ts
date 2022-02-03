@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import { flags } from '@oclif/command';
 import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
@@ -7,6 +8,10 @@ import { load, Specification } from '../models/SpecificationFile';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { SpecificationFileNotFound } from '../errors/specification-file';
+import {
+  DiffOverrideFileError,
+  DiffOverrideJSONError,
+} from '../errors/diff-error';
 
 const { readFile } = fs;
 
@@ -89,7 +94,11 @@ export default class Diff extends Command {
 
     let overrides = {};
     if (overrideFilePath) {
-      overrides = await readOverrideFile(overrideFilePath);
+      try {
+        overrides = await readOverrideFile(overrideFilePath);
+      } catch (err) {
+        this.error(err as Error);
+      }
     }
 
     try {
@@ -133,7 +142,22 @@ export default class Diff extends Command {
   }
 }
 
+/**
+ * Reads the file from give path and parses it as JSON
+ * @param path The path to override file
+ * @returns The override object
+ */
 async function readOverrideFile(path: string): Promise<diff.OverrideObject> {
-  const overrideStringData = await readFile(path, { encoding: 'utf8' });
-  return JSON.parse(overrideStringData);
+  let overrideStringData;
+  try {
+    overrideStringData = await readFile(path, { encoding: 'utf8' });
+  } catch (err) {
+    throw new DiffOverrideFileError();
+  }
+
+  try {
+    return JSON.parse(overrideStringData);
+  } catch (err) {
+    throw new DiffOverrideJSONError();
+  }
 }
