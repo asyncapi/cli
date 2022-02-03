@@ -1,27 +1,29 @@
 import { expect, test } from '@oclif/test';
+import inquirer from 'inquirer';
 import TestHelper from '../testHelper';
 
 const testHelper = new TestHelper();
 
+const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
+const DEFAULT_ASYNCAPI_TEMPLATE = 'default-example.yaml';
+
 describe('new', () => {
-    describe('file-name', () => {
-        afterEach(() => {
-            testHelper.deleteDummyContextFile();
+    test
+        .stderr()
+        .stub(inquirer, 'prompt', () => {
+            return Promise.resolve({
+                filename: 'specification.yaml',
+                template: 'default-example.yaml',
+                studio: true,
+                port: 3000
+            })
+        })
+        .stdout()
+        .do(() => {
+            testHelper.createAsyncapiFile(DEFAULT_ASYNCAPI_FILE_NAME, DEFAULT_ASYNCAPI_TEMPLATE);
+        })
+        .command(['new'])
+        .it('runs new command', ctx => {
+            expect(ctx.stdout).to.contain('specification.yaml');
         });
-        beforeEach(() => {
-            testHelper.createDummyContextFile();
-        });
-        test
-            .stderr()
-            .stdout()
-            .command(['new', '--file-name', 'test'])
-            .it('creates a new asyncapi file', (ctx, done) => {
-                expect(ctx.stdout).to.equals(
-                    'Created new file "test".\n'
-                );
-                expect(ctx.stderr).to.equals('');
-                done();
-            }
-            );
-    });
 });

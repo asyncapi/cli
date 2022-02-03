@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync, unlinkSync } from 'fs';
+import { existsSync, writeFileSync, unlinkSync, readFileSync } from 'fs';
 import * as path from 'path';
 
 import { IContextFile, DEFAULT_CONTEXT_FILE_PATH } from '../src/models/Context';
@@ -36,13 +36,19 @@ export default class ContextTestingHelper {
   unsetCurrentContext(): void {
     delete this._context.current;
   }
-  
+
   setCurrentContext(context: string): void {
     this._context.current = context;
   }
 
   getPath(key: string): string | undefined {
     return this._context.store[String(key)];
+  }
+
+  createAsyncapiFile(fileName: string, template: string): void {
+    const filePath = path.resolve(process.cwd(), fileName);
+    const templatePath = path.resolve(__dirname, template);
+    writeFileSync(filePath, readFileSync(templatePath, { encoding: 'utf-8' }), { encoding: 'utf-8' });
   }
 
   createSpecFileAtWorkingDir(): void {
