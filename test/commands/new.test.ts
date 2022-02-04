@@ -4,8 +4,8 @@ import TestHelper from '../testHelper';
 
 const testHelper = new TestHelper();
 
-const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
-const DEFAULT_ASYNCAPI_TEMPLATE = 'default-example.yaml';
+// const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
+// const DEFAULT_ASYNCAPI_TEMPLATE = 'default-example.yaml';
 
 describe('new', () => {
     test
@@ -20,7 +20,7 @@ describe('new', () => {
         })
         .stdout()
         .do(() => {
-            testHelper.createAsyncapiFile(DEFAULT_ASYNCAPI_FILE_NAME, DEFAULT_ASYNCAPI_TEMPLATE);
+            testHelper.createAsyncapiFile('specification.yaml', 'default-example.yaml');
         })
         .command(['new'])
         .it('runs new command', ctx => {

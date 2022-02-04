@@ -47,7 +47,7 @@ export default class ContextTestingHelper {
 
   createAsyncapiFile(fileName: string, template: string): void {
     const filePath = path.resolve(process.cwd(), fileName);
-    const templatePath = path.resolve(__dirname, template);
+    const templatePath = path.resolve('assets/examples', template);
     writeFileSync(filePath, readFileSync(templatePath, { encoding: 'utf-8' }), { encoding: 'utf-8' });
   }
 
