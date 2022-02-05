@@ -163,7 +163,7 @@ describe('diff', () => {
       .it((ctx, done) => {
         expect(ctx.stdout).to.equal('');
         expect(ctx.stderr).to.equal(
-          'DiffOverrideJSONError: Error converting override file to JSON\n'
+          'DiffOverrideJSONError: Provided override file is not a valid JSON file\n'
         );
         done();
       });

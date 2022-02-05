@@ -10,6 +10,6 @@ export class DiffOverrideJSONError extends Error {
   constructor() {
     super();
     this.name = 'DiffOverrideJSONError';
-    this.message = 'Error converting override file to JSON';
+    this.message = 'Provided override file is not a valid JSON file';
   }
 }
