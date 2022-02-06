@@ -5,10 +5,23 @@ const fs = require('fs');
 const unzipper = require('unzipper');
 const path = require('path');
 const parser = require('@asyncapi/parser');
+const semver = require("semver")
+const { version: parserVersion } = require('@asyncapi/parser/package.json')
 
-const SPEC_EXAMPLES_ZIP_URL = 'https://github.com/asyncapi/spec/archive/refs/heads/master.zip';
+const SPEC_EXAMPLES_ZIP_URL = getValidExampleZipURL();
 const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
 const TEMP_ZIP_NAME = 'spec-examples.zip';
+
+const getValidExampleZipURL = () => {
+  let specVersion;
+  if (semver.satisfies(parserVersion, "1.13.x"))
+    specVersion = semver.valid("2.2.0")
+
+  if (semver.satisfies(parserVersion, "1.14.x"))
+    specVersion = semver.valid("2.3.0")
+
+  return `https://github.com/asyncapi/spec/archive/refs/tags/v${specVersion}.zip`
+}
 
 const fetchAsyncAPIExamplesFromExternalURL = () => {
   return new Promise((resolve, reject) => {
@@ -52,15 +65,15 @@ const buildCLIListFromExamples = async () => {
   const examples = files.filter(file => file.includes('.yml')).sort();
 
   const listAllProtocolsForFile = (parsedAsyncAPI) => {
-    if (!parsedAsyncAPI.hasServers()) {return '';}
+    if (!parsedAsyncAPI.hasServers()) { return ''; }
     const servers = parsedAsyncAPI.servers();
     return Object.keys(servers).map(server => servers[String(server)].protocol()).join(',');
   };
 
   const buildExampleList = examples.map(async example => {
     const examplePath = path.join(EXAMPLE_DIRECTORY, example);
-    const exampleContent = fs.readFileSync(examplePath, { encoding: 'utf-8'});
-    
+    const exampleContent = fs.readFileSync(examplePath, { encoding: 'utf-8' });
+
     try {
       const parsedSpec = await parser.parse(exampleContent);
       const title = parsedSpec.info().title();
