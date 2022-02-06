@@ -5,23 +5,25 @@ const fs = require('fs');
 const unzipper = require('unzipper');
 const path = require('path');
 const parser = require('@asyncapi/parser');
-const semver = require("semver")
-const { version: parserVersion } = require('@asyncapi/parser/package.json')
+const semver = require('semver');
+const { version: parserVersion } = require('@asyncapi/parser/package.json');
+
+const getValidExampleZipURL = () => {
+  let specVersion;
+  if (semver.satisfies(parserVersion, '1.13.x')) {
+    specVersion = semver.valid('2.2.0');
+  }
+
+  if (semver.satisfies(parserVersion, '1.14.x')) {
+    specVersion = semver.valid('2.3.0');
+  }
+
+  return `https://github.com/asyncapi/spec/archive/refs/tags/v${specVersion}.zip`;
+};
 
 const SPEC_EXAMPLES_ZIP_URL = getValidExampleZipURL();
 const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
 const TEMP_ZIP_NAME = 'spec-examples.zip';
-
-const getValidExampleZipURL = () => {
-  let specVersion;
-  if (semver.satisfies(parserVersion, "1.13.x"))
-    specVersion = semver.valid("2.2.0")
-
-  if (semver.satisfies(parserVersion, "1.14.x"))
-    specVersion = semver.valid("2.3.0")
-
-  return `https://github.com/asyncapi/spec/archive/refs/tags/v${specVersion}.zip`
-}
 
 const fetchAsyncAPIExamplesFromExternalURL = () => {
   return new Promise((resolve, reject) => {
