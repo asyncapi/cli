@@ -8,7 +8,8 @@
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
-    "@asyncapi/parser": "^1.12.0",
+    "@asyncapi/diff": "^0.2.2",
+    "@asyncapi/parser": "^1.14.0",
     "@asyncapi/studio": "^0.9.0",
     "@fmvilas/oclif-plugin-spaced-commands": "^1.0.4",
     "@oclif/command": "^1.8.0",
@@ -133,7 +134,7 @@
     "pretest:coverage": "npm run build",
     "release": "semantic-release",
     "start": "npm run build && node dist/cli.js",
-    "test": "cross-env TEST=1 nyc --extension .ts mocha --require ts-node/register --reporter spec --timeout 10000 \"test/**/*.test.ts\"",
+    "test": "cross-env TEST=1 CONTEXT_FILENAME=\"./test.asyncapi\" CONTEXT_FILE_PATH=\"./\" nyc --extension .ts mocha --require ts-node/register --reporter spec --timeout 10000 \"test/**/*.test.ts\"",
     "version": "oclif-dev readme && git add README.md",
     "readme": "oclif readme"
   },
