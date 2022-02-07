@@ -34,11 +34,20 @@ export class ValidationError extends Error {
 
     if (err.validationErrors) {
       for (const e of err.validationErrors) {
+        const errorHasTitle = !!e.title;
         const errorHasLocation = !!e.location;
-        if (errorHasLocation) {
+
+        // Info added to 'errorsInfo' when both 'e.title' and 'e.location' are available
+        if (errorHasTitle && errorHasLocation) {
           errorsInfo.push(`${e.title} ${e.location.startLine}:${e.location.startColumn}`);
-        } else {
+        } 
+        // Info added to 'errorsInfo' when only 'e.title' is available
+        if (errorHasTitle && !errorHasLocation) {
           errorsInfo.push(`${e.title}`);
+        }
+        // Info added to 'errorsInfo' when only 'e.location' is available
+        if (!errorHasTitle && errorHasLocation) {
+          errorsInfo.push(`${e.location.startLine}:${e.location.startColumn}`);
         }
       }
     }
