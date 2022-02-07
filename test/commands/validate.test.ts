@@ -17,7 +17,7 @@ describe('validate', () => {
       .stderr()
       .stdout()
       .command(['validate', './test/specification.yml'])
-      .it('works when file path is passed', (ctx, done) => {
+      .it('works when file path is passed', (ctx: any, done: Function) => {
         expect(ctx.stdout).to.equals(
           'File ./test/specification.yml successfully validated!\n'
         );
@@ -29,7 +29,7 @@ describe('validate', () => {
       .stderr()
       .stdout()
       .command(['validate', './test/not-found.yml'])
-      .it('should throw error if file path is wrong', (ctx, done) => {
+      .it('should throw error if file path is wrong', (ctx: any, done: Function) => {
         expect(ctx.stdout).to.equals('');
         expect(ctx.stderr).to.equals('ValidationError: There is no file or context with name "./test/not-found.yml".\n');
         done();
