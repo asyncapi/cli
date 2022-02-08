@@ -1,6 +1,5 @@
 import { promises as fPromises } from 'fs';
 import { flags } from '@oclif/command';
-import * as parser from '@asyncapi/parser';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
@@ -14,8 +13,7 @@ export default class Convert extends Command {
     help: flags.help({ char: 'h' }),
     file: flags.string({ char: 'f', description: 'path to the file to convert' }),
     output: flags.string({ char: 'o', description: 'path to the file where the result is saved' }),
-    'target-version': flags.string({ char: 't', description: 'asyncapi version to convert to', default: '2.3.0' }),
-    id: flags.string({ char: 'i', description: 'application id, if needed' })
+    'target-version': flags.string({ char: 't', description: 'asyncapi version to convert to', default: '2.3.0' })
   }
 
   static args = [
@@ -32,19 +30,8 @@ export default class Convert extends Command {
       // LOAD FILE
       specFile = await load(filePath);
 
-      // VALIDATION
-      if (specFile.getFilePath()) {
-        await parser.parse(specFile.text());
-        this.log(`File ${specFile.getFilePath()} successfully validated!`);
-      } else if (specFile.getFileURL()) {
-        await parser.parse(specFile.text());
-        this.log(`URL ${specFile.getFileURL()} successfully validated!`);
-      }
-
       // CONVERSION
-      convertedFile = await convert(specFile.text(), flags['target-version'], {
-        id: flags.id,
-      });
+      convertedFile = await convert(specFile.text(), flags['target-version'], {});
       if (convertedFile) {
         this.log(`File ${specFile.getFilePath()} successfully converted!`);
       } else {
