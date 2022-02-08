@@ -40,18 +40,19 @@ export class ValidationError extends Error {
         // Info added to 'errorsInfo' when both 'e.title' and 'e.location' are available
         if (errorHasTitle && errorHasLocation) {
           errorsInfo.push(`${e.title} ${e.location.startLine}:${e.location.startColumn}`);
+          continue;
         } 
         // Info added to 'errorsInfo' when only 'e.title' is available
-        if (errorHasTitle && !errorHasLocation) {
+        if (errorHasTitle) {
           errorsInfo.push(`${e.title}`);
+          continue;
         }
         // Info added to 'errorsInfo' when only 'e.location' is available
-        if (!errorHasTitle && errorHasLocation) {
+        if (errorHasLocation) {
           errorsInfo.push(`${e.location.startLine}:${e.location.startColumn}`);
         }
       }
     }
-
     this.message = errorsInfo.join('\n');
   }
 }
