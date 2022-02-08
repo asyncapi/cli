@@ -4,12 +4,17 @@ import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
 import { SpecificationFileNotFound } from '../errors/specification-file';
+import { specWatcher } from '../globals';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
 
   static flags = {
-    help: flags.help({ char: 'h' })
+    help: flags.help({ char: 'h' }),
+    watch: flags.boolean({
+      char: 'w',
+      description: 'Enables Watch Mode for Specification File',
+    })
   }
 
   static args = [
@@ -17,8 +22,11 @@ export default class Validate extends Command {
   ]
 
   async run() {
-    const { args } = this.parse(Validate);
+    const { args, flags } = this.parse(Validate);
     const filePath = args['spec-file'];
+
+    const watchMode = flags['watch'];
+    
     let specFile;
 
     try {
@@ -35,6 +43,7 @@ export default class Validate extends Command {
     }
     try {
       if (specFile.getFilePath()) {
+        if (watchMode) {specWatcher(specFile.getFilePath() as string,this,'validate');}
         await parser.parse(specFile.text());
         this.log(`File ${specFile.getFilePath()} successfully validated!`);
       } else if (specFile.getFileURL()) {

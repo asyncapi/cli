@@ -127,4 +127,25 @@ describe('validate', () => {
         done();
       });
   });
+  describe('in watch mode',() => {
+    afterEach(() => {
+      testHelper.deleteDummyContextFile();
+    });
+
+    beforeEach(() => {
+      testHelper.createDummyContextFile();
+    });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['validate', './test/specification.yml','--watch'])
+      .it('checks whether watch mode started', (ctx, done) => {
+        expect(ctx.stdout).to.includes(
+          'Watching AsyncAPI SpecFile at ./test/specification.yml'
+        );
+        expect(ctx.stderr).to.equals('');
+        done();
+      });
+  });
 });
