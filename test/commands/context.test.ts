@@ -6,15 +6,15 @@ import TestHelper from '../testHelper';
 const testHelper = new TestHelper();
 
 describe('config', () => {
-  describe('context list', () => {
-    afterEach(() => {
-      testHelper.deleteDummyContextFile();
-    });
+  afterEach(() => {
+    testHelper.deleteDummyContextFile();
+  });
 
-    beforeEach(() => {
-      testHelper.createDummyContextFile();
-    });
-
+  beforeEach(() => {
+    testHelper.createDummyContextFile();
+  });
+  
+  it('should list contexts', () => {
     test
       .stderr()
       .stdout()
@@ -28,11 +28,7 @@ describe('config', () => {
       });
   });
   
-  describe('context add', () => {
-    afterEach(() => {
-      testHelper.deleteDummyContextFile();
-    });
-
+  it('should add context', () => {
     test
       .stderr()
       .stdout()
@@ -46,15 +42,7 @@ describe('config', () => {
       });
   });
   
-  describe('context use', () => {
-    afterEach(() => {
-      testHelper.deleteDummyContextFile();
-    });
-
-    beforeEach(() => {
-      testHelper.createDummyContextFile();
-    });
-
+  it('should use existing context', () => {
     test
       .stderr()
       .stdout()
@@ -68,15 +56,7 @@ describe('config', () => {
       });
   });
   
-  describe('context remove', () => {
-    afterEach(() => {
-      testHelper.deleteDummyContextFile();
-    });
-
-    beforeEach(() => {
-      testHelper.createDummyContextFile();
-    });
-
+  it('should remove existing context', () => {
     test
       .stderr()
       .stdout()
@@ -85,6 +65,18 @@ describe('config', () => {
         expect(ctx.stdout).to.equals(
           'code successfully deleted\n'
         );
+        expect(ctx.stderr).to.equals('');
+        done();
+      });
+  });
+
+  it('should show current context', () => {
+    test
+      .stderr()
+      .stdout()
+      .command(['config', 'context', 'current'])
+      .it('Shows the current context is home',(ctx,done) => {
+        expect(ctx.stdout).to.equals(`${testHelper.context.current}: ${testHelper.context.store['home']}\n`);
         expect(ctx.stderr).to.equals('');
         done();
       });
