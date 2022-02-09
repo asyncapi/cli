@@ -1,6 +1,6 @@
 const CONTEXT_NOT_FOUND = (contextName: string) => `Context "${contextName}" does not exists.`;
 const MISSING_CURRENT_CONTEXT = 'No context is set as current, please set a current context.';
-const NO_CONTEXTS_SAVED = `Specify what AsyncAPI file to be used.
+export const NO_CONTEXTS_SAVED = `Specify what AsyncAPI file to be used.
 These are your options to specify in the CLI what AsyncAPI file should be used:
  - You can provide a path to the AsyncAPI file: asyncapi <command> path/to/file/asyncapi
  - You can also pass a saved context that points to your AsyncAPI file: asyncapi <command> context-name
