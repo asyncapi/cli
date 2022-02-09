@@ -5,6 +5,9 @@ import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
 import { SpecificationFileNotFound } from '../errors/specification-file';
 import { convert } from '@asyncapi/converter';
+import specs from '@asyncapi/specs';
+
+const latestVersion = Object.keys(specs).pop() as string;
 
 export default class Convert extends Command {
   static description = 'convert asyncapi documents older to newer versions';
@@ -13,7 +16,7 @@ export default class Convert extends Command {
     help: flags.help({ char: 'h' }),
     file: flags.string({ char: 'f', description: 'path to the file to convert' }),
     output: flags.string({ char: 'o', description: 'path to the file where the result is saved' }),
-    'target-version': flags.string({ char: 't', description: 'asyncapi version to convert to', default: '2.3.0' })
+    'target-version': flags.string({ char: 't', description: 'asyncapi version to convert to', default: latestVersion })
   }
 
   static args = [
@@ -35,6 +38,7 @@ export default class Convert extends Command {
       if (convertedFile) {
         this.log(`File ${specFile.getFilePath()} successfully converted!`);
       } else {
+        this.log(`File ${specFile.getFilePath()} could not be converted.`);
         return;
       }
       if (flags.output) {
