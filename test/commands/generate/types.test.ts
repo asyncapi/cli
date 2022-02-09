@@ -4,14 +4,14 @@ import { expect, test } from '@oclif/test';
 import * as path from 'path';
 
 describe('types', () => {
-  const generalOptions = ['generate', 'types', '-f', './test/specification.yml', '-o'];
+  const generalOptions = ['generate', 'types'];
   const outputDir = './test/commands/generate/types';
   test
     .stderr()
     .stdout()
-    .command([...generalOptions, path.resolve(outputDir, './random'), '-l', 'random'])
+    .command([...generalOptions, 'random', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './random')])
     .it('fails when it dont know the language', (ctx, done) => {
-      expect(ctx.stderr).to.equals('Error: Expected --language=random to be one of: typescript, csharp, golang, java, javascript\nSee more help with --help\n');
+      expect(ctx.stderr).to.equals('Error: Expected the typed language to be one of: typescript, csharp, golang, java, javascript\nSee more help with --help\n');
       expect(ctx.stdout).to.equals('');
       done();
     });
@@ -19,7 +19,7 @@ describe('types', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, path.resolve(outputDir, './ts'), '-l', 'typescript'])
+      .command([...generalOptions, 'typescript', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './ts')])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).to.equals('');
         expect(ctx.stdout).to.equals(
@@ -32,7 +32,7 @@ describe('types', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, path.resolve(outputDir, './js'), '-l', 'javascript'])
+      .command([...generalOptions, 'javascript', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './js')])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stdout).to.equals(
           'We successfully generated the following models AnonymousSchema_1\n'
@@ -45,7 +45,7 @@ describe('types', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, path.resolve(outputDir, './csharp'), '--csharpNamespace=\'test.namespace\'', '-l', 'csharp'])
+      .command([...generalOptions, 'csharp', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './csharp'), '--namespace=\'test.namespace\''])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).to.equals('');
         expect(ctx.stdout).to.equals(
@@ -56,7 +56,7 @@ describe('types', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, path.resolve(outputDir, './csharp'), '-l', 'csharp'])
+      .command([...generalOptions, 'csharp', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './csharp')])
       .it('fails when no namespace provided', (ctx, done) => {
         expect(ctx.stderr).to.equals('Error: Missing namespace option. Add `--csharpNamespace=NAMESPACE` to set the desired namespace.\n');
         expect(ctx.stdout).to.equals('');
@@ -67,7 +67,7 @@ describe('types', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, path.resolve(outputDir, './java'), '--javaPackageName', 'test.package', '-l', 'java'])
+      .command([...generalOptions, 'java', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './java'), '--javaPackageName', 'test.package'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).to.equals('');
         expect(ctx.stdout).to.equals(
@@ -78,9 +78,9 @@ describe('types', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, path.resolve(outputDir, './java'), '-l', 'java'])
+      .command([...generalOptions, 'java', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './java')])
       .it('fails when no package defined', (ctx, done) => {
-        expect(ctx.stderr).to.equals('Error: Missing package name option. Add `--javaPackageName=PACKAGENAME` to set the desired package name.\n');
+        expect(ctx.stderr).to.equals('Error: Missing package name option. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
         expect(ctx.stdout).to.equals('');
         done();
       });
@@ -89,7 +89,7 @@ describe('types', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, path.resolve(outputDir, './go'), '--goPackageName', 'test.package', '-l', 'golang'])
+      .command([...generalOptions, 'golang', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './go'), '--packageName', 'test.package'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).to.equals('');
         expect(ctx.stdout).to.equals(
@@ -100,7 +100,7 @@ describe('types', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, path.resolve(outputDir, './go'), '-l', 'golang'])
+      .command([...generalOptions, 'golang', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './go')])
       .it('fails when no ', (ctx, done) => {
         expect(ctx.stderr).to.equals('Error: Missing package name option. Add `--goPackageName=PACKAGENAME` to set the desired package name.\n');
         expect(ctx.stdout).to.equals('');

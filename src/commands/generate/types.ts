@@ -6,32 +6,32 @@ import { parse } from '@asyncapi/parser';
 export default class Types extends Command {
   static description = 'Generates typed models';
 
+  static args = [
+    {name: 'language', description: 'language output', options: ['typescript', 'csharp', 'golang', 'java', 'javascript']},
+  ]
+
   static flags = {
     help: flags.help({ char: 'h' }),
     file: flags.string({ char: 'f', description: 'path to the AsyncAPI file to generate types for' }),
-    outputDirectory: flags.string({ char: 'o', description: 'output path to write the types to', required: true}),
-    language: flags.enum({ char: 'l', description: 'language output', options: ['typescript', 'csharp', 'golang', 'java', 'javascript'], required: true}),
+    output: flags.string({ char: 'o', description: 'output path to write the types to', required: true}),
     /**
-     * Go specific options
+     * Go and Java specific package name to use for the generated types
      */
-    goPackageName: flags.string({description: 'Go specific, define the package to use for the generated types', required: false}),
-    /**
-     * Java specific options
-     */
-    javaPackageName: flags.string({description: 'Java specific, define the package to use for the generated types', required: false}),
+    packageName: flags.string({description: 'Go and Java specific, define the package to use for the generated types', required: false}),
     /**
      * C# specific options
      */
-    csharpNamespace: flags.string({description: 'C# specific, define the namespace to use for the generated types', required: false}),
+    namespace: flags.string({description: 'C# specific, define the namespace to use for the generated types', required: false}),
   }
 
   async run() {
     const passedArguments = this.parse(Types);
-    const args = passedArguments.flags;
-    const outputDirectory = args.outputDirectory;
-    const file = await load(args.file) || await load();
+    const flags = passedArguments.flags;
+    const { language } = passedArguments.args;
+
+    const outputDirectory = flags.output;
+    const file = await load(flags.file) || await load();
     const parsedInput = await parse(file.text());
-    const language = args.language;
     let fileGenerator;
     let fileOptions = {};
     switch (language) {
@@ -42,30 +42,30 @@ export default class Types extends Command {
       fileGenerator = new JavaScriptFileGenerator();
       break;
     case 'csharp':
-      if (args.csharpNamespace === undefined) {
-        throw new Error('Missing namespace option. Add `--csharpNamespace=NAMESPACE` to set the desired namespace.');
+      if (flags.packageName === undefined) {
+        throw new Error('In order to generate types to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
       }
       fileGenerator = new CSharpFileGenerator();
       fileOptions = {
-        namespace: args.csharpNamespace
+        namespace: flags.packageName
       };
       break;
     case 'golang':
-      if (args.goPackageName === undefined) {
-        throw new Error('Missing package name option. Add `--goPackageName=PACKAGENAME` to set the desired package name.');
+      if (flags.packageName === undefined) {
+        throw new Error('In order to generate types to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
       }
       fileGenerator = new GoFileGenerator();
       fileOptions = {
-        packageName: args.goPackageName
+        packageName: flags.packageName
       };
       break;
     case 'java':
-      if (args.javaPackageName === undefined) {
-        throw new Error('Missing package name option. Add `--javaPackageName=PACKAGENAME` to set the desired package name.');
+      if (flags.packageName === undefined) {
+        throw new Error('In order to generate types to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
       }
       fileGenerator = new JavaFileGenerator();
       fileOptions = {
-        packageName: args.javaPackageName
+        packageName: flags.packageName
       };
       break;
     default:
@@ -83,6 +83,6 @@ export default class Types extends Command {
       {...fileOptions, } as any);
     const generatedModelNames = models.map((model) => {return model.modelName;});
 
-    this.log(`We successfully generated the following models ${generatedModelNames.join(', ')}`);
+    this.log(`Successfully generated the following models ${generatedModelNames.join(', ')}`);
   }
 }
