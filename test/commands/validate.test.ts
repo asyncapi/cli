@@ -2,13 +2,11 @@
 
 import * as path from 'path';
 import { expect, test } from '@oclif/test';
-import process from 'process';
 import TestHelper from '../testHelper';
 
 const testHelper = new TestHelper();
 
 describe('validate', () => {
-
   describe('with file paths', () => {
     afterEach(() => {
       testHelper.deleteDummyContextFile();
@@ -128,6 +126,4 @@ describe('validate', () => {
         done();
       });
   });
-
-
 });
