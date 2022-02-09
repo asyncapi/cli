@@ -6,7 +6,7 @@ const GreenLog = chalk.hex('#00FF00');
 const OrangeLog = chalk.hex('#FFA500');
 
 const CHOKIDAR_CONFIG = {
-  awaitWriteFinish: true
+  // awaitWriteFinish: true
 };
 const WATCH_MESSAGES = {
   logOnStart: (filePath: string) => console.log(GreenLog(`Watching AsyncAPI file at ${filePath}`)),

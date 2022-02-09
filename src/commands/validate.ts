@@ -5,16 +5,14 @@ import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
 import { SpecificationFileNotFound } from '../errors/specification-file';
 import { specWatcher } from '../globals';
+import { watchFlag } from '../flags';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
 
   static flags = {
     help: flags.help({ char: 'h' }),
-    watch: flags.boolean({
-      char: 'w',
-      description: 'Enables watch mode',
-    })
+    watch: watchFlag
   }
 
   static args = [
