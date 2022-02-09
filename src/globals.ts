@@ -10,7 +10,7 @@ export const specWatcher = (filePath: string, handler: any, handlerName: string)
   };
   const WATCH_MESSAGES = {
     logOnStart: (filePath: string) => console.log(GreenLog(`Watching AsyncAPI file at ${filePath}`)),
-    logOnChange: (handlerName: string) => console.log(OrangeLog(`Changed: Specification, running ${handlerName}`)),
+    logOnChange: (handlerName: string) => console.log(OrangeLog(`Change detected, running ${handlerName}`)),
   };
   
   try {
