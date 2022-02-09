@@ -11,7 +11,7 @@ describe('types', () => {
     .stdout()
     .command([...generalOptions, 'random', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './random')])
     .it('fails when it dont know the language', (ctx, done) => {
-      expect(ctx.stderr).to.equals('Error: Expected the typed language to be one of: typescript, csharp, golang, java, javascript\nSee more help with --help\n');
+      expect(ctx.stderr).to.equals('Error: Expected random to be one of: typescript, csharp, golang, java, javascript\nSee more help with --help\n');
       expect(ctx.stdout).to.equals('');
       done();
     });
@@ -23,7 +23,7 @@ describe('types', () => {
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).to.equals('');
         expect(ctx.stdout).to.equals(
-          'We successfully generated the following models AnonymousSchema_1\n'
+          'Successfully generated the following models AnonymousSchema_1\n'
         );
         done();
       });
@@ -35,7 +35,7 @@ describe('types', () => {
       .command([...generalOptions, 'javascript', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './js')])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stdout).to.equals(
-          'We successfully generated the following models AnonymousSchema_1\n'
+          'Successfully generated the following models AnonymousSchema_1\n'
         );
         expect(ctx.stderr).to.equals('');
         done();
@@ -49,7 +49,7 @@ describe('types', () => {
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).to.equals('');
         expect(ctx.stdout).to.equals(
-          'We successfully generated the following models AnonymousSchema_1\n'
+          'Successfully generated the following models AnonymousSchema_1\n'
         );
         done();
       });
@@ -58,7 +58,7 @@ describe('types', () => {
       .stdout()
       .command([...generalOptions, 'csharp', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './csharp')])
       .it('fails when no namespace provided', (ctx, done) => {
-        expect(ctx.stderr).to.equals('Error: Missing namespace option. Add `--csharpNamespace=NAMESPACE` to set the desired namespace.\n');
+        expect(ctx.stderr).to.equals('Error: In order to generate types to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.\n');
         expect(ctx.stdout).to.equals('');
         done();
       });
@@ -67,11 +67,11 @@ describe('types', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'java', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './java'), '--javaPackageName', 'test.package'])
+      .command([...generalOptions, 'java', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './java'), '--packageName', 'test.package'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).to.equals('');
         expect(ctx.stdout).to.equals(
-          'We successfully generated the following models AnonymousSchema_1\n'
+          'Successfully generated the following models AnonymousSchema_1\n'
         );
         done();
       });
@@ -80,7 +80,7 @@ describe('types', () => {
       .stdout()
       .command([...generalOptions, 'java', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './java')])
       .it('fails when no package defined', (ctx, done) => {
-        expect(ctx.stderr).to.equals('Error: Missing package name option. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
+        expect(ctx.stderr).to.equals('Error: In order to generate types to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
         expect(ctx.stdout).to.equals('');
         done();
       });
@@ -93,7 +93,7 @@ describe('types', () => {
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).to.equals('');
         expect(ctx.stdout).to.equals(
-          'We successfully generated the following models AnonymousSchema1\n'
+          'Successfully generated the following models AnonymousSchema1\n'
         );
         done();
       });
@@ -101,8 +101,8 @@ describe('types', () => {
       .stderr()
       .stdout()
       .command([...generalOptions, 'golang', '-f', './test/specification.yml', '-o', path.resolve(outputDir, './go')])
-      .it('fails when no ', (ctx, done) => {
-        expect(ctx.stderr).to.equals('Error: Missing package name option. Add `--goPackageName=PACKAGENAME` to set the desired package name.\n');
+      .it('fails when no package defined', (ctx, done) => {
+        expect(ctx.stderr).to.equals('Error: In order to generate types to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
         expect(ctx.stdout).to.equals('');
         done();
       });

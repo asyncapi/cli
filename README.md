@@ -68,12 +68,17 @@ USAGE
   $ asyncapi [COMMAND]
 
 COMMANDS
-  config      access configs
-  help        display help for the CLI
-  new         creates a new AsyncAPI file
-  validate    validate AsyncAPI file
-  generates   
-    types       generate all the type models for the AsyncAPI file
+  config            access configs
+  help              display help for the CLI
+  new               creates a new AsyncAPI file
+  validate          validate AsyncAPI file
+  generates         generate all kinds of stuff
+    types           generate all the type models for the AsyncAPI file
+      typescript    generate the types in TypeScript
+      csharp        generate the types in C#
+      golang        generate the types in Go
+      java          generate the types in Java
+      javascript    generate the types in javascript
 ```
 
 

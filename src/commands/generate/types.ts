@@ -38,16 +38,13 @@ export default class Types extends Command {
     case 'typescript':
       fileGenerator = new TypeScriptFileGenerator();
       break;
-    case 'javascript':
-      fileGenerator = new JavaScriptFileGenerator();
-      break;
     case 'csharp':
-      if (flags.packageName === undefined) {
+      if (flags.namespace === undefined) {
         throw new Error('In order to generate types to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
       }
       fileGenerator = new CSharpFileGenerator();
       fileOptions = {
-        namespace: flags.packageName
+        namespace: flags.namespace
       };
       break;
     case 'golang':
@@ -67,6 +64,9 @@ export default class Types extends Command {
       fileOptions = {
         packageName: flags.packageName
       };
+      break;
+    case 'javascript':
+      fileGenerator = new JavaScriptFileGenerator();
       break;
     default:
       throw new Error(`Could not determine generator for language ${language}`);
