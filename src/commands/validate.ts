@@ -22,7 +22,7 @@ export default class Validate extends Command {
   ]
 
   async run() {
-    const { args, flags } = this.parse(Validate);
+    const { args, flags } = this.parse(Validate); // NOSONAR
     const filePath = args['spec-file'];
 
     const watchMode = flags['watch'];
