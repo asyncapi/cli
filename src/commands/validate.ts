@@ -13,7 +13,7 @@ export default class Validate extends Command {
     help: flags.help({ char: 'h' }),
     watch: flags.boolean({
       char: 'w',
-      description: 'Enables Watch Mode for Specification File',
+      description: 'Enables watch mode',
     })
   }
 
