@@ -26,12 +26,11 @@ export default class Types extends Command {
 
   async run() {
     const passedArguments = this.parse(Types);
-    const flags = passedArguments.flags;
+    const {namespace, packageName, file, output} = passedArguments.flags;
     const { language } = passedArguments.args;
 
-    const outputDirectory = flags.output;
-    const file = await load(flags.file) || await load();
-    const parsedInput = await parse(file.text());
+    const inputFile = await load(file) || await load();
+    const parsedInput = await parse(inputFile.text());
     let fileGenerator;
     let fileOptions = {};
     switch (language) {
@@ -39,30 +38,30 @@ export default class Types extends Command {
       fileGenerator = new TypeScriptFileGenerator();
       break;
     case 'csharp':
-      if (flags.namespace === undefined) {
+      if (namespace === undefined) {
         throw new Error('In order to generate types to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
       }
       fileGenerator = new CSharpFileGenerator();
       fileOptions = {
-        namespace: flags.namespace
+        namespace
       };
       break;
     case 'golang':
-      if (flags.packageName === undefined) {
+      if (packageName === undefined) {
         throw new Error('In order to generate types to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
       }
       fileGenerator = new GoFileGenerator();
       fileOptions = {
-        packageName: flags.packageName
+        packageName
       };
       break;
     case 'java':
-      if (flags.packageName === undefined) {
+      if (packageName === undefined) {
         throw new Error('In order to generate types to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
       }
       fileGenerator = new JavaFileGenerator();
       fileOptions = {
-        packageName: flags.packageName
+        packageName
       };
       break;
     case 'javascript':
@@ -79,7 +78,7 @@ export default class Types extends Command {
     });
     const models = await fileGenerator.generateToFiles(
       parsedInput as any, 
-      outputDirectory, 
+      output, 
       {...fileOptions, } as any);
     const generatedModelNames = models.map((model) => {return model.modelName;});
 
