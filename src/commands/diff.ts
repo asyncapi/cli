@@ -12,6 +12,7 @@ import {
   DiffOverrideFileError,
   DiffOverrideJSONError,
 } from '../errors/diff-error';
+import { specWatcher } from '../globals';
 
 const { readFile } = fs;
 
@@ -36,6 +37,10 @@ export default class Diff extends Command {
       char: 'o',
       description: 'path to JSON file containing the override properties',
     }),
+    watch: flags.boolean({
+      char: 'w',
+      description: 'Enables watch mode',
+    }) 
   };
 
   static args = [
@@ -59,9 +64,12 @@ export default class Diff extends Command {
     const outputFormat = flags['format'];
     const outputType = flags['type'];
     const overrideFilePath = flags['overrides'];
-
+    const watchMode = flags['watch'];
     let firstDocument: Specification, secondDocument: Specification;
-
+    if (watchMode) {
+      specWatcher(firstDocumentPath,this,'diff');
+      specWatcher(secondDocumentPath,this,'diff');
+    }
     try {
       firstDocument = await load(firstDocumentPath);
     } catch (err) {
