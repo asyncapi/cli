@@ -31,7 +31,7 @@ describe('validate', () => {
       .command(['validate', './test/not-found.yml'])
       .it('should throw error if file path is wrong', (ctx, done) => {
         expect(ctx.stdout).to.equals('');
-        expect(ctx.stderr).to.equals('Error Loading Specification From File: ./test/not-found.yml is an invalid file path\n');
+        expect(ctx.stderr).to.equals('error loading specification from file: ./test/not-found.yml is an invalid file path\n');
         done();
       });
 
@@ -123,7 +123,7 @@ describe('validate', () => {
       .command(['validate'])
       .it('throws error message if no context file exists', (ctx, done) => {
         expect(ctx.stdout).to.equals('');
-        expect(ctx.stderr).to.equals('Error Locating Specification: Specify what AsyncAPI file to be used.\nThese are your options to specify in the CLI what AsyncAPI file should be used:\n - You can provide a path to the AsyncAPI file: asyncapi <command> path/to/file/asyncapi\n - You can also pass a saved context that points to your AsyncAPI file: asyncapi <command> context-name\n - In case you did not specify a context that you want to use, the CLI checks if there is a default context and uses it. To set default context run: asyncapi context use mycontext\n - In case you did not provide any reference to AsyncAPI file and there is no default context, the CLI detects if in your current working directory you have files like asyncapi.json, asyncapi.yaml, asyncapi.yml. Just rename your file accordingly.\n\n');
+        expect(ctx.stderr).to.equals('error locating specification: Specify what AsyncAPI file to be used.\nThese are your options to specify in the CLI what AsyncAPI file should be used:\n - You can provide a path to the AsyncAPI file: asyncapi <command> path/to/file/asyncapi\n - You can also pass a saved context that points to your AsyncAPI file: asyncapi <command> context-name\n - In case you did not specify a context that you want to use, the CLI checks if there is a default context and uses it. To set default context run: asyncapi context use mycontext\n - In case you did not provide any reference to AsyncAPI file and there is no default context, the CLI detects if in your current working directory you have files like asyncapi.json, asyncapi.yaml, asyncapi.yml. Just rename your file accordingly.\n\n');
         done();
       });
   });

@@ -33,20 +33,20 @@ export class ErrorLoadingSpec extends Error {
   constructor(from?: From, param?: string) {
     super();
     if (from === 'file') {
-      this.name = 'Error Loading Specification From File';
+      this.name = 'error loading specification from file';
       this.message = `${param} is an invalid file path`;
     }
     if (from === 'url') {
-      this.name = 'Error Loading Specification From URL';
+      this.name = 'error loading specification from url';
       this.message = `${param} is an invalid url`;
     }
     if (from === 'context') {
-      this.name = 'Error Loading Specification From Context';
+      this.name = 'error loading specification from context';
       this.message = `${param} is an invalid context name`;
     }
 
     if (!from) {
-      this.name = 'Error Locating Specification';
+      this.name = 'error locating specification';
       this.message = this.errorMessages.default;
     }
   }
