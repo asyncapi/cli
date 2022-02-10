@@ -10,7 +10,7 @@ const CHOKIDAR_CONFIG = {
 export const WATCH_MESSAGES = {
   logOnStart: (filePath: string) => console.log(GreenLog(`Watching AsyncAPI file at ${filePath}\n`)),
   logOnChange: (handlerName: string) => console.log(OrangeLog(`Change detected, running ${handlerName}\n`)),
-  logOnAutoDisable: (docVersion: 'old' | 'new') => console.log(OrangeLog(`Watch mode for ${docVersion} file was not enabled..\n`), OrangeLog('INFO: Watch works only with files from local file system\n'))
+  logOnAutoDisable: (docVersion: 'old' | 'new' | ''='') => console.log(OrangeLog(`Watch mode for ${docVersion} file was not enabled..\n`), OrangeLog('INFO: Watch works only with files from local file system\n'))
 };
 
 export const specWatcher = (filePath: string, handler: Command, handlerName: string) => {

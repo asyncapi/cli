@@ -3,7 +3,7 @@ import * as parser from '@asyncapi/parser';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
-import { specWatcher } from '../globals';
+import { specWatcher, WATCH_MESSAGES } from '../globals';
 import { watchFlag } from '../flags';
 
 export default class Validate extends Command {
@@ -23,12 +23,17 @@ export default class Validate extends Command {
     const filePath = args['spec-file'];
 
     const watchMode = flags['watch'];
-    
-    const specFile = await load(filePath);
 
+    const specFile = await load(filePath);
+    if (watchMode) {
+      if (!specFile.getFilePath()) {
+        WATCH_MESSAGES.logOnAutoDisable();
+      } else {
+        specWatcher(specFile.getFilePath() as string, this, 'validate');
+      }
+    }
     try {
       if (specFile.getFilePath()) {
-        if (watchMode) {specWatcher(specFile.getFilePath() as string,this,'validate');}
         await parser.parse(specFile.text());
         this.log(`File ${specFile.getFilePath()} successfully validated!`);
       } else if (specFile.getFileURL()) {
