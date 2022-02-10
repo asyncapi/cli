@@ -8,10 +8,7 @@ export default class Validate extends Command {
   static description = 'validate asyncapi file';
 
   static flags = {
-    help: flags.help({ char: 'h' }),
-    file: flags.boolean({ char: 'f', description: 'Input will be treated as a file path' }),
-    context: flags.boolean({ char: 'c', description: 'Input will be treated as a context name' }),
-    url: flags.boolean({ char: 'u', description: 'Input will be treated as a url' })
+    help: flags.help({ char: 'h' })
   }
 
   static args = [
@@ -19,14 +16,10 @@ export default class Validate extends Command {
   ]
 
   async run() {
-    const { args, flags: options } = this.parse(Validate);
+    const { args } = this.parse(Validate);
     const filePath = args['spec-file'];
 
-    const specFile = await load(filePath, {
-      context: options.context,
-      file: options.file,
-      url: options.url
-    });
+    const specFile = await load(filePath);
 
     try {
       if (specFile.getFilePath()) {
