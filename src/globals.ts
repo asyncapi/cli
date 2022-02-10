@@ -2,9 +2,9 @@ import chokidar from 'chokidar';
 import chalk from 'chalk';
 import Command from '@oclif/command';
 
-export const GreenLog = chalk.hex('#00FF00');
-export const OrangeLog = chalk.hex('#FFA500');
-export const RedLog = chalk.hex('#FF0000');
+const GreenLog = chalk.hex('#00FF00');
+const OrangeLog = chalk.hex('#FFA500');
+const RedLog = chalk.hex('#FF0000');
 const CHOKIDAR_CONFIG = {
   // awaitWriteFinish: true
 };
