@@ -4,7 +4,6 @@ import Command from '@oclif/command';
 
 const GreenLog = chalk.hex('#00FF00');
 const OrangeLog = chalk.hex('#FFA500');
-const RedLog = chalk.hex('#FF0000');
 const CHOKIDAR_CONFIG = {
   // awaitWriteFinish: true
 };
