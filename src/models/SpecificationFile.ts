@@ -3,7 +3,8 @@ import * as path from 'path';
 import fetch from 'node-fetch';
 
 import { loadContext } from './Context';
-import { SpecificationFileNotFound, SpecificationURLNotFound } from '../errors/specification-file';
+import { ErrorLoadingSpec } from '../errors/specification-file';
+import { MissingContextFileError } from '../errors/context-error';
 
 const { readFile, lstat } = fs;
 const allowedFileNames: string[] = [
@@ -38,15 +39,24 @@ export class Specification {
   }
 
   static async fromFile(filepath: string) {
-    return new Specification(await readFile(filepath, { encoding: 'utf8' }), { filepath });
+    let spec;
+    try {
+      spec = await readFile(filepath, { encoding: 'utf8' });
+    } catch (error) {
+      throw new ErrorLoadingSpec('file', filepath);
+    }
+    return new Specification(spec, { filepath });
   }
 
   static async fromURL(URLpath: string) {
     let response;
     try {
       response = await fetch(URLpath, { method: 'GET' });
+      if (!response.ok) {
+        throw new ErrorLoadingSpec('url', URLpath);
+      }
     } catch (error) {
-      throw new SpecificationURLNotFound(URLpath);
+      throw new ErrorLoadingSpec('url', URLpath);
     }
     return new Specification(await response?.text() as string, { fileURL: URLpath });
   }
@@ -68,8 +78,19 @@ export default class SpecificationFile {
   }
 }
 
-export async function load(filePathOrContextName?: string): Promise<Specification> {
+interface LoadType {
+  file?: boolean
+  url?: boolean
+  context?: boolean
+}
+
+/* eslint-disable sonarjs/cognitive-complexity */
+export async function load(filePathOrContextName?: string, loadType?: LoadType): Promise<Specification> { // NOSONAR
   if (filePathOrContextName) {
+    if (loadType?.file) { return Specification.fromFile(filePathOrContextName); }
+    if (loadType?.context) { return loadFromContext(filePathOrContextName); }
+    if (loadType?.url) { return Specification.fromURL(filePathOrContextName); }
+
     const type = await nameType(filePathOrContextName);
     if (type === TYPE_CONTEXT_NAME) {
       return loadFromContext(filePathOrContextName);
@@ -89,12 +110,13 @@ export async function load(filePathOrContextName?: string): Promise<Specificatio
     if (autoDetectedSpecFile) {
       return Specification.fromFile(autoDetectedSpecFile);
     }
-    if (!filePathOrContextName || !autoDetectedSpecFile) {
-      throw e;
-    }
-  }
 
-  throw new SpecificationFileNotFound();
+    if (e instanceof MissingContextFileError) {
+      throw new ErrorLoadingSpec();
+    }
+    
+    throw e;
+  }
 }
 
 export async function nameType(name: string): Promise<string> {
@@ -108,7 +130,7 @@ export async function nameType(name: string): Promise<string> {
     }
     return TYPE_CONTEXT_NAME;
   } catch (e) {
-    if (await isURL(name)) {return TYPE_URL;}
+    if (await isURL(name)) { return TYPE_URL; }
     return TYPE_CONTEXT_NAME;
   }
 }
@@ -127,15 +149,20 @@ export async function fileExists(name: string): Promise<boolean> {
     if ((await lstat(name)).isFile()) {
       return true;
     }
-    throw new SpecificationFileNotFound(name);
+    throw new ErrorLoadingSpec('file', name);
   } catch (e) {
-    throw new SpecificationFileNotFound(name);
+    throw new ErrorLoadingSpec('file', name);
   }
 }
 
 async function loadFromContext(contextName?: string): Promise<Specification> {
-  const context = await loadContext(contextName);
-  return Specification.fromFile(context);
+  try {
+    const context = await loadContext(contextName);
+    return Specification.fromFile(context);
+  } catch (error) {
+    if (error instanceof MissingContextFileError) {throw new ErrorLoadingSpec();}
+    throw error;
+  }
 }
 
 async function detectSpecFile(): Promise<string | undefined> {
