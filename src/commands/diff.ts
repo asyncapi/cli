@@ -12,7 +12,7 @@ import {
   DiffOverrideFileError,
   DiffOverrideJSONError,
 } from '../errors/diff-error';
-import { specWatcher } from '../globals';
+import { specWatcher, WATCH_MESSAGES } from '../globals';
 import { watchFlag } from '../flags';
 
 const { readFile } = fs;
@@ -64,7 +64,7 @@ export default class Diff extends Command {
     const overrideFilePath = flags['overrides'];
     const watchMode = flags['watch'];
     let firstDocument: Specification, secondDocument: Specification;
-   
+
     try {
       firstDocument = await load(firstDocumentPath);
     } catch (err) {
@@ -129,11 +129,26 @@ export default class Diff extends Command {
       });
     }
     if (watchMode) {
-      specWatcher(firstDocumentPath,this,'diff');
-      specWatcher(secondDocumentPath,this,'diff');
+      this.enableWatchMode(
+        firstDocument.getFilePath(),
+        secondDocument.getFilePath(),
+      );
     }
   }
 
+  enableWatchMode(firstDocumentPath: string|undefined, secondDocumentPath: string|undefined) {
+    if (!firstDocumentPath) {
+      WATCH_MESSAGES.logOnAutoDisable('first');
+    } else {
+      specWatcher(firstDocumentPath, this, 'diff');
+    }
+
+    if (!secondDocumentPath) {
+      WATCH_MESSAGES.logOnAutoDisable('second');
+    } else {
+      specWatcher(secondDocumentPath, this, 'diff');
+    }
+  }
   outputJson(diffOutput: AsyncAPIDiff, outputType: string) {
     if (outputType === 'breaking') {
       this.log(JSON.stringify(diffOutput.breaking(), null, 2));
