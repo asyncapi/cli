@@ -7,6 +7,7 @@ import { SpecificationFileNotFound } from '../errors/specification-file';
 import { specWatcher } from '../globals';
 import { watchFlag } from '../flags';
 
+
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
 
@@ -27,18 +28,8 @@ export default class Validate extends Command {
     
     let specFile;
 
-    try {
-      specFile = await load(filePath);
-    } catch (err) {
-      if (err instanceof SpecificationFileNotFound) {
-        this.error(new ValidationError({
-          type: 'invalid-file',
-          filepath: filePath
-        }));
-      } else {
-        this.error(err as Error);
-      }
-    }
+    const specFile = await load(filePath);
+
     try {
       if (specFile.getFilePath()) {
         if (watchMode) {specWatcher(specFile.getFilePath() as string,this,'validate');}
