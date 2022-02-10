@@ -138,13 +138,13 @@ export default class Diff extends Command {
 
   enableWatchMode(firstDocumentPath: string|undefined, secondDocumentPath: string|undefined) {
     if (!firstDocumentPath) {
-      WATCH_MESSAGES.logOnAutoDisable('first');
+      WATCH_MESSAGES.logOnAutoDisable('old');
     } else {
       specWatcher(firstDocumentPath, this, 'diff');
     }
 
     if (!secondDocumentPath) {
-      WATCH_MESSAGES.logOnAutoDisable('second');
+      WATCH_MESSAGES.logOnAutoDisable('new');
     } else {
       specWatcher(secondDocumentPath, this, 'diff');
     }
