@@ -12,7 +12,7 @@ import {
   DiffOverrideFileError,
   DiffOverrideJSONError,
 } from '../errors/diff-error';
-import { specWatcher, WATCH_MESSAGES } from '../globals';
+import { specWatcher } from '../globals';
 import { watchFlag } from '../flags';
 
 const { readFile } = fs;
@@ -129,24 +129,8 @@ export default class Diff extends Command {
       });
     }
     if (watchMode) {
-      this.enableWatchMode(
-        firstDocument.getFilePath(),
-        secondDocument.getFilePath(),
-      );
-    }
-  }
-
-  enableWatchMode(firstDocumentPath: string|undefined, secondDocumentPath: string|undefined) {
-    if (!firstDocumentPath) {
-      WATCH_MESSAGES.logOnAutoDisable('old');
-    } else {
-      specWatcher(firstDocumentPath, this, 'diff');
-    }
-
-    if (!secondDocumentPath) {
-      WATCH_MESSAGES.logOnAutoDisable('new');
-    } else {
-      specWatcher(secondDocumentPath, this, 'diff');
+      specWatcher({spec: firstDocument, handler: this, handlerName: 'diff', docVersion: 'old'});
+      specWatcher({spec: secondDocument, handler: this, handlerName: 'diff', docVersion: 'new'});
     }
   }
   outputJson(diffOutput: AsyncAPIDiff, outputType: string) {
