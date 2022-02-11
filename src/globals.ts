@@ -9,13 +9,16 @@ const CHOKIDAR_CONFIG = {
   // awaitWriteFinish: true // Used for large size specification files.
 
 };
+const ConditionalNestedLogs = {
+  logOnAutoDisable: (docVersion: 'old' | 'new' | '' = '') => docVersion === '' ? (' ' + 'AsyncAPI' + ' ') : (` ${docVersion} `)
+};
 const WATCH_MESSAGES = {
   logOnStart: (filePath: string) => console.log(GreenLog(`Watching AsyncAPI file at ${filePath}\n`)),
   logOnChange: (handlerName: string) => console.log(OrangeLog(`Change detected, running ${handlerName}\n`)),
-  logOnAutoDisable: (docVersion: 'old' | 'new' | '' = '') => console.log(OrangeLog(`Watch mode for ${docVersion} file was not enabled..\n`), OrangeLog('INFO: Watch works only with files from local file system\n'))
+  logOnAutoDisable: (docVersion: 'old' | 'new' | '' = '') => console.log(OrangeLog(`Watch mode for${ConditionalNestedLogs.logOnAutoDisable(docVersion)}file was not enabled.`), OrangeLog('\nINFO: Watch works only with files from local file system\n'))
 };
 
-let IS_CHOKIDAR_INSTANCE_RUNNING=false;
+let IS_CHOKIDAR_INSTANCE_RUNNING = false;
 
 export type specWatcherParams = {
   spec: Specification,
@@ -37,7 +40,7 @@ export const specWatcher = (params: specWatcherParams) => {
           WATCH_MESSAGES.logOnChange(params.handlerName);
           await params.handler.run();
         });
-      IS_CHOKIDAR_INSTANCE_RUNNING=true;
+      IS_CHOKIDAR_INSTANCE_RUNNING = true;
     }
   } catch (error) {
     console.log(error);
