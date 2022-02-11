@@ -2,6 +2,7 @@
 
 import * as path from 'path';
 import { expect, test } from '@oclif/test';
+import {NO_CONTEXTS_SAVED} from '../../src/errors/context-error';
 
 import TestHelper from '../testHelper';
 
@@ -31,7 +32,7 @@ describe('validate', () => {
       .command(['validate', './test/not-found.yml'])
       .it('should throw error if file path is wrong', (ctx, done) => {
         expect(ctx.stdout).to.equals('');
-        expect(ctx.stderr).to.equals('ValidationError: There is no file or context with name "./test/not-found.yml".\n');
+        expect(ctx.stderr).to.equals('error loading AsyncAPI document from file: ./test/not-found.yml is an invalid file path\n');
         done();
       });
 
@@ -123,7 +124,7 @@ describe('validate', () => {
       .command(['validate'])
       .it('throws error message if no context file exists', (ctx, done) => {
         expect(ctx.stdout).to.equals('');
-        expect(ctx.stderr).to.equals('ContextError: No contexts saved yet, run asyncapi --help to learn more\n');
+        expect(ctx.stderr).to.equals(`error locating AsyncAPI document: ${NO_CONTEXTS_SAVED}\n`);
         done();
       });
   });
