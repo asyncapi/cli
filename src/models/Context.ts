@@ -5,9 +5,8 @@ import * as os from 'os';
 import { ContextNotFound, MissingContextFileError, MissingCurrentContextError } from '../errors/context-error';
 
 const { readFile, writeFile } = fs;
-const isTestEnv = !!process.env.TEST;
-const CONTEXT_FILENAME = isTestEnv ? '.test.asyncapi' : '.asyncapi';
-export const DEFAULT_CONTEXT_FILE_PATH = path.resolve(os.homedir(), CONTEXT_FILENAME);
+const CONTEXT_FILENAME = process.env.CONTEXT_FILENAME || '.asyncapi';
+export const DEFAULT_CONTEXT_FILE_PATH = path.resolve(process.env.CONTEXT_FILE_PATH || os.homedir(), CONTEXT_FILENAME);
 
 export interface IContextFile {
   current?: string,
