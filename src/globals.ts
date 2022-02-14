@@ -12,7 +12,7 @@ const CHOKIDAR_CONFIG = {
 const WATCH_MESSAGES = {
   logOnStart: (filePath: string) => console.log(GreenLog(`Watching AsyncAPI file at ${filePath}\n`)),
   logOnChange: (handlerName: string) => console.log(OrangeLog(`Change detected, running ${handlerName}\n`)),
-  logOnAutoDisable: (docVersion: 'old' | 'new' | '' = '') => console.log(OrangeLog(`Watch mode for${ConditionalNestedLogs.logOnAutoDisable(docVersion)}file was not enabled.`), OrangeLog('\nINFO: Watch works only with files from local file system\n'))
+  logOnAutoDisable: (docVersion: 'old' | 'new' | '' = '') => console.log(OrangeLog(`Watch mode for ${docVersion || 'AsyncAPI'} file was not enabled.`), OrangeLog('\nINFO: Watch works only with files from local file system\n'))
 };
 
 let IS_CHOKIDAR_INSTANCE_RUNNING = false;
