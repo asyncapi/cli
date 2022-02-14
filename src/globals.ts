@@ -21,7 +21,7 @@ export type specWatcherParams = {
   spec: Specification,
   handler: Command,
   handlerName: string,
-  docVersion?: 'old' | 'new' | ''
+  docVersion?: 'old' | 'new';
 }
 
 export const specWatcher = (params: specWatcherParams) => {
