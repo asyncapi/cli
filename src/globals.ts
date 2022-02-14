@@ -26,19 +26,18 @@ export type specWatcherParams = {
 
 export const specWatcher = (params: specWatcherParams) => {
   if (!params.spec.getFilePath()) { return WATCH_MESSAGES.logOnAutoDisable(params.docVersion); }
-
+  if (IS_CHOKIDAR_INSTANCE_RUNNING) { return;}
   const filePath = params.spec.getFilePath() as string;
   try {
     WATCH_MESSAGES.logOnStart(filePath);
-    if (!IS_CHOKIDAR_INSTANCE_RUNNING) {
-      chokidar
-        .watch(filePath, CHOKIDAR_CONFIG)
-        .on('change', async () => {
-          WATCH_MESSAGES.logOnChange(params.handlerName);
-          await params.handler.run();
-        });
-      IS_CHOKIDAR_INSTANCE_RUNNING = true;
-    }
+    chokidar
+      .watch(filePath, CHOKIDAR_CONFIG)
+      .on('change', async () => {
+        WATCH_MESSAGES.logOnChange(params.handlerName);
+        await params.handler.run();
+        WATCH_MESSAGES.logOnStart(filePath);
+      });
+    IS_CHOKIDAR_INSTANCE_RUNNING = true;
   } catch (error) {
     console.log(error);
   }
