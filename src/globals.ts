@@ -9,9 +9,6 @@ const CHOKIDAR_CONFIG = {
   // awaitWriteFinish: true // Used for large size specification files.
 
 };
-const ConditionalNestedLogs = {
-  logOnAutoDisable: (docVersion: 'old' | 'new' | '' = '') => docVersion === '' ? (' ' + 'AsyncAPI' + ' ') : (` ${docVersion} `)
-};
 const WATCH_MESSAGES = {
   logOnStart: (filePath: string) => console.log(GreenLog(`Watching AsyncAPI file at ${filePath}\n`)),
   logOnChange: (handlerName: string) => console.log(OrangeLog(`Change detected, running ${handlerName}\n`)),
