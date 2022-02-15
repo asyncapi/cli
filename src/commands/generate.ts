@@ -16,7 +16,6 @@ export default class Generate extends Command {
         help: flags.help({ char: 'h' }),
         'disable-hook': flags.string({
             char: 'd',
-            multiple: true,
             description: 'disable a specific hook type or hooks from a given hook type'
         }),
         install: flags.boolean({
@@ -61,11 +60,19 @@ export default class Generate extends Command {
         const asyncapi = await load(args['asyncapi'])
         const template = args['template'];
 
+        const params = this.paramParser(flags.param as string);
+        const disableHooks = this.disableHooksParser(flags['disable-hook'] as string);
+        const mapBaseURLToFolder = this.mapBaseURLParser(flags['map-base-url'] as string);
+
         const generator = new Generator(template, flags.output || path.resolve(os.tmpdir(), 'asyncapi-generator'), {
             forceWrite: flags['force-write'],
             install: flags.install,
             debug: flags.debug,
-            templateParams: flags.param
+            templateParams: params,
+            noOverwriteGlobs: flags['no-overwrite'],
+            mapBaseUrlToFolder: flags['map-base-url'],
+            disableHooks,
+            mapBaseURLToFolder
         });
 
         try {
@@ -73,5 +80,45 @@ export default class Generate extends Command {
         } catch (error) {
             throw error;
         }
+    }
+
+    private paramParser = (input: string) => {
+        const params: Record<string, any> = {};
+        if (!input.includes('=')) throw new Error(`Invalid param ${input}. It must be in the format of --param name=value. `);
+        const [paramName, paramValue] = input.split(/=(.+)/, 2);
+        params[paramName] = paramValue;
+        return params
+    }
+
+    private disableHooksParser = (input:string) => {
+        const disableHooks: Record<string, any> = {};
+        const [hookType, hookNames] = input.split(/=/);
+        if (!hookType) throw new Error('Invalid --disable-hook flag. It must be in the format of: --disable-hook <hookType> or --disable-hook <hookType>=<hookName1>,<hookName2>,...');
+        if(hookNames) {
+            disableHooks[hookType] = hookNames.split(',');
+        }else {
+            disableHooks[hookType] = true;
+        }
+
+        return disableHooks;
+    }
+
+    private mapBaseURLParser = (input: string) => {
+        const mapBaseUrl: any = {}
+        const re = /(.*):(.*)/g;
+        let mapping: any[] | null = [];
+        if((mapping = re.exec(input) ) === null || mapping.length !==3) {
+            throw new Error('Invalid --map-base-url flag. A mapping <url>:<folder> with delimiter : expected.');
+        }
+
+        mapBaseUrl.url = mapping[1].replace(/\/$/, '');
+        mapBaseUrl.folder = path.resolve(mapping[2]);
+
+        const isURL = /^https?:/;
+        if(!isURL.test(mapBaseUrl.url.toLowerCase())) {
+                throw new Error('Invalid --map-base-url flag. The mapping <url>:<folder> requires a valid http/https url and valid folder with delimiter `:`.');
+        }
+
+        return mapBaseUrl;
     }
 }
