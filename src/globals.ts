@@ -15,18 +15,32 @@ const WATCH_MESSAGES = {
   logOnAutoDisable: (docVersion: 'old' | 'new' | '' = '') => console.log(OrangeLog(`Watch mode for ${docVersion || 'AsyncAPI'} file was not enabled.`), OrangeLog('\nINFO: Watch works only with files from local file system\n'))
 };
 
-let IS_CHOKIDAR_INSTANCE_RUNNING = false;
+type CHOKIDAR_INSTANCE_STORE = Record<string, boolean>
+
+const IS_CHOKIDAR_INSTANCE_RUNNING: CHOKIDAR_INSTANCE_STORE = {
+  _default: false,
+};
 
 export type specWatcherParams = {
   spec: Specification,
   handler: Command,
   handlerName: string,
+  label?: string,
   docVersion?: 'old' | 'new';
 }
 
+const getLabelValue = (label: string): boolean => {
+  return IS_CHOKIDAR_INSTANCE_RUNNING[label as string];
+};
+const setLabelValue = (label: string, val: boolean) => {
+  IS_CHOKIDAR_INSTANCE_RUNNING[label as string] = val;
+};
+
 export const specWatcher = (params: specWatcherParams) => {
   if (!params.spec.getFilePath()) { return WATCH_MESSAGES.logOnAutoDisable(params.docVersion); }
-  if (IS_CHOKIDAR_INSTANCE_RUNNING) { return;}
+  if (!params.label && getLabelValue('_default')) { return; }
+  if (params.label && getLabelValue(params.label as string)) { return; }
+
   const filePath = params.spec.getFilePath() as string;
   try {
     WATCH_MESSAGES.logOnStart(filePath);
@@ -37,8 +51,13 @@ export const specWatcher = (params: specWatcherParams) => {
         await params.handler.run();
         WATCH_MESSAGES.logOnStart(filePath);
       });
-    IS_CHOKIDAR_INSTANCE_RUNNING = true;
+    if (params.label) {
+      setLabelValue(params.label, true);
+    } else {
+      setLabelValue('_default', true);
+    }
   } catch (error) {
     console.log(error);
   }
 };
+

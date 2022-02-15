@@ -129,8 +129,8 @@ export default class Diff extends Command {
       });
     }
     if (watchMode) {
-      specWatcher({spec: firstDocument, handler: this, handlerName: 'diff', docVersion: 'old'});
-      specWatcher({spec: secondDocument, handler: this, handlerName: 'diff', docVersion: 'new'});
+      specWatcher({spec: firstDocument, handler: this, handlerName: 'diff', docVersion: 'old',label: 'DIFF_OLD'});
+      specWatcher({spec: secondDocument, handler: this, handlerName: 'diff', docVersion: 'new', label: 'DIFF_NEW'});
     }
   }
   outputJson(diffOutput: AsyncAPIDiff, outputType: string) {
