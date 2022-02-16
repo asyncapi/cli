@@ -14,7 +14,6 @@ export default class Convert extends Command {
 
   static flags = {
     help: flags.help({ char: 'h' }),
-    file: flags.string({ char: 'f', description: 'path to the file to convert' }),
     output: flags.string({ char: 'o', description: 'path to the file where the result is saved' }),
     'target-version': flags.string({ char: 't', description: 'asyncapi version to convert to', default: latestVersion })
   }
