@@ -23,6 +23,14 @@
 
 <!-- toc -->
 
+- [Requirements](#requirements)
+  * [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+  * [Set up development environment](#set-up-development-environment)
+  * [Command Structure and Patterns](#command-structure-and-patterns)
+- [Contributors](#contributors)
+
 <!-- tocstop -->
 
 ## Requirements
@@ -69,8 +77,9 @@ USAGE
 
 COMMANDS
   config    access configs
-  help      display help for asyncapi
+  diff      find diff between two asyncapi files
   new       creates a new asyncapi file
+  start     starts a new local instance of Studio
   validate  validate asyncapi file
 ```
 
