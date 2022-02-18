@@ -37,7 +37,6 @@ export const specWatcher = (params: specWatcherParams) => {
       .on('change', async () => {
         WATCH_MESSAGES.logOnChange(params.handlerName);
         await params.handler.run();
-        WATCH_MESSAGES.logOnStart(filePath);
       });
     CHOKIDAR_INSTANCE_STORE.set(params.label || '_default', true);
   } catch (error) {
