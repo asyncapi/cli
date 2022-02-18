@@ -1,6 +1,6 @@
 import chokidar from 'chokidar';
 import chalk from 'chalk';
-import Command from '@oclif/command';
+import Command from './base';
 import { Specification } from './models/SpecificationFile';
 
 const GreenLog = chalk.hex('#00FF00');
@@ -36,7 +36,11 @@ export const specWatcher = (params: specWatcherParams) => {
       .watch(filePath, CHOKIDAR_CONFIG)
       .on('change', async () => {
         WATCH_MESSAGES.logOnChange(params.handlerName);
-        await params.handler.run();
+        try {
+          await params.handler.run();
+        } catch (err) {
+          await params.handler.catch(err);
+        }
       });
     CHOKIDAR_INSTANCE_STORE.set(params.label || '_default', true);
   } catch (error) {
