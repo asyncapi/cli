@@ -12,7 +12,7 @@ import {
   DiffOverrideFileError,
   DiffOverrideJSONError,
 } from '../errors/diff-error';
-import { specWatcher } from '../globals';
+import { specWatcher, specWatcherParams } from '../globals';
 import { watchFlag } from '../flags';
 
 const { readFile } = fs;
@@ -67,6 +67,7 @@ export default class Diff extends Command {
 
     try {
       firstDocument = await load(firstDocumentPath);
+      enableWatch(watchMode, { spec: firstDocument, handler: this, handlerName: 'diff', docVersion: 'old', label: 'DIFF_OLD' });
     } catch (err) {
       if (err instanceof SpecificationFileNotFound) {
         this.error(
@@ -82,6 +83,7 @@ export default class Diff extends Command {
 
     try {
       secondDocument = await load(secondDocumentPath);
+      enableWatch(watchMode, { spec: secondDocument, handler: this, handlerName: 'diff', docVersion: 'new', label: 'DIFF_NEW' });
     } catch (err) {
       if (err instanceof SpecificationFileNotFound) {
         this.error(
@@ -128,10 +130,6 @@ export default class Diff extends Command {
         err: error,
       });
     }
-    if (watchMode) {
-      specWatcher({spec: firstDocument, handler: this, handlerName: 'diff', docVersion: 'old',label: 'DIFF_OLD'});
-      specWatcher({spec: secondDocument, handler: this, handlerName: 'diff', docVersion: 'new', label: 'DIFF_NEW'});
-    }
   }
   outputJson(diffOutput: AsyncAPIDiff, outputType: string) {
     if (outputType === 'breaking') {
@@ -167,3 +165,13 @@ async function readOverrideFile(path: string): Promise<diff.OverrideObject> {
     throw new DiffOverrideJSONError();
   }
 }
+/**
+ * function to enable watchmode.
+ * The function is abstracted here, to avoid eslint cognitive complexity error.
+ */
+const enableWatch = (status: boolean, watcher: specWatcherParams) => {
+  if (status) {
+    specWatcher(watcher);
+  }
+};
+
