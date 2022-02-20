@@ -1,13 +1,13 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import { flags } from '@oclif/command';
-import * as diff from '@asyncapi/diff';
-import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
-import * as parser from '@asyncapi/parser';
-import { promises as fs } from 'fs';
-import { load, Specification } from '../models/SpecificationFile';
-import Command from '../base';
-import { ValidationError } from '../errors/validation-error';
-import { SpecificationFileNotFound } from '../errors/specification-file';
+import { flags } from "@oclif/command";
+import * as diff from "@asyncapi/diff";
+import AsyncAPIDiff from "@asyncapi/diff/lib/asyncapidiff";
+import * as parser from "@asyncapi/parser";
+import { promises as fs } from "fs";
+import { load, Specification } from "../models/SpecificationFile";
+import Command from "../base";
+import { ValidationError } from "../errors/validation-error";
+import { SpecificationFileNotFound } from "../errors/specification-file";
 import {
   DiffOverrideFileError,
   DiffOverrideJSONError,
@@ -18,48 +18,48 @@ import { watchFlag } from '../flags';
 const { readFile } = fs;
 
 export default class Diff extends Command {
-  static description = 'find diff between two asyncapi files';
+  static description = "find diff between two asyncapi files";
 
   static flags = {
-    help: flags.help({ char: 'h' }),
+    help: flags.help({ char: "h" }),
     format: flags.string({
-      char: 'f',
-      description: 'format of the output',
-      default: 'json',
-      options: ['json'],
+      char: "f",
+      description: "format of the output",
+      default: "json",
+      options: ["json", "yaml", "yml"],
     }),
     type: flags.string({
-      char: 't',
-      description: 'type of the output',
-      default: 'all',
-      options: ['breaking', 'non-breaking', 'unclassified', 'all'],
+      char: "t",
+      description: "type of the output",
+      default: "all",
+      options: ["breaking", "non-breaking", "unclassified", "all"],
     }),
     overrides: flags.string({
-      char: 'o',
-      description: 'path to JSON file containing the override properties',
+      char: "o",
+      description: "path to JSON file containing the override properties",
     }),
     watch: watchFlag
   };
 
   static args = [
     {
-      name: 'old',
-      description: 'old spec path, URL or context-name',
+      name: "old",
+      description: "old spec path, URL or context-name",
       required: true,
     },
     {
-      name: 'new',
-      description: 'new spec path, URL or context-name',
+      name: "new",
+      description: "new spec path, URL or context-name",
       required: true,
     },
   ];
 
   async run() {
     const { args, flags } = this.parse(Diff); // NOSONAR
-    const firstDocumentPath = args['old'];
-    const secondDocumentPath = args['new'];
+    const firstDocumentPath = args["old"];
+    const secondDocumentPath = args["new"];
 
-    const outputFormat = flags['format'];
+    const outputFormat = flags['format'] as diff.OutputType;
     const outputType = flags['type'];
     const overrideFilePath = flags['overrides'];
     const watchMode = flags['watch'];
@@ -72,7 +72,7 @@ export default class Diff extends Command {
       if (err instanceof SpecificationFileNotFound) {
         this.error(
           new ValidationError({
-            type: 'invalid-file',
+            type: "invalid-file",
             filepath: firstDocumentPath,
           })
         );
@@ -88,7 +88,7 @@ export default class Diff extends Command {
       if (err instanceof SpecificationFileNotFound) {
         this.error(
           new ValidationError({
-            type: 'invalid-file',
+            type: "invalid-file",
             filepath: secondDocumentPath,
           })
         );
@@ -114,11 +114,14 @@ export default class Diff extends Command {
         secondDocumentParsed.json(),
         {
           override: overrides,
+          outputType: outputFormat,
         }
       );
 
-      if (outputFormat === 'json') {
+      if (outputFormat === "json") {
         this.outputJson(diffOutput, outputType);
+      } else if (outputFormat === "yaml" || outputFormat === "yml") {
+        this.outputYAML(diffOutput, outputType);
       } else {
         this.log(
           `The output format ${outputFormat} is not supported at the moment.`
@@ -126,20 +129,34 @@ export default class Diff extends Command {
       }
     } catch (error) {
       throw new ValidationError({
-        type: 'parser-error',
+        type: "parser-error",
         err: error,
       });
     }
   }
   outputJson(diffOutput: AsyncAPIDiff, outputType: string) {
-    if (outputType === 'breaking') {
+    if (outputType === "breaking") {
       this.log(JSON.stringify(diffOutput.breaking(), null, 2));
-    } else if (outputType === 'non-breaking') {
+    } else if (outputType === "non-breaking") {
       this.log(JSON.stringify(diffOutput.nonBreaking(), null, 2));
-    } else if (outputType === 'unclassified') {
+    } else if (outputType === "unclassified") {
       this.log(JSON.stringify(diffOutput.unclassified(), null, 2));
-    } else if (outputType === 'all') {
+    } else if (outputType === "all") {
       this.log(JSON.stringify(diffOutput.getOutput(), null, 2));
+    } else {
+      this.log(`The output type ${outputType} is not supported at the moment.`);
+    }
+  }
+
+  outputYAML(diffOutput: AsyncAPIDiff, outputType: string) {
+    if (outputType === "breaking") {
+      this.log(diffOutput.breaking() as string);
+    } else if (outputType === "non-breaking") {
+      this.log(diffOutput.nonBreaking() as string);
+    } else if (outputType === "unclassified") {
+      this.log(diffOutput.unclassified() as string);
+    } else if (outputType === "all") {
+      this.log(diffOutput.getOutput() as string);
     } else {
       this.log(`The output type ${outputType} is not supported at the moment.`);
     }
@@ -154,7 +171,7 @@ export default class Diff extends Command {
 async function readOverrideFile(path: string): Promise<diff.OverrideObject> {
   let overrideStringData;
   try {
-    overrideStringData = await readFile(path, { encoding: 'utf8' });
+    overrideStringData = await readFile(path, { encoding: "utf8" });
   } catch (err) {
     throw new DiffOverrideFileError();
   }
