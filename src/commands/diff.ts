@@ -119,7 +119,7 @@ export default class Diff extends Command {
       );
 
       if (outputFormat === "json") {
-        this.outputJson(diffOutput, outputType);
+        this.outputJSON(diffOutput, outputType);
       } else if (outputFormat === "yaml" || outputFormat === "yml") {
         this.outputYAML(diffOutput, outputType);
       } else {
@@ -134,7 +134,7 @@ export default class Diff extends Command {
       });
     }
   }
-  outputJson(diffOutput: AsyncAPIDiff, outputType: string) {
+  outputJSON(diffOutput: AsyncAPIDiff, outputType: string) {
     if (outputType === "breaking") {
       this.log(JSON.stringify(diffOutput.breaking(), null, 2));
     } else if (outputType === "non-breaking") {
