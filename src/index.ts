@@ -1,1 +1,9 @@
 export {run} from '@oclif/command';
+
+/**
+ * For NodeJS < 15, unhandled rejections are treated as warnings.
+ * This is required for consistency in error handling.
+ */
+process.on('unhandledRejection', (reason) => {
+  throw new Error(reason as string);
+});
