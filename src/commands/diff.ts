@@ -54,6 +54,7 @@ export default class Diff extends Command {
     },
   ];
 
+  /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = this.parse(Diff); // NOSONAR
     const firstDocumentPath = args['old'];
