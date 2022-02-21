@@ -1,11 +1,11 @@
-import { flags} from '@oclif/command';
+import {Flags} from '@oclif/core';
 import Command from '../../../base';
 import { loadContextFile } from '../../../models/Context';
 
 export default class ContextList extends Command {
   static description = 'List all the stored context in the store';
   static flags = {
-    help: flags.help({char: 'h'})
+    help: Flags.help({char: 'h'})
   }
 
   async run() {

@@ -1,5 +1,5 @@
+import {Flags} from '@oclif/core';
 import { promises as fPromises } from 'fs';
-import {flags} from '@oclif/command';
 import Command from '../base';
 import * as inquirer from 'inquirer';
 import { start as startStudio, DEFAULT_PORT } from '../models/Studio';
@@ -13,18 +13,18 @@ export default class New extends Command {
   static description = 'creates a new asyncapi file';
 
   static flags = {
-    help: flags.help({ char: 'h' }),
-    'file-name': flags.string({ char: 'n', description: 'name of the file' }),
-    example: flags.string({ char: 'e', description: 'name of the example to use' }),
-    studio: flags.boolean({ char: 's', description: 'open in Studio' }),
-    port: flags.integer({ char: 'p', description: 'port in which to start Studio' }),
-    'no-tty': flags.boolean({ description: 'do not use an interactive terminal' }),
+    help: Flags.help({ char: 'h' }),
+    'file-name': Flags.string({ char: 'n', description: 'name of the file' }),
+    example: Flags.string({ char: 'e', description: 'name of the example to use' }),
+    studio: Flags.boolean({ char: 's', description: 'open in Studio' }),
+    port: Flags.integer({ char: 'p', description: 'port in which to start Studio' }),
+    'no-tty': Flags.boolean({ description: 'do not use an interactive terminal' }),
   }
 
   static args = []
 
   async run() {
-    const { flags } = this.parse(New); // NOSONAR
+    const { flags } = await this.parse(New); // NOSONAR
     const isTTY = process.stdout.isTTY;
 
     if (!flags['no-tty'] && isTTY) {
@@ -47,7 +47,7 @@ export default class New extends Command {
 
   /* eslint-disable sonarjs/cognitive-complexity */
   async runInteractive() { // NOSONAR
-    const { flags } = this.parse(New); // NOSONAR
+    const { flags } = await this.parse(New); // NOSONAR
     let fileName = flags['file-name'];
     let selectedTemplate = flags['example'];
     let openStudio = flags.studio;
