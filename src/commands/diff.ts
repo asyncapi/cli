@@ -55,12 +55,12 @@ export default class Diff extends Command {
   ];
 
   /* eslint-disable sonarjs/cognitive-complexity */
-  async run() {
+  async run() { // NOSONAR
     const { args, flags } = this.parse(Diff); // NOSONAR
     const firstDocumentPath = args['old'];
     const secondDocumentPath = args['new'];
 
-    const outputFormat = flags['format'] as diff.OutputType;
+    const outputFormat = flags['format'];
     const outputType = flags['type'];
     const overrideFilePath = flags['overrides'];
     const watchMode = flags['watch'];
@@ -115,7 +115,7 @@ export default class Diff extends Command {
         secondDocumentParsed.json(),
         {
           override: overrides,
-          outputType: outputFormat,
+          outputType: outputFormat as diff.OutputType,
         }
       );
 
