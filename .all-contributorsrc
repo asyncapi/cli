@@ -1,0 +1,124 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "jotamusik",
+      "name": "Jorge Aguiar Martín",
+      "avatar_url": "https://avatars.githubusercontent.com/u/14940638?v=4",
+      "profile": "https://github.com/jotamusik",
+      "contributions": [
+        "code",
+        "ideas",
+        "test",
+        "doc"
+      ]
+    },
+    {
+      "login": "derberg",
+      "name": "Lukasz Gornicki",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6995927?v=4",
+      "profile": "https://www.brainfart.dev/",
+      "contributions": [
+        "ideas",
+        "code",
+        "review",
+        "maintenance"
+      ]
+    },
+    {
+      "login": "Souvikns",
+      "name": "souvik",
+      "avatar_url": "https://avatars.githubusercontent.com/u/41781438?v=4",
+      "profile": "https://souvik.vercel.app/",
+      "contributions": [
+        "code",
+        "ideas",
+        "test",
+        "review",
+        "maintenance",
+        "doc"
+      ]
+    },
+    {
+      "login": "boyney123",
+      "name": "David Boyne",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3268013?v=4",
+      "profile": "https://boyney.io/",
+      "contributions": [
+        "code",
+        "ideas",
+        "maintenance"
+      ]
+    },
+    {
+      "login": "fmvilas",
+      "name": "Fran Méndez",
+      "avatar_url": "https://avatars.githubusercontent.com/u/242119?v=4",
+      "profile": "http://www.fmvilas.com/",
+      "contributions": [
+        "code",
+        "ideas",
+        "review"
+      ]
+    },
+    {
+      "login": "magicmatatjahu",
+      "name": "Maciej Urbańczyk",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20404945?v=4",
+      "profile": "https://github.com/magicmatatjahu",
+      "contributions": [
+        "review",
+        "maintenance",
+        "ideas"
+      ]
+    },
+    {
+      "login": "aayushmau5",
+      "name": "Aayush Kumar Sahu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/54525741?v=4",
+      "profile": "https://aayushsahu.com/",
+      "contributions": [
+        "code",
+        "test"
+      ]
+    },
+    {
+      "login": "mihirterna",
+      "name": "Mihir Kulkarni",
+      "avatar_url": "https://avatars.githubusercontent.com/u/31316452?v=4",
+      "profile": "https://github.com/mihirterna",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "imabp",
+      "name": "Abir",
+      "avatar_url": "https://avatars.githubusercontent.com/u/53480076?v=4",
+      "profile": "https://imabp.github.io/resume/",
+      "contributions": [
+        "test"
+      ]
+    },
+    {
+      "login": "peter-rr",
+      "name": "Peter Ramos",
+      "avatar_url": "https://avatars.githubusercontent.com/u/81691177?v=4",
+      "profile": "https://github.com/peter-rr",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "cli",
+  "projectOwner": "asyncapi",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": false,
+  "commitConvention": "none"
+}
