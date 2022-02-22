@@ -1,6 +1,6 @@
-import { flags } from '@oclif/command';
+import { Flags } from '@oclif/core';
 
-export const watchFlag = flags.boolean({
+export const watchFlag = Flags.boolean({
   char: 'w',
   description: 'Enable watch mode'
 });
