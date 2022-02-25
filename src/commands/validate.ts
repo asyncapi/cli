@@ -3,13 +3,15 @@ import * as parser from '@asyncapi/parser';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
-import { SpecificationFileNotFound } from '../errors/specification-file';
+import { specWatcher } from '../globals';
+import { watchFlag } from '../flags';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
 
   static flags = {
-    help: flags.help({ char: 'h' })
+    help: flags.help({ char: 'h' }),
+    watch: watchFlag
   }
 
   static args = [
@@ -17,21 +19,14 @@ export default class Validate extends Command {
   ]
 
   async run() {
-    const { args } = this.parse(Validate);
+    const { args, flags } = this.parse(Validate); // NOSONAR
     const filePath = args['spec-file'];
-    let specFile;
 
-    try {
-      specFile = await load(filePath);
-    } catch (err) {
-      if (err instanceof SpecificationFileNotFound) {
-        this.error(new ValidationError({
-          type: 'invalid-file',
-          filepath: filePath
-        }));
-      } else {
-        this.error(err as Error);
-      }
+    const watchMode = flags['watch'];
+
+    const specFile = await load(filePath);
+    if (watchMode) {
+      specWatcher({spec: specFile, handler: this, handlerName: 'validate'});
     }
     try {
       if (specFile.getFilePath()) {

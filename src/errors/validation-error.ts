@@ -36,15 +36,24 @@ export class ValidationError extends Error {
       for (const e of err.validationErrors) {
         const errorHasTitle = !!e.title;
         const errorHasLocation = !!e.location;
-        if (errorHasLocation) {
+        /*
+        * All the conditions below are needed since validationErrors (from ParserError) come from Parser JS library, 
+        * so we cannot assure that all the fields or properties are always provided in the error. There might be cases 
+        * that even title is not provided.
+        */
+        if (errorHasTitle && errorHasLocation) {
           errorsInfo.push(`${e.title} ${e.location.startLine}:${e.location.startColumn}`);
+          continue;
         }
         if (errorHasTitle) {
           errorsInfo.push(`${e.title}`);
+          continue;
+        }
+        if (errorHasLocation) {
+          errorsInfo.push(`${e.location.startLine}:${e.location.startColumn}`);
         }
       }
     }
-
     this.message = errorsInfo.join('\n');
   }
 }
