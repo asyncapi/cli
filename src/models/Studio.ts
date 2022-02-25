@@ -15,34 +15,33 @@ export const DEFAULT_PORT = 3210;
 
 function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
-  
 }
 
 export function start(filePath: string, port: number = DEFAULT_PORT): void {
-  if(!isValidFilePath(filePath)) {
+  if (!isValidFilePath(filePath)) {
     console.log('Invalid file path: ', filePath);
     return;
   }
   chokidar.watch(filePath).on('all', (event, path) => {
-      switch (event) {
-        case 'add':
-        case 'change':
-          getFileContent(path).then((code:string) => {
-            messageQueue.push(JSON.stringify({
-              type: 'file:changed',
-              code,
-            }));
-            sendQueuedMessages();
-          });
-          break;
-        case 'unlink':
-          messageQueue.push(JSON.stringify({
-            type: 'file:deleted',
-            filePath,
-          }));
-          sendQueuedMessages();
-          break;
-      }
+    switch (event) {
+    case 'add':
+    case 'change':
+      getFileContent(path).then((code:string) => {
+        messageQueue.push(JSON.stringify({
+          type: 'file:changed',
+          code,
+        }));
+        sendQueuedMessages();
+      });
+      break;
+    case 'unlink':
+      messageQueue.push(JSON.stringify({
+        type: 'file:deleted',
+        filePath,
+      }));
+      sendQueuedMessages();
+      break;
+    }
   });
 
   const server = createServer((request, response) => {
