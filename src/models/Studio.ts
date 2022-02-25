@@ -1,5 +1,4 @@
-import { promises as fPromises } from 'fs';
-import fs from "fs";
+import { existsSync ,promises as fPromises } from 'fs';
 import { resolve } from 'path';
 import { createServer } from 'http';
 import serveHandler from 'serve-handler';
@@ -15,7 +14,7 @@ const messageQueue: string[] = [];
 export const DEFAULT_PORT = 3210;
 
 function isValidFilePath(filePath: string): boolean {
-  return fs.existsSync(filePath);
+  return existsSync(filePath);
   
 }
 
