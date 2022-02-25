@@ -1,4 +1,5 @@
 import { existsSync ,promises as fPromises } from 'fs';
+import {SpecificationFileNotFound} from '../errors/specification-file';
 import { resolve } from 'path';
 import { createServer } from 'http';
 import serveHandler from 'serve-handler';
@@ -19,8 +20,7 @@ function isValidFilePath(filePath: string): boolean {
 
 export function start(filePath: string, port: number = DEFAULT_PORT): void {
   if (!isValidFilePath(filePath)) {
-    console.log('Invalid file path: ', filePath);
-    return;
+    throw new SpecificationFileNotFound(filePath);
   }
   chokidar.watch(filePath).on('all', (event, path) => {
     switch (event) {
