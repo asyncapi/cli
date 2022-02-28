@@ -9,20 +9,11 @@
     "strict": true,
     "skipLibCheck": true,
     "target": "es2017",
-    "typeRoots": [
-      "node_modules/@types",
-      "./local-types",
-    ],
-    "baseUrl": "./",
-    "paths": {
-      "@asyncapi/generator": ["./local-types/asyncapi__generator"]
-    }
   },
   "include": [
     "src/**/*",
   ],
   "exclude": [
     "node_modules",
-    "local-type/**"
   ]
 }

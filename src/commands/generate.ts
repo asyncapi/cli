@@ -1,6 +1,7 @@
 import { flags } from '@oclif/command';
 import Command from '../base';
-import Generator from '@asyncapi/generator';
+//@ts-ignore
+import AsyncAPIGenerator from '@asyncapi/generator';
 import path from 'path';
 import os from 'os';
 import { load } from '../models/SpecificationFile';
@@ -64,7 +65,7 @@ export default class Generate extends Command {
       const disableHooks = this.disableHooksParser(flags['disable-hook'] as string);
       const mapBaseURLToFolder = this.mapBaseURLParser(flags['map-base-url'] as string);
 
-      const generator = new Generator(template, flags.output || path.resolve(os.tmpdir(), 'asyncapi-generator'), {
+      const generator = new AsyncAPIGenerator(template, flags.output || path.resolve(os.tmpdir(), 'asyncapi-generator'), {
         forceWrite: flags['force-write'],
         install: flags.install,
         debug: flags.debug,
