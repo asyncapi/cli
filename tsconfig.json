@@ -8,10 +8,21 @@
     "rootDir": "src",
     "strict": true,
     "skipLibCheck": true,
-    "target": "es2017"
+    "target": "es2017",
+    "typeRoots": [
+      "node_modules/@types",
+      "./local-types",
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "@asyncapi/generator": ["./local-types/asyncapi__generator"]
+    }
   },
   "include": [
     "src/**/*",
-    "types.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "local-type/**"
   ]
 }

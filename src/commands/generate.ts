@@ -74,7 +74,7 @@ export default class Generate extends Command {
         disableHooks,
         mapBaseURLToFolder
       });
-      await generator.generateFomString(asyncapi.text());
+      await generator.generateFromString(asyncapi.text());
     }
 
     private paramParser = (input: string) => {
