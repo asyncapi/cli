@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "0.13.3",
+  "version": "0.14.1",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run"
@@ -10,7 +10,7 @@
   "dependencies": {
     "@asyncapi/diff": "^0.3.0",
     "@asyncapi/parser": "^1.14.0",
-    "@asyncapi/studio": "^0.9.0",
+    "@asyncapi/studio": "^0.10.0",
     "@fmvilas/oclif-plugin-spaced-commands": "^1.0.4",
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
