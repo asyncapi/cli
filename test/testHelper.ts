@@ -56,4 +56,14 @@ export default class ContextTestingHelper {
       unlinkSync(ASYNCAPI_FILE_PATH);
     }
   }
+  newCommandHelper() {
+    return {
+      deleteSpecFile: () => {
+        const specficicationFilePath = path.resolve(process.cwd(), 'specification.yaml');
+        if (existsSync(specficicationFilePath)) {
+          unlinkSync(specficicationFilePath);
+        }
+      }
+    };
+  }
 }
