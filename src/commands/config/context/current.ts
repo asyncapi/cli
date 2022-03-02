@@ -1,11 +1,11 @@
-import { flags } from '@oclif/command';
+import { Flags } from '@oclif/core';
 import Command from '../../../base';
 import { getCurrentContext } from '../../../models/Context';
 
 export default class ContextCurrent extends Command {
   static description='Shows the current context that is being used';
   static flags={
-    help: flags.help({char: 'h'})
+    help: Flags.help({char: 'h'})
   }
 
   async run() {
