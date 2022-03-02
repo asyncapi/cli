@@ -34,7 +34,7 @@ export default class New extends Command {
     const fileName = flags['file-name'] || DEFAULT_ASYNCAPI_FILE_NAME;
     const template = flags['example'] || DEFAULT_ASYNCAPI_TEMPLATE;
 
-    this.createAsyncapiFile(fileName, template);
+    await this.createAsyncapiFile(fileName, template);
 
     if (flags.studio) {
       if (isTTY) {

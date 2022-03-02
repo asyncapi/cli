@@ -113,6 +113,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "Samridhi-98",
+      "name": "Samriddhi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/54466041?v=4",
+      "profile": "https://samridhi-98.github.io/Portfolio",
+      "contributions": [
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
