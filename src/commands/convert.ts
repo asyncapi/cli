@@ -1,7 +1,5 @@
 import { promises as fPromises } from 'fs';
-//import { flags } from '@oclif/command';
-import {Command, Flags} from '@oclif/core';
-//import Command from '../base';
+import { Command, Flags } from '@oclif/core';
 import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
 import { SpecificationFileNotFound } from '../errors/specification-file';
