@@ -36,7 +36,7 @@ export default class ContextTestingHelper {
   unsetCurrentContext(): void {
     delete this._context.current;
   }
-  
+
   setCurrentContext(context: string): void {
     this._context.current = context;
   }
@@ -55,5 +55,15 @@ export default class ContextTestingHelper {
     if (existsSync(ASYNCAPI_FILE_PATH)) {
       unlinkSync(ASYNCAPI_FILE_PATH);
     }
+  }
+  newCommandHelper() {
+    return {
+      deleteSpecFile: () => {
+        const specficicationFilePath = path.resolve(process.cwd(), 'specification.yaml');
+        if (existsSync(specficicationFilePath)) {
+          unlinkSync(specficicationFilePath);
+        }
+      }
+    };
   }
 }

@@ -1,5 +1,5 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import { flags } from '@oclif/command';
+import { Flags } from '@oclif/core';
 import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
 import * as parser from '@asyncapi/parser';
@@ -21,20 +21,20 @@ export default class Diff extends Command {
   static description = 'find diff between two asyncapi files';
 
   static flags = {
-    help: flags.help({ char: 'h' }),
-    format: flags.string({
+    help: Flags.help({ char: 'h' }),
+    format: Flags.string({
       char: 'f',
       description: 'format of the output',
       default: 'json',
       options: ['json'],
     }),
-    type: flags.string({
+    type: Flags.string({
       char: 't',
       description: 'type of the output',
       default: 'all',
       options: ['breaking', 'non-breaking', 'unclassified', 'all'],
     }),
-    overrides: flags.string({
+    overrides: Flags.string({
       char: 'o',
       description: 'path to JSON file containing the override properties',
     }),
@@ -55,7 +55,7 @@ export default class Diff extends Command {
   ];
 
   async run() {
-    const { args, flags } = this.parse(Diff); // NOSONAR
+    const { args, flags } = await this.parse(Diff); // NOSONAR
     const firstDocumentPath = args['old'];
     const secondDocumentPath = args['new'];
 

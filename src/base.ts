@@ -1,4 +1,4 @@
-import Command from '@oclif/command';
+import {Command} from '@oclif/core';
 
 export default abstract class extends Command {
   async catch(e: any) {
