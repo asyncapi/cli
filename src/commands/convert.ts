@@ -1,6 +1,7 @@
 import { promises as fPromises } from 'fs';
-import { flags } from '@oclif/command';
-import Command from '../base';
+//import { flags } from '@oclif/command';
+import {Command, Flags} from '@oclif/core';
+//import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
 import { SpecificationFileNotFound } from '../errors/specification-file';
@@ -13,9 +14,9 @@ export default class Convert extends Command {
   static description = 'convert asyncapi documents older to newer versions';
 
   static flags = {
-    help: flags.help({ char: 'h' }),
-    output: flags.string({ char: 'o', description: 'path to the file where the result is saved' }),
-    'target-version': flags.string({ char: 't', description: 'asyncapi version to convert to', default: latestVersion })
+    help: Flags.help({ char: 'h' }),
+    output: Flags.string({ char: 'o', description: 'path to the file where the result is saved' }),
+    'target-version': Flags.string({ char: 't', description: 'asyncapi version to convert to', default: latestVersion })
   }
 
   static args = [
@@ -23,7 +24,7 @@ export default class Convert extends Command {
   ]
 
   async run() {
-    const { args, flags } = this.parse(Convert);
+    const { args, flags } = await this.parse(Convert);
     const filePath = args['spec-file'];
     let specFile;
     let convertedFile;
