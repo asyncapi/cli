@@ -34,7 +34,11 @@ export default class Convert extends Command {
       // CONVERSION
       convertedFile = await convert(specFile.text(), flags['target-version'], {});
       if (convertedFile) {
-        this.log(`File ${specFile.getFilePath()} successfully converted!`);
+        if (specFile.getFilePath()) {
+          this.log(`File ${specFile.getFilePath()} successfully converted!`);
+        } else if (specFile.getFileURL()) {
+          this.log(`URL ${specFile.getFileURL()} successfully converted!`);
+        }
       }
       if (flags.output) {
         await fPromises.writeFile(`${flags.output}`, convertedFile, { encoding: 'utf8' });
