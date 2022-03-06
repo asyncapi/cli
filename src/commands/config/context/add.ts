@@ -1,11 +1,11 @@
-import { flags} from '@oclif/command';
+import {Flags} from '@oclif/core';
 import Command from '../../../base';
 import { addContext } from '../../../models/Context';
 
 export default class ContextAdd extends Command {
   static description='Add or modify a context in the store';
   static flags = {
-    help: flags.help({char: 'h'})
+    help: Flags.help({char: 'h'})
   }
 
   static args = [
@@ -14,7 +14,7 @@ export default class ContextAdd extends Command {
   ]
 
   async run() {
-    const {args} = this.parse(ContextAdd);
+    const {args} = await this.parse(ContextAdd);
     const contextName = args['context-name'];
     const specFilePath = args['spec-file-path'];
 
