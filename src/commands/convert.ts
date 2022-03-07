@@ -3,6 +3,7 @@ import { Command, Flags } from '@oclif/core';
 import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
 import { SpecificationFileNotFound } from '../errors/specification-file';
+// @ts-ignore
 import { convert } from '@asyncapi/converter';
 import specs from '@asyncapi/specs';
 
