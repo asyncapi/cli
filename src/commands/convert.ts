@@ -5,6 +5,7 @@ import { load } from '../models/SpecificationFile';
 import { SpecificationFileNotFound } from '../errors/specification-file';
 // @ts-ignore
 import { convert } from '@asyncapi/converter';
+// @ts-ignore
 import specs from '@asyncapi/specs';
 
 const latestVersion = Object.keys(specs).pop() as string;
