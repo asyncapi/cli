@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { promises as fPromises } from 'fs';
 import { Command, Flags } from '@oclif/core';
 import { ValidationError } from '../errors/validation-error';

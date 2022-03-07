@@ -37,7 +37,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert', 'https://bit.ly/asyncapi'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).to.include('URL https://bit.ly/asyncapi successfully converted\n');
+        expect(ctx.stdout).to.include('URL https://bit.ly/asyncapi successfully converted!\n');
         expect(ctx.stderr).to.equals('');
         done();
       });
