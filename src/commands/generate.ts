@@ -1,52 +1,53 @@
-import { flags } from '@oclif/command';
+import { Flags } from '@oclif/core';
 import Command from '../base';
-//@ts-ignore
+// @ts-ignore
 import AsyncAPIGenerator from '@asyncapi/generator';
 import path from 'path';
 import os from 'os';
 import { load } from '../models/SpecificationFile';
+import { Example } from '@oclif/core/lib/interfaces';
 
 export default class Generate extends Command {
     static description = 'Generator is a tool that you can use to generate whatever you want basing on the AsyncAPI specification file as an input.';
 
-    static examples: string[] | undefined = [
+    static examples: Example[] = [
       'asyncapi generate asyncapi.yaml @asyncapi/html-template'
-    ]
+    ];
 
     static flags = {
-      help: flags.help({ char: 'h' }),
-      'disable-hook': flags.string({
+      help: Flags.help({ char: 'h' }),
+      'disable-hook': Flags.string({
         char: 'd',
         description: 'disable a specific hook type or hooks from a given hook type'
       }),
-      install: flags.boolean({
+      install: Flags.boolean({
         char: 'i',
         default: false,
         description: 'installs the template and its dependencies (defaults to false)'
       }),
-      debug: flags.boolean({
+      debug: Flags.boolean({
         description: 'to enable specific errors in the console'
       }),
-      'no-overwrite': flags.string({
+      'no-overwrite': Flags.string({
         char: 'n',
         description: 'glob or path of the file(s) to skip when regenerating'
       }),
-      output: flags.string({
+      output: Flags.string({
         char: 'o',
         description: 'directory where to put the generated files (defaults to current directory)'
       }),
-      'force-write': flags.boolean({
+      'force-write': Flags.boolean({
         default: false,
         description: 'force writing of the generated files to given directory even if it is a git repo with unstaged files or not empty dir (defaults to false)'
       }),
-      'watch-tempalte': flags.boolean({
+      'watch-tempalte': Flags.boolean({
         description: 'watches the template directory and the AsyncAPI document, and re-generate the files when changes occur. Ignores the output directory.'
       }),
-      param: flags.string({
+      param: Flags.string({
         char: 'p',
         description: 'additional param to pass to templates',
       }),
-      'map-base-url': flags.string({
+      'map-base-url': Flags.string({
         description: ' maps all schema references from base url to local folder'
       })
     }
@@ -57,7 +58,7 @@ export default class Generate extends Command {
     ]
 
     async run() {
-      const { args, flags } = this.parse(Generate); // NOSONAR
+      const { args, flags } = await this.parse(Generate); // NOSONAR
       const asyncapi = await load(args['asyncapi']);
       const template = args['template'];
 
