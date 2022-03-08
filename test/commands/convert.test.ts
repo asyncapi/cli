@@ -28,7 +28,7 @@ describe('convert', () => {
       .command(['convert', './test/not-found.yml'])
       .it('should throw error if file path is wrong', (ctx, done) => {
         expect(ctx.stdout).to.equals('');
-        expect(ctx.stderr).to.include('error locating AsyncAPI document');
+        expect(ctx.stderr).to.equals('error loading AsyncAPI document from file: ./test/not-found.yml is an invalid file path\n');
         done();
       });
 
@@ -99,9 +99,9 @@ describe('convert', () => {
     test
       .stderr()
       .stdout()
-      .command(['convert', filePath, '-t=2.2.0'])
+      .command(['convert', filePath, '-t=2.3.0'])
       .it('works when supported target-version is passed', (ctx, done) => {
-        expect(ctx.stdout).to.include('asyncapi: 2.2.0');
+        expect(ctx.stdout).to.include('asyncapi: 2.3.0');
         expect(ctx.stderr).to.equals('');
         done();
       });
@@ -109,7 +109,7 @@ describe('convert', () => {
     test
       .stderr()
       .stdout()
-      .command(['convert', filePath, '-t=1.7.0'])
+      .command(['convert', filePath, '-t=2.95.0'])
       .it('should throw error if non-supported target-version is passed', (ctx, done) => {
         expect(ctx.stdout).to.equals('');
         expect(ctx.stderr).to.include('Error: Cannot convert');
