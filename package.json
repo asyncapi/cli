@@ -135,7 +135,7 @@
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",
     "release": "semantic-release",
-    "test": "cross-env TEST=1 CONTEXT_FILENAME=\"./test.asyncapi\" CONTEXT_FILE_PATH=\"./\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 10000 \"test/**/*.test.ts\"",
+    "test": "cross-env TEST=1 CONTEXT_FILENAME=\"./test.asyncapi\" CONTEXT_FILE_PATH=\"./\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 10000 \"test/**/*.test.ts\""
   },
   "types": "lib/index.d.ts"
 }
