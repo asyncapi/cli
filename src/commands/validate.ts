@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command';
+import {Flags} from '@oclif/core';
 import * as parser from '@asyncapi/parser';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
@@ -10,7 +10,7 @@ export default class Validate extends Command {
   static description = 'validate asyncapi file';
 
   static flags = {
-    help: flags.help({ char: 'h' }),
+    help: Flags.help({ char: 'h' }),
     watch: watchFlag
   }
 
@@ -19,7 +19,7 @@ export default class Validate extends Command {
   ]
 
   async run() {
-    const { args, flags } = this.parse(Validate); // NOSONAR
+    const { args, flags } = await this.parse(Validate); //NOSONAR
     const filePath = args['spec-file'];
 
     const watchMode = flags['watch'];
