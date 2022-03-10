@@ -59,7 +59,7 @@
     "markdown-toc": "^1.2.0",
     "mocha": "^9",
     "nyc": "^14.1.1",
-    "oclif": "github:Souvikns/oclif#main",
+    "oclif": "github:Souvikns/oclif#dd404d08bcbb4862adbc1fd4d296c7a83f5cea50",
     "rimraf": "^3.0.2",
     "semantic-release": "^17.4.3",
     "ts-node": "^10.4.0",
