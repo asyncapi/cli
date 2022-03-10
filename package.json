@@ -131,15 +131,11 @@
     "lint": "eslint --max-warnings 0 --config .eslintrc .",
     "lint:fix": "eslint --max-warnings 5 --config .eslintrc . --fix",
     "postpack": "rimraf oclif.manifest.json",
-    "prepack": "rimraf lib && tsc -b && oclif manifest && oclif readme",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "npm run build && oclif manifest",
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",
     "release": "semantic-release",
-    "start": "npm run build && node dist/cli.js",
-    "version": "oclif readme && git add README.md",
-    "test": "cross-env TEST=1 CONTEXT_FILENAME=\"./test.asyncapi\" CONTEXT_FILE_PATH=\"./\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 10000 \"test/**/*.test.ts\"",
-    "readme": "oclif readme"
+    "test": "cross-env TEST=1 CONTEXT_FILENAME=\"./test.asyncapi\" CONTEXT_FILE_PATH=\"./\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 10000 \"test/**/*.test.ts\""
   },
   "types": "lib/index.d.ts"
 }
