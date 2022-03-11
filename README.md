@@ -23,6 +23,14 @@
 
 <!-- toc -->
 
+- [Requirements](#requirements)
+  * [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+  * [Set up development environment](#set-up-development-environment)
+  * [Command Structure and Patterns](#command-structure-and-patterns)
+- [Contributors](#contributors)
+
 <!-- tocstop -->
 
 ## Requirements
