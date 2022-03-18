@@ -8,4 +8,4 @@ export const watchFlag = Flags.boolean({
 export const outputFlag = Flags.string({
   char: 'o',
   description: 'Path to the output file'
-})
+});
