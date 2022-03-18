@@ -8,6 +8,7 @@
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
+    "@asyncapi/bundler": "^0.1.0",
     "@asyncapi/converter": "^0.9.0",
     "@asyncapi/diff": "^0.3.0",
     "@asyncapi/parser": "^1.14.0",
@@ -20,6 +21,7 @@
     "chokidar": "^3.5.2",
     "indent-string": "^4.0.0",
     "inquirer": "^8.2.0",
+    "js-yaml": "^4.1.0",
     "lodash.template": "^4.4.0",
     "node-fetch": "^2.0.0",
     "open": "^8.4.0",
