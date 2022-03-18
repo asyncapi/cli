@@ -30,22 +30,22 @@ export default class Bundle extends Command {
         this.log(documents.yml());
       } else {
         const outputFileLocation = flags['output'];
-        const outputFileExtension = path.extname(outputFileLocation!);
+        const outputFileExtension = path.extname(`${outputFileLocation}`);
     
         if (outputFileExtension ==='.yaml' || outputFileExtension ==='.yml') {
-          fs.writeFile(outputFileLocation!, yaml.dump(documents.yml()),'utf8', (err) => {
+          fs.writeFile(`${outputFileLocation}`, yaml.dump(documents.yml()),'utf8', (err) => {
             if (err) {
               this.error(err);
             }
           });
         } else if (outputFileExtension ==='.json') {
-          fs.writeFile(outputFileLocation!, JSON.stringify((documents.json()),null,2),'utf8',(err) => {
+          fs.writeFile(`${outputFileLocation}`, JSON.stringify((documents.json()),null,2),'utf8',(err) => {
             if (err) {
               this.error(err);
             }
           });
         } else if (outputFileExtension === '.txt') {
-          fs.writeFile(outputFileLocation!, (documents.string()),'utf8', (err) => {
+          fs.writeFile(`${outputFileLocation}`, (documents.string()),'utf8', (err) => {
             if (err) {
               this.error(err);
             }
