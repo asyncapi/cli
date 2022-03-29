@@ -38,7 +38,7 @@ export default class Diff extends Command {
       char: 'o',
       description: 'path to JSON file containing the override properties',
     }),
-    watch: watchFlag
+    watch: watchFlag,
   };
 
   static args = [
@@ -54,7 +54,6 @@ export default class Diff extends Command {
     },
   ];
 
-  /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Diff); // NOSONAR
     const firstDocumentPath = args['old'];
@@ -68,7 +67,13 @@ export default class Diff extends Command {
 
     try {
       firstDocument = await load(firstDocumentPath);
-      enableWatch(watchMode, { spec: firstDocument, handler: this, handlerName: 'diff', docVersion: 'old', label: 'DIFF_OLD' });
+      enableWatch(watchMode, {
+        spec: firstDocument,
+        handler: this,
+        handlerName: 'diff',
+        docVersion: 'old',
+        label: 'DIFF_OLD',
+      });
     } catch (err) {
       if (err instanceof SpecificationFileNotFound) {
         this.error(
@@ -77,14 +82,19 @@ export default class Diff extends Command {
             filepath: firstDocumentPath,
           })
         );
-      } else {
-        this.error(err as Error);
       }
+      this.error(err as Error);
     }
 
     try {
       secondDocument = await load(secondDocumentPath);
-      enableWatch(watchMode, { spec: secondDocument, handler: this, handlerName: 'diff', docVersion: 'new', label: 'DIFF_NEW' });
+      enableWatch(watchMode, {
+        spec: secondDocument,
+        handler: this,
+        handlerName: 'diff',
+        docVersion: 'new',
+        label: 'DIFF_NEW',
+      });
     } catch (err) {
       if (err instanceof SpecificationFileNotFound) {
         this.error(
@@ -93,9 +103,8 @@ export default class Diff extends Command {
             filepath: secondDocumentPath,
           })
         );
-      } else {
-        this.error(err as Error);
       }
+      this.error(err as Error);
     }
 
     let overrides = {};
@@ -115,7 +124,7 @@ export default class Diff extends Command {
         secondDocumentParsed.json(),
         {
           override: overrides,
-          outputType: outputFormat as diff.OutputType,
+          outputType: outputFormat as diff.OutputType, // NOSONAR
         }
       );
 
@@ -192,4 +201,3 @@ const enableWatch = (status: boolean, watcher: specWatcherParams) => {
     specWatcher(watcher);
   }
 };
-
