@@ -11,8 +11,8 @@ export class GenerateFlagParser {
   private _params: Record<string, any> = {}
   private _disableHooks: Record<string, any> = {}
   private _mapBaseUrlToFolder: any = {}
-  constructor(disableHook: string[], param: string[], mapBaseUrl: string) {
-    param.forEach(param => this.paramParser(param));
+  constructor(disableHook: string[], params: string[], mapBaseUrl: string) {
+    params.forEach(param => this.paramParser(param));
     disableHook.forEach(hook => this.disableHooksParser(hook));
     this.mapBaseURLParser(mapBaseUrl);
   }
