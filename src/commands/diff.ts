@@ -25,7 +25,7 @@ export default class Diff extends Command {
     format: Flags.string({
       char: 'f',
       description: 'format of the output',
-      default: 'json',
+      default: 'yaml',
       options: ['json', 'yaml', 'yml'],
     }),
     type: Flags.string({

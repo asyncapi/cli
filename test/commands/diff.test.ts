@@ -6,7 +6,7 @@ describe('diff', () => {
     test
       .stderr()
       .stdout()
-      .command(['diff', './test/specification.yml', './test/specification.yml'])
+      .command(['diff', './test/specification.yml', './test/specification.yml', '--format=json'])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).to.equal(
           '"{\\n  \\"changes\\": []\\n}\\n"'
@@ -25,6 +25,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--type=all',
+        '--format=json'
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).to.equal(
@@ -44,6 +45,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--type=breaking',
+        '--format=json'
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).to.equal(
@@ -63,6 +65,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--type=non-breaking',
+        '--format=json'
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).to.equal(
@@ -82,6 +85,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--type=unclassified',
+        '--format=json'
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).to.equal(
@@ -121,6 +125,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--overrides=./test/fixtures/overrides.json',
+        '--format=json'
       ])
       .it((ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).to.equal(
@@ -140,6 +145,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--overrides=./overrides-wrong.json',
+        '--format=json'
       ])
       .it((ctx, done) => {
         expect(ctx.stdout).to.equal('');
@@ -178,7 +184,6 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--type=all',
-        '--format=yaml'
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).to.equal(
