@@ -1,27 +1,24 @@
-<h5 align="center">
-  <br>
-  <a href="https://www.asyncapi.org"><img src="https://github.com/asyncapi/parser-nodejs/raw/master/assets/logo.png" alt="AsyncAPI logo" width="200"></a>
-  <br>
-  AsyncAPI CLI
-</h5>
-<p align="center">
-  <em>CLI to work with your AsyncAPI files. Currently supports validation, but it is under development for more features.</em>
-</p>
+[![AsyncAPI CLI](./assets/logo.png)](https://www.asyncapi.com)
 
-<p align="center">
-<a href="https://github.com/asyncapi/cli/blob/master/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/asyncapi/cli"></a>
-<a href="https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml">
-<img src="https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml/badge.svg" alt="PR testing - if Node project"  />
-</a>
-<a href="https://www.npmjs.com/package/@asyncapi/cli">
-<img alt="npm" src="https://img.shields.io/npm/dw/@asyncapi/cli">
-</a>
+CLI to work with your AsyncAPI files. Currently supports validation, but it is under development for more features.
 
-</p>
+[![GitHub license](https://img.shields.io/github/license/asyncapi/cli)](https://github.com/asyncapi/cli/blob/master/LICENSE)
+[![PR testing - if Node project](https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml/badge.svg)](https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml)
+[![npm](https://img.shields.io/npm/dw/@asyncapi/cli)](https://www.npmjs.com/package/@asyncapi/cli)
+
+
 
 ## Table of contents
 
 <!-- toc -->
+
+- [Requirements](#requirements)
+  * [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+  * [Set up development environment](#set-up-development-environment)
+  * [Command Structure and Patterns](#command-structure-and-patterns)
+- [Contributors](#contributors)
 
 <!-- tocstop -->
 
