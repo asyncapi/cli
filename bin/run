@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-require('reflect-metadata');
+const oclif = require('@oclif/core')
 
-require('@oclif/command').run()
-.then(require('@oclif/command/flush'))
-.catch(require('@oclif/errors/handle'))
+oclif.run().then(require('@oclif/core/flush')).catch(require('@oclif/core/handle'))

@@ -1,19 +1,19 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "0.14.1",
+  "version": "0.18.0",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run"
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
+    "@asyncapi/converter": "^0.9.0",
     "@asyncapi/diff": "^0.3.0",
     "@asyncapi/parser": "^1.14.0",
     "@asyncapi/studio": "^0.10.0",
-    "@fmvilas/oclif-plugin-spaced-commands": "^1.0.4",
-    "@oclif/command": "^1.8.0",
-    "@oclif/config": "^1.17.0",
+    "@oclif/core": "^1.2.0",
+    "@oclif/plugin-not-found": "^2.3.1",
     "@types/inquirer": "^8.1.3",
     "@types/ws": "^8.2.0",
     "chalk": "^4.1.0",
@@ -28,14 +28,12 @@
     "request": "^2.88.2",
     "serve-handler": "^6.1.3",
     "strip-ansi": "^6.0.0",
-    "tslib": "^1.14.1",
     "unzipper": "^0.10.11",
     "wrap-ansi": "^4.0.0",
     "ws": "^8.2.3"
   },
   "devDependencies": {
-    "@oclif/dev-cli": "^1.26.0",
-    "@oclif/test": "^1.2.8",
+    "@oclif/test": "^2",
     "@semantic-release/commit-analyzer": "^8.0.1",
     "@semantic-release/github": "^7.2.3",
     "@semantic-release/npm": "^7.1.3",
@@ -50,7 +48,7 @@
     "@typescript-eslint/eslint-plugin": "^4.28.4",
     "@typescript-eslint/parser": "^4.28.4",
     "acorn": "^8.5.0",
-    "chai": "^4.3.4",
+    "chai": "^4",
     "conventional-changelog-conventionalcommits": "^4.4.0",
     "cross-env": "^7.0.3",
     "eslint": "^7.31.0",
@@ -61,13 +59,14 @@
     "eslint-plugin-sonarjs": "^0.10.0",
     "globby": "^10.0.2",
     "markdown-toc": "^1.2.0",
-    "mocha": "^5.2.0",
+    "mocha": "^9",
     "nyc": "^14.1.1",
-    "oclif": "^1.18.1",
     "rimraf": "^3.0.2",
     "semantic-release": "^17.4.3",
-    "ts-node": "^8.10.2",
-    "typescript": "^3.9.10"
+    "souvikns-oclif": "^2.5.0",
+    "ts-node": "^10.4.0",
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.3"
   },
   "engines": {
     "node": ">12.16"
@@ -89,8 +88,13 @@
     "commands": "./lib/commands",
     "bin": "asyncapi",
     "plugins": [
-      "@fmvilas/oclif-plugin-spaced-commands"
-    ]
+      "@oclif/plugin-not-found"
+    ],
+    "topicSeparator": " ",
+    "topics": {
+      "config:context": {},
+      "config": {}
+    }
   },
   "publishConfig": {
     "access": "public"
@@ -121,7 +125,7 @@
   },
   "repository": "asyncapi/cli",
   "scripts": {
-    "build": "node scripts/fetch-asyncapi-example.js && tsc",
+    "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && tsc && echo \"Build Completed\"",
     "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
     "dev": "tsc --watch",
     "generate:assets": "npm run generate:readme:toc",
@@ -129,15 +133,11 @@
     "lint": "eslint --max-warnings 0 --config .eslintrc .",
     "lint:fix": "eslint --max-warnings 5 --config .eslintrc . --fix",
     "postpack": "rimraf oclif.manifest.json",
-    "prepack": "rimraf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "npm run build && oclif manifest",
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",
     "release": "semantic-release",
-    "start": "npm run build && node dist/cli.js",
-    "test": "cross-env TEST=1 CONTEXT_FILENAME=\"./test.asyncapi\" CONTEXT_FILE_PATH=\"./\" nyc --extension .ts mocha --require ts-node/register --reporter spec --timeout 10000 \"test/**/*.test.ts\"",
-    "version": "oclif-dev readme && git add README.md",
-    "readme": "oclif readme"
+    "test": "cross-env TEST=1 CONTEXT_FILENAME=\"./test.asyncapi\" CONTEXT_FILE_PATH=\"./\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 10000 \"test/**/*.test.ts\""
   },
   "types": "lib/index.d.ts"
 }
