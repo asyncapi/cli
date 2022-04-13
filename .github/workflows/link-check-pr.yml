@@ -11,7 +11,10 @@ jobs:
   External-link-validation-on-PR:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repo
+      uses: actions/checkout@v3
+    - name: Do come Git magic
+      run: git config --global --add safe.directory /github/workspace
     - name: Check links
       uses: gaurav-nelson/github-action-markdown-link-check@v1
       with:
