@@ -6,6 +6,8 @@ name: Check Markdown links
 on: 
   pull_request_target:
     types: [synchronize, ready_for_review, opened, reopened]
+    paths:
+      - '**.md'
 
 jobs:
   External-link-validation-on-PR:
@@ -13,10 +15,8 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3
-    - name: Do come Git magic
-      run: git config --global --add safe.directory /github/workspace
     - name: Check links
-      uses: gaurav-nelson/github-action-markdown-link-check@v1
+      uses: derberg/github-action-markdown-link-check@temporary-fix
       with:
         use-quiet-mode: 'yes'
         use-verbose-mode: 'yes'
