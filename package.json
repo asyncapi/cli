@@ -8,9 +8,9 @@
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
-    "@asyncapi/generator": "^1.9.1",
     "@asyncapi/converter": "^0.9.0",
     "@asyncapi/diff": "^0.3.0",
+    "@asyncapi/generator": "^1.9.1",
     "@asyncapi/parser": "^1.14.0",
     "@asyncapi/studio": "^0.10.0",
     "@oclif/core": "^1.2.0",
@@ -33,6 +33,7 @@
     "ws": "^8.2.3"
   },
   "devDependencies": {
+    "@babel/core": "^7.17.9",
     "@oclif/test": "^2",
     "@semantic-release/commit-analyzer": "^8.0.1",
     "@semantic-release/github": "^7.2.3",
