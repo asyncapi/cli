@@ -58,9 +58,9 @@ export class GenerateFlagParser {
     const [hookType, hookNames] = input.split(/=/);
     if (!hookType) { throw new Error('Invalid --disable-hook flag. It must be in the format of: --disable-hook <hookType> or --disable-hook <hookType>=<hookName1>,<hookName2>,...'); }
     if (hookNames) {
-      this._disableHooks[hookType as string] = hookNames.split(',');
+      this._disableHooks[String(hookType)] = hookNames.split(',');
     } else {
-      this._disableHooks[hookType as string] = true;
+      this._disableHooks[String(hookType)] = true;
     }
   }
 
