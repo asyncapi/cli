@@ -1,5 +1,6 @@
-import { Flags } from '@oclif/core';
+import { Flags, CliUx } from '@oclif/core';
 import Command from '../base';
+// eslint-disable-next-line
 // @ts-ignore
 import AsyncAPIGenerator from '@asyncapi/generator';
 import path from 'path';
@@ -11,21 +12,37 @@ export class GenerateFlagParser {
   private _params: Record<string, any> = {}
   private _disableHooks: Record<string, any> = {}
   private _mapBaseUrlToFolder: any = {}
-  constructor(disableHook: string[], params: string[], mapBaseUrl: string) {
-    params.forEach(param => this.paramParser(param));
-    disableHook.forEach(hook => this.disableHooksParser(hook));
-    this.mapBaseURLParser(mapBaseUrl);
+  constructor(disableHook?: string[], params?: string[], mapBaseUrl?: string) {
+    this.parse(params, disableHook, mapBaseUrl);
+  }
+
+  private parse(params?: string[], disableHook?: string[], mapBaseUrl?:string) {
+    if (params) {
+      for (const param of params) {
+        this.paramParser(param);
+      }
+    }
+
+    if (disableHook) {
+      for (const hook of disableHook) {
+        this.disableHooksParser(hook);
+      }
+    }
+
+    if (mapBaseUrl) {
+      this.mapBaseURLParser(mapBaseUrl);
+    }
   }
 
   params() {
     return this._params;
   }
 
-  disableHooks(){
+  disableHooks() {
     return this._disableHooks;
   }
 
-  mapBaseUrlToFolder(){
+  mapBaseUrlToFolder() {
     return this._mapBaseUrlToFolder;
   }
 
@@ -41,9 +58,9 @@ export class GenerateFlagParser {
     const [hookType, hookNames] = input.split(/=/);
     if (!hookType) { throw new Error('Invalid --disable-hook flag. It must be in the format of: --disable-hook <hookType> or --disable-hook <hookType>=<hookName1>,<hookName2>,...'); }
     if (hookNames) {
-      this._disableHooks[hookType] = hookNames.split(',');
+      this._disableHooks[hookType as string] = hookNames.split(',');
     } else {
-      this._disableHooks[hookType] = true;
+      this._disableHooks[hookType as string] = true;
     }
   }
 
@@ -120,6 +137,7 @@ export default class Generate extends Command {
     const { args, flags } = await this.parse(Generate); // NOSONAR
     const asyncapi = await load(args['asyncapi']);
     const template = args['template'];
+    console.log(flags);
 
     const flagParser = new GenerateFlagParser(flags['disable-hook'], flags['param'], flags['map-base-url'] as string);
 
@@ -133,10 +151,11 @@ export default class Generate extends Command {
       debug: flags.debug,
       templateParams: params,
       noOverwriteGlobs: flags['no-overwrite'],
-      mapBaseUrlToFolder: flags['map-base-url'],
-      disableHooks,
-      mapBaseURLToFolder
+      mapBaseUrlToFolder: mapBaseURLToFolder,
+      disabledHooks: disableHooks
     });
+    CliUx.ux.action.start('generating template');
     await generator.generateFromString(asyncapi.text());
+    CliUx.ux.action.stop();
   }
 }
