@@ -105,6 +105,7 @@ export default class Generate extends Command {
     }),
     'no-overwrite': Flags.string({
       char: 'n',
+      multiple: true,
       description: 'glob or path of the file(s) to skip when regenerating'
     }),
     output: Flags.string({
@@ -137,7 +138,6 @@ export default class Generate extends Command {
     const { args, flags } = await this.parse(Generate); // NOSONAR
     const asyncapi = await load(args['asyncapi']);
     const template = args['template'];
-    console.log(flags);
 
     const flagParser = new GenerateFlagParser(flags['disable-hook'], flags['param'], flags['map-base-url'] as string);
 
