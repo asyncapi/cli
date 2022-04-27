@@ -76,7 +76,7 @@ COMMANDS
 
 ## Contributing
 
-Read [CONTRIBUTING](https://github.com/asyncapi/CLI/blob/master/CONTRIBUTING.md) guide.
+Read [CONTRIBUTING](https://github.com/asyncapi/.github/blob/master/CONTRIBUTING.md) guide.
 
 ### Set up development environment
 
