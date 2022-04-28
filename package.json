@@ -8,10 +8,10 @@
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
-    "@asyncapi/converter": "^0.9.0",
+    "@asyncapi/converter": "^0.11.0",
     "@asyncapi/diff": "^0.3.0",
-    "@asyncapi/parser": "^1.14.0",
-    "@asyncapi/studio": "^0.10.0",
+    "@asyncapi/parser": "^1.15.0",
+    "@asyncapi/studio": "^0.11.1",
     "@oclif/core": "^1.2.0",
     "@oclif/plugin-not-found": "^2.3.1",
     "@types/inquirer": "^8.1.3",
