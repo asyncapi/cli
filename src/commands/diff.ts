@@ -38,7 +38,7 @@ export default class Diff extends Command {
       char: 'o',
       description: 'path to JSON file containing the override properties',
     }),
-    watch: watchFlag,
+    watch: watchFlag(),
   };
 
   static args = [

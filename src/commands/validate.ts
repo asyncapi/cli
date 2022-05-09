@@ -11,7 +11,7 @@ export default class Validate extends Command {
 
   static flags = {
     help: Flags.help({ char: 'h' }),
-    watch: watchFlag
+    watch: watchFlag()
   }
 
   static args = [

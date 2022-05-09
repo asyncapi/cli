@@ -8,6 +8,14 @@ import os from 'os';
 import { load } from '../models/SpecificationFile';
 import { Example } from '@oclif/core/lib/interfaces';
 
+interface ParsedFlags {
+  params: Record<string, string>,
+  disableHooks: Record<string, string>,
+  mapBaseUrlToFolder: {
+    url: string,
+    folder: string
+  }
+}
 export class GenerateFlagParser {
   private _params: Record<string, any> = {}
   private _disableHooks: Record<string, any> = {}
@@ -131,7 +139,7 @@ export default class Generate extends Command {
 
   static args = [
     { name: 'asyncapi', description: 'Local path or url pointing to AsyncAPI specification file', required: true },
-    { name: 'template', description: 'Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template' }
+    { name: 'template', description: 'Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true }
   ]
 
   async run() {
@@ -139,23 +147,28 @@ export default class Generate extends Command {
     const asyncapi = await load(args['asyncapi']);
     const template = args['template'];
 
-    const flagParser = new GenerateFlagParser(flags['disable-hook'], flags['param'], flags['map-base-url'] as string);
-
-    const params = flagParser.params();
-    const disableHooks = flagParser.disableHooks();
-    const mapBaseURLToFolder = flagParser.mapBaseUrlToFolder();
+    const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url']);
 
     const generator = new AsyncAPIGenerator(template, flags.output || path.resolve(os.tmpdir(), 'asyncapi-generator'), {
       forceWrite: flags['force-write'],
       install: flags.install,
       debug: flags.debug,
-      templateParams: params,
+      templateParams: parsedFlags.params,
       noOverwriteGlobs: flags['no-overwrite'],
-      mapBaseUrlToFolder: mapBaseURLToFolder,
-      disabledHooks: disableHooks
+      mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
+      disabledHooks: parsedFlags.disableHooks
     });
     CliUx.ux.action.start('generating template');
     await generator.generateFromString(asyncapi.text());
     CliUx.ux.action.stop();
+  }
+
+  private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string): ParsedFlags {
+    const flagParser = new GenerateFlagParser(disableHooks, params, mapBaseUrl);
+    return {
+      disableHooks: flagParser.disableHooks(),
+      params: flagParser.params(),
+      mapBaseUrlToFolder: flagParser.mapBaseUrlToFolder()
+    } as ParsedFlags;
   }
 }
