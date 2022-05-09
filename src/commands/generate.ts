@@ -118,7 +118,8 @@ export default class Generate extends Command {
     }),
     output: Flags.string({
       char: 'o',
-      description: 'directory where to put the generated files (defaults to current directory)'
+      description: 'directory where to put the generated files (defaults to current directory)',
+      required: true
     }),
     'force-write': Flags.boolean({
       default: false,
