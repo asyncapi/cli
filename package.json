@@ -10,7 +10,7 @@
   "dependencies": {
     "@asyncapi/converter": "^0.11.0",
     "@asyncapi/diff": "^0.3.0",
-    "@asyncapi/generator": "^1.9.1",
+    "@asyncapi/generator": "^1.9.4",
     "@asyncapi/parser": "^1.15.0",
     "@asyncapi/studio": "^0.12.0",
     "@oclif/core": "^1.2.0",
