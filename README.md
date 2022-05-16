@@ -44,8 +44,6 @@ This installs the cli globaly on your system allowing you to run it from anywher
 
 > Cli will be available for installation brew and other app managers for other systems. 
 
-
-
 ## Usage
 
 As of now, the `@asyncapi/cli` only supports validation of the specification file. (This is still under development for more features.)
@@ -66,17 +64,17 @@ USAGE
 
 COMMANDS
   config    access configs
-  diff      find diff between two asyncapi files
-  new       creates a new asyncapi file
+  diff      find diff between two AsyncAPI files
+  new       creates a new AsyncAPI file
   start     starts a new local instance of Studio
-  validate  validate asyncapi file
+  validate  validate an AsyncAPI file
   generates         generate all kinds of stuff
-    types           generate all the type models for the AsyncAPI file
+    types           generate all the typed models for the AsyncAPI file
       typescript    generate the types in TypeScript
       csharp        generate the types in C#
       golang        generate the types in Go
       java          generate the types in Java
-      javascript    generate the types in javascript
+      javascript    generate the types in JavaScript
 ```
 
 ## Contributing

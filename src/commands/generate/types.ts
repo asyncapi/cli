@@ -1,5 +1,5 @@
 import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger} from '@asyncapi/modelina';
-import { flags } from '@oclif/command';
+import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
 import { parse } from '@asyncapi/parser';
@@ -7,28 +7,27 @@ export default class Types extends Command {
   static description = 'Generates typed models';
 
   static args = [
-    {name: 'language', description: 'language output', options: ['typescript', 'csharp', 'golang', 'java', 'javascript']},
+    { name: 'language', description: 'language output', options: ['typescript', 'csharp', 'golang', 'java', 'javascript'], required: true},
+    { name: 'file', description: 'spec path, url, or context-name', required: true },
   ]
 
   static flags = {
-    help: flags.help({ char: 'h' }),
-    file: flags.string({ char: 'f', description: 'path to the AsyncAPI file to generate types for' }),
-    output: flags.string({ char: 'o', description: 'output path to write the types to', required: true}),
+    help: Flags.help({ char: 'h' }),
+    output: Flags.string({ char: 'o', description: 'output path to write the types to', required: true}),
     /**
      * Go and Java specific package name to use for the generated types
      */
-    packageName: flags.string({description: 'Go and Java specific, define the package to use for the generated types', required: false}),
+    packageName: Flags.string({description: 'Go and Java specific, define the package to use for the generated types', required: false}),
     /**
      * C# specific options
      */
-    namespace: flags.string({description: 'C# specific, define the namespace to use for the generated types', required: false}),
+    namespace: Flags.string({description: 'C# specific, define the namespace to use for the generated types', required: false}),
   }
 
   async run() {
-    const passedArguments = this.parse(Types);
-    const {namespace, packageName, file, output} = passedArguments.flags;
-    const { language } = passedArguments.args;
-
+    const passedArguments = await this.parse(Types);
+    const { namespace, packageName, output } = passedArguments.flags;
+    const { language, file } = passedArguments.args;
     const inputFile = await load(file) || await load();
     const parsedInput = await parse(inputFile.text());
     let fileGenerator;
