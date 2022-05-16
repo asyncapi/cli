@@ -1,5 +1,5 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import { flags } from '@oclif/command';
+import { Flags } from '@oclif/core';
 import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
 import * as parser from '@asyncapi/parser';
@@ -12,6 +12,8 @@ import {
   DiffOverrideFileError,
   DiffOverrideJSONError,
 } from '../errors/diff-error';
+import { specWatcher, specWatcherParams } from '../globals';
+import { watchFlag } from '../flags';
 
 const { readFile } = fs;
 
@@ -19,23 +21,24 @@ export default class Diff extends Command {
   static description = 'find diff between two asyncapi files';
 
   static flags = {
-    help: flags.help({ char: 'h' }),
-    format: flags.string({
+    help: Flags.help({ char: 'h' }),
+    format: Flags.string({
       char: 'f',
       description: 'format of the output',
-      default: 'json',
-      options: ['json'],
+      default: 'yaml',
+      options: ['json', 'yaml', 'yml'],
     }),
-    type: flags.string({
+    type: Flags.string({
       char: 't',
       description: 'type of the output',
       default: 'all',
       options: ['breaking', 'non-breaking', 'unclassified', 'all'],
     }),
-    overrides: flags.string({
+    overrides: Flags.string({
       char: 'o',
       description: 'path to JSON file containing the override properties',
     }),
+    watch: watchFlag,
   };
 
   static args = [
@@ -52,18 +55,25 @@ export default class Diff extends Command {
   ];
 
   async run() {
-    const { args, flags } = this.parse(Diff); // NOSONAR
+    const { args, flags } = await this.parse(Diff); // NOSONAR
     const firstDocumentPath = args['old'];
     const secondDocumentPath = args['new'];
 
     const outputFormat = flags['format'];
     const outputType = flags['type'];
     const overrideFilePath = flags['overrides'];
-
+    const watchMode = flags['watch'];
     let firstDocument: Specification, secondDocument: Specification;
 
     try {
       firstDocument = await load(firstDocumentPath);
+      enableWatch(watchMode, {
+        spec: firstDocument,
+        handler: this,
+        handlerName: 'diff',
+        docVersion: 'old',
+        label: 'DIFF_OLD',
+      });
     } catch (err) {
       if (err instanceof SpecificationFileNotFound) {
         this.error(
@@ -72,13 +82,19 @@ export default class Diff extends Command {
             filepath: firstDocumentPath,
           })
         );
-      } else {
-        this.error(err as Error);
       }
+      this.error(err as Error);
     }
 
     try {
       secondDocument = await load(secondDocumentPath);
+      enableWatch(watchMode, {
+        spec: secondDocument,
+        handler: this,
+        handlerName: 'diff',
+        docVersion: 'new',
+        label: 'DIFF_NEW',
+      });
     } catch (err) {
       if (err instanceof SpecificationFileNotFound) {
         this.error(
@@ -87,9 +103,8 @@ export default class Diff extends Command {
             filepath: secondDocumentPath,
           })
         );
-      } else {
-        this.error(err as Error);
       }
+      this.error(err as Error);
     }
 
     let overrides = {};
@@ -109,11 +124,14 @@ export default class Diff extends Command {
         secondDocumentParsed.json(),
         {
           override: overrides,
+          outputType: outputFormat as diff.OutputType, // NOSONAR
         }
       );
 
       if (outputFormat === 'json') {
-        this.outputJson(diffOutput, outputType);
+        this.outputJSON(diffOutput, outputType);
+      } else if (outputFormat === 'yaml' || outputFormat === 'yml') {
+        this.outputYAML(diffOutput, outputType);
       } else {
         this.log(
           `The output format ${outputFormat} is not supported at the moment.`
@@ -126,8 +144,7 @@ export default class Diff extends Command {
       });
     }
   }
-
-  outputJson(diffOutput: AsyncAPIDiff, outputType: string) {
+  outputJSON(diffOutput: AsyncAPIDiff, outputType: string) {
     if (outputType === 'breaking') {
       this.log(JSON.stringify(diffOutput.breaking(), null, 2));
     } else if (outputType === 'non-breaking') {
@@ -136,6 +153,20 @@ export default class Diff extends Command {
       this.log(JSON.stringify(diffOutput.unclassified(), null, 2));
     } else if (outputType === 'all') {
       this.log(JSON.stringify(diffOutput.getOutput(), null, 2));
+    } else {
+      this.log(`The output type ${outputType} is not supported at the moment.`);
+    }
+  }
+
+  outputYAML(diffOutput: AsyncAPIDiff, outputType: string) {
+    if (outputType === 'breaking') {
+      this.log(diffOutput.breaking() as string);
+    } else if (outputType === 'non-breaking') {
+      this.log(diffOutput.nonBreaking() as string);
+    } else if (outputType === 'unclassified') {
+      this.log(diffOutput.unclassified() as string);
+    } else if (outputType === 'all') {
+      this.log(diffOutput.getOutput() as string);
     } else {
       this.log(`The output type ${outputType} is not supported at the moment.`);
     }
@@ -161,3 +192,12 @@ async function readOverrideFile(path: string): Promise<diff.OverrideObject> {
     throw new DiffOverrideJSONError();
   }
 }
+/**
+ * function to enable watchmode.
+ * The function is abstracted here, to avoid eslint cognitive complexity error.
+ */
+const enableWatch = (status: boolean, watcher: specWatcherParams) => {
+  if (status) {
+    specWatcher(watcher);
+  }
+};

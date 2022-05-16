@@ -7,10 +7,10 @@
     "outDir": "lib",
     "rootDir": "src",
     "strict": true,
-    "skipLibCheck": true,
-    "target": "es2017"
+    "target": "es2019"
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "src/global.d.ts"
   ]
 }

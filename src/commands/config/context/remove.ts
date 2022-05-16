@@ -1,17 +1,17 @@
-import { flags } from '@oclif/command';
+import {Flags} from '@oclif/core';
 import Command from '../../../base';
 import { removeContext } from '../../../models/Context';
 
 export default class ContextRemove extends Command {
   static description = 'Delete a context from the store';
   static flags = {
-    help: flags.help({ char: 'h' })
+    help: Flags.help({ char: 'h' })
   }
   static args = [
     { name: 'context-name', description: 'Name of the context to delete', required: true }
   ]
   async run() {
-    const { args } = this.parse(ContextRemove);
+    const { args } = await this.parse(ContextRemove);
     const contextName = args['context-name'];
     
     try {

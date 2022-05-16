@@ -1,27 +1,24 @@
-<h5 align="center">
-  <br>
-  <a href="https://www.asyncapi.org"><img src="https://github.com/asyncapi/parser-nodejs/raw/master/assets/logo.png" alt="AsyncAPI logo" width="200"></a>
-  <br>
-  AsyncAPI CLI
-</h5>
-<p align="center">
-  <em>CLI to work with your AsyncAPI files. Currently supports validation, but it is under development for more features.</em>
-</p>
+[![AsyncAPI CLI](./assets/logo.png)](https://www.asyncapi.com)
 
-<p align="center">
-<a href="https://github.com/asyncapi/cli/blob/master/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/asyncapi/cli"></a>
-<a href="https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml">
-<img src="https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml/badge.svg" alt="PR testing - if Node project"  />
-</a>
-<a href="https://www.npmjs.com/package/@asyncapi/cli">
-<img alt="npm" src="https://img.shields.io/npm/dw/@asyncapi/cli">
-</a>
+CLI to work with your AsyncAPI files. Currently supports validation, but it is under development for more features.
 
-</p>
+[![GitHub license](https://img.shields.io/github/license/asyncapi/cli)](https://github.com/asyncapi/cli/blob/master/LICENSE)
+[![PR testing - if Node project](https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml/badge.svg)](https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml)
+[![npm](https://img.shields.io/npm/dw/@asyncapi/cli)](https://www.npmjs.com/package/@asyncapi/cli)
+
+
 
 ## Table of contents
 
 <!-- toc -->
+
+- [Requirements](#requirements)
+  * [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+  * [Set up development environment](#set-up-development-environment)
+  * [Command Structure and Patterns](#command-structure-and-patterns)
+- [Contributors](#contributors)
 
 <!-- tocstop -->
 
@@ -68,10 +65,11 @@ USAGE
   $ asyncapi [COMMAND]
 
 COMMANDS
-  config            access configs
-  help              display help for the CLI
-  new               creates a new AsyncAPI file
-  validate          validate AsyncAPI file
+  config    access configs
+  diff      find diff between two asyncapi files
+  new       creates a new asyncapi file
+  start     starts a new local instance of Studio
+  validate  validate asyncapi file
   generates         generate all kinds of stuff
     types           generate all the type models for the AsyncAPI file
       typescript    generate the types in TypeScript
@@ -81,11 +79,9 @@ COMMANDS
       javascript    generate the types in javascript
 ```
 
-
-
 ## Contributing
 
-Read [CONTRIBUTING](https://github.com/asyncapi/CLI/blob/master/CONTRIBUTING.md) guide.
+Read [CONTRIBUTING](https://github.com/asyncapi/.github/blob/master/CONTRIBUTING.md) guide.
 
 ### Set up development environment
 
@@ -119,8 +115,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/mihirterna"><img src="https://avatars.githubusercontent.com/u/31316452?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Mihir Kulkarni</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=mihirterna" title="Code">💻</a></td>
-    <td align="center"><a href="https://imabp.github.io/resume/"><img src="https://avatars.githubusercontent.com/u/53480076?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Abir</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=imabp" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://imabp.github.io/resume/"><img src="https://avatars.githubusercontent.com/u/53480076?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Abir</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=imabp" title="Tests">⚠️</a> <a href="https://github.com/asyncapi/cli/commits?author=imabp" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/peter-rr"><img src="https://avatars.githubusercontent.com/u/81691177?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Peter Ramos</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=peter-rr" title="Code">💻</a></td>
+    <td align="center"><a href="https://samridhi-98.github.io/Portfolio"><img src="https://avatars.githubusercontent.com/u/54466041?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Samriddhi</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=Samridhi-98" title="Tests">⚠️</a></td>
   </tr>
 </table>
 

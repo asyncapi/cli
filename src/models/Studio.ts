@@ -1,4 +1,5 @@
-import { promises as fPromises } from 'fs';
+import { existsSync, promises as fPromises } from 'fs';
+import { SpecificationFileNotFound } from '../errors/specification-file';
 import { resolve } from 'path';
 import { createServer } from 'http';
 import serveHandler from 'serve-handler';
@@ -13,7 +14,14 @@ const messageQueue: string[] = [];
 
 export const DEFAULT_PORT = 3210;
 
+function isValidFilePath(filePath: string): boolean {
+  return existsSync(filePath);
+}
+
 export function start(filePath: string, port: number = DEFAULT_PORT): void {
+  if (!isValidFilePath(filePath)) {
+    throw new SpecificationFileNotFound(filePath);
+  }
   chokidar.watch(filePath).on('all', (event, path) => {
     switch (event) {
     case 'add':
