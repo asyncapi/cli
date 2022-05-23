@@ -5,8 +5,10 @@ import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
 import { SpecificationFileNotFound } from '../errors/specification-file';
-// @ts-ignore
 import { convert } from '@asyncapi/converter';
+
+import type { ConvertVersion } from '@asyncapi/converter';
+
 // @ts-ignore
 import specs from '@asyncapi/specs';
 
@@ -36,7 +38,7 @@ export default class Convert extends Command {
       specFile = await load(filePath);
 
       // CONVERSION
-      convertedFile = await convert(specFile.text(), flags['target-version'], {});
+      convertedFile = convert(specFile.text(), flags['target-version'] as ConvertVersion);
       if (convertedFile) {
         if (specFile.getFilePath()) {
           this.log(`File ${specFile.getFilePath()} successfully converted!`);
