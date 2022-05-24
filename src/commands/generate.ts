@@ -117,7 +117,7 @@ export default class Generate extends Command {
             templateParams: parsedFlags.params,
             noOverwriteGlobs: flags['no-overwrite'],
             mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
-            disableHooks: parsedFlags.disableHooks
+            disabledHooks: parsedFlags.disableHooks
           });
         }
       );
@@ -129,7 +129,7 @@ export default class Generate extends Command {
         templateParams: parsedFlags.params,
         noOverwriteGlobs: flags['no-overwrite'],
         mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
-        disableHooks: parsedFlags.disableHooks
+        disabledHooks: parsedFlags.disableHooks
       });
     }
   }
@@ -194,8 +194,8 @@ export default class Generate extends Command {
     const watchDir = path.resolve(template);
     const outputPath = path.resolve(watchDir, output);
     const transpiledTemplatePath = path.resolve(watchDir, AsyncAPIGenerator.TRANSPILED_TEMPLATE_LOCATION);
-    let templateName = await import(path.resolve(watchDir, 'package.json')) as any;
-    templateName = templateName.name;
+    let templateName = await import(path.resolve(watchDir, 'package.json'));
+    templateName = templateName.name
     const ignorePaths = [outputPath, transpiledTemplatePath];
     const isAsyncAPIDocLocal = isFilePath(asyncapi);
 

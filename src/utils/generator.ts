@@ -19,7 +19,7 @@ export class Watcher {
   private fsWait: any;
   private filesChanged: any;
   private ignorePaths: string[];
-  private paths: string[];
+  private paths: any;
 
   constructor(paths: string | string[], ignorePaths: string[]) {
     if (Array.isArray(paths)) {
@@ -56,7 +56,7 @@ export class Watcher {
    */
   async watch(changeCallback: any, errorCallback: any) {
     for (const index in this.paths) {
-      const path = this.paths[index] as string;
+      const path = this.paths[index];
       this.initiateWatchOnPath(path, changeCallback, errorCallback);
     }
   }
