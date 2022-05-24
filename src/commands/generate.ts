@@ -4,9 +4,15 @@ import Command from '../base';
 // @ts-ignore
 import AsyncAPIGenerator from '@asyncapi/generator';
 import path from 'path';
-import { load } from '../models/SpecificationFile';
+import { load, Specification } from '../models/SpecificationFile';
 import { Example } from '@oclif/core/lib/interfaces';
 import { watchFlag } from '../flags';
+import { isFilePath, isLocalTemplate, Watcher } from '../utils/generator';
+
+const red = (text: string) => `\x1b[31m${text}\x1b[0m`;
+const magenta = (text: string) => `\x1b[35m${text}\x1b[0m`;
+const yellow = (text: string) => `\x1b[33m${text}\x1b[0m`;
+const green = (text: string) => `\x1b[32m${text}\x1b[0m`;
 
 interface ParsedFlags {
   params: Record<string, string>,
@@ -37,7 +43,7 @@ export default class Generate extends Command {
       description: 'installs the template and its dependencies (defaults to false)'
     }),
     debug: Flags.boolean({
-      description: 'to enable specific errors in the console'
+      description: 'enable more specific errors in the console'
     }),
     'no-overwrite': Flags.string({
       char: 'n',
@@ -53,7 +59,7 @@ export default class Generate extends Command {
       default: false,
       description: 'force writing of the generated files to given directory even if it is a git repo with unstaged files or not empty dir (defaults to false)'
     }),
-    'watch-tempalte': watchFlag(
+    'watch-template': watchFlag(
       'watches the template directory and the AsyncAPI document, and re-generate the files when changes occur. Ignores the output directory.'
     ),
     param: Flags.string({
@@ -78,18 +84,54 @@ export default class Generate extends Command {
 
     const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url']);
 
-    const generator = new AsyncAPIGenerator(template, flags.output, {
-      forceWrite: flags['force-write'],
-      install: flags.install,
-      debug: flags.debug,
-      templateParams: parsedFlags.params,
-      noOverwriteGlobs: flags['no-overwrite'],
-      mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
-      disabledHooks: parsedFlags.disableHooks
-    });
-    CliUx.ux.action.start('generating template');
-    await generator.generateFromString(asyncapi.text());
-    CliUx.ux.action.stop();
+    if (flags['watch-template']) {
+      await this.runWatchMode(
+        asyncapi.getFilePath() as string,
+        template,
+        flags.output,
+        (changedFiles: Record<string, any>) => {
+          console.clear();
+          this.log('[Watcher] Change detected');
+          for (const [, value] of Object.entries(changedFiles)) {
+            let eventText;
+            switch (value.eventType) {
+            case 'changed':
+              eventText = green(value.eventType);
+              break;
+            case 'removed':
+              eventText = red(value.eventType);
+              break;
+            case 'renamed':
+              eventText = yellow(value.eventType);
+              break;
+            default:
+              eventText = yellow(value.eventType);
+            }
+            this.log(`\t${magenta(value.path)} was ${eventText}`);
+          }
+
+          this.generate(asyncapi, template, flags.output, {
+            forceWrite: flags['force-write'],
+            install: flags.install,
+            debug: flags.debug,
+            templateParams: parsedFlags.params,
+            noOverwriteGlobs: flags['no-overwrite'],
+            mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
+            disableHooks: parsedFlags.disableHooks
+          });
+        }
+      );
+    } else {
+      await this.generate(asyncapi, template, flags.output, {
+        forceWrite: flags['force-write'],
+        install: flags.install,
+        debug: flags.debug,
+        templateParams: parsedFlags.params,
+        noOverwriteGlobs: flags['no-overwrite'],
+        mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
+        disableHooks: parsedFlags.disableHooks
+      });
+    }
   }
 
   private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string): ParsedFlags {
@@ -101,7 +143,7 @@ export default class Generate extends Command {
   }
 
   private paramParser(inputs?: string[]) {
-    if (!inputs) {return {};}
+    if (!inputs) { return {}; }
     const params: Record<string, any> = {};
     for (const input of inputs) {
       if (!input.includes('=')) { throw new Error(`Invalid param ${input}. It must be in the format of --param name=value. `); }
@@ -112,7 +154,7 @@ export default class Generate extends Command {
   }
 
   private disableHooksParser(inputs?: string[]) {
-    if (!inputs) {return {};}
+    if (!inputs) { return {}; }
     const disableHooks: Record<string, any> = {};
 
     for (const input of inputs) {
@@ -128,7 +170,7 @@ export default class Generate extends Command {
   }
 
   private mapBaseURLParser(input?: string) {
-    if (!input) {return;}
+    if (!input) { return; }
     const mapBaseURLToFolder: any = {};
     const re = /(.*):(.*)/g; // NOSONAR
     let mapping: any[] | null = [];
@@ -145,5 +187,41 @@ export default class Generate extends Command {
     }
 
     return mapBaseURLToFolder;
+  }
+
+  private async runWatchMode(asyncapi: string, template: string, output: string, watchHandler: any) {
+    let watcher;
+    const watchDir = path.resolve(template);
+    const outputPath = path.resolve(watchDir, output);
+    const transpiledTemplatePath = path.resolve(watchDir, AsyncAPIGenerator.TRANSPILED_TEMPLATE_LOCATION);
+    let templateName = await import(path.resolve(watchDir, 'package.json')) as any;
+    templateName = templateName.name;
+    const ignorePaths = [outputPath, transpiledTemplatePath];
+    const isAsyncAPIDocLocal = isFilePath(asyncapi);
+
+    if (isAsyncAPIDocLocal) {
+      this.log(`[WATCHER] Watching for changes in the template directory ${magenta(watchDir)} and in the AsyncAPI file ${magenta(asyncapi)}`);
+      watcher = new Watcher([asyncapi, output], ignorePaths);
+    } else {
+      this.log(`[WATCHER] Watching for changes in the template directory ${magenta(watchDir)}`);
+      watcher = new Watcher(output, ignorePaths);
+    }
+
+    if (!await isLocalTemplate(path.resolve(AsyncAPIGenerator.DEFAULT_TEMPLATES_DIR, templateName))) {
+      this.warn(`WARNING: ${template} is a remote template. Changes may be lost on subsequent installations.`);
+    }
+
+    watcher.watch(watchHandler, (paths: any) => {
+      this.error(`[WATCHER] Could not find the file path ${paths}, are you sure it still exists? If it has been deleted or moved please rerun the generator.`, {
+        exit: 1,
+      });
+    });
+  }
+
+  private async generate(asyncapi: Specification, template: string, output: string, options: any) {
+    const generator = new AsyncAPIGenerator(template, output, options);
+    CliUx.ux.action.start('Generating template');
+    await generator.generateFromString(asyncapi.text());
+    CliUx.ux.action.stop();
   }
 }
