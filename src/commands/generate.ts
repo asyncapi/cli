@@ -5,9 +5,11 @@ import Command from '../base';
 import AsyncAPIGenerator from '@asyncapi/generator';
 import path from 'path';
 import { load, Specification } from '../models/SpecificationFile';
-import { Example } from '@oclif/core/lib/interfaces';
 import { watchFlag } from '../flags';
-import { isFilePath, isLocalTemplate, Watcher } from '../utils/generator';
+import { isLocalTemplate, Watcher } from '../utils/generator';
+import { ValidationError } from '../errors/validation-error';
+
+import type { Example } from '@oclif/core/lib/interfaces';
 
 const red = (text: string) => `\x1b[31m${text}\x1b[0m`;
 const magenta = (text: string) => `\x1b[35m${text}\x1b[0m`;
@@ -79,58 +81,34 @@ export default class Generate extends Command {
 
   async run() {
     const { args, flags } = await this.parse(Generate); // NOSONAR
-    const asyncapi = await load(args['asyncapi']);
+    
+    const asyncapi = args['asyncapi'];
     const template = args['template'];
-
+    const output = flags.output;
     const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url']);
+    const options = {
+      forceWrite: flags['force-write'],
+      install: flags.install,
+      debug: flags.debug,
+      templateParams: parsedFlags.params,
+      noOverwriteGlobs: flags['no-overwrite'],
+      mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
+      disabledHooks: parsedFlags.disableHooks,
+    };
+    const watchTemplate = flags['watch-template'];
 
-    if (flags['watch-template']) {
-      await this.runWatchMode(
-        asyncapi.getFilePath() as string,
-        template,
-        flags.output,
-        (changedFiles: Record<string, any>) => {
-          console.clear();
-          this.log('[Watcher] Change detected');
-          for (const [, value] of Object.entries(changedFiles)) {
-            let eventText;
-            switch (value.eventType) {
-            case 'changed':
-              eventText = green(value.eventType);
-              break;
-            case 'removed':
-              eventText = red(value.eventType);
-              break;
-            case 'renamed':
-              eventText = yellow(value.eventType);
-              break;
-            default:
-              eventText = yellow(value.eventType);
-            }
-            this.log(`\t${magenta(value.path)} was ${eventText}`);
-          }
+    try {
+      await this.generate(asyncapi, template, output, options);
+    } catch (err: any) {
+      if (!watchTemplate) {
+        return this.showErrorAndExit(err);
+      }
+      this.showError(err);
+    }
 
-          this.generate(asyncapi, template, flags.output, {
-            forceWrite: flags['force-write'],
-            install: flags.install,
-            debug: flags.debug,
-            templateParams: parsedFlags.params,
-            noOverwriteGlobs: flags['no-overwrite'],
-            mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
-            disabledHooks: parsedFlags.disableHooks
-          });
-        }
-      );
-    } else {
-      await this.generate(asyncapi, template, flags.output, {
-        forceWrite: flags['force-write'],
-        install: flags.install,
-        debug: flags.debug,
-        templateParams: parsedFlags.params,
-        noOverwriteGlobs: flags['no-overwrite'],
-        mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
-        disabledHooks: parsedFlags.disableHooks
-      });
+    if (watchTemplate) {
+      const watcherHandler = this.watcherHandler(asyncapi, template, output, options);
+      await this.runWatchMode(asyncapi, template, output, watcherHandler);
     }
   }
 
@@ -189,24 +167,56 @@ export default class Generate extends Command {
     return mapBaseURLToFolder;
   }
 
-  private async runWatchMode(asyncapi: string, template: string, output: string, watchHandler: any) {
-    let watcher;
+  private async generate(asyncapi: string | undefined, template: string, output: string, options: any) {
+    let specification: Specification;
+    try {
+      specification = await load(asyncapi);
+    } catch (err: any) {
+      this.error(
+        new ValidationError({
+          type: 'invalid-file',
+          filepath: asyncapi,
+        }),
+        { exit: 1 },
+      );
+    }
+    const generator = new AsyncAPIGenerator(template, output, options);
+
+    CliUx.ux.action.start('Generating template');
+    await generator.generateFromString(specification.text());
+    CliUx.ux.action.stop();
+    console.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
+  }
+
+  private async runWatchMode(asyncapi: string | undefined, template: string, output: string, watchHandler: ReturnType<typeof this.watcherHandler>) {
+    const specification = await load(asyncapi);
+
     const watchDir = path.resolve(template);
     const outputPath = path.resolve(watchDir, output);
     const transpiledTemplatePath = path.resolve(watchDir, AsyncAPIGenerator.TRANSPILED_TEMPLATE_LOCATION);
-    let templateName = await import(path.resolve(watchDir, 'package.json'));
-    templateName = templateName.name
     const ignorePaths = [outputPath, transpiledTemplatePath];
-    const isAsyncAPIDocLocal = isFilePath(asyncapi);
+    const specificationFile = specification.getFilePath();
 
-    if (isAsyncAPIDocLocal) {
-      this.log(`[WATCHER] Watching for changes in the template directory ${magenta(watchDir)} and in the AsyncAPI file ${magenta(asyncapi)}`);
-      watcher = new Watcher([asyncapi, output], ignorePaths);
-    } else {
-      this.log(`[WATCHER] Watching for changes in the template directory ${magenta(watchDir)}`);
-      watcher = new Watcher(output, ignorePaths);
+    // Template name is needed as it is not always a part of the cli commad
+    // There is a use case that you run generator from a root of the template with `./` path
+    let templateName = '';
+    try {
+      // eslint-disable-next-line
+      templateName = require(path.resolve(watchDir, 'package.json')).name;
+    } catch (err: any) {
+      // intentional
     }
 
+    let watcher;
+    if (specificationFile) { // is local AsyncAPI file
+      this.log(`[WATCHER] Watching for changes in the template directory ${magenta(watchDir)} and in the AsyncAPI file ${magenta(specificationFile)}`);
+      watcher = new Watcher([specificationFile, watchDir], ignorePaths);
+    } else {
+      this.log(`[WATCHER] Watching for changes in the template directory ${magenta(watchDir)}`);
+      watcher = new Watcher(watchDir, ignorePaths);
+    }
+
+    // Must check template in its installation path in generator to use isLocalTemplate function
     if (!await isLocalTemplate(path.resolve(AsyncAPIGenerator.DEFAULT_TEMPLATES_DIR, templateName))) {
       this.warn(`WARNING: ${template} is a remote template. Changes may be lost on subsequent installations.`);
     }
@@ -218,10 +228,44 @@ export default class Generate extends Command {
     });
   }
 
-  private async generate(asyncapi: Specification, template: string, output: string, options: any) {
-    const generator = new AsyncAPIGenerator(template, output, options);
-    CliUx.ux.action.start('Generating template');
-    await generator.generateFromString(asyncapi.text());
-    CliUx.ux.action.stop();
+  private watcherHandler(asyncapi: string, template: string, output: string, options: Record<string, any>): (changedFiles: Record<string, any>) => Promise<void> {
+    return async (changedFiles: Record<string, any>): Promise<void> => {
+      console.clear();
+      console.log('[WATCHER] Change detected');
+      for (const [, value] of Object.entries(changedFiles)) {
+        let eventText;
+        switch (value.eventType) {
+        case 'changed':
+          eventText = green(value.eventType);
+          break;
+        case 'removed':
+          eventText = red(value.eventType);
+          break;
+        case 'renamed':
+          eventText = yellow(value.eventType);
+          break;
+        default:
+          eventText = yellow(value.eventType);
+        }
+        this.log(`\t${magenta(value.path)} was ${eventText}`);
+      }
+      try {
+        await this.generate(asyncapi, template, output, options);
+      } catch (err: any) {
+        this.showError(err);
+      }
+    };
+  }
+
+  private showError(err: Error & { errors: any[], validationErrors: any[] }) {
+    console.error(red('Something went wrong:'));
+    console.error(red(err.stack || err.message));
+    if (err.errors) {console.error(red(JSON.stringify(err.errors)));}
+    if (err.validationErrors) {console.error(red(JSON.stringify(err.validationErrors, null, 4)));}
+  }
+
+  private showErrorAndExit(err: any) {
+    this.showError(err);
+    this.exit(1);
   }
 }

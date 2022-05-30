@@ -29,8 +29,8 @@ export class Watcher {
     }
     //Ensure all backwards slashes are replaced with forward slash based on the requirement from chokidar
     for (const pathIndex in this.paths) {
-      const path = this.paths[pathIndex];
-      this.paths[pathIndex] = path.replace(/[\\]/g, '/');
+      const path = this.paths[String(pathIndex)];
+      this.paths[String(pathIndex)] = path.replace(/[\\]/g, '/');
     }
     this.fsWait = false;
     this.watchers = {};
@@ -47,7 +47,7 @@ export class Watcher {
   initiateWatchOnPath(path: string, changeCallback: any, errorCallback: any) {
     const watcher = chokidar.watch(path, {ignoreInitial: true, ignored: this.ignorePaths});
     watcher.on('all', (eventType, changedPath) => this.fileChanged(path, changedPath, eventType, changeCallback, errorCallback));
-    this.watchers[path] = watcher;
+    this.watchers[String(path)] = watcher;
   }
 
   /**
@@ -56,7 +56,7 @@ export class Watcher {
    */
   async watch(changeCallback: any, errorCallback: any) {
     for (const index in this.paths) {
-      const path = this.paths[index];
+      const path = this.paths[String(index)];
       this.initiateWatchOnPath(path, changeCallback, errorCallback);
     }
   }
@@ -73,7 +73,7 @@ export class Watcher {
     try {
       if (fs.existsSync(listenerPath)) {
         const newEventType = this.convertEventType(eventType);
-        this.filesChanged[changedPath] = { eventType: newEventType, path: changedPath};
+        this.filesChanged[String(changedPath)] = { eventType: newEventType, path: changedPath};
         // Since multiple changes can occur at the same time, lets wait a bit before processing.
         if (this.fsWait) {return;}
         this.fsWait = setTimeout(async () => {
@@ -124,7 +124,7 @@ export class Watcher {
   getAllNonExistingPaths() {
     const unknownPaths = [];
     for (const index in this.paths) {
-      const path = this.paths[index];
+      const path = this.paths[String(index)];
       if (!fs.existsSync(path)) {
         unknownPaths.push(path);
       }
@@ -138,7 +138,7 @@ export class Watcher {
   closeWatchers() {
     this.filesChanged = {};
     for (const index in this.paths) {
-      const path = this.paths[index];
+      const path = this.paths[String(index)];
       this.closeWatcher(path);
     }
   }
@@ -150,10 +150,10 @@ export class Watcher {
   closeWatcher(path: string) {
     // Ensure if called before `watch` to do nothing
     if (path !== null) {
-      const watcher = this.watchers[path];
+      const watcher = this.watchers[String(path)];
       if (watcher !== null) {
         watcher.close();
-        this.watchers[path] = null;
+        this.watchers[String(path)] = null;
       } else {
         //Watcher not found for path
       }
