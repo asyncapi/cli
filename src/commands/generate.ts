@@ -172,7 +172,7 @@ export default class Generate extends Command {
     try {
       specification = await load(asyncapi);
     } catch (err: any) {
-      this.error(
+      return this.error(
         new ValidationError({
           type: 'invalid-file',
           filepath: asyncapi,
@@ -183,8 +183,13 @@ export default class Generate extends Command {
     const generator = new AsyncAPIGenerator(template, output, options);
 
     CliUx.ux.action.start('Generating template');
-    await generator.generateFromString(specification.text());
-    CliUx.ux.action.stop();
+    try {
+      await generator.generateFromString(specification.text());
+      CliUx.ux.action.stop();
+    } catch(err: any) {
+      CliUx.ux.action.stop();
+      throw err;
+    }
     console.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
   }
 
@@ -266,6 +271,6 @@ export default class Generate extends Command {
 
   private showErrorAndExit(err: any) {
     this.showError(err);
-    this.exit(1);
+    return this.exit(1);
   }
 }
