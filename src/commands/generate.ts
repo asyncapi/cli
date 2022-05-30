@@ -186,7 +186,7 @@ export default class Generate extends Command {
     try {
       await generator.generateFromString(specification.text());
       CliUx.ux.action.stop();
-    } catch(err: any) {
+    } catch (err: any) {
       CliUx.ux.action.stop();
       throw err;
     }
