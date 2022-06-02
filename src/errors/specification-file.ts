@@ -37,7 +37,7 @@ export class ErrorLoadingSpec extends Error {
       this.message = `${param} is an invalid file path`;
     }
     if (from === 'url') {
-      this.name = 'error loading AsyncAPI docuement from url';
+      this.name = 'error loading AsyncAPI document from url';
       this.message = `${param} is an invalid url`;
     }
     if (from === 'context') {
