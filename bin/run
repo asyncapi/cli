@@ -4,9 +4,9 @@ const oclif = require('@oclif/core');
 
 oclif.run()
   .then(require('@oclif/core/flush'))
-  .catch(require('@oclif/core/handle'))
-  .catch((error) => {
-    const oclifHandler = require('@oclif/errors/handle');
-    return oclifHandler(error);
+  .catch((err) => {
+    const oclifHandler = require('@oclif/core/handle');
+    console.error(err.message);
+    return oclifHandler(err.message);
   });
 
