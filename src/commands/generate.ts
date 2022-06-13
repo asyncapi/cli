@@ -75,7 +75,7 @@ export default class Generate extends Command {
   }
 
   static args = [
-    { name: 'asyncapi', description: '- Local path or url pointing to AsyncAPI file', required: true },
+    { name: 'asyncapi', description: '- Local path, url or context-name pointing to AsyncAPI file', required: true },
     { name: 'template', description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true }
   ]
 

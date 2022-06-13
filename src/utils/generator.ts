@@ -1,13 +1,8 @@
 // eslint-disable security/detect-object-injection
-import * as url from 'url';
 import * as fs from 'fs';
 import { promisify } from 'util';
 import chokidar from 'chokidar';
 const lstat = promisify(fs.lstat);
-
-export function isFilePath(path: string) {
-  return !url.parse(path).hostname;
-}
 
 export async function isLocalTemplate(templatePath: string) {
   const stats = await lstat(templatePath);
