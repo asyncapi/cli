@@ -29,13 +29,19 @@ export default class Diff extends Command {
       char: 'f',
       description: 'format of the output',
       default: 'yaml',
-      options: ['json', 'yaml', 'yml'],
+      options: ['json', 'yaml', 'yml', 'markdown', 'md'],
     }),
     type: Flags.string({
       char: 't',
       description: 'type of the output',
       default: 'all',
       options: ['breaking', 'non-breaking', 'unclassified', 'all'],
+    }),
+    markdownSubtype: Flags.string({
+      char: 's',
+      description: 'output type of changes in markdown format',
+      default: 'json',
+      options: ['json', 'yaml', 'yml']
     }),
     overrides: Flags.string({
       char: 'o',
@@ -70,6 +76,7 @@ export default class Diff extends Command {
     const outputFormat = flags['format'];
     const outputType = flags['type'];
     const overrideFilePath = flags['overrides'];
+    const markdownSubtype = flags['markdownSubtype'];
     const watchMode = flags['watch'];
     const noError = flags['no-error'];
     let firstDocument: Specification, secondDocument: Specification;
@@ -137,6 +144,7 @@ export default class Diff extends Command {
         {
           override: overrides,
           outputType: outputFormat as diff.OutputType, // NOSONAR
+          markdownSubtype: markdownSubtype as diff.MarkdownSubtype
         }
       );
 
@@ -144,6 +152,8 @@ export default class Diff extends Command {
         this.outputJSON(diffOutput, outputType);
       } else if (outputFormat === 'yaml' || outputFormat === 'yml') {
         this.outputYAML(diffOutput, outputType);
+      } else if (outputFormat === 'markdown' || outputFormat === 'md') {
+        this.outputMarkdown(diffOutput, outputType);
       } else {
         this.log(
           `The output format ${outputFormat} is not supported at the moment.`
@@ -178,6 +188,21 @@ export default class Diff extends Command {
   }
 
   outputYAML(diffOutput: AsyncAPIDiff, outputType: string) {
+    if (outputType === 'breaking') {
+      this.log(diffOutput.breaking() as string);
+    } else if (outputType === 'non-breaking') {
+      this.log(diffOutput.nonBreaking() as string);
+    } else if (outputType === 'unclassified') {
+      this.log(diffOutput.unclassified() as string);
+    } else if (outputType === 'all') {
+      this.log(diffOutput.getOutput() as string);
+    } else {
+      this.log(`The output type ${outputType} is not supported at the moment.`);
+    }
+  }
+
+  // eslint-disable-next-line sonarjs/no-identical-functions
+  outputMarkdown(diffOutput: AsyncAPIDiff, outputType: string) {
     if (outputType === 'breaking') {
       this.log(diffOutput.breaking() as string);
     } else if (outputType === 'non-breaking') {

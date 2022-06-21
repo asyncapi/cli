@@ -245,6 +245,46 @@ describe('diff', () => {
           'File ./test/specification.yml is valid but has (itself and/or referenced documents) governance issues.'
         );
         expect(ctx.stderr).toEqual('');
+      });
+  });
+
+  describe('Markdown output with subtype as json, getting all changes', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'diff',
+        './test/fixtures/specification_v1.yml',
+        './test/fixtures/specification_v2.yml',
+        '--format=markdown',
+        '--type=all',
+      ])
+      .it('works when file path is passed', (ctx, done) => {
+        expect(JSON.stringify(ctx.stdout)).to.equal(
+          '"## Unclassified\\n\\n\\n - **Path**: `/channels/light~1measured/publish/message/x-parser-original-payload/properties/id/minimum`\\n     - **Action**: edit\\n     - **Before**: 0\\n     - **After**: 1\\n    \\n - **Path**: `/channels/light~1measured/publish/message/payload/properties/id/minimum`\\n     - **Action**: edit\\n     - **Before**: 0\\n     - **After**: 1\\n    \\n - **Path**: `/servers/mosquitto/protocol`\\n     - **Action**: edit\\n     - **Before**: mqtt\\n     - **After**: http\\n    \\n\\n## Breaking\\n\\n\\n - **Path**: `/servers/mosquitto/url`\\n     - **Action**: edit\\n     - **Before**: mqtt://test.mosquitto.org\\n     - **After**: http://test.mosquitto.org\\n    \\n\\n## Non-breaking\\n\\n\\n - **Path**: `/info/title`\\n     - **Action**: edit\\n     - **Before**: Streetlights API\\n     - **After**: Streetlights API V2\\n    \\n\\n"'
+        );
+        expect(ctx.stderr).to.equal('');
+        done();
+      });
+  });
+
+  describe('Markdown output with subtype as yaml, getting all changes', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'diff',
+        './test/fixtures/specification_v1.yml',
+        './test/fixtures/specification_v2.yml',
+        '--format=markdown',
+        '--markdownSubtype=yaml',
+        '--type=all',
+      ])
+      .it('works when file path is passed', (ctx, done) => {
+        expect(JSON.stringify(ctx.stdout)).to.equal(
+          '"## Unclassified\\n\\n\\n - **Path**: `/channels/light~1measured/publish/message/x-parser-original-payload/properties/id/minimum`\\n     - **Action**: edit\\n     - **Before**: 0\\n     - **After**: 1\\n    \\n - **Path**: `/channels/light~1measured/publish/message/payload/properties/id/minimum`\\n     - **Action**: edit\\n     - **Before**: 0\\n     - **After**: 1\\n    \\n - **Path**: `/servers/mosquitto/protocol`\\n     - **Action**: edit\\n     - **Before**: mqtt\\n     - **After**: http\\n    \\n\\n## Breaking\\n\\n\\n - **Path**: `/servers/mosquitto/url`\\n     - **Action**: edit\\n     - **Before**: mqtt://test.mosquitto.org\\n     - **After**: http://test.mosquitto.org\\n    \\n\\n## Non-breaking\\n\\n\\n - **Path**: `/info/title`\\n     - **Action**: edit\\n     - **Before**: Streetlights API\\n     - **After**: Streetlights API V2\\n    \\n\\n"'
+        );
+        expect(ctx.stderr).to.equal('');
         done();
       });
   });
