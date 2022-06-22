@@ -68,7 +68,7 @@ COMMANDS
   new       creates a new AsyncAPI file
   start     starts a new local instance of Studio
   validate  validate an AsyncAPI file
-  generates         generate all kinds of stuff
+  generate         generate all kinds of stuff
     types           generate all the typed models for the AsyncAPI file
       typescript    generate the types in TypeScript
       csharp        generate the types in C#
