@@ -68,13 +68,14 @@ COMMANDS
   new       creates a new AsyncAPI file
   start     starts a new local instance of Studio
   validate  validate an AsyncAPI file
-  generate         generate all kinds of stuff
-    types           generate all the typed models for the AsyncAPI file
+  generate    generate all kinds of stuff
+    types       generate all the typed models for the AsyncAPI file
       typescript    generate the types in TypeScript
       csharp        generate the types in C#
       golang        generate the types in Go
       java          generate the types in Java
       javascript    generate the types in JavaScript
+      dart          generate the types in Dart
 ```
 
 ## Contributing
