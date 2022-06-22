@@ -8,7 +8,7 @@
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
-    "@asyncapi/modelina": "^0.58.0",
+    "@asyncapi/modelina": "^0.59.2",
     "@asyncapi/converter": "^0.11.0",
     "@asyncapi/diff": "^0.4.0",
     "@asyncapi/parser": "^1.15.1",
