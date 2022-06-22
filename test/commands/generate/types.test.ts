@@ -12,7 +12,7 @@ describe('types', () => {
     .stdout()
     .command([...generalOptions, 'random', './test/specification.yml', `-o=${ path.resolve(outputDir, './random')}`])
     .it('fails when it dont know the language', (ctx, done) => {
-      expect(ctx.stderr).to.equals('Error: Expected random to be one of: typescript, csharp, golang, java, javascript\nSee more help with --help\n');
+      expect(ctx.stderr).to.equals('Error: Expected random to be one of: typescript, csharp, golang, java, javascript, dart\nSee more help with --help\n');
       expect(ctx.stdout).to.equals('');
       done();
     });
@@ -22,36 +22,8 @@ describe('types', () => {
     .stdout()
     .command([...generalOptions, 'typescript', './test/specification.yml'])
     .it('works when generating in memory', (ctx, done) => {
-      console.log(ctx.stdout);
       expect(ctx.stderr).to.equals('');
-      expect(ctx.stdout).to.equals(`Successfully generated the following models: 
-## Model name: AnonymousSchema_1
-
-
-class AnonymousSchema_1 {
-  private _displayName?: string;
-  private _email?: string;
-  private _additionalProperties?: Map<String, object | string | number | Array<unknown> | boolean | null>;
-
-  constructor(input: {
-    displayName?: string,
-    email?: string,
-  }) {
-    this._displayName = input.displayName;
-    this._email = input.email;
-  }
-
-  get displayName(): string | undefined { return this._displayName; }
-  set displayName(displayName: string | undefined) { this._displayName = displayName; }
-
-  get email(): string | undefined { return this._email; }
-  set email(email: string | undefined) { this._email = email; }
-
-  get additionalProperties(): Map<String, object | string | number | Array<unknown> | boolean | null> | undefined { return this._additionalProperties; }
-  set additionalProperties(additionalProperties: Map<String, object | string | number | Array<unknown> | boolean | null> | undefined) { this._additionalProperties = additionalProperties; }
-}
-export default AnonymousSchema_1;
-`);
+      expect(ctx.stdout).to.equals('Successfully generated the following models: \n## Model name: AnonymousSchema_1\n\n\nclass AnonymousSchema_1 {\n  private _displayName?: string;\n  private _email?: string;\n  private _additionalProperties?: Map<String, object | string | number | Array<unknown> | boolean | null>;\n\n  constructor(input: {\n    displayName?: string,\n    email?: string,\n  }) {\n    this._displayName = input.displayName;\n    this._email = input.email;\n  }\n\n  get displayName(): string | undefined { return this._displayName; }\n  set displayName(displayName: string | undefined) { this._displayName = displayName; }\n\n  get email(): string | undefined { return this._email; }\n  set email(email: string | undefined) { this._email = email; }\n\n  get additionalProperties(): Map<String, object | string | number | Array<unknown> | boolean | null> | undefined { return this._additionalProperties; }\n  set additionalProperties(additionalProperties: Map<String, object | string | number | Array<unknown> | boolean | null> | undefined) { this._additionalProperties = additionalProperties; }\n}\nexport default AnonymousSchema_1;\n\n  \n');
       done();
     });
     
@@ -63,7 +35,7 @@ export default AnonymousSchema_1;
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).to.equals('');
         expect(ctx.stdout).to.equals(
-          'Successfully generated the following models AnonymousSchema_1\n'
+          'Successfully generated the following models: AnonymousSchema_1\n'
         );
         done();
       });
@@ -76,7 +48,7 @@ export default AnonymousSchema_1;
       .command([...generalOptions, 'javascript', './test/specification.yml', `-o=${ path.resolve(outputDir, './js')}`])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stdout).to.equals(
-          'Successfully generated the following models AnonymousSchema_1\n'
+          'Successfully generated the following models: AnonymousSchema_1\n'
         );
         expect(ctx.stderr).to.equals('');
         done();
@@ -91,7 +63,7 @@ export default AnonymousSchema_1;
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).to.equals('');
         expect(ctx.stdout).to.equals(
-          'Successfully generated the following models AnonymousSchema_1\n'
+          'Successfully generated the following models: AnonymousSchema_1\n'
         );
         done();
       });
@@ -114,7 +86,7 @@ export default AnonymousSchema_1;
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).to.equals('');
         expect(ctx.stdout).to.equals(
-          'Successfully generated the following models AnonymousSchema_1\n'
+          'Successfully generated the following models: AnonymousSchema_1\n'
         );
         done();
       });
@@ -137,7 +109,7 @@ export default AnonymousSchema_1;
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).to.equals('');
         expect(ctx.stdout).to.equals(
-          'Successfully generated the following models AnonymousSchema1\n'
+          'Successfully generated the following models: AnonymousSchema1\n'
         );
         done();
       });
@@ -156,20 +128,20 @@ export default AnonymousSchema_1;
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'dart', './test/specification.yml', `-o=${ path.resolve(outputDir, './go')}`, '--packageName', 'test.package'])
+      .command([...generalOptions, 'dart', './test/specification.yml', `-o=${ path.resolve(outputDir, './dart')}`, '--packageName', 'test.package'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).to.equals('');
         expect(ctx.stdout).to.equals(
-          'Successfully generated the following models AnonymousSchema1\n'
+          'Successfully generated the following models: anonymous_schema_1\n'
         );
         done();
       });
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'dart', './test/specification.yml', `-o=${ path.resolve(outputDir, './go')}`])
+      .command([...generalOptions, 'dart', './test/specification.yml', `-o=${ path.resolve(outputDir, './dart')}`])
       .it('fails when no package defined', (ctx, done) => {
-        expect(ctx.stderr).to.equals('Error: In order to generate types to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
+        expect(ctx.stderr).to.equals('Error: In order to generate types to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
         expect(ctx.stdout).to.equals('');
         done();
       });

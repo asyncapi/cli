@@ -86,7 +86,13 @@ export default class Types extends Command {
       fileGenerator = new JavaScriptFileGenerator();
       break;
     case Languages.dart:
+      if (packageName === undefined) {
+        throw new Error('In order to generate types to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+      }
       fileGenerator = new DartFileGenerator();
+      fileOptions = {
+        packageName
+      };
       break;
     default:
       throw new Error(`Could not determine generator for language ${language}`);
