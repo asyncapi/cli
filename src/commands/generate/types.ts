@@ -11,30 +11,31 @@ enum Languages {
   javascript = 'javascript',
   dart = 'dart'
 }
+const possibleLanguageValues = Object.values(Languages).join(', ');
 export default class Types extends Command {
   static description = 'Generates typed models';
 
   static args = [
     { 
       name: 'language', 
-      description: 'language output', 
+      description: 'The language you want the typed models generated for.', 
       options: Object.keys(Languages), 
       required: true 
     },
-    { name: 'file', description: 'spec path, url, or context-name', required: true },
+    { name: 'file', description: 'Path or URL to the AsyncAPI document, or context-name', required: true },
   ]
 
   static flags = {
     help: Flags.help({ char: 'h' }),
-    output: Flags.string({ char: 'o', description: 'output path to write the model to' }),
+    output: Flags.string({ char: 'o', description: 'The output directory where the models should be written to. Omitting this flag will write the models to `stdout`.', required: false}),
     /**
      * Go and Java specific package name to use for the generated types
      */
-    packageName: Flags.string({ description: 'Go and Java specific, define the package to use for the generated types', required: false }),
+    packageName: Flags.string({ description: 'Go and Java specific, define the package to use for the generated types. This is required when language is `go` or `java`.', required: false }),
     /**
      * C# specific options
      */
-    namespace: Flags.string({ description: 'C# specific, define the namespace to use for the generated types', required: false }),
+    namespace: Flags.string({ description: 'C# specific, define the namespace to use for the generated types. This is required when language is `csharp`.', required: false }),
   }
 
   async run() {
@@ -95,7 +96,7 @@ export default class Types extends Command {
       };
       break;
     default:
-      throw new Error(`Could not determine generator for language ${language}`);
+      throw new Error(`Could not determine generator for language ${language}, are you using one of the following values ${possibleLanguageValues}?`);
     }
     let models;
     if (output) {
