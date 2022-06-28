@@ -1,0 +1,52 @@
+name: Upload custom assets to GitHub release
+
+on: 
+  release:
+    types: 
+      - published
+
+jobs:
+  upload-assets:
+    name: Generate and upload assets
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          # - os: ubuntu-latest
+          #   npm_script: pack:linux
+          #   dist_folder: deb
+          #   extension: tar.gz #or deb, we do not know yet
+          # - os: windows-latest
+          #   npm_script: pack:windows
+          #   dist_folder: win
+          #   extension: exe
+          - os: macos-latest
+            npm_script: pack:macos
+            dist_folder: macos
+            extension: pkg
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          # target branch of release. More info https://docs.github.com/en/rest/reference/repos#releases
+          # in case release is created from release branch then we need to checkout from given branch
+          # if @semantic-release/github is used to publish, the minimum version is 7.2.0 for proper working
+          ref: ${{ github.event.release.target_commitish }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+      - name: Get version from package.json
+        id: extractver
+        run: echo "::set-output name=version::$(npm run get-version --silent)"
+      - name: Install dependencies
+        run: npm install
+      - name: Assets generation
+        run: npm run ${{ matrix.npm_script }}
+      - name: Update release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/${{ matrix.dist_folder }}/asyncapi.${{ matrix.extension }}
+          tag_name: ${{ steps.extractver.outputs.version }}

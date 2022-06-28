@@ -120,17 +120,7 @@
         }
       ],
       "@semantic-release/npm",
-      [
-        "@semantic-release/github",
-        {
-          "assets": [
-            {
-              "path": "dist/macos/asyncapi.pkg",
-              "label": "MacOS PKG"
-            }
-          ]
-        }
-      ]
+      "@semantic-release/github"
     ]
   },
   "optionalDependencies": {
@@ -146,6 +136,8 @@
     "lint": "eslint --max-warnings 0 --config .eslintrc .",
     "lint:fix": "eslint --max-warnings 5 --config .eslintrc . --fix",
     "pack:macos": "oclif pack:macos && npm run pack:macos:rename",
+    "pack:linux": "oclif pack:deb",
+    "pack:windows": "oclif pack:win",
     "pack:macos:rename": "node scripts/macosPackRename.js",
     "postpack": "rimraf oclif.manifest.json",
     "postpublish": "npm run pack:macos",

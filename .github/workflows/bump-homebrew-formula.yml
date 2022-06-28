@@ -8,7 +8,7 @@ on:
       - master
 
 jobs:
-  bump-in-dependent-projects:
+  bump-formula-in-homebrew:
     name: Bump the formula in homebrew-core repo
     if: startsWith(github.event.commits[0].message, 'chore(release):')
     runs-on: ubuntu-latest
@@ -23,6 +23,6 @@ jobs:
           # A PR will be sent to github.com/Homebrew/homebrew-core to update this formula:
           formula-name: asyncapi
           tag-name: ${{ steps.extractver.outputs.version }}
-          download-url: https://registry.npmjs.org/@asyncapi/cli/-/cli-${{ steps.extractver.outputs.version }}.tgz 
+          download-url: https://registry.npmjs.org/@asyncapi/cli/-/cli-${{ steps.extractver.outputs.version }}.tgz #we need to point to npm not github as there is a dist that is not on github
         env:
           COMMITTER_TOKEN: ${{ secrets.GH_TOKEN_BOT_EVE }}
