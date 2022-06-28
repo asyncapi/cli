@@ -1,0 +1,28 @@
+name: Bump Homebrew formula for CLI
+
+on:
+  # It cannot run on release event as when release is created then version is not yet bumped in package.json
+  # This means we cannot extract easily latest version and have a risk that package is not yet on npm
+  push:
+    branches:
+      - master
+
+jobs:
+  bump-in-dependent-projects:
+    name: Bump the formula in homebrew-core repo
+    if: startsWith(github.event.commits[0].message, 'chore(release):')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Get version from package.json
+        id: extractver
+        run: echo "::set-output name=version::$(npm run get-version --silent)"
+      - uses: mislav/bump-homebrew-formula-action@v2
+        with:
+          # A PR will be sent to github.com/Homebrew/homebrew-core to update this formula:
+          formula-name: asyncapi
+          tag-name: ${{ steps.extractver.outputs.version }}
+          download-url: https://registry.npmjs.org/@asyncapi/cli/-/cli-${{ steps.extractver.outputs.version }}.tgz 
+        env:
+          COMMITTER_TOKEN: ${{ secrets.GH_TOKEN_BOT_EVE }}
