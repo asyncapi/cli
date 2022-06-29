@@ -30,11 +30,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
-          # target branch of release. More info https://docs.github.com/en/rest/reference/repos#releases
-          # in case release is created from release branch then we need to checkout from given branch
-          # if @semantic-release/github is used to publish, the minimum version is 7.2.0 for proper working
-          ref: ${{ github.event.release.target_commitish }}
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
@@ -52,4 +47,5 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: dist/${{ matrix.dist_folder }}/asyncapi.${{ matrix.extension }}
-          tag_name: ${{ steps.extractver.outputs.version }}
+          tag_name: v${{ steps.extractver.outputs.version }}
+          token: ${{ secrets.GH_TOKEN }}
