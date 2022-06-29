@@ -1,13 +1,16 @@
 name: Upload custom assets to GitHub release
 
-on: 
-  release:
-    types: 
-      - published
+on:
+  # It cannot run on release event as when release is created then version is not yet bumped in package.json
+  # This means we cannot extract easily latest version and have a risk that package is not yet on npm
+  push:
+    branches:
+      - master
 
 jobs:
   upload-assets:
     name: Generate and upload assets
+    if: startsWith(github.event.commits[0].message, 'chore(release):')
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -27,11 +30,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
-          # target branch of release. More info https://docs.github.com/en/rest/reference/repos#releases
-          # in case release is created from release branch then we need to checkout from given branch
-          # if @semantic-release/github is used to publish, the minimum version is 7.2.0 for proper working
-          ref: ${{ github.event.release.target_commitish }}
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
@@ -49,4 +47,5 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: dist/${{ matrix.dist_folder }}/asyncapi.${{ matrix.extension }}
-          tag_name: ${{ steps.extractver.outputs.version }}
+          tag_name: v${{ steps.extractver.outputs.version }}
+          token: ${{ secrets.GH_TOKEN }}
