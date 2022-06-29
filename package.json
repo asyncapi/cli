@@ -140,7 +140,6 @@
     "pack:windows": "oclif pack:win",
     "pack:macos:rename": "node scripts/macosPackRename.js",
     "postpack": "rimraf oclif.manifest.json",
-    "postpublish": "npm run pack:macos",
     "prepublishOnly": "npm run build && oclif manifest",
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",
