@@ -12,7 +12,7 @@ enum Languages {
   dart = 'dart'
 }
 const possibleLanguageValues = Object.values(Languages).join(', ');
-export default class Types extends Command {
+export default class Models extends Command {
   static description = 'Generates typed models';
 
   static args = [
@@ -29,17 +29,17 @@ export default class Types extends Command {
     help: Flags.help({ char: 'h' }),
     output: Flags.string({ char: 'o', description: 'The output directory where the models should be written to. Omitting this flag will write the models to `stdout`.', required: false}),
     /**
-     * Go and Java specific package name to use for the generated types
+     * Go and Java specific package name to use for the generated models
      */
-    packageName: Flags.string({ description: 'Go and Java specific, define the package to use for the generated types. This is required when language is `go` or `java`.', required: false }),
+    packageName: Flags.string({ description: 'Go and Java specific, define the package to use for the generated models. This is required when language is `go` or `java`.', required: false }),
     /**
      * C# specific options
      */
-    namespace: Flags.string({ description: 'C# specific, define the namespace to use for the generated types. This is required when language is `csharp`.', required: false }),
+    namespace: Flags.string({ description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.', required: false }),
   }
 
   async run() {
-    const passedArguments = await this.parse(Types);
+    const passedArguments = await this.parse(Models);
     const { namespace, packageName, output } = passedArguments.flags;
     const { language, file } = passedArguments.args;
     const inputFile = await load(file) || await load();
@@ -58,7 +58,7 @@ export default class Types extends Command {
       break;
     case Languages.csharp:
       if (namespace === undefined) {
-        throw new Error('In order to generate types to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
+        throw new Error('In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
       }
       fileGenerator = new CSharpFileGenerator();
       fileOptions = {
@@ -67,7 +67,7 @@ export default class Types extends Command {
       break;
     case Languages.golang:
       if (packageName === undefined) {
-        throw new Error('In order to generate types to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+        throw new Error('In order to generate models to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
       }
       fileGenerator = new GoFileGenerator();
       fileOptions = {
@@ -76,7 +76,7 @@ export default class Types extends Command {
       break;
     case Languages.java:
       if (packageName === undefined) {
-        throw new Error('In order to generate types to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+        throw new Error('In order to generate models to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
       }
       fileGenerator = new JavaFileGenerator();
       fileOptions = {
@@ -88,7 +88,7 @@ export default class Types extends Command {
       break;
     case Languages.dart:
       if (packageName === undefined) {
-        throw new Error('In order to generate types to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+        throw new Error('In order to generate models to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
       }
       fileGenerator = new DartFileGenerator();
       fileOptions = {

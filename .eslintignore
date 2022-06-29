@@ -1,5 +1,5 @@
 node_modules
 dist
 lib
-/test/commands/generate/types/
+/test/commands/generate/models/
 test/helpers

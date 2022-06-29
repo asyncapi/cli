@@ -12,7 +12,7 @@
 /assets/examples/**
 !assets/examples/default-example.yaml
 node_modules
-/test/commands/generate/types/
+/test/commands/generate/models/
 asyncapi.json
 asyncapi.yaml
 asyncapi.yml

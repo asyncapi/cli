@@ -3,10 +3,10 @@
 import { expect, test } from '@oclif/test';
 import * as path from 'path';
 
-const generalOptions = ['generate:types'];
-const outputDir = './test/commands/generate/types';
+const generalOptions = ['generate:models'];
+const outputDir = './test/commands/generate/models';
 
-describe('types', () => {
+describe('models', () => {
   test
     .stderr()
     .stdout()
@@ -72,7 +72,7 @@ describe('types', () => {
       .stdout()
       .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`])
       .it('fails when no namespace provided', (ctx, done) => {
-        expect(ctx.stderr).to.equals('Error: In order to generate types to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.\n');
+        expect(ctx.stderr).to.equals('Error: In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.\n');
         expect(ctx.stdout).to.equals('');
         done();
       });
@@ -95,7 +95,7 @@ describe('types', () => {
       .stdout()
       .command([...generalOptions, 'java', './test/specification.yml', `-o=${ path.resolve(outputDir, './java')}`])
       .it('fails when no package defined', (ctx, done) => {
-        expect(ctx.stderr).to.equals('Error: In order to generate types to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
+        expect(ctx.stderr).to.equals('Error: In order to generate models to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
         expect(ctx.stdout).to.equals('');
         done();
       });
@@ -118,7 +118,7 @@ describe('types', () => {
       .stdout()
       .command([...generalOptions, 'golang', './test/specification.yml', `-o=${ path.resolve(outputDir, './go')}`])
       .it('fails when no package defined', (ctx, done) => {
-        expect(ctx.stderr).to.equals('Error: In order to generate types to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
+        expect(ctx.stderr).to.equals('Error: In order to generate models to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
         expect(ctx.stdout).to.equals('');
         done();
       });
@@ -141,7 +141,7 @@ describe('types', () => {
       .stdout()
       .command([...generalOptions, 'dart', './test/specification.yml', `-o=${ path.resolve(outputDir, './dart')}`])
       .it('fails when no package defined', (ctx, done) => {
-        expect(ctx.stderr).to.equals('Error: In order to generate types to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
+        expect(ctx.stderr).to.equals('Error: In order to generate models to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
         expect(ctx.stdout).to.equals('');
         done();
       });

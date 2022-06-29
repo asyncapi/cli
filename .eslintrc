@@ -18,7 +18,7 @@
     "github/array-foreach": 2,
     "eol-last": ["error", "always"],
     "@typescript-eslint/no-explicit-any": 0,
-    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/explicit-module-boundary-models": "off",
     "sonarjs/no-small-switch": "off",
     "security/detect-non-literal-fs-filename": "off",
     "no-process-exit": "error",
