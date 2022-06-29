@@ -87,10 +87,18 @@ USAGE
 
 COMMANDS
   config    access configs
-  diff      find diff between two asyncapi files
-  new       creates a new asyncapi file
+  diff      find diff between two AsyncAPI files
+  new       creates a new AsyncAPI file
   start     starts a new local instance of Studio
-  validate  validate asyncapi file
+  validate  validate an AsyncAPI file
+  generate    generate all kinds of stuff
+    models       generate all the typed models for the message payloads defined in the AsyncAPI file
+      typescript    generate the models for TypeScript
+      csharp        generate the models for C#
+      golang        generate the models for Go
+      java          generate the models for Java
+      javascript    generate the models for JavaScript
+      dart          generate the models for Dart
 ```
 
 ## Contributing

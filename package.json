@@ -8,6 +8,7 @@
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
+    "@asyncapi/modelina": "^0.59.2",
     "@asyncapi/converter": "^1.0.0",
     "@asyncapi/diff": "^0.4.0",
     "@asyncapi/parser": "^1.15.1",
@@ -41,7 +42,7 @@
     "@types/lodash.template": "^4.4.4",
     "@types/mocha": "^5.2.7",
     "@types/node": "^10.17.60",
-    "@types/node-fetch": "^2.0.2",
+    "@types/node-fetch": "^2.5.12",
     "@types/serve-handler": "^6.1.1",
     "@types/wrap-ansi": "^8.0.1",
     "@typescript-eslint/eslint-plugin": "^4.28.4",
