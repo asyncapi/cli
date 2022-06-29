@@ -38,9 +38,6 @@ jobs:
           node-version: 14
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
-      - name: Get version from package.json
-        id: extractver
-        run: echo "::set-output name=version::$(npm run get-version --silent)"
       - name: Install dependencies
         run: npm install
       - name: Assets generation
@@ -49,4 +46,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: dist/${{ matrix.dist_folder }}/asyncapi.${{ matrix.extension }}
-          tag_name: ${{ steps.extractver.outputs.version }}
+          tag_name: ${{github.event.release.tag_name}}
