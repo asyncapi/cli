@@ -10,6 +10,16 @@ describe('models', () => {
   test
     .stderr()
     .stdout()
+    .command([...generalOptions, 'typescript', 'http://bit.ly/asyncapi'])
+    .it('works with remote AsyncAPI files', (ctx, done) => {
+      expect(ctx.stderr).to.equals('');
+      expect(ctx.stdout).to.equals('Successfully generated the following models: \n## Model name: AnonymousSchema_1\n\n\nclass AnonymousSchema_1 {\n  private _displayName?: string;\n  private _email?: string;\n  private _additionalProperties?: Map<String, object | string | number | Array<unknown> | boolean | null>;\n\n  constructor(input: {\n    displayName?: string,\n    email?: string,\n  }) {\n    this._displayName = input.displayName;\n    this._email = input.email;\n  }\n\n  get displayName(): string | undefined { return this._displayName; }\n  set displayName(displayName: string | undefined) { this._displayName = displayName; }\n\n  get email(): string | undefined { return this._email; }\n  set email(email: string | undefined) { this._email = email; }\n\n  get additionalProperties(): Map<String, object | string | number | Array<unknown> | boolean | null> | undefined { return this._additionalProperties; }\n  set additionalProperties(additionalProperties: Map<String, object | string | number | Array<unknown> | boolean | null> | undefined) { this._additionalProperties = additionalProperties; }\n}\nexport default AnonymousSchema_1;\n\n  \n');
+      done();
+    });
+    
+  test
+    .stderr()
+    .stdout()
     .command([...generalOptions, 'random', './test/specification.yml', `-o=${ path.resolve(outputDir, './random')}`])
     .it('fails when it dont know the language', (ctx, done) => {
       expect(ctx.stderr).to.equals('Error: Expected random to be one of: typescript, csharp, golang, java, javascript, dart\nSee more help with --help\n');
@@ -26,6 +36,7 @@ describe('models', () => {
       expect(ctx.stdout).to.equals('Successfully generated the following models: \n## Model name: AnonymousSchema_1\n\n\nclass AnonymousSchema_1 {\n  private _displayName?: string;\n  private _email?: string;\n  private _additionalProperties?: Map<String, object | string | number | Array<unknown> | boolean | null>;\n\n  constructor(input: {\n    displayName?: string,\n    email?: string,\n  }) {\n    this._displayName = input.displayName;\n    this._email = input.email;\n  }\n\n  get displayName(): string | undefined { return this._displayName; }\n  set displayName(displayName: string | undefined) { this._displayName = displayName; }\n\n  get email(): string | undefined { return this._email; }\n  set email(email: string | undefined) { this._email = email; }\n\n  get additionalProperties(): Map<String, object | string | number | Array<unknown> | boolean | null> | undefined { return this._additionalProperties; }\n  set additionalProperties(additionalProperties: Map<String, object | string | number | Array<unknown> | boolean | null> | undefined) { this._additionalProperties = additionalProperties; }\n}\nexport default AnonymousSchema_1;\n\n  \n');
       done();
     });
+    
     
   describe('for TypeScript', () => {  
     test
