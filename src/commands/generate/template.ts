@@ -1,13 +1,13 @@
 import { Flags, CliUx } from '@oclif/core';
-import Command from '../base';
+import Command from '../../base';
 // eslint-disable-next-line
 // @ts-ignore
 import AsyncAPIGenerator from '@asyncapi/generator';
 import path from 'path';
-import { load, Specification } from '../models/SpecificationFile';
-import { watchFlag } from '../flags';
-import { isLocalTemplate, Watcher } from '../utils/generator';
-import { ValidationError } from '../errors/validation-error';
+import { load, Specification } from '../../models/SpecificationFile';
+import { watchFlag } from '../../flags';
+import { isLocalTemplate, Watcher } from '../../utils/generator';
+import { ValidationError } from '../../errors/validation-error';
 
 import type { Example } from '@oclif/core/lib/interfaces';
 
@@ -25,7 +25,7 @@ interface ParsedFlags {
   }
 }
 
-export default class Generate extends Command {
+export default class Template extends Command {
   static description = 'generate whatever you want using templates compatible with AsyncAPI Generator';
 
   static examples: Example[] = [
@@ -80,7 +80,7 @@ export default class Generate extends Command {
   ]
 
   async run() {
-    const { args, flags } = await this.parse(Generate); // NOSONAR
+    const { args, flags } = await this.parse(Template); // NOSONAR
     
     const asyncapi = args['asyncapi'];
     const template = args['template'];

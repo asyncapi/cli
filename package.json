@@ -99,7 +99,10 @@
     "topicSeparator": " ",
     "topics": {
       "config:context": {},
-      "config": {}
+      "config": {},
+      "generate": {
+        "description": "Generate models and temaplte"
+      }
     }
   },
   "publishConfig": {
