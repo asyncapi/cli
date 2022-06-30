@@ -45,11 +45,11 @@ export default class Models extends Command {
     const inputFile = await load(file) || await load();
     const parsedInput = await parse(inputFile.text());
     Logger.setLogger({
-      info: (message, ...args) => {
-        this.log(message, args);
+      info: (message) => {
+        this.log(message);
       },
-      debug: (message, ...args) => {
-        this.debug(message, args);
+      debug: (message) => {
+        this.debug(message);
       },
       warn: (message) => {
         this.warn(message);
@@ -107,7 +107,6 @@ export default class Models extends Command {
       throw new Error(`Could not determine generator for language ${language}, are you using one of the following values ${possibleLanguageValues}?`);
     }
     let models;
-    console.log(parsedInput); 
     if (output) {
       models = await fileGenerator.generateToFiles(
         parsedInput as any,
