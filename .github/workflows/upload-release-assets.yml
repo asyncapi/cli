@@ -41,6 +41,8 @@ jobs:
         run: echo "::set-output name=version::$(npm run get-version --silent)"
       - name: Install dependencies
         run: npm install
+      - name: Build project
+        run: npm run prepublishOnly
       - name: Assets generation
         run: npm run ${{ matrix.npm_script }}
       - name: Update release
