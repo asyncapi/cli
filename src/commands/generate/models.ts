@@ -45,10 +45,18 @@ export default class Models extends Command {
     const inputFile = await load(file) || await load();
     const parsedInput = await parse(inputFile.text());
     Logger.setLogger({
-      info: this.log,
-      debug: this.debug,
-      warn: this.warn,
-      error: this.error,
+      info: (message) => {
+        this.log(message);
+      },
+      debug: (message) => {
+        this.debug(message);
+      },
+      warn: (message) => {
+        this.warn(message);
+      },
+      error: (message) => {
+        this.error(message);
+      },
     });
     let fileGenerator;
     let fileOptions = {};
