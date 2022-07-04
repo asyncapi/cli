@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "0.21.2",
+  "version": "0.21.4",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run"
@@ -9,9 +9,9 @@
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
     "@asyncapi/generator": "^1.9.4",
-    "@asyncapi/modelina": "^0.59.2",
     "@asyncapi/converter": "^1.0.0",
     "@asyncapi/diff": "^0.4.0",
+    "@asyncapi/modelina": "^0.59.4",
     "@asyncapi/parser": "^1.15.1",
     "@asyncapi/studio": "^0.12.2",
     "@oclif/core": "^1.2.0",
@@ -65,8 +65,8 @@
     "nyc": "^14.1.1",
     "rimraf": "^3.0.2",
     "semantic-release": "^17.4.3",
-    "souvikns-oclif": "^2.5.0",
     "simple-git": "^2.48.0",
+    "souvikns-oclif": "^2.5.0",
     "ts-node": "^10.4.0",
     "tslib": "^2.3.1",
     "typescript": "^4.4.3"
