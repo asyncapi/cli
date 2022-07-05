@@ -12,7 +12,7 @@
     "@asyncapi/diff": "^0.4.0",
     "@asyncapi/modelina": "^0.59.4",
     "@asyncapi/parser": "^1.15.1",
-    "@asyncapi/studio": "^0.12.4",
+    "@asyncapi/studio": "^0.12.5",
     "@oclif/core": "^1.2.0",
     "@oclif/plugin-not-found": "^2.3.1",
     "@types/inquirer": "^8.1.3",
