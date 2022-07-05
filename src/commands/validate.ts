@@ -5,7 +5,7 @@ import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
 import { specWatcher } from '../globals';
 import { watchFlag } from '../flags';
-//import { SpecificationFileNotFound } from '../errors/specification-file';
+import { SpecificationFileNotFound } from '../errors/specification-file';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
@@ -22,13 +22,19 @@ export default class Validate extends Command {
   async run() {
     const { args, flags } = await this.parse(Validate); //NOSONAR
     const filePath = args['spec-file'];
+
     const watchMode = flags['watch'];
-    
+
     const specFile = await load(filePath);
     if (watchMode) {
-      specWatcher({ spec: specFile, handler: this, handlerName: 'validate' });
+      specWatcher({spec: specFile, handler: this, handlerName: 'validate'});
     }
     try {
+      const specFile = await load(filePath);
+      if (watchMode) {
+        specWatcher({ spec: specFile, handler: this, handlerName: 'validate' });
+      }
+
       if (specFile.getFilePath()) {
         await parser.parse(specFile.text());
         this.log(`File ${specFile.getFilePath()} successfully validated!`);
@@ -36,11 +42,18 @@ export default class Validate extends Command {
         await parser.parse(specFile.text());
         this.log(`URL ${specFile.getFileURL()} successfully validated`);
       }
-    } catch (error) {
-      throw new ValidationError({
-        type: 'parser-error',
-        err: error
-      });
+    } catch (e) {
+      if (e instanceof SpecificationFileNotFound) {
+        this.error(new ValidationError({
+          type: 'invalid-file',
+          filepath: filePath
+        }));
+      } else {
+        throw new ValidationError({
+          type: 'parser-error',
+          err: e
+        });
+      }
     }
   }
 }
