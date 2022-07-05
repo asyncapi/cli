@@ -188,32 +188,31 @@ export default class Diff extends Command {
   }
 
   outputYAML(diffOutput: AsyncAPIDiff, outputType: string) {
-    if (outputType === 'breaking') {
-      this.log(diffOutput.breaking() as string);
-    } else if (outputType === 'non-breaking') {
-      this.log(diffOutput.nonBreaking() as string);
-    } else if (outputType === 'unclassified') {
-      this.log(diffOutput.unclassified() as string);
-    } else if (outputType === 'all') {
-      this.log(diffOutput.getOutput() as string);
-    } else {
-      this.log(`The output type ${outputType} is not supported at the moment.`);
-    }
+    this.log(genericOutput(diffOutput, outputType) as string);
   }
 
-  // eslint-disable-next-line sonarjs/no-identical-functions
   outputMarkdown(diffOutput: AsyncAPIDiff, outputType: string) {
-    if (outputType === 'breaking') {
-      this.log(diffOutput.breaking() as string);
-    } else if (outputType === 'non-breaking') {
-      this.log(diffOutput.nonBreaking() as string);
-    } else if (outputType === 'unclassified') {
-      this.log(diffOutput.unclassified() as string);
-    } else if (outputType === 'all') {
-      this.log(diffOutput.getOutput() as string);
-    } else {
-      this.log(`The output type ${outputType} is not supported at the moment.`);
-    }
+    this.log(genericOutput(diffOutput, outputType) as string);
+  }
+}
+
+/**
+ * A generic output function for diff output
+ * @param diffOutput The diff output data
+ * @param outputType The output format requested by the user
+ * @returns The output(if the format exists) or a message indicating the format doesn't exist
+ */
+function genericOutput(diffOutput: AsyncAPIDiff, outputType: string) {
+  if (outputType === 'breaking') {
+    return diffOutput.breaking();
+  } else if (outputType === 'non-breaking') {
+    diffOutput.nonBreaking();
+  } else if (outputType === 'unclassified') {
+    return diffOutput.unclassified();
+  } else if (outputType === 'all') {
+    return diffOutput.getOutput();
+  } else {
+    return `The output type ${outputType} is not supported at the moment.`;
   }
 }
 
