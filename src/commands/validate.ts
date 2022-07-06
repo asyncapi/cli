@@ -44,10 +44,7 @@ export default class Validate extends Command {
       }
     } catch (e) {
       if (e instanceof SpecificationFileNotFound) {
-        this.error(new ValidationError({
-          type: 'invalid-file',
-          filepath: filePath
-        }));
+        this.error(e);
       } else {
         throw new ValidationError({
           type: 'parser-error',
