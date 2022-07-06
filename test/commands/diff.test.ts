@@ -256,7 +256,7 @@ describe('diff', () => {
         'diff',
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
-        '--format=markdown',
+        '--format=md',
         '--type=all',
       ])
       .it('works when file path is passed', (ctx, done) => {
@@ -276,7 +276,7 @@ describe('diff', () => {
         'diff',
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
-        '--format=markdown',
+        '--format=md',
         '--markdownSubtype=yaml',
         '--type=all',
       ])

@@ -29,7 +29,7 @@ export default class Diff extends Command {
       char: 'f',
       description: 'format of the output',
       default: 'yaml',
-      options: ['json', 'yaml', 'yml', 'markdown', 'md'],
+      options: ['json', 'yaml', 'yml', 'md'],
     }),
     type: Flags.string({
       char: 't',
@@ -152,7 +152,7 @@ export default class Diff extends Command {
         this.outputJSON(diffOutput, outputType);
       } else if (outputFormat === 'yaml' || outputFormat === 'yml') {
         this.outputYAML(diffOutput, outputType);
-      } else if (outputFormat === 'markdown' || outputFormat === 'md') {
+      } else if (outputFormat === 'md') {
         this.outputMarkdown(diffOutput, outputType);
       } else {
         this.log(
