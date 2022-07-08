@@ -203,16 +203,12 @@ export default class Diff extends Command {
  * @returns The output(if the format exists) or a message indicating the format doesn't exist
  */
 function genericOutput(diffOutput: AsyncAPIDiff, outputType: string) {
-  if (outputType === 'breaking') {
-    return diffOutput.breaking();
-  } else if (outputType === 'non-breaking') {
-    diffOutput.nonBreaking();
-  } else if (outputType === 'unclassified') {
-    return diffOutput.unclassified();
-  } else if (outputType === 'all') {
-    return diffOutput.getOutput();
-  } else {
-    return `The output type ${outputType} is not supported at the moment.`;
+  switch (outputType) {
+  case 'breaking': return diffOutput.breaking();
+  case 'non-breaking': return diffOutput.nonBreaking();
+  case 'unclassified': return diffOutput.unclassified();
+  case 'all': return diffOutput.getOutput();
+  default: return `The output type ${outputType} is not supported at the moment.`;
   }
 }
 
