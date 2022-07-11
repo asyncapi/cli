@@ -19,6 +19,6 @@ export default class ContextAdd extends Command {
     const specFilePath = args['spec-file-path'];
 
     await addContext(contextName, specFilePath);
-    this.log(`Added context "${contextName}".\n\nYou can set it as your current context: asyncapi context use ${contextName}\nYou can use this context when needed by passing ${contextName} as a parameter: asyncapi validate ${contextName}`);
+    this.log(`Added context "${contextName}".\n\nYou can set it as your current context: asyncapi config context use ${contextName}\nYou can use this context when needed by passing ${contextName} as a parameter: asyncapi validate ${contextName}`);
   }
 }
