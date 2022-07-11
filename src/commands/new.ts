@@ -23,6 +23,14 @@ export default class New extends Command {
 
   static args = []
 
+
+	static examples = [
+    `$ asynapi new
+start creation of a file in interactive mode
+`, `$ asyncapi new --file-name=my-asyncapi.yml --example=default-example.yml --no-tty
+create new file with specific name, using one of examples and without interactive mode`
+  ]
+
   async run() {
     const { flags } = await this.parse(New); // NOSONAR
     const isTTY = process.stdout.isTTY;
