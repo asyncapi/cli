@@ -15,7 +15,7 @@ export default class New extends Command {
   static flags = {
     help: Flags.help({ char: 'h' }),
     'file-name': Flags.string({ char: 'n', description: 'name of the file' }),
-    example: Flags.string({ char: 'e', description: 'name of the example to use' }),
+    example: Flags.string({ char: 'e', description: `name of the example to use. Available examples are: \n\t- default-example.yml \n\t- somethingElseWithSpecificProtocol.json (MQTT)` }),
     studio: Flags.boolean({ char: 's', description: 'open in Studio' }),
     port: Flags.integer({ char: 'p', description: 'port in which to start Studio' }),
     'no-tty': Flags.boolean({ description: 'do not use an interactive terminal' }),
