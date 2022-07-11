@@ -38,7 +38,7 @@ export class ErrorLoadingSpec extends Error {
     }
     if (from === 'url') {
       this.name = 'error loading AsyncAPI document from url';
-      this.message = `${param} url does not exist.`;
+      this.message = `Failed to download ${param}.`;
     }
     if (from === 'context') {
       this.name = 'error loading AsyncAPI document from context';
