@@ -26,7 +26,7 @@ interface ParsedFlags {
 }
 
 export default class Template extends Command {
-  static description = 'generate whatever you want using templates compatible with AsyncAPI Generator';
+  static description = 'Generates whatever you want using templates compatible with AsyncAPI Generator.';
 
   static examples: Example[] = [
     'asyncapi generate asyncapi.yaml @asyncapi/html-template'
@@ -182,7 +182,7 @@ export default class Template extends Command {
     }
     const generator = new AsyncAPIGenerator(template, output, options);
 
-    CliUx.ux.action.start('Generating template');
+    CliUx.ux.action.start('Generation in progress. Keep calm and wait a bit');
     try {
       await generator.generateFromString(specification.text());
       CliUx.ux.action.stop();
