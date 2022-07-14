@@ -61,7 +61,7 @@ export default class Template extends Command {
       default: false,
       description: 'force writing of the generated files to given directory even if it is a git repo with unstaged files or not empty dir (defaults to false)'
     }),
-    'watch-template': watchFlag(
+    watch: watchFlag(
       'watches the template directory and the AsyncAPI document, and re-generate the files when changes occur. Ignores the output directory.'
     ),
     param: Flags.string({
@@ -95,7 +95,7 @@ export default class Template extends Command {
       mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
       disabledHooks: parsedFlags.disableHooks,
     };
-    const watchTemplate = flags['watch-template'];
+    const watchTemplate = flags['watch'];
 
     try {
       await this.generate(asyncapi, template, output, options);
