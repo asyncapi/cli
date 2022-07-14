@@ -1,10 +1,9 @@
-import {Flags, Help} from '@oclif/core';
+import { Flags } from '@oclif/core';
 import { promises as fPromises } from 'fs';
 import Command from '../base';
 import * as inquirer from 'inquirer';
 import { start as startStudio, DEFAULT_PORT } from '../models/Studio';
 import { resolve } from 'path';
-import { Definition } from '@oclif/core/lib/interfaces';
 
 const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
