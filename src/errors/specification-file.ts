@@ -34,15 +34,15 @@ export class ErrorLoadingSpec extends Error {
     super();
     if (from === 'file') {
       this.name = 'error loading AsyncAPI document from file';
-      this.message = `${param} is an invalid file path`;
+      this.message = `${param} file does not exist.`;
     }
     if (from === 'url') {
-      this.name = 'error loading AsyncAPI docuement from url';
-      this.message = `${param} is an invalid url`;
+      this.name = 'error loading AsyncAPI document from url';
+      this.message = `Failed to download ${param}.`;
     }
     if (from === 'context') {
       this.name = 'error loading AsyncAPI document from context';
-      this.message = `${param} is an invalid context name`;
+      this.message = `${param} context name does not exist.`;
     }
 
     if (!from) {
