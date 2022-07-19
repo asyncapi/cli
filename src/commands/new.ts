@@ -1,5 +1,5 @@
 import { Flags } from '@oclif/core';
-import { promises as fPromises } from 'fs';
+import { promises as fPromises, readFileSync } from 'fs';
 import Command from '../base';
 import * as inquirer from 'inquirer';
 import { start as startStudio, DEFAULT_PORT } from '../models/Studio';
@@ -14,30 +14,27 @@ interface Example {
 	value: string,
 }
 
-async function loadExampleFile() : Promise<Example[]> {
-	const exampleFiles = await readFile(resolve(__dirname, '../../assets/examples/examples.json'), { encoding: 'utf8' });
-	console.log(JSON.parse(exampleFiles));
+function loadExampleFile() : Example[] {
+	const exampleFiles = readFileSync(resolve(__dirname, '../../assets/examples/examples.json'), { encoding: 'utf8' });
 	return JSON.parse(exampleFiles);
 }
 
-async function getExamplesFlagDescription() : Promise<string> {
-	const examples = await loadExampleFile();
+function getExamplesFlagDescription() : string {
+	const examples = loadExampleFile();
 	let description = "name of the example to use. Available examples are:";
-	examples.forEach((element: Example)  => {
-		description.concat(`\n\t - ${element.value}`);
-	});
+	for (const element of examples) {
+		description += `\n\t - ${element.value}`
+	}
 	return description;
 }
 
 export default class New extends Command {
   static description = 'creates a new asyncapi file';
 
-  flags = {
+  static flags = {
     help: Flags.help({ char: 'h' }),
     'file-name': Flags.string({ char: 'n', description: 'name of the file' }),
-		example: Flags.string({ char: 'e'}),
-		// example: Flags.string({ char: 'e', description: () => getExamplesFlagDescription()}),
-    // example: Flags.string({ char: 'e', description: `name of the example to use. Available examples are: \n\t- default-example.yml \n\t- somethingElseWithSpecificProtocol.json (MQTT)` }),
+		example: Flags.string({ char: 'e', description: getExamplesFlagDescription()}),
     studio: Flags.boolean({ char: 's', description: 'open in Studio' }),
     port: Flags.integer({ char: 'p', description: 'port in which to start Studio' }),
     'no-tty': Flags.boolean({ description: 'do not use an interactive terminal' }),
@@ -45,11 +42,12 @@ export default class New extends Command {
 
   static args = []
 
-  async run() {
-		const exampleDescription = await getExamplesFlagDescription();
-		this.flags.example = Flags.string({ char: 'e', description: exampleDescription});
-		console.log(this.flags);
+	static examples = [
+		'asyncapi new\t - start creation of a file in interactive mode',
+		'asyncapi new --file-name=my-asyncapi.yml --example=default-example.yml --no-tty\t - create new file with specific name, using one of examples and without interactive emode'
+	] 
 
+  async run() {
     const { flags } = await this.parse(New); // NOSONAR
     const isTTY = process.stdout.isTTY;
 
