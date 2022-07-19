@@ -5,7 +5,6 @@ import rimraf from 'rimraf';
 
 describe('template', () => {
   test
-    .stderr()
     .stdout()
     .command(['generate:template', 
       './test/specification.yml', 

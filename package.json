@@ -8,9 +8,9 @@
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
-    "@asyncapi/generator": "^1.9.4",
     "@asyncapi/converter": "^1.0.0",
     "@asyncapi/diff": "^0.4.0",
+    "@asyncapi/generator": "^1.9.4",
     "@asyncapi/modelina": "^0.59.4",
     "@asyncapi/parser": "^1.15.1",
     "@asyncapi/studio": "^0.12.6",
@@ -34,6 +34,7 @@
     "ws": "^8.2.3"
   },
   "devDependencies": {
+    "@asyncapi/html-template": "^0.24.10",
     "@babel/core": "^7.17.9",
     "@oclif/test": "^2",
     "@semantic-release/commit-analyzer": "^8.0.1",
@@ -150,7 +151,7 @@
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",
     "release": "semantic-release",
-    "test": "cross-env TEST=1 CONTEXT_FILENAME=\"./test.asyncapi\" CONTEXT_FILE_PATH=\"./\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 1000000 \"test/**/*.test.ts\"",
+    "test": "cross-env TEST=1 CONTEXT_FILENAME=\"./test.asyncapi\" CONTEXT_FILE_PATH=\"./\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 10000 \"test/**/*.test.ts\"",
     "get-version": "echo $npm_package_version"
   },
   "types": "lib/index.d.ts"
