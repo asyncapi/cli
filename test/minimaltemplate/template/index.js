@@ -1,4 +1,4 @@
-import { File, Text } from "@asyncapi/generator-react-sdk";
+import { File, Text } from '@asyncapi/generator-react-sdk';
 
 export default function({ asyncapi, params, originalAsyncAPI }) {
   return (
