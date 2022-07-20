@@ -31,7 +31,7 @@ describe('validate', () => {
       .command(['validate', './test/not-found.yml'])
       .it('should throw error if file path is wrong', (ctx, done) => {
         expect(ctx.stdout).to.equals('');
-        expect(ctx.stderr).to.equals('error loading AsyncAPI document from file: ./test/not-found.yml is an invalid file path\n');
+        expect(ctx.stderr).to.equals('error loading AsyncAPI document from file: ./test/not-found.yml file does not exist.\n');
         done();
       });
 
