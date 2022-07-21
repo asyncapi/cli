@@ -38,8 +38,7 @@ export default class Diff extends Command {
       options: ['breaking', 'non-breaking', 'unclassified', 'all'],
     }),
     markdownSubtype: Flags.string({
-      char: 's',
-      description: 'output type of changes in markdown format',
+      description: 'the format of changes made to AsyncAPI document, when diff is generated as markdown',
       default: 'json',
       options: ['json', 'yaml', 'yml']
     }),
