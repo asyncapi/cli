@@ -99,6 +99,7 @@ COMMANDS
       java          generate the models for Java
       javascript    generate the models for JavaScript
       dart          generate the models for Dart
+    template     generate whatever you want using templates compatible with AsyncAPI Generator 
 ```
 
 ## Contributing
