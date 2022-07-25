@@ -67,6 +67,19 @@ curl -OL https://github.com/asyncapi/cli/releases/latest/download/asyncapi.pkg
 sudo installer -pkg asyncapi.pkg -target /
 ```
 
+### Linux
+
+#### For debian based distros
+
+You can install this CLI using `dpkg`, a package manager for debian.
+
+```bash
+# Download latest release. To download specific release, your link should look similar to https://github.com/asyncapi/cli/releases/download/v0.13.0/asyncapi.deb. All releases are listed in https://github.com/asyncapi/cli/releases
+curl -OL https://github.com/asyncapi/cli/releases/latest/download/asyncapi.deb
+# Install AsyncAPI CLI
+sudo dpkg -i asyncapi.deb
+```
+
 ## Usage
 
 As of now, the `@asyncapi/cli` only supports validation of the specification file. (This is still under development for more features.)

@@ -15,10 +15,10 @@ jobs:
     strategy:
       matrix:
         include:
-          # - os: ubuntu-latest
-          #   npm_script: pack:linux
-          #   dist_folder: deb
-          #   extension: tar.gz #or deb, we do not know yet
+          - os: ubuntu-latest
+            npm_script: pack:linux
+            dist_folder: deb
+            extension: deb #or deb, we do not know yet
           # - os: windows-latest
           #   npm_script: pack:windows
           #   dist_folder: win
