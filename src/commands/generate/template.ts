@@ -4,6 +4,7 @@ import Command from '../../base';
 // @ts-ignore
 import AsyncAPIGenerator from '@asyncapi/generator';
 import path from 'path';
+import os from 'os';
 import { load, Specification } from '../../models/SpecificationFile';
 import { watchFlag } from '../../flags';
 import { isLocalTemplate, Watcher } from '../../utils/generator';
@@ -55,7 +56,6 @@ export default class Template extends Command {
     output: Flags.string({
       char: 'o',
       description: 'directory where to put the generated files (defaults to current directory)',
-      required: true
     }),
     'force-write': Flags.boolean({
       default: false,
@@ -84,7 +84,7 @@ export default class Template extends Command {
     
     const asyncapi = args['asyncapi'];
     const template = args['template'];
-    const output = flags.output;
+    const output = flags.output || process.cwd();
     const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url']);
     const options = {
       forceWrite: flags['force-write'],
@@ -180,7 +180,7 @@ export default class Template extends Command {
         { exit: 1 },
       );
     }
-    const generator = new AsyncAPIGenerator(template, output, options);
+    const generator = new AsyncAPIGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
 
     CliUx.ux.action.start('Generation in progress. Keep calm and wait a bit');
     try {
