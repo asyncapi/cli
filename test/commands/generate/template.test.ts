@@ -25,21 +25,21 @@ describe('template', () => {
       done();
     });
 
-    test
-      .timeout(300000)
-      .stdout()
-      .command([
-        'generate:template', 
-        './test/specification.yml',
-        '@asyncapi/html-template',
-        '--output=./test/docs',
-        '--force-write'
-      ])
-      .it('should generate template from remote', (ctx, done) => {
-        expect(ctx.stdout).to.contain('Check out your shiny new generated files at ./test/docs.\n\n');
-        cleanup('./test/docs');
-        done();
-      })
+  test
+    .timeout(300000)
+    .stdout()
+    .command([
+      'generate:template', 
+      './test/specification.yml',
+      '@asyncapi/html-template',
+      '--output=./test/docs',
+      '--force-write'
+    ])
+    .it('should generate template from remote', (ctx, done) => {
+      expect(ctx.stdout).to.contain('Check out your shiny new generated files at ./test/docs.\n\n');
+      cleanup('./test/docs');
+      done();
+    });
 
   test
     .stderr()
@@ -79,6 +79,6 @@ describe('template', () => {
     .it('should disable before hooks', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new generated files at ./test/docs.\n\n');
       cleanup('./test/docs');
-      done()
-    })
+      done();
+    });
 });
