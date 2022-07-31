@@ -6,9 +6,9 @@ const path = require('path');
 const simpleGit = require('simple-git');
 const git = simpleGit({baseDir: process.cwd()});
 
-async function fileExists(path) {
+async function fileExists(checkPath) {
   try {
-    await access(path);
+    await access(checkPath);
     return true;
   } catch (e) {
     return false;
