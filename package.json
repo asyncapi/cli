@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "0.22.0",
+  "version": "0.22.1",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run"
@@ -13,7 +13,7 @@
     "@asyncapi/generator": "^1.9.4",
     "@asyncapi/modelina": "^0.59.5",
     "@asyncapi/parser": "^1.15.1",
-    "@asyncapi/studio": "^0.12.6",
+    "@asyncapi/studio": "^0.12.9",
     "@oclif/core": "^1.2.0",
     "@oclif/plugin-not-found": "^2.3.1",
     "@types/inquirer": "^8.1.3",
