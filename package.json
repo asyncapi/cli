@@ -34,7 +34,6 @@
     "ws": "^8.2.3"
   },
   "devDependencies": {
-    "@asyncapi/html-template": "^0.24.10",
     "@babel/core": "^7.17.9",
     "@oclif/test": "^2",
     "@semantic-release/commit-analyzer": "^8.0.1",
@@ -70,7 +69,8 @@
     "souvikns-oclif": "^2.5.0",
     "ts-node": "^10.4.0",
     "tslib": "^2.3.1",
-    "typescript": "^4.4.3"
+    "typescript": "^4.4.3",
+    "@asyncapi/minimaltemplate": "./test/minimaltemplate"
   },
   "engines": {
     "node": ">12.16"
@@ -151,7 +151,7 @@
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",
     "release": "semantic-release",
-    "test": "cross-env TEST=1 CONTEXT_FILENAME=\"./test.asyncapi\" CONTEXT_FILE_PATH=\"./\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 100000000 \"test/**/*.test.ts\"",
+    "test": "cross-env TEST=1 CONTEXT_FILENAME=\"./test.asyncapi\" CONTEXT_FILE_PATH=\"./\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 10000 \"test/**/*.test.ts\"",
     "get-version": "echo $npm_package_version"
   },
   "types": "lib/index.d.ts"

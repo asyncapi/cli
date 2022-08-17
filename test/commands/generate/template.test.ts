@@ -3,7 +3,7 @@ import { expect, test } from '@oclif/test';
 // @ts-ignore
 import rimraf from 'rimraf';
 
-const generalOptions = ['generate:template', './test/specification.yml', '@asyncapi/html-template'];
+const generalOptions = ['generate:template', './test/specification.yml', '@asyncapi/minimaltemplate'];
 
 const cleanup = async (filepath: string) => {
   rimraf.sync(filepath);
@@ -39,7 +39,7 @@ describe('template', () => {
     .stdout()
     .command([
       ...generalOptions,
-      '-p=version=\'1.0.0\'',
+      '-p=customParam=\'1.0.0\'',
       '--output=./test/docs',
       '--force-write'
     ])
