@@ -1,4 +1,6 @@
 import { expect, test } from '@oclif/test';
+import * as fs from 'fs';
+import * as path from 'path';
 // eslint-disable-next-line
 // @ts-ignore
 import rimraf from 'rimraf';
@@ -48,4 +50,21 @@ describe('template', () => {
       cleanup('./test/docs');
       done();
     });
+
+  describe('disable-hooks', () => {
+    test
+      .stdout()
+      .command([
+        ...generalOptions,
+        '--output=./test/docs',
+        '--force-write',
+        '-d=generate:after'
+      ])
+      .it('should not create asyncapi.yaml file', (ctx, done) => {
+        const exits = fs.existsSync(path.resolve('./docs/asyncapi.yaml'));
+        expect(exits).to.be.false; /* eslint-disable-line */
+        cleanup('./test/docs');
+        done();
+      });
+  });
 });

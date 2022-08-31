@@ -30,7 +30,7 @@ export default class Template extends Command {
   static description = 'Generates whatever you want using templates compatible with AsyncAPI Generator.';
 
   static examples: Example[] = [
-    'asyncapi generate asyncapi.yaml @asyncapi/html-template'
+    'asyncapi generate fromTemplate asyncapi.yaml @asyncapi/html-template --param version=1.0.0 singleFile=true --output ./docs --force-write'
   ];
 
   static flags = {
@@ -124,7 +124,7 @@ export default class Template extends Command {
     if (!inputs) { return {}; }
     const params: Record<string, any> = {};
     for (const input of inputs) {
-      if (!input.includes('=')) { throw new Error(`Invalid param ${input}. It must be in the format of --param name=value. `); }
+      if (!input.includes('=')) { throw new Error(`Invalid param ${input}. It must be in the format of --param name1=value1 name2=value2 `); }
       const [paramName, paramValue] = input.split(/=(.+)/, 2);
       params[String(paramName)] = paramValue;
     }
