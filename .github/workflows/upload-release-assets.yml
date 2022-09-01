@@ -18,7 +18,11 @@ jobs:
           - os: ubuntu-latest
             npm_script: pack:linux
             dist_folder: deb
-            extension: deb #or deb, we do not know yet
+            extension: deb
+          - os: ubuntu-latest
+            npm_script: pack:tarballs
+            dist_folder: tar
+            extension: tar.gz
           # - os: windows-latest
           #   npm_script: pack:windows
           #   dist_folder: win
