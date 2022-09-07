@@ -44,9 +44,13 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
     }
   });
 
+  const studioBuildFolder = existsSync(resolve(__dirname, '../../node_modules/@asyncapi/studio/build')) ?
+    resolve(__dirname, '../../node_modules/@asyncapi/studio/build') : 
+    resolve(__dirname, '../../../../@asyncapi/studio/build');
+
   const server = createServer((request, response) => {
     return serveHandler(request, response, {
-      public: resolve(__dirname, '../../node_modules/@asyncapi/studio/build'),
+      public: studioBuildFolder,
     });
   });
 
