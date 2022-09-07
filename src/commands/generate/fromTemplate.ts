@@ -9,6 +9,7 @@ import { load, Specification } from '../../models/SpecificationFile';
 import { watchFlag } from '../../flags';
 import { isLocalTemplate, Watcher } from '../../utils/generator';
 import { ValidationError } from '../../errors/validation-error';
+import { GeneratorError } from '../../errors/generator-error';
 
 import type { Example } from '@oclif/core/lib/interfaces';
 
@@ -81,7 +82,7 @@ export default class Template extends Command {
 
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
-    
+
     const asyncapi = args['asyncapi'];
     const template = args['template'];
     const output = flags.output || process.cwd();
@@ -100,10 +101,7 @@ export default class Template extends Command {
     try {
       await this.generate(asyncapi, template, output, options);
     } catch (err: any) {
-      if (!watchTemplate) {
-        return this.showErrorAndExit(err);
-      }
-      this.showError(err);
+     throw err
     }
 
     if (watchTemplate) {
@@ -188,7 +186,7 @@ export default class Template extends Command {
       CliUx.ux.action.stop();
     } catch (err: any) {
       CliUx.ux.action.stop();
-      throw err;
+      throw new GeneratorError(err)
     }
     console.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
   }
@@ -240,37 +238,27 @@ export default class Template extends Command {
       for (const [, value] of Object.entries(changedFiles)) {
         let eventText;
         switch (value.eventType) {
-        case 'changed':
-          eventText = green(value.eventType);
-          break;
-        case 'removed':
-          eventText = red(value.eventType);
-          break;
-        case 'renamed':
-          eventText = yellow(value.eventType);
-          break;
-        default:
-          eventText = yellow(value.eventType);
+          case 'changed':
+            eventText = green(value.eventType);
+            break;
+          case 'removed':
+            eventText = red(value.eventType);
+            break;
+          case 'renamed':
+            eventText = yellow(value.eventType);
+            break;
+          default:
+            eventText = yellow(value.eventType);
         }
         this.log(`\t${magenta(value.path)} was ${eventText}`);
       }
       try {
         await this.generate(asyncapi, template, output, options);
       } catch (err: any) {
-        this.showError(err);
+        throw new GeneratorError(err)
       }
     };
   }
 
-  private showError(err: Error & { errors: any[], validationErrors: any[] }) {
-    console.error(red('Something went wrong:'));
-    console.error(red(err.stack || err.message));
-    if (err.errors) {console.error(red(JSON.stringify(err.errors)));}
-    if (err.validationErrors) {console.error(red(JSON.stringify(err.validationErrors, null, 4)));}
-  }
-
-  private showErrorAndExit(err: any) {
-    this.showError(err);
-    return this.exit(1);
-  }
+  
 }
