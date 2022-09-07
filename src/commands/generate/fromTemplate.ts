@@ -98,11 +98,7 @@ export default class Template extends Command {
     };
     const watchTemplate = flags['watch'];
 
-    try {
-      await this.generate(asyncapi, template, output, options);
-    } catch (err: any) {
-     throw err
-    }
+    await this.generate(asyncapi, template, output, options);
 
     if (watchTemplate) {
       const watcherHandler = this.watcherHandler(asyncapi, template, output, options);
@@ -186,7 +182,7 @@ export default class Template extends Command {
       CliUx.ux.action.stop();
     } catch (err: any) {
       CliUx.ux.action.stop();
-      throw new GeneratorError(err)
+      throw new GeneratorError(err);
     }
     console.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
   }
@@ -238,27 +234,25 @@ export default class Template extends Command {
       for (const [, value] of Object.entries(changedFiles)) {
         let eventText;
         switch (value.eventType) {
-          case 'changed':
-            eventText = green(value.eventType);
-            break;
-          case 'removed':
-            eventText = red(value.eventType);
-            break;
-          case 'renamed':
-            eventText = yellow(value.eventType);
-            break;
-          default:
-            eventText = yellow(value.eventType);
+        case 'changed':
+          eventText = green(value.eventType);
+          break;
+        case 'removed':
+          eventText = red(value.eventType);
+          break;
+        case 'renamed':
+          eventText = yellow(value.eventType);
+          break;
+        default:
+          eventText = yellow(value.eventType);
         }
         this.log(`\t${magenta(value.path)} was ${eventText}`);
       }
       try {
         await this.generate(asyncapi, template, output, options);
       } catch (err: any) {
-        throw new GeneratorError(err)
+        throw new GeneratorError(err);
       }
     };
   }
-
-  
 }
