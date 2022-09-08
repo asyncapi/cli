@@ -67,4 +67,22 @@ describe('template', () => {
         done();
       });
   });
+
+  describe('map-base-url', () => {
+    test
+      .stdout()
+      .command([
+        'generate:fromTemplate',
+        './test/dummyspec/apiwithref.json',
+        '@asyncapi/minimaltemplate',
+        '--output=./test/docs',
+        '--force-write',
+        '--map-base-url=https://schema.example.com/crm/:./test/dummyspec'
+      ])
+      .it('should resolve reference and generate from template', (ctx, done) => {
+        expect(ctx.stdout).to.contain('Check out your shiny new generated files at ./test/docs.\n\n');
+        cleanup('./test/docs');
+        done();
+      });
+  });
 });

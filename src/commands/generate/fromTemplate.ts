@@ -5,6 +5,7 @@ import Command from '../../base';
 import AsyncAPIGenerator from '@asyncapi/generator';
 import path from 'path';
 import os from 'os';
+import fs from 'fs';
 import { load, Specification } from '../../models/SpecificationFile';
 import { watchFlag } from '../../flags';
 import { isLocalTemplate, Watcher } from '../../utils/generator';
@@ -18,13 +19,15 @@ const magenta = (text: string) => `\x1b[35m${text}\x1b[0m`;
 const yellow = (text: string) => `\x1b[33m${text}\x1b[0m`;
 const green = (text: string) => `\x1b[32m${text}\x1b[0m`;
 
+interface IMapBaseUrlToFlag {
+  url: string,
+  folder: string
+}
+
 interface ParsedFlags {
   params: Record<string, string>,
   disableHooks: Record<string, string>,
-  mapBaseUrlToFolder: {
-    url: string,
-    folder: string
-  }
+  mapBaseUrlToFolder: IMapBaseUrlToFlag
 }
 
 export default class Template extends Command {
@@ -97,11 +100,16 @@ export default class Template extends Command {
       disabledHooks: parsedFlags.disableHooks,
     };
     const watchTemplate = flags['watch'];
+    const genOption: any = {};
 
-    await this.generate(asyncapi, template, output, options);
+    if (flags['map-base-url']) {
+      genOption.resolve = {resolve: this.getMapBaseUrlToFolderResolver(parsedFlags.mapBaseUrlToFolder)};
+    }
+
+    await this.generate(asyncapi, template, output, options, genOption);    
 
     if (watchTemplate) {
-      const watcherHandler = this.watcherHandler(asyncapi, template, output, options);
+      const watcherHandler = this.watcherHandler(asyncapi, template, output, options, genOption);
       await this.runWatchMode(asyncapi, template, output, watcherHandler);
     }
   }
@@ -161,7 +169,7 @@ export default class Template extends Command {
     return mapBaseURLToFolder;
   }
 
-  private async generate(asyncapi: string | undefined, template: string, output: string, options: any) {
+  private async generate(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any) {
     let specification: Specification;
     try {
       specification = await load(asyncapi);
@@ -178,7 +186,7 @@ export default class Template extends Command {
 
     CliUx.ux.action.start('Generation in progress. Keep calm and wait a bit');
     try {
-      await generator.generateFromString(specification.text());
+      await generator.generateFromString(specification.text(), genOption);
       CliUx.ux.action.stop();
     } catch (err: any) {
       CliUx.ux.action.stop();
@@ -227,7 +235,7 @@ export default class Template extends Command {
     });
   }
 
-  private watcherHandler(asyncapi: string, template: string, output: string, options: Record<string, any>): (changedFiles: Record<string, any>) => Promise<void> {
+  private watcherHandler(asyncapi: string, template: string, output: string, options: Record<string, any>, genOption: any): (changedFiles: Record<string, any>) => Promise<void> {
     return async (changedFiles: Record<string, any>): Promise<void> => {
       console.clear();
       console.log('[WATCHER] Change detected');
@@ -249,9 +257,37 @@ export default class Template extends Command {
         this.log(`\t${magenta(value.path)} was ${eventText}`);
       }
       try {
-        await this.generate(asyncapi, template, output, options);
+        await this.generate(asyncapi, template, output, options, genOption);
       } catch (err: any) {
         throw new GeneratorError(err);
+      }
+    };
+  }
+  private getMapBaseUrlToFolderResolver = (urlToFolder: IMapBaseUrlToFlag) => {
+    return {
+      order: 1,
+      canRead() {
+        return true;
+      },
+      read(file: any) {
+        const baseUrl = urlToFolder.url;
+        const baseDir = urlToFolder.folder;
+
+        return new Promise(((resolve, reject) => {
+          let localpath = file.url;
+          localpath = localpath.replace(baseUrl,baseDir);
+          try {
+            fs.readFile(localpath, (err, data) => {
+              if (err) {
+                reject(`Error opening file "${localpath}"`);
+              } else {
+                resolve(data);
+              }
+            });
+          } catch (err) {
+            reject(`Error opening file "${localpath}"`);
+          }
+        }));
       }
     };
   }
