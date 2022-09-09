@@ -41,7 +41,7 @@ describe('template', () => {
     .stdout()
     .command([
       ...generalOptions,
-      '-p=customParam=\'1.0.0\'',
+      '-p=version=1.0.0 mode=development',
       '--output=./test/docs',
       '--force-write'
     ])

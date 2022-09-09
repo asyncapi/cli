@@ -5,7 +5,7 @@ export default function({ asyncapi, params, _originalAsyncAPI }) {
     <File name="asyncapi.md">
       <Text>This is a markdown file for my application.</Text>
       <Text>App name is: **{ asyncapi.info().title() }**</Text>
-      <Text>{params.customParam}</Text>
+      <Text>Version {params.version} running on {params.mode} mode </Text>
     </File>
   );
 }

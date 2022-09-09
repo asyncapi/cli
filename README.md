@@ -1,6 +1,6 @@
 [![AsyncAPI CLI](./assets/logo.png)](https://www.asyncapi.com)
 
-CLI to work with your AsyncAPI files. Currently supports validation, but it is under development for more features.
+CLI to work with your AsyncAPI files. Currently under development, we are working to bring more features. 
 
 [![GitHub license](https://img.shields.io/github/license/asyncapi/cli)](https://github.com/asyncapi/cli/blob/master/LICENSE)
 [![PR testing - if Node project](https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml/badge.svg)](https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml)

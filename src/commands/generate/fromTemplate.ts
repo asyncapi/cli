@@ -41,40 +41,40 @@ export default class Template extends Command {
     help: Flags.help({ char: 'h' }),
     'disable-hook': Flags.string({
       char: 'd',
-      description: 'disable a specific hook type or hooks from a given hook type',
+      description: 'Disable a specific hook type or hooks from a given hook type',
       multiple: true
     }),
     install: Flags.boolean({
       char: 'i',
       default: false,
-      description: 'installs the template and its dependencies (defaults to false)'
+      description: 'Installs the template and its dependencies (defaults to false)'
     }),
     debug: Flags.boolean({
-      description: 'enable more specific errors in the console'
+      description: 'Enable more specific errors in the console'
     }),
     'no-overwrite': Flags.string({
       char: 'n',
       multiple: true,
-      description: 'glob or path of the file(s) to skip when regenerating'
+      description: 'Glob or path of the file(s) to skip when regenerating'
     }),
     output: Flags.string({
       char: 'o',
-      description: 'directory where to put the generated files (defaults to current directory)',
+      description: 'Directory where to put the generated files (defaults to current directory)',
     }),
     'force-write': Flags.boolean({
       default: false,
-      description: 'force writing of the generated files to given directory even if it is a git repo with unstaged files or not empty dir (defaults to false)'
+      description: 'Force writing of the generated files to given directory even if it is a git repo with unstaged files or not empty dir (defaults to false)'
     }),
     watch: watchFlag(
-      'watches the template directory and the AsyncAPI document, and re-generate the files when changes occur. Ignores the output directory.'
+      'Watches the template directory and the AsyncAPI document, and re-generate the files when changes occur. Ignores the output directory.'
     ),
     param: Flags.string({
       char: 'p',
-      description: 'additional param to pass to templates',
+      description: 'Additional param to pass to templates',
       multiple: true
     }),
     'map-base-url': Flags.string({
-      description: ' maps all schema references from base url to local folder'
+      description: 'Maps all schema references from base url to local folder'
     })
   }
 
@@ -189,7 +189,7 @@ export default class Template extends Command {
       await generator.generateFromString(specification.text(), genOption);
       CliUx.ux.action.stop();
     } catch (err: any) {
-      CliUx.ux.action.stop();
+      CliUx.ux.action.stop('done\n');
       throw new GeneratorError(err);
     }
     console.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);

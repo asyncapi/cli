@@ -5,8 +5,11 @@
   "generator": {
     "renderer": "react",
     "parameters": {
-      "customParam": {
-        "description": "Testing parameters"
+      "version": {
+        "description": "Custom version to be used"
+      },
+      "mode": {
+        "description": "developement or production"
       }
     }
   },

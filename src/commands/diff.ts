@@ -18,7 +18,7 @@ import { watchFlag } from '../flags';
 const { readFile } = fs;
 
 export default class Diff extends Command {
-  static description = 'find diff between two asyncapi files';
+  static description = 'Find diff between two asyncapi files';
 
   static flags = {
     help: Flags.help({ char: 'h' }),

@@ -100,9 +100,11 @@
     "topicSeparator": " ",
     "topics": {
       "config:context": {},
-      "config": {},
+      "config": {
+        "description": "CLI config settings"
+      },
       "generate": {
-        "description": "Generate models and temaplte"
+        "description": "Generate models and template"
       }
     }
   },
