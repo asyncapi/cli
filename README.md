@@ -6,8 +6,6 @@ CLI to work with your AsyncAPI files. Currently supports validation, but it is u
 [![PR testing - if Node project](https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml/badge.svg)](https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml)
 [![npm](https://img.shields.io/npm/dw/@asyncapi/cli)](https://www.npmjs.com/package/@asyncapi/cli)
 
-
-
 ## Table of contents
 
 <!-- toc -->
@@ -32,6 +30,7 @@ CLI to work with your AsyncAPI files. Currently supports validation, but it is u
 To run `@asyncapi/cli`, you'll need Node.js >=v10
 
 Run this terminal command to check your Node.js version:
+
 ```
 node -v
 ```
@@ -39,6 +38,7 @@ node -v
 > If you don't have Node.js installed or NPM, simply [install both via package manager](https://nodejs.org/en/download/package-manager/)
 
 Install the CLI globaly on your system run CLI it from anywhere:
+
 ```
 npm install -g @asyncapi/cli
 ```
@@ -50,7 +50,7 @@ npm install -g @asyncapi/cli
 You can install this CLI using [`brew`](https://brew.sh/) package manager.
 
 ```bash
-# Install brew 
+# Install brew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 # Install AsyncAPI CLI
 brew install asyncapi
@@ -80,6 +80,35 @@ curl -OL https://github.com/asyncapi/cli/releases/latest/download/asyncapi.deb
 sudo dpkg -i asyncapi.deb
 ```
 
+#### For other distros
+
+You can install this CLI using the archive(`tar.gz`) file.
+
+```bash
+# Download latest release. To download specific release, your link should look similar to https://github.com/asyncapi/cli/releases/download/v0.13.0/asyncapi.tar.gz. All releases are listed in https://github.com/asyncapi/cli/releases
+curl -OL https://github.com/asyncapi/cli/releases/latest/download/asyncapi.tar.gz
+# Untar the archive file
+tar -xzf asyncapi.tar.gz
+```
+
+The above step will create an `asyncapi` directory in the current path.
+
+Create a symlink to run the CLI from anywhere. We will create the symlink in `/usr/local/bin` directory since this directory is already in the `PATH`.
+
+```bash
+# cd into the unarchived directory
+cd asyncapi
+
+# get the absolute path
+pwd
+
+# Create a symlink
+ln -s <absolute-path>/bin/asyncapi /usr/local/bin/asyncapi
+
+# The `asyncapi` command should be available to be used
+asyncapi
+```
+
 ## Usage
 
 As of now, the `@asyncapi/cli` only supports validation of the specification file. (This is still under development for more features.)
@@ -87,7 +116,7 @@ As of now, the `@asyncapi/cli` only supports validation of the specification fil
 We have well-documented help commands so just run:
 
 ```
-asyncapi --help 
+asyncapi --help
 ```
 
 It should print something like:
@@ -121,6 +150,7 @@ Read [CONTRIBUTING](https://github.com/asyncapi/.github/blob/master/CONTRIBUTING
 ### Set up development environment
 
 Follow these steps:
+
 - Clone the repo.
 - Run `npm install` to install all the required dependencies
 - Run `npm run test` to make sure everything is properly set up
