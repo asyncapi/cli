@@ -12,7 +12,7 @@ import {
   DiffOverrideFileError,
   DiffOverrideJSONError,
 } from '../errors/diff-error';
-import { specWatcher, specWatcherParams } from '../globals';
+import { specWatcher, SpecWatcherParams } from '../globals';
 import { watchFlag } from '../flags';
 
 const { readFile } = fs;
@@ -196,7 +196,7 @@ async function readOverrideFile(path: string): Promise<diff.OverrideObject> {
  * function to enable watchmode.
  * The function is abstracted here, to avoid eslint cognitive complexity error.
  */
-const enableWatch = (status: boolean, watcher: specWatcherParams) => {
+const enableWatch = (status: boolean, watcher: SpecWatcherParams) => {
   if (status) {
     specWatcher(watcher);
   }

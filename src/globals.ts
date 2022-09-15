@@ -17,7 +17,7 @@ const WATCH_MESSAGES = {
 
 const CHOKIDAR_INSTANCE_STORE = new Map<string, boolean>();
 
-export type specWatcherParams = {
+export type SpecWatcherParams = {
   spec: Specification,
   handler: Command,
   handlerName: string,
@@ -25,7 +25,7 @@ export type specWatcherParams = {
   docVersion?: 'old' | 'new';
 }
 
-export const specWatcher = (params: specWatcherParams) => {
+export const specWatcher = (params: SpecWatcherParams) => {
   if (!params.spec.getFilePath()) { return WATCH_MESSAGES.logOnAutoDisable(params.docVersion); }
   if (CHOKIDAR_INSTANCE_STORE.get(params.label || '_default')) { return; }
 

@@ -4,7 +4,7 @@ const request = require('request');
 const fs = require('fs');
 const unzipper = require('unzipper');
 const path = require('path');
-const parser = require('@asyncapi/parser');
+const { Parser } = require('@asyncapi/parser/cjs');
 
 const SPEC_EXAMPLES_ZIP_URL = 'https://github.com/asyncapi/spec/archive/refs/tags/v2.3.0.zip';
 const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
@@ -48,13 +48,21 @@ const unzipAsyncAPIExamples = async () => {
 };
 
 const buildCLIListFromExamples = async () => {
+  const parser = new Parser();
   const files = fs.readdirSync(EXAMPLE_DIRECTORY);
   const examples = files.filter(file => file.includes('.yml')).sort();
 
-  const listAllProtocolsForFile = (parsedAsyncAPI) => {
-    if (!parsedAsyncAPI.hasServers()) {return '';}
-    const servers = parsedAsyncAPI.servers();
-    return Object.keys(servers).map(server => servers[String(server)].protocol()).join(',');
+  const listAllProtocolsForFile = (document) => {
+    const servers = document.servers();
+    if (servers.length === 0) {
+      return '';
+    }
+
+    const protocols = [];
+    for (const server of servers) {
+      protocols.push(server.protocol());
+    }
+    return protocols.join(',');
   };
 
   const buildExampleList = examples.map(async example => {
@@ -62,9 +70,10 @@ const buildCLIListFromExamples = async () => {
     const exampleContent = fs.readFileSync(examplePath, { encoding: 'utf-8'});
     
     try {
-      const parsedSpec = await parser.parse(exampleContent);
-      const title = parsedSpec.info().title();
-      const protocols = listAllProtocolsForFile(parsedSpec);
+      const { document } = await parser.parse(exampleContent);
+      if (!document) return; // Failed for somereason to parse this spec file (document is undefined), ignore for now
+      const title = document.info().title();
+      const protocols = listAllProtocolsForFile(document);
       return {
         name: protocols ? `${title} - (protocols: ${protocols})` : title,
         value: example
