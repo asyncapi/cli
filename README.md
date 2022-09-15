@@ -69,7 +69,7 @@ sudo installer -pkg asyncapi.pkg -target /
 
 ## Usage
 
-As of now, the `@asyncapi/cli` only supports validation of the specification file. (This is still under development for more features.)
+`@asyncapi/cli` makes it easier to work with asyncpi files. 
 
 We have well-documented help commands so just run:
 
@@ -99,7 +99,7 @@ COMMANDS
       java          generate the models for Java
       javascript    generate the models for JavaScript
       dart          generate the models for Dart
-    fromTemplate     generate whatever you want using templates compatible with AsyncAPI Generator 
+    fromTemplate    generate whatever you want using templates compatible with AsyncAPI Generator 
 ```
 
 ## Contributing
