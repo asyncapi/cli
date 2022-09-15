@@ -10,7 +10,7 @@
   "dependencies": {
     "@asyncapi/converter": "^1.0.0",
     "@asyncapi/diff": "^0.4.0",
-    "@asyncapi/modelina": "^0.59.6",
+    "@asyncapi/modelina": "^0.59.7",
     "@asyncapi/parser": "^1.16.0",
     "@asyncapi/studio": "^0.12.13",
     "@oclif/core": "^1.2.0",
