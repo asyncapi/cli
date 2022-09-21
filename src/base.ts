@@ -1,7 +1,7 @@
 import { Command } from '@oclif/core';
 
 export default abstract class extends Command {
-  async catch(err: Error & { exitCode?: number | undefined; }): Promise<any> {
+  async catch(err: Error & { exitCode?: number; }): Promise<any> {
     try {
       return await super.catch(err);
     } catch (e: any) {
