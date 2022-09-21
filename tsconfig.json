@@ -3,7 +3,7 @@
     "outDir": "./lib",
     "baseUrl": "./src",
     "target": "es6",
-    "module": "esnext",
+    "module": "commonjs",
     "lib": [
       "esnext",
     ],
