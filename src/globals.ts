@@ -38,7 +38,7 @@ export const specWatcher = (params: specWatcherParams) => {
         WATCH_MESSAGES.logOnChange(params.handlerName);
         try {
           await params.handler.run();
-        } catch (err) {
+        } catch (err: any) {
           await params.handler.catch(err);
         }
       });
