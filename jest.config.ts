@@ -23,7 +23,7 @@ const config: Config.InitialOptions = {
   // Module file extensions for importing
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   testTimeout: 10000,
-  setupFiles: ["./test/jest.setup.ts"],
+  setupFiles: ['./test/jest.setup.ts'],
   collectCoverageFrom: [
     'src/**'
   ],
