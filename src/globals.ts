@@ -20,7 +20,7 @@ const CHOKIDAR_INSTANCE_STORE = new Map<string, boolean>();
 export type SpecWatcherParams = {
   spec: Specification,
   handler: Command,
-  handlerName: string,
+  handlerName?: string,
   label?: string,
   docVersion?: 'old' | 'new';
 }
@@ -35,7 +35,9 @@ export const specWatcher = (params: SpecWatcherParams) => {
     chokidar
       .watch(filePath, CHOKIDAR_CONFIG)
       .on('change', async () => {
-        WATCH_MESSAGES.logOnChange(params.handlerName);
+        if (params.handlerName) {
+          WATCH_MESSAGES.logOnChange(params.handlerName);
+        }
         try {
           await params.handler.run();
         } catch (err: any) {

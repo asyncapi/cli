@@ -52,7 +52,7 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
 
   server.on('upgrade', (request, socket, head) => {
     if (request.url === '/live-server') {
-      wsServer.handleUpgrade(request, socket, head, (sock: any) => {
+      wsServer.handleUpgrade(request, socket as any, head, (sock: any) => {
         wsServer.emit('connection', sock, request);
       });
     } else {

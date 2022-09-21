@@ -2,14 +2,16 @@ import { Flags } from '@oclif/core';
 import { getDiagnosticSeverity } from '@stoplight/spectral-core';
 import { html, json, junit, stylish, teamcity, text, pretty } from '@stoplight/spectral-cli/dist/formatters';
 import { OutputFormat } from '@stoplight/spectral-cli/dist/services/config';
-import Command from '../base';
-import { ValidationError } from '../errors/validation-error';
-import { load } from '../models/SpecificationFile';
+import { load, Specification } from '../models/SpecificationFile';
 import { specWatcher } from '../globals';
 import { parser } from '../parser';
 import { watchFlag } from '../flags';
+import Command from '../base';
 
 import type { Diagnostic } from '@asyncapi/parser/cjs';
+
+type FormatKind = `${OutputFormat}`;
+type SeveritytKind = 'error' | 'warn' | 'info' | 'hint';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
@@ -36,40 +38,32 @@ export default class Validate extends Command {
   async run() {
     const { args, flags } = await this.parse(Validate); //NOSONAR
     const filePath = args['spec-file'];
-    const watchMode = flags['watch'];
+    const watchMode = flags.watch;
     const format = flags.format;
-    const failSeverity = flags['fail-severity'] as 'error' | 'warn' | 'info' | 'hint';
+    const failSeverity = flags['fail-severity'] as SeveritytKind;
 
     const specFile = await load(filePath);
     if (watchMode) {
       specWatcher({ spec: specFile, handler: this, handlerName: 'validate' });
     }
     
-    try {  
-      if (specFile.getFilePath()) {
-        const diagnostics = await parser.validate(specFile.text(), { source: specFile.getFilePath() });
-        if (diagnostics.length) {
-          this.log(this.formatOutput(diagnostics, format, failSeverity));
-        } else {
-          this.log(`File ${specFile.getFilePath()} successfully validated!`);
-        }
-      } else if (specFile.getFileURL()) {
-        const diagnostics = await parser.validate(specFile.text(), { source: specFile.getFileURL() });
-        if (diagnostics.length) {
-          this.log(this.formatOutput(diagnostics, format, failSeverity));
-        } else {
-          this.log(`URL ${specFile.getFileURL()} successfully validated`);
-        }
+    await this.validate(specFile, format, failSeverity);
+  }
+
+  private async validate(specFile: Specification, format: FormatKind, failSeverity: SeveritytKind) {
+    const diagnostics = await parser.validate(specFile.text(), { source: specFile.getSource() });
+    if (diagnostics.length) {
+      this.log(`\n${specFile.toString()} and/or referenced documents have governance issues.`);
+      this.log(this.formatOutput(diagnostics, format, failSeverity));
+      if (this.hasFailSeverity(diagnostics, failSeverity)) {
+        process.exit(1);
       }
-    } catch (error) {
-      throw new ValidationError({
-        type: 'parser-error',
-        err: error
-      });
+    } else {
+      this.log(`\n${specFile.toString()} successfully validated.`);
     }
   }
 
-  private formatOutput(diagnostics: Diagnostic[], format: 'json' | 'stylish' | 'junit' | 'html' | 'text' | 'teamcity' | 'pretty', failSeverity: 'error' | 'warn' | 'info' | 'hint') {
+  private formatOutput(diagnostics: Diagnostic[], format: FormatKind, failSeverity: SeveritytKind) {
     const options = { failSeverity: getDiagnosticSeverity(failSeverity) };
     switch(format) {
       case 'json': return json(diagnostics, options);
@@ -80,5 +74,10 @@ export default class Validate extends Command {
       case 'pretty': return pretty(diagnostics, options);
       default: return stylish(diagnostics, options);
     }
+  }
+
+  private hasFailSeverity(diagnostics: Diagnostic[], failSeverity: SeveritytKind) {
+    const diagnosticSeverity = getDiagnosticSeverity(failSeverity);
+    return diagnostics.some(diagnostic => diagnostic.severity <= diagnosticSeverity);
   }
 }

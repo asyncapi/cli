@@ -3,7 +3,13 @@ import { AvroSchemaParser } from '@asyncapi/parser/cjs/schema-parser/avro-schema
 import { OpenAPISchemaParser } from '@asyncapi/parser/cjs/schema-parser/openapi-schema-parser';
 import { RamlSchemaParser } from '@asyncapi/parser/cjs/schema-parser/raml-schema-parser';
 
-const parser = new Parser();
+const parser = new Parser({
+  __unstable: {
+    resolver: {
+      cache: false,
+    }
+  }
+});
 
 parser.registerSchemaParser(AvroSchemaParser());
 parser.registerSchemaParser(OpenAPISchemaParser());

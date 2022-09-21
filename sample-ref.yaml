@@ -1,0 +1,13 @@
+version: '1.0.0'
+title: 'dfdf'
+description: |
+  The Smartylighting Streetlights API allows you to remotely manage the city lights.
+
+  ### Check out its awesome features:
+
+  * Turn a specific streetlight on/off 🌃
+  * Dim a specific streetlight 😎
+  * Receive real-time information about environmental lighting conditions 📈
+license:
+  name: Apache 2.0
+  url: https://www.apache.org/licenses/LICENSE-2.0

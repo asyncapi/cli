@@ -4,7 +4,7 @@ const request = require('request');
 const fs = require('fs');
 const unzipper = require('unzipper');
 const path = require('path');
-const { Parser } = require('@asyncapi/parser/cjs');
+const { Parser } = require('@asyncapi/parser');
 
 const SPEC_EXAMPLES_ZIP_URL = 'https://github.com/asyncapi/spec/archive/refs/tags/v2.3.0.zip';
 const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
