@@ -118,12 +118,12 @@ describe('template', () => {
       .command([
         'generate:fromTemplate',
         './test/specification.yml',
-        '@asyncapi/html-template',
+        './test/minimaltemplate',
         '--install',
         '--force-write',
         '--output=./test/docs'
       ])
-      .timeout(1000000)
+      .timeout(100000)
       .it('should install template', (ctx, done) => {
         expect(ctx.stdout).to.contain('Template installation started because you passed --install flag.');
         cleanup('./test/docs');
