@@ -19,7 +19,7 @@ describe('template', () => {
   test
     .stdout()
     .command([...generalOptions, '--output=./test/docs', '--force-write'])
-    .it('should generate html tempalte', (ctx, done) => {
+    .it('should generate minimal tempalte', (ctx, done) => {
       expect(ctx.stdout).to.contain(
         'Check out your shiny new generated files at ./test/docs.\n\n'
       );
