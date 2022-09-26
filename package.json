@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "0.22.8",
+  "version": "0.23.1",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run"
@@ -13,7 +13,7 @@
     "@asyncapi/generator": "^1.9.4",
     "@asyncapi/modelina": "^0.59.7",
     "@asyncapi/parser": "^1.16.0",
-    "@asyncapi/studio": "^0.12.14",
+    "@asyncapi/studio": "^0.12.15",
     "@oclif/core": "^1.2.0",
     "@oclif/plugin-not-found": "^2.3.1",
     "@types/inquirer": "^8.1.3",
@@ -144,10 +144,11 @@
     "generate:readme:toc": "markdown-toc -i README.md",
     "lint": "eslint --max-warnings 0 --config .eslintrc .",
     "lint:fix": "eslint --max-warnings 5 --config .eslintrc . --fix",
-    "pack:macos": "oclif pack:macos && npm run pack:macos:rename",
-    "pack:linux": "oclif pack:deb",
+    "pack:macos": "oclif pack:macos && npm run pack:rename",
+    "pack:linux": "oclif pack:deb && npm run pack:rename",
+    "pack:tarballs": "oclif pack:tarballs -t linux-x64 && npm run pack:rename",
     "pack:windows": "oclif pack:win",
-    "pack:macos:rename": "node scripts/macosPackRename.js",
+    "pack:rename": "node scripts/releasePackagesRename.js",
     "postpack": "rimraf oclif.manifest.json",
     "prepublishOnly": "npm run build && oclif manifest",
     "pretest": "npm run build",
