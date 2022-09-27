@@ -76,12 +76,12 @@ export default class Template extends Command {
     'map-base-url': Flags.string({
       description: 'Maps all schema references from base url to local folder'
     })
-  }
+  };
 
   static args = [
     { name: 'asyncapi', description: '- Local path, url or context-name pointing to AsyncAPI file', required: true },
     { name: 'template', description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true }
-  ]
+  ];
 
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
@@ -290,5 +290,5 @@ export default class Template extends Command {
         }));
       }
     };
-  }
+  };
 }

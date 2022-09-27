@@ -12,11 +12,11 @@ export default class Validate extends Command {
   static flags = {
     help: Flags.help({ char: 'h' }),
     watch: watchFlag()
-  }
+  };
 
   static args = [
     { name: 'spec-file', description: 'spec path, url, or context-name', required: false },
-  ]
+  ];
 
   async run() {
     const { args, flags } = await this.parse(Validate); //NOSONAR

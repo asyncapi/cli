@@ -6,7 +6,7 @@ export default class ContextCurrent extends Command {
   static description='Shows the current context that is being used';
   static flags={
     help: Flags.help({char: 'h'})
-  }
+  };
 
   async run() {
     const { current, context } = await getCurrentContext();
