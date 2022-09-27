@@ -19,9 +19,9 @@ export default class New extends Command {
     studio: Flags.boolean({ char: 's', description: 'open in Studio' }),
     port: Flags.integer({ char: 'p', description: 'port in which to start Studio' }),
     'no-tty': Flags.boolean({ description: 'do not use an interactive terminal' }),
-  }
+  };
 
-  static args = []
+  static args = [];
 
   async run() {
     const { flags } = await this.parse(New); // NOSONAR

@@ -6,7 +6,7 @@ export default class ContextList extends Command {
   static description = 'List all the stored context in the store';
   static flags = {
     help: Flags.help({char: 'h'})
-  }
+  };
 
   async run() {
     const fileContent = await loadContextFile();

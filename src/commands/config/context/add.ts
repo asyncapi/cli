@@ -6,12 +6,12 @@ export default class ContextAdd extends Command {
   static description='Add or modify a context in the store';
   static flags = {
     help: Flags.help({char: 'h'})
-  }
+  };
 
   static args = [
     {name: 'context-name', description: 'context name', required: true},
     {name: 'spec-file-path', description: 'file path of the spec file', required: true}
-  ]
+  ];
 
   async run() {
     const {args} = await this.parse(ContextAdd);
