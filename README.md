@@ -1,6 +1,6 @@
 [![AsyncAPI CLI](./assets/logo.png)](https://www.asyncapi.com)
 
-CLI to work with your AsyncAPI files. Currently supports validation, but it is under development for more features.
+CLI to work with your AsyncAPI files. Currently under development, we are working to bring more features. 
 
 [![GitHub license](https://img.shields.io/github/license/asyncapi/cli)](https://github.com/asyncapi/cli/blob/master/LICENSE)
 [![PR testing - if Node project](https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml/badge.svg)](https://github.com/asyncapi/cli/actions/workflows/if-nodejs-pr-testing.yml)
@@ -114,7 +114,7 @@ asyncapi
 
 ## Usage
 
-As of now, the `@asyncapi/cli` only supports validation of the specification file. (This is still under development for more features.)
+`@asyncapi/cli` makes it easier to work with asyncpi files. 
 
 We have well-documented help commands so just run:
 
@@ -144,6 +144,7 @@ COMMANDS
       java          generate the models for Java
       javascript    generate the models for JavaScript
       dart          generate the models for Dart
+    fromTemplate    generate whatever you want using templates compatible with AsyncAPI Generator 
 ```
 
 ## Contributing

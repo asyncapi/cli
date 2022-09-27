@@ -10,7 +10,7 @@ const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
 const DEFAULT_ASYNCAPI_TEMPLATE = 'default-example.yaml';
 
 export default class New extends Command {
-  static description = 'creates a new asyncapi file';
+  static description = 'Creates a new asyncapi file';
 
   static flags = {
     help: Flags.help({ char: 'h' }),
