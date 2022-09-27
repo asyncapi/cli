@@ -10,9 +10,9 @@ export default class StartStudio extends Command {
     help: Flags.help({ char: 'h' }),
     file: Flags.string({ char: 'f', description: 'path to the AsyncAPI file to link with Studio' }),
     port: Flags.integer({ char: 'p', description: 'port in which to start Studio' }),
-  }
+  };
 
-  static args = []
+  static args = [];
 
   async run() {
     const { flags } = await this.parse(StartStudio);

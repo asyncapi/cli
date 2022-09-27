@@ -12,9 +12,12 @@
 /assets/examples/**
 !assets/examples/default-example.yaml
 node_modules
-
+/test/commands/generate/models/
 asyncapi.json
 asyncapi.yaml
 asyncapi.yml
+/test/docs
+test/minimaltemplate/__transpiled
+
 
 spec-examples.zip

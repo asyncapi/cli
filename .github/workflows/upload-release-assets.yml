@@ -1,0 +1,57 @@
+name: Upload custom assets to GitHub release
+
+on:
+  # It cannot run on release event as when release is created then version is not yet bumped in package.json
+  # This means we cannot extract easily latest version and have a risk that package is not yet on npm
+  push:
+    branches:
+      - master
+
+jobs:
+  upload-assets:
+    name: Generate and upload assets
+    if: startsWith(github.event.commits[0].message, 'chore(release):')
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            npm_script: pack:linux
+            dist_folder: deb
+            extension: deb
+          - os: ubuntu-latest
+            npm_script: pack:tarballs
+            dist_folder: tar
+            extension: tar.gz
+          # - os: windows-latest
+          #   npm_script: pack:windows
+          #   dist_folder: win
+          #   extension: exe
+          - os: macos-latest
+            npm_script: pack:macos
+            dist_folder: macos
+            extension: pkg
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+      - name: Get version from package.json
+        id: extractver
+        run: echo "::set-output name=version::$(npm run get-version --silent)"
+      - name: Install dependencies
+        run: npm install
+      - name: Build project
+        run: npm run prepublishOnly
+      - name: Assets generation
+        run: npm run ${{ matrix.npm_script }}
+      - name: Update release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/${{ matrix.dist_folder }}/asyncapi.${{ matrix.extension }}
+          tag_name: v${{ steps.extractver.outputs.version }}
+          token: ${{ secrets.GH_TOKEN }}
