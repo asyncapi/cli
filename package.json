@@ -35,7 +35,9 @@
     "ws": "^8.2.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.9",
+    "@asyncapi/minimaltemplate": "./test/minimaltemplate",
+    "@babel/core": "^7.19.3",
+    "@jest/types": "^29.1.0",
     "@oclif/test": "^2",
     "@semantic-release/commit-analyzer": "^8.0.1",
     "@semantic-release/github": "^7.2.3",
@@ -48,6 +50,7 @@
     "@types/lodash.template": "^4.4.4",
     "@types/node": "^10.17.60",
     "@types/node-fetch": "^2.5.12",
+    "@types/rimraf": "^3.0.2",
     "@types/serve-handler": "^6.1.1",
     "@types/wrap-ansi": "^8.0.1",
     "@typescript-eslint/eslint-plugin": "^5.38.1",
