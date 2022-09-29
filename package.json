@@ -11,7 +11,7 @@
     "@asyncapi/converter": "^1.0.0",
     "@asyncapi/diff": "^0.4.0",
     "@asyncapi/generator": "^1.9.4",
-    "@asyncapi/modelina": "^0.59.7",
+    "@asyncapi/modelina": "^0.59.8",
     "@asyncapi/parser": "^1.16.0",
     "@asyncapi/studio": "^0.12.15",
     "@oclif/core": "^1.2.0",
@@ -35,6 +35,7 @@
     "ws": "^8.2.3"
   },
   "devDependencies": {
+    "@asyncapi/minimaltemplate": "./test/minimaltemplate",
     "@babel/core": "^7.17.9",
     "@oclif/test": "^2",
     "@semantic-release/commit-analyzer": "^8.0.1",
@@ -70,8 +71,7 @@
     "souvikns-oclif": "^2.5.0",
     "ts-node": "^10.4.0",
     "tslib": "^2.3.1",
-    "typescript": "^4.4.3",
-    "@asyncapi/minimaltemplate": "./test/minimaltemplate"
+    "typescript": "^4.4.3"
   },
   "engines": {
     "node": ">12.16"
