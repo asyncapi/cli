@@ -1,4 +1,4 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator} from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator} from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
@@ -9,7 +9,8 @@ enum Languages {
   golang = 'golang',
   java = 'java',
   javascript = 'javascript',
-  dart = 'dart'
+  dart = 'dart',
+  python = 'python'
 }
 const possibleLanguageValues = Object.values(Languages).join(', ');
 export default class Models extends Command {
@@ -63,6 +64,9 @@ export default class Models extends Command {
     switch (language) {
     case Languages.typescript:
       fileGenerator = new TypeScriptFileGenerator();
+      break;
+    case Languages.python:
+      fileGenerator = new PythonFileGenerator();
       break;
     case Languages.csharp:
       if (namespace === undefined) {

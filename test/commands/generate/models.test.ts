@@ -65,6 +65,20 @@ describe('models', () => {
       });
   });
 
+  describe('for Python', () => {  
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'python', './test/specification.yml', `-o=${ path.resolve(outputDir, './js')}`])
+      .it('works when file path is passed', (ctx, done) => {
+        expect(ctx.stdout).toEqual(
+          'Successfully generated the following models: AnonymousSchema_1\n'
+        );
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+  });
+
   describe('for C#', () => {  
     test
       .stderr()
