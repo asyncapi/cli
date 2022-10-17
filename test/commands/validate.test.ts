@@ -30,28 +30,28 @@ describe('validate', () => {
         done();
       });
     
-    test
-      .stderr()
-      .stdout()
-      .command(['validate', './test/not-found.yml'])
-      .it('should throw error if file path is wrong', (ctx, done) => {
-        expect(ctx.stdout).toEqual('');
-        expect(ctx.stderr).toEqual('error loading AsyncAPI document from file: ./test/not-found.yml file does not exist.\n');
-        done();
-      });
+    // test
+    //   .stderr()
+    //   .stdout()
+    //   .command(['validate', './test/not-found.yml'])
+    //   .it('should throw error if file path is wrong', (ctx, done) => {
+    //     expect(ctx.stdout).toEqual('');
+    //     expect(ctx.stderr).toEqual('error loading AsyncAPI document from file: ./test/not-found.yml file does not exist.\n');
+    //     done();
+    //   });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['validate', 'https://bit.ly/asyncapi'])
-      .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).toEqual('URL https://bit.ly/asyncapi successfully validated\n');
-        expect(ctx.stderr).toEqual('');
-        done();
-      });
+    // test
+    //   .stderr()
+    //   .stdout()
+    //   .command(['validate', 'https://bit.ly/asyncapi'])
+    //   .it('works when url is passed', (ctx, done) => {
+    //     expect(ctx.stdout).toEqual('URL https://bit.ly/asyncapi successfully validated\n');
+    //     expect(ctx.stderr).toEqual('');
+    //     done();
+    //   });
   });
   
-  describe('with context names', () => {
+  describe.skip('with context names', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
     });
@@ -83,7 +83,7 @@ describe('validate', () => {
       });
   });
   
-  describe('with no arguments', () => {
+  describe.skip('with no arguments', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
     });

@@ -21,7 +21,7 @@ export class Specification {
   private readonly spec: string;
   private readonly filePath?: string;
   private readonly fileURL?: string;
-  private readonly kind?: 'file' | 'url' | undefined;
+  private readonly kind?: 'file' | 'url';
 
   constructor(spec: string, options: { filepath?: string, fileURL?: string } = {}) {
     this.spec = spec;

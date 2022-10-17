@@ -18,7 +18,7 @@ export default class Validate extends Command {
 
   static flags = {
     help: Flags.help({ char: 'h' }),
-    watch: watchFlag,
+    watch: watchFlag(),
     'fail-severity': Flags.enum({
       description: 'diagnostics of this level or above will trigger a failure exit code',
       options: ['error', 'warn', 'info', 'hint'],
