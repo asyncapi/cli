@@ -1,8 +1,6 @@
-import { expect, test } from '@oclif/test';
 import * as fs from 'fs';
 import * as path from 'path';
-// eslint-disable-next-line
-// @ts-ignore
+import { test } from '@oclif/test';
 import rimraf from 'rimraf';
 
 const generalOptions = [
@@ -11,16 +9,16 @@ const generalOptions = [
   '@asyncapi/minimaltemplate',
 ];
 
-const cleanup = async (filepath: string) => {
+async function cleanup(filepath: string) {
   rimraf.sync(filepath);
-};
+}
 
 describe('template', () => {
   test
     .stdout()
     .command([...generalOptions, '--output=./test/docs', '--force-write'])
     .it('should generate minimal tempalte', (ctx, done) => {
-      expect(ctx.stdout).to.contain(
+      expect(ctx.stdout).toContain(
         'Check out your shiny new generated files at ./test/docs.\n\n'
       );
       cleanup('./test/docs');
@@ -33,7 +31,7 @@ describe('template', () => {
     .it(
       'should throw error if output folder is in a git repository',
       (ctx, done) => {
-        expect(ctx.stderr).to.contain(
+        expect(ctx.stderr).toContain(
           'Error: "./test/doc" is in a git repository with unstaged changes.'
         );
         cleanup('./test/doc');
@@ -50,7 +48,7 @@ describe('template', () => {
       '--force-write',
     ])
     .it('shoudld pass custom param in the template', (ctx, done) => {
-      expect(ctx.stdout).to.contain(
+      expect(ctx.stdout).toContain(
         'Check out your shiny new generated files at ./test/docs.\n\n'
       );
       cleanup('./test/docs');
@@ -66,9 +64,9 @@ describe('template', () => {
         '--force-write',
         '-d=generate:after',
       ])
-      .it('should not create asyncapi.yaml file', (ctx, done) => {
+      .it('should not create asyncapi.yaml file', (_, done) => {
         const exits = fs.existsSync(path.resolve('./docs/asyncapi.yaml'));
-        expect(exits).to.be.false; /* eslint-disable-line */
+        expect(exits).toBeFalsy();
         cleanup('./test/docs');
         done();
       });
@@ -84,7 +82,7 @@ describe('template', () => {
         '--debug',
       ])
       .it('should print debug logs', (ctx, done) => {
-        expect(ctx.stdout).to.contain(
+        expect(ctx.stdout).toContain(
           `Template sources taken from ${path.resolve(
             './test/minimaltemplate'
           )}.`
@@ -104,7 +102,7 @@ describe('template', () => {
         '--no-overwrite=./test/docs/asyncapi.md',
       ])
       .it('should skip the filepath and generate normally', (ctx, done) => {
-        expect(ctx.stdout).to.contain(
+        expect(ctx.stdout).toContain(
           'Check out your shiny new generated files at ./test/docs.\n\n'
         );
         cleanup('./test/docs');
@@ -113,6 +111,8 @@ describe('template', () => {
   });
 
   describe('install', () => {
+    jest.setTimeout(100000);
+
     test
       .stdout()
       .command([
@@ -123,9 +123,8 @@ describe('template', () => {
         '--force-write',
         '--output=./test/docs'
       ])
-      .timeout(100000)
       .it('should install template', (ctx, done) => {
-        expect(ctx.stdout).to.contain('Template installation started because you passed --install flag.');
+        expect(ctx.stdout).toContain('Template installation started because you passed --install flag.');
         cleanup('./test/docs');
         done();
       });
@@ -145,7 +144,7 @@ describe('template', () => {
       .it(
         'should resolve reference and generate from template',
         (ctx, done) => {
-          expect(ctx.stdout).to.contain(
+          expect(ctx.stdout).toContain(
             'Check out your shiny new generated files at ./test/docs.\n\n'
           );
           cleanup('./test/docs');
