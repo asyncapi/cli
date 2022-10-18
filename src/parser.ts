@@ -42,16 +42,10 @@ export function validationFlags() {
       options: ['error', 'warn', 'info', 'hint'],
       default: 'error',
     }),
-  }
+  };
 } 
 
 interface ValidateOptions {
-  'log-diagnostics'?: boolean;
-  'diagnostics-format'?: `${OutputFormat}`;
-  'fail-severity'?: SeveritytKind;
-}
-
-interface ParseOptions {
   'log-diagnostics'?: boolean;
   'diagnostics-format'?: `${OutputFormat}`;
   'fail-severity'?: SeveritytKind;
@@ -62,13 +56,13 @@ export async function validate(command: Command, specFile: Specification, option
   return logDiagnostics(diagnostics, command, specFile, options);
 }
 
-export async function parse(command: Command, specFile: Specification, options: ParseOptions = {}) {
+export async function parse(command: Command, specFile: Specification, options: ValidateOptions = {}) {
   const { document, diagnostics } = await parser.parse(specFile.text(), { source: specFile.getSource() });
   const status = logDiagnostics(diagnostics, command, specFile, options);
   return { document, status };
 }
 
-function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: Specification, options: ParseOptions = {}): 'valid' | 'invalid' {
+function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: Specification, options: ValidateOptions = {}): 'valid' | 'invalid' {
   const logDiagnostics = options['log-diagnostics'];
   const failSeverity = options['fail-severity'] || 'error';
   const diagnosticsFormat = options['diagnostics-format'] || 'stylish';
@@ -81,31 +75,28 @@ function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: S
       }
       command.exit(1);
       return 'invalid';
-    } else {
-      if (logDiagnostics) {
-        command.log(`\n${specFile.toDetails()} and/or referenced documents have governance issues.\n`);
-        command.log(formatOutput(diagnostics, diagnosticsFormat, failSeverity));
-      }
-    }
-  } else {
+    } 
     if (logDiagnostics) {
-      command.log(`\n${specFile.toDetails()} is valid! ${specFile.toDetails()} and referenced documents don't have governance issues.`);
+      command.log(`\n${specFile.toDetails()} and/or referenced documents have governance issues.\n`);
+      command.log(formatOutput(diagnostics, diagnosticsFormat, failSeverity));
     }
+  } else if (logDiagnostics) {
+    command.log(`\n${specFile.toDetails()} is valid! ${specFile.toDetails()} and referenced documents don't have governance issues.`);
   }
   return 'valid';
 }
 
 function formatOutput(diagnostics: Diagnostic[], format: `${OutputFormat}`, failSeverity: SeveritytKind) {
   const options = { failSeverity: getDiagnosticSeverity(failSeverity) };
-  switch(format) {
-    case 'stylish': return stylish(diagnostics, options);
-    case 'json': return json(diagnostics, options);
-    case 'junit': return junit(diagnostics, options);
-    case 'html': return html(diagnostics, options);
-    case 'text': return text(diagnostics, options);
-    case 'teamcity': return teamcity(diagnostics, options);
-    case 'pretty': return pretty(diagnostics, options);
-    default: return stylish(diagnostics, options);
+  switch (format) {
+  case 'stylish': return stylish(diagnostics, options);
+  case 'json': return json(diagnostics, options);
+  case 'junit': return junit(diagnostics, options);
+  case 'html': return html(diagnostics, options);
+  case 'text': return text(diagnostics, options);
+  case 'teamcity': return teamcity(diagnostics, options);
+  case 'pretty': return pretty(diagnostics, options);
+  default: return stylish(diagnostics, options);
   }
 }
 

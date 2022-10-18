@@ -78,7 +78,7 @@ const buildCLIListFromExamples = async () => {
     
     try {
       const { document } = await parser.parse(exampleContent);
-      if (!document) return; // Failed for somereason to parse this spec file (document is undefined), ignore for now
+      if (!document) {return;} // Failed for somereason to parse this spec file (document is undefined), ignore for now
       const title = document.info().title();
       const protocols = listAllProtocolsForFile(document);
       return {

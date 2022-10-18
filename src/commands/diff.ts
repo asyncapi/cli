@@ -121,19 +121,15 @@ export default class Diff extends Command {
     }
 
     try {
-      const { document: newFirstDocumentParsed, status: firstDocumentStatus } = await parse(this, firstDocument, flags);
-      const { document: newSecondDocumentParsed, status: secondDocumentStatus } = await parse(this, secondDocument, flags);
+      const parsed = await parseDocuments(this, firstDocument, secondDocument, flags);
 
-      if (!newFirstDocumentParsed || !newSecondDocumentParsed || firstDocumentStatus === 'invalid' || secondDocumentStatus === 'invalid') {
+      if (!parsed) {
         return;
       }
 
-      const firstDocumentParsed = convertToOldAPI(newFirstDocumentParsed);
-      const secondDocumentParsed = convertToOldAPI(newSecondDocumentParsed);
-
       const diffOutput = diff.diff(
-        firstDocumentParsed.json(),
-        secondDocumentParsed.json(),
+        parsed.firstDocumentParsed.json(),
+        parsed.secondDocumentParsed.json(),
         {
           override: overrides,
           outputType: outputFormat as diff.OutputType, // NOSONAR
@@ -183,6 +179,20 @@ export default class Diff extends Command {
       this.log(`The output type ${outputType} is not supported at the moment.`);
     }
   }
+}
+
+async function parseDocuments(command: Command, firstDocument: Specification, secondDocument: Specification, flags: Record<string, any>) {
+  const { document: newFirstDocumentParsed, status: firstDocumentStatus } = await parse(command, firstDocument, flags);
+  const { document: newSecondDocumentParsed, status: secondDocumentStatus } = await parse(command, secondDocument, flags);
+
+  if (!newFirstDocumentParsed || !newSecondDocumentParsed || firstDocumentStatus === 'invalid' || secondDocumentStatus === 'invalid') {
+    return;
+  }
+
+  const firstDocumentParsed = convertToOldAPI(newFirstDocumentParsed);
+  const secondDocumentParsed = convertToOldAPI(newSecondDocumentParsed);
+
+  return { firstDocumentParsed, secondDocumentParsed };
 }
 
 /**
