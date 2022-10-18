@@ -21,10 +21,17 @@ export class Specification {
   private readonly spec: string;
   private readonly filePath?: string;
   private readonly fileURL?: string;
-  constructor(spec: string, options?: { filepath?: string, fileURL?: string }) {
+  private readonly kind?: 'file' | 'url';
+
+  constructor(spec: string, options: { filepath?: string, fileURL?: string } = {}) {
     this.spec = spec;
-    this.filePath = options?.filepath;
-    this.fileURL = options?.fileURL;
+    if (options.filepath) {
+      this.filePath = options.filepath;
+      this.kind = 'file';
+    } else if (options.fileURL) {
+      this.fileURL = options.fileURL;
+      this.kind = 'url';
+    }
   }
 
   text() {
@@ -37,6 +44,21 @@ export class Specification {
 
   getFileURL() {
     return this.fileURL;
+  }
+
+  getKind() {
+    return this.kind;
+  }
+
+  getSource() {
+    return this.getFilePath() || this.getFileURL();
+  }
+
+  toDetails() {
+    if (this.kind === 'file') {
+      return `File ${this.filePath}`;
+    }
+    return `URL ${this.fileURL}`;
   }
 
   static async fromFile(filepath: string) {

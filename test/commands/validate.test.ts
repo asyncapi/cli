@@ -23,9 +23,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/specification.yml'])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).toEqual(
-          'File ./test/specification.yml successfully validated!\n'
-        );
+        expect(ctx.stdout).toMatch('File ./test/specification.yml and/or referenced documents have governance issues.\n\n\ntest/specification.yml');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -57,7 +55,17 @@ describe('validate', () => {
       .stdout()
       .command(['validate', 'https://bit.ly/asyncapi'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).toEqual('URL https://bit.ly/asyncapi successfully validated\n');
+        expect(ctx.stdout).toMatch('URL https://bit.ly/asyncapi and/or referenced documents have governance issues.\n\n\nhttps://bit.ly/asyncapi');
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['validate', './test/valid-specification.yml'])
+      .it('works when file path is passed', (ctx, done) => {
+        expect(ctx.stdout).toMatch('File ./test/valid-specification.yml is valid! File ./test/valid-specification.yml and referenced documents don\'t have governance issues.');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -77,9 +85,8 @@ describe('validate', () => {
       .stdout()
       .command(['validate', 'code'])
       .it('validates if context name exists', (ctx, done) => {
-        expect(ctx.stdout).toEqual(
-          `File ${path.resolve(__dirname, '../specification.yml')} successfully validated!\n`
-        );
+        const fileName = path.resolve(__dirname, '../specification.yml');
+        expect(ctx.stdout).toMatch(`File ${fileName} and/or referenced documents have governance issues.\n\n\n${fileName}`);
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -110,9 +117,8 @@ describe('validate', () => {
       .stdout()
       .command(['validate'])
       .it('validates from current context', (ctx, done) => {
-        expect(ctx.stdout).toEqual(
-          `File ${path.resolve(__dirname, '../specification.yml')} successfully validated!\n`
-        );
+        const fileName = path.resolve(__dirname, '../specification.yml');
+        expect(ctx.stdout).toMatch(`File ${fileName} and/or referenced documents have governance issues.\n\n\n${fileName}`);
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -141,6 +147,85 @@ describe('validate', () => {
       .it('throws error message if no context file exists', (ctx, done) => {
         expect(ctx.stdout).toEqual('');
         expect(ctx.stderr).toEqual(`error locating AsyncAPI document: ${NO_CONTEXTS_SAVED}\n`);
+        done();
+      });
+  });
+
+  describe('with --log-diagnostics flag', () => {
+    beforeEach(() => {
+      testHelper.createDummyContextFile();
+    });
+    
+    afterEach(() => {
+      testHelper.deleteDummyContextFile();
+    });
+  
+    test
+      .stderr()
+      .stdout()
+      .command(['validate', './test/specification.yml', '--log-diagnostics'])
+      .it('works with --log-diagnostics', (ctx, done) => {
+        expect(ctx.stdout).toMatch('File ./test/specification.yml and/or referenced documents have governance issues.\n\n\ntest/specification.yml\n  1:1');
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['validate', './test/specification.yml', '--no-log-diagnostics'])
+      .it('works with --no-log-diagnostics', (ctx, done) => {
+        expect(ctx.stdout).toEqual('');
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+  });
+
+  describe('with --diagnostics-format flag', () => {
+    beforeEach(() => {
+      testHelper.createDummyContextFile();
+    });
+    
+    afterEach(() => {
+      testHelper.deleteDummyContextFile();
+    });
+  
+    test
+      .stderr()
+      .stdout()
+      .command(['validate', './test/specification.yml', '--diagnostics-format=text'])
+      .it('works with --diagnostics-format flag (with governance issues)', (ctx, done) => {
+        expect(ctx.stdout).toMatch('File ./test/specification.yml and/or referenced documents have governance issues.\n\ntest/specification.yml:1:1');
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['validate', './test/valid-specification.yml', '--diagnostics-format=text'])
+      .it('works with --diagnostics-format flag (without governance issues)', (ctx, done) => {
+        expect(ctx.stdout).toMatch('File ./test/valid-specification.yml is valid! File ./test/valid-specification.yml and referenced documents don\'t have governance issues.');
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+  });
+
+  describe('with --fail-severity flag', () => {
+    beforeEach(() => {
+      testHelper.createDummyContextFile();
+    });
+    
+    afterEach(() => {
+      testHelper.deleteDummyContextFile();
+    });
+  
+    test
+      .stderr()
+      .stdout()
+      .command(['validate', './test/specification.yml', '--fail-severity=warn'])
+      .it('works with --fail-severity', (ctx, done) => {
+        expect(ctx.stderr).toMatch('File ./test/specification.yml and/or referenced documents have governance issues.\n\n\ntest/specification.yml');
         done();
       });
   });

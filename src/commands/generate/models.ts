@@ -1,8 +1,11 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator } from '@asyncapi/modelina';
+import { convertToOldAPI } from '@asyncapi/parser/cjs';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator} from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
-import { parse } from '../../utils/parser';
+
+import { validationFlags, parse } from '../../parser';
+
 enum Languages {
   typescript = 'typescript',
   csharp = 'csharp',
@@ -14,6 +17,7 @@ enum Languages {
   rust = 'rust'
 }
 const possibleLanguageValues = Object.values(Languages).join(', ');
+
 export default class Models extends Command {
   static description = 'Generates typed models';
   static args = [
@@ -23,7 +27,7 @@ export default class Models extends Command {
       options: Object.keys(Languages),
       required: true
     },
-    { name: 'file', description: 'Path or URL to the AsyncAPI document, or context-name', required: true },
+    { name: 'file', description: 'Path or URL to the AsyncAPI document, or context-name', required: false },
   ];
 
   static flags = {
@@ -70,19 +74,23 @@ export default class Models extends Command {
     /**
      * C# specific options
      */
-    namespace: Flags.string({
-      description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.',
-      required: false
-    }),
+    namespace: Flags.string({ description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.', required: false }),
+    ...validationFlags(),
   };
 
   async run() {
-    const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, packageName, output } = flags;
+    const { flags, args } = await this.parse(Models);
+    const { namespace, packageName, output } = flags;
     const { language, file } = args;
 
-    const inputFile = await load(file) || await load();
-    const parsedInput = await parse(inputFile.text());
+    const inputFile = await load(file);
+    const { document, status } = await parse(this, inputFile, flags);
+
+    if (!document || status === 'invalid') {
+      return;
+    }
+    const parsedDocument = convertToOldAPI(document);
+
     Logger.setLogger({
       info: (message) => {
         this.log(message);
@@ -97,6 +105,7 @@ export default class Models extends Command {
         this.error(message);
       },
     });
+
     let fileGenerator;
     let fileOptions = {};
     switch (language) {
@@ -161,7 +170,7 @@ export default class Models extends Command {
     let models;
     if (output) {
       models = await fileGenerator.generateToFiles(
-        parsedInput as any,
+        parsedDocument as any,
         output,
         { ...fileOptions, } as any);
       const generatedModels = models.map((model) => { return model.modelName; });
@@ -169,7 +178,7 @@ export default class Models extends Command {
       this.log(`Successfully generated the following models: ${generatedModels.join(', ')}`);
     } else {
       models = await fileGenerator.generateCompleteModels(
-        parsedInput as any,
+        parsedDocument as any,
         { ...fileOptions } as any);
       const generatedModels = models.map((model) => {
         return `

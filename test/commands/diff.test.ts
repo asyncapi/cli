@@ -6,7 +6,7 @@ describe('diff', () => {
     test
       .stderr()
       .stdout()
-      .command(['diff', './test/specification.yml', './test/specification.yml', '--format=json'])
+      .command(['diff', './test/specification.yml', './test/specification.yml', '--format=json', '--no-log-diagnostics'])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(
           '"{\\n  \\"changes\\": []\\n}\\n"'
@@ -25,7 +25,8 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--type=all',
-        '--format=json'
+        '--format=json',
+        '--no-log-diagnostics'
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(
@@ -45,7 +46,8 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--type=breaking',
-        '--format=json'
+        '--format=json',
+        '--no-log-diagnostics'
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(
@@ -65,7 +67,8 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--type=non-breaking',
-        '--format=json'
+        '--format=json',
+        '--no-log-diagnostics'
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(
@@ -85,7 +88,8 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--type=unclassified',
-        '--format=json'
+        '--format=json',
+        '--no-log-diagnostics'
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(
@@ -105,6 +109,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--format=json',
+        '--no-log-diagnostics'
       ])
       // eslint-disable-next-line sonarjs/no-identical-functions
       .it('works when file path is passed', (ctx, done) => {
@@ -125,7 +130,8 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--overrides=./test/fixtures/overrides.json',
-        '--format=json'
+        '--format=json',
+        '--no-log-diagnostics'
       ])
       .it((ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(
@@ -145,7 +151,8 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--overrides=./overrides-wrong.json',
-        '--format=json'
+        '--format=json',
+        '--no-log-diagnostics'
       ])
       .it((ctx, done) => {
         expect(ctx.stdout).toEqual('');
@@ -165,6 +172,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--overrides=./test/fixtures/invalid-overrides.json',
+        '--no-log-diagnostics'
       ])
       .it((ctx, done) => {
         expect(ctx.stdout).toEqual('');
@@ -184,6 +192,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--type=all',
+        '--no-log-diagnostics'
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(
