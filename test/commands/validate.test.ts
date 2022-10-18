@@ -86,7 +86,7 @@ describe('validate', () => {
       .command(['validate', 'code'])
       .it('validates if context name exists', (ctx, done) => {
         const fileName = path.resolve(__dirname, '../specification.yml');
-        expect(ctx.stdout).toMatch(`File ${fileName} and/or referenced documents have governance issues.\n\n\n${fileName}`);
+        expect(ctx.stdout).toMatch(`File ${fileName} and/or referenced documents have governance issues.`);
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -118,7 +118,7 @@ describe('validate', () => {
       .command(['validate'])
       .it('validates from current context', (ctx, done) => {
         const fileName = path.resolve(__dirname, '../specification.yml');
-        expect(ctx.stdout).toMatch(`File ${fileName} and/or referenced documents have governance issues.\n\n\n${fileName}`);
+        expect(ctx.stdout).toMatch(`File ${fileName} and/or referenced documents have governance issues.`);
         expect(ctx.stderr).toEqual('');
         done();
       });
