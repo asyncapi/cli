@@ -35,25 +35,25 @@ export default class Models extends Command {
     /**
      * TypeScript specific options
      */
-    modelType: Flags.string({
+    tsModelType: Flags.string({
       type: 'option',
       options: ['class', 'interface'],
       description: 'TypeScript specific, define which type of model needs to be generated.',
       required: false,
     }),
-    enumType: Flags.string({
+    tsEnumType: Flags.string({
       type: 'option',
       options: ['enum', 'union'],
       description: 'TypeScript specific, define which type of enums needs to be generated.',
       required: false,
     }),
-    moduleSystem: Flags.string({
+    tsModuleSystem: Flags.string({
       type: 'option',
       options: ['ESM', 'CJS'],
       description: 'TypeScript specific, define the module system to be used.',
       required: false,
     }),
-    exportType: Flags.string({
+    tsExportType: Flags.string({
       type: 'option',
       options: ['default', 'named'],
       description: 'TypeScript specific, define which type of export needs to be generated.',
@@ -77,7 +77,7 @@ export default class Models extends Command {
 
   async run() {
     const passedArguments = await this.parse(Models);
-    const { modelType, enumType, moduleSystem, exportType, namespace, packageName, output } = passedArguments.flags;
+    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, packageName, output } = passedArguments.flags;
     const { language, file } = passedArguments.args;
     const inputFile = await load(file) || await load();
     const parsedInput = await parse(inputFile.text());
@@ -100,12 +100,12 @@ export default class Models extends Command {
     switch (language) {
     case Languages.typescript:
       fileGenerator = new TypeScriptFileGenerator({
-        modelType: modelType as undefined | 'class' | 'interface',
-        enumType: enumType as undefined | 'enum' | 'union'
+        modelType: tsModelType as undefined | 'class' | 'interface',
+        enumType: tsEnumType as undefined | 'enum' | 'union'
       });
       fileOptions = {
-        moduleSystem,
-        exportType
+        moduleSystem: tsModuleSystem,
+        exportType: tsExportType
       };
       break;
     case Languages.csharp:
