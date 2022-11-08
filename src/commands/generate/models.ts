@@ -16,31 +16,68 @@ export default class Models extends Command {
   static description = 'Generates typed models';
 
   static args = [
-    { 
-      name: 'language', 
-      description: 'The language you want the typed models generated for.', 
-      options: Object.keys(Languages), 
-      required: true 
+    {
+      name: 'language',
+      description: 'The language you want the typed models generated for.',
+      options: Object.keys(Languages),
+      required: true
     },
     { name: 'file', description: 'Path or URL to the AsyncAPI document, or context-name', required: true },
   ];
 
   static flags = {
     help: Flags.help({ char: 'h' }),
-    output: Flags.string({ char: 'o', description: 'The output directory where the models should be written to. Omitting this flag will write the models to `stdout`.', required: false}),
+    output: Flags.string({
+      char: 'o',
+      description: 'The output directory where the models should be written to. Omitting this flag will write the models to `stdout`.',
+      required: false
+    }),
+    /**
+     * TypeScript specific options
+     */
+    modelType: Flags.string({
+      type: 'option',
+      options: ['class', 'interface'],
+      description: 'TypeScript specific, define which type of model needs to be generated.',
+      required: false,
+    }),
+    enumType: Flags.string({
+      type: 'option',
+      options: ['enum', 'union'],
+      description: 'TypeScript specific, define which type of enums needs to be generated.',
+      required: false,
+    }),
+    moduleSystem: Flags.string({
+      type: 'option',
+      options: ['ESM', 'CJS'],
+      description: 'TypeScript specific, define the module system to be used.',
+      required: false,
+    }),
+    exportType: Flags.string({
+      type: 'option',
+      options: ['default', 'named'],
+      description: 'TypeScript specific, define which type of export needs to be generated.',
+      required: false,
+    }),
     /**
      * Go and Java specific package name to use for the generated models
      */
-    packageName: Flags.string({ description: 'Go and Java specific, define the package to use for the generated models. This is required when language is `go` or `java`.', required: false }),
+    packageName: Flags.string({
+      description: 'Go and Java specific, define the package to use for the generated models. This is required when language is `go` or `java`.',
+      required: false
+    }),
     /**
      * C# specific options
      */
-    namespace: Flags.string({ description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.', required: false }),
+    namespace: Flags.string({
+      description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.',
+      required: false
+    }),
   };
 
   async run() {
     const passedArguments = await this.parse(Models);
-    const { namespace, packageName, output } = passedArguments.flags;
+    const { modelType, enumType, moduleSystem, exportType, namespace, packageName, output } = passedArguments.flags;
     const { language, file } = passedArguments.args;
     const inputFile = await load(file) || await load();
     const parsedInput = await parse(inputFile.text());
@@ -62,7 +99,14 @@ export default class Models extends Command {
     let fileOptions = {};
     switch (language) {
     case Languages.typescript:
-      fileGenerator = new TypeScriptFileGenerator();
+      fileGenerator = new TypeScriptFileGenerator({
+        modelType: modelType as undefined | 'class' | 'interface',
+        enumType: enumType as undefined | 'enum' | 'union'
+      });
+      fileOptions = {
+        moduleSystem,
+        exportType
+      };
       break;
     case Languages.csharp:
       if (namespace === undefined) {
@@ -113,19 +157,19 @@ export default class Models extends Command {
         output,
         { ...fileOptions, } as any);
       const generatedModels = models.map((model) => { return model.modelName; });
-  
+
       this.log(`Successfully generated the following models: ${generatedModels.join(', ')}`);
     } else {
       models = await fileGenerator.generateCompleteModels(
         parsedInput as any,
         { ...fileOptions } as any);
-      const generatedModels = models.map((model) => { 
+      const generatedModels = models.map((model) => {
         return `
 ## Model name: ${model.modelName}
 ${model.result}
   `;
       });
-  
+
       this.log(`Successfully generated the following models: ${generatedModels.join('\n')}`);
     }
   }
