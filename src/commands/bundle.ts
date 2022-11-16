@@ -4,6 +4,7 @@ import Command from "../base";
 import bundle from "@asyncapi/bundler";
 import fs from "fs";
 import path from "path";
+import { ErrorLoadingSpec } from "../errors/specification-file";
 
 export default class Bundle extends Command {
   static description = "Bundle multiple asyncapi files together.";
@@ -23,6 +24,12 @@ export default class Bundle extends Command {
   async run() {
     const { argv, flags } = await this.parse(Bundle);
     const output = flags.output || "main.yml";
+
+    try {
+      this.resolveFilePaths(argv, flags);
+    } catch (error) {
+      throw error;
+    }
 
     const document = await bundle(
       argv.map((filePath) =>
@@ -51,6 +58,28 @@ export default class Bundle extends Command {
       fs.writeFileSync(path.resolve(process.cwd(), output), document.json(), {
         encoding: "utf-8",
       });
+    }
+    this.log(
+      `Check out your shiny new bundled files at ${output}`
+    );
+  }
+
+  private checkFilePath(filePath: string) {
+    try {
+      var stats = fs.statSync(path.resolve(process.cwd(), filePath));
+    } catch (error) {
+      return false;
+    }
+    return fs.existsSync(filePath) && stats.isFile();
+  }
+
+  private resolveFilePaths(arg: any, flags: any) {
+    for (const file of arg) {
+      if (!this.checkFilePath(file)) throw new ErrorLoadingSpec("file", file);
+    }
+    if (flags.base) {
+      if (!this.checkFilePath(flags.base))
+        throw new ErrorLoadingSpec("file", flags.base);
     }
   }
 }
