@@ -10,3 +10,17 @@ messages:
           type: string
           format: email
           description: Email of the user
+  UserLoggedOut:
+    payload:
+      type: object
+      properties:
+        displayName:
+          type: string
+          description: Name of the user
+        userId:
+          type: string
+          description: Id the user
+        timestamp:
+          type: number
+          descriptio: Time stamp when the user logged out
+

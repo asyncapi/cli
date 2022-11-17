@@ -17,7 +17,7 @@ export default class Bundle extends Command {
   static flags = {
     help: Flags.help({ char: 'h' }),
     output: Flags.string({ char: 'o' }),
-    referenceIntoComponents: Flags.boolean({ char: 'r' }),
+    'reference-into-components': Flags.boolean({ char: 'r' }),
     base: Flags.string({ char: 'b' }),
   };
 
@@ -32,7 +32,7 @@ export default class Bundle extends Command {
         fs.readFileSync(path.resolve(process.cwd(), filePath), 'utf-8')
       ),
       {
-        referenceIntoComponents: flags['referenceIntoComponents'],
+        referenceIntoComponents: flags['reference-into-components'],
         base: flags.base
           ? fs.readFileSync(
             path.resolve(process.cwd(), flags.base || ''),
