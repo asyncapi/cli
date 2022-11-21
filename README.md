@@ -136,6 +136,7 @@ COMMANDS
   new       creates a new AsyncAPI file
   start     starts a new local instance of Studio
   validate  validate an AsyncAPI file
+  bundle    bundle multiple asyncapi files together
   generate    generate all kinds of stuff
     models       generate all the typed models for the message payloads defined in the AsyncAPI file
       typescript    generate the models for TypeScript
