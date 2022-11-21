@@ -1,5 +1,6 @@
-import * as path from 'path';
-import { expect, test } from '@oclif/test';
+import path from 'path';
+import { test } from '@oclif/test';
+
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
 import TestHelper from '../testHelper';
 
@@ -8,6 +9,10 @@ const filePath = './test/specification.yml';
 
 describe('convert', () => {
   describe('with file paths', () => {
+    beforeEach(() => {
+      testHelper.createDummyContextFile();
+    });
+
     afterEach(() => {
       testHelper.deleteDummyContextFile();
     });
@@ -17,8 +22,8 @@ describe('convert', () => {
       .stdout()
       .command(['convert', filePath])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.include('File ./test/specification.yml successfully converted!\n');
-        expect(ctx.stderr).to.equals('');
+        expect(ctx.stdout).toContain('File ./test/specification.yml successfully converted!\n');
+        expect(ctx.stderr).toEqual('');
         done();
       });
 
@@ -27,8 +32,8 @@ describe('convert', () => {
       .stdout()
       .command(['convert', './test/not-found.yml'])
       .it('should throw error if file path is wrong', (ctx, done) => {
-        expect(ctx.stdout).to.equals('');
-        expect(ctx.stderr).to.equals('error loading AsyncAPI document from file: ./test/not-found.yml is an invalid file path\n');
+        expect(ctx.stdout).toEqual('');
+        expect(ctx.stderr).toEqual('error loading AsyncAPI document from file: ./test/not-found.yml file does not exist.\n');
         done();
       });
 
@@ -37,20 +42,20 @@ describe('convert', () => {
       .stdout()
       .command(['convert', 'https://bit.ly/asyncapi'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).to.include('URL https://bit.ly/asyncapi successfully converted!\n');
-        expect(ctx.stderr).to.equals('');
+        expect(ctx.stdout).toContain('URL https://bit.ly/asyncapi successfully converted!\n');
+        expect(ctx.stderr).toEqual('');
         done();
       });
   });
 
   describe('with no arguments', () => {
+    beforeEach(() => {
+      testHelper.createDummyContextFile();
+    });
+
     afterEach(() => {
       testHelper.setCurrentContext('home');
       testHelper.deleteDummyContextFile();
-    });
-
-    beforeEach(() => {
-      testHelper.createDummyContextFile();
     });
 
     test
@@ -58,8 +63,8 @@ describe('convert', () => {
       .stdout()
       .command(['convert'])
       .it('converts from current context', (ctx, done) => {
-        expect(ctx.stdout).to.include(`File ${path.resolve(__dirname, '../specification.yml')} successfully converted!\n`);
-        expect(ctx.stderr).to.equals('');
+        expect(ctx.stdout).toContain(`File ${path.resolve(__dirname, '../specification.yml')} successfully converted!\n`);
+        expect(ctx.stderr).toEqual('');
         done();
       });
 
@@ -72,8 +77,8 @@ describe('convert', () => {
       })
       .command(['convert'])
       .it('throws error message if no current context', (ctx, done) => {
-        expect(ctx.stdout).to.equals('');
-        expect(ctx.stderr).to.equals('ContextError: No context is set as current, please set a current context.\n');
+        expect(ctx.stdout).toEqual('');
+        expect(ctx.stderr).toEqual('ContextError: No context is set as current, please set a current context.\n');
         done();
       });
 
@@ -85,13 +90,17 @@ describe('convert', () => {
       })
       .command(['convert'])
       .it('throws error message if no context file exists', (ctx, done) => {
-        expect(ctx.stdout).to.equals('');
-        expect(ctx.stderr).to.equals(`error locating AsyncAPI document: ${NO_CONTEXTS_SAVED}\n`);
+        expect(ctx.stdout).toEqual('');
+        expect(ctx.stderr).toEqual(`error locating AsyncAPI document: ${NO_CONTEXTS_SAVED}\n`);
         done();
       });
   });
 
   describe('with target-version flag', () => {
+    beforeEach(() => {
+      testHelper.createDummyContextFile();
+    });
+
     afterEach(() => {
       testHelper.deleteDummyContextFile();
     });
@@ -101,8 +110,8 @@ describe('convert', () => {
       .stdout()
       .command(['convert', filePath, '-t=2.3.0'])
       .it('works when supported target-version is passed', (ctx, done) => {
-        expect(ctx.stdout).to.include('asyncapi: 2.3.0');
-        expect(ctx.stderr).to.equals('');
+        expect(ctx.stdout).toContain('asyncapi: 2.3.0');
+        expect(ctx.stderr).toEqual('');
         done();
       });
 
@@ -111,8 +120,8 @@ describe('convert', () => {
       .stdout()
       .command(['convert', filePath, '-t=2.95.0'])
       .it('should throw error if non-supported target-version is passed', (ctx, done) => {
-        expect(ctx.stdout).to.equals('');
-        expect(ctx.stderr).to.include('Error: Cannot convert');
+        expect(ctx.stdout).toEqual('');
+        expect(ctx.stderr).toContain('Error: Cannot convert');
         done();
       });
   });

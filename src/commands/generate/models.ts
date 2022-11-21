@@ -23,7 +23,7 @@ export default class Models extends Command {
       required: true 
     },
     { name: 'file', description: 'Path or URL to the AsyncAPI document, or context-name', required: true },
-  ]
+  ];
 
   static flags = {
     help: Flags.help({ char: 'h' }),
@@ -36,7 +36,7 @@ export default class Models extends Command {
      * C# specific options
      */
     namespace: Flags.string({ description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.', required: false }),
-  }
+  };
 
   async run() {
     const passedArguments = await this.parse(Models);

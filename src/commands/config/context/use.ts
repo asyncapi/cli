@@ -7,11 +7,11 @@ export default class ContextUse extends Command {
 
   static flags = {
     help: Flags.help({ char: 'h' })
-  }
+  };
 
   static args = [
     { name: 'context-name', description: 'name of the saved context', required: true }
-  ]
+  ];
 
   async run() {
     const { args } = await this.parse(ContextUse);
