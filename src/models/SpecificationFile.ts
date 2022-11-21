@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
-import * as path from 'path';
+import path from 'path';
+import { URL } from 'url';
 import fetch from 'node-fetch';
 
 import { loadContext } from './Context';

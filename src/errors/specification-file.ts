@@ -29,7 +29,7 @@ type From = 'file' | 'url' | 'context'
 export class ErrorLoadingSpec extends Error {
   private readonly errorMessages = {
     default: NO_CONTEXTS_SAVED
-  }
+  };
   constructor(from?: From, param?: string) {
     super();
     if (from === 'file') {

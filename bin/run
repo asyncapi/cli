@@ -1,5 +1,12 @@
 #!/usr/bin/env node
 
-const oclif = require('@oclif/core')
+const oclif = require('@oclif/core');
 
-oclif.run().then(require('@oclif/core/flush')).catch(require('@oclif/core/handle'))
+oclif.run()
+  .then(require('@oclif/core/flush'))
+  .catch((err) => {
+    const oclifHandler = require('@oclif/core/handle');
+    console.error(err.message);
+    return oclifHandler(err.message);
+  });
+
