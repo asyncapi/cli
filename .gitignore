@@ -11,6 +11,7 @@
 /yarn.lock
 /assets/examples/**
 !assets/examples/default-example.yaml
+!assets/examples/tutorial.yml
 node_modules
 /test/commands/generate/models/
 asyncapi.json
