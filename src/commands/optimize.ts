@@ -1,11 +1,10 @@
 import { Flags } from '@oclif/core';
-import { Optimizer } from '@asyncapi/optimizer';
+import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
 import * as inquirer from 'inquirer';
 import chalk from 'chalk';
-import { Output, Report, ReportElement } from '@asyncapi/optimizer/lib/Models';
 import { promises } from 'fs';
 const { writeFile } = promises;
 
