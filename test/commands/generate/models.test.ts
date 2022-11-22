@@ -2,7 +2,6 @@
 /* eslint-disable sonarjs/no-identical-functions */
 import path from 'path';
 import { test } from '@oclif/test';
-
 const generalOptions = ['generate:models'];
 const outputDir = './test/commands/generate/models';
 
