@@ -1,0 +1,14 @@
+title: AsyncAPI CLI
+description: |
+    One CLI to rule them all. 
+    This is a CLI that aims to integrate all AsyncAPI tools that you need while AsyncAPI document development and maintainance. 
+    You can use it to generate docs or code, validate AsyncAPI document and event create new documents.
+links:
+    websiteUrl: https://www.asyncapi.com/tools/cli
+filters:
+    language: CLI
+    technology:
+        - TypeScript
+    categories:
+        - others
+    hasCommercial: false
