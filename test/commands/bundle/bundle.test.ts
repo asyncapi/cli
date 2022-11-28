@@ -1,12 +1,9 @@
 import { test } from '@oclif/test';
 import fs from 'fs';
 import path from 'path';
+import { fileCleanup } from '../../testHelper';
 
-function cleanup(filepath: string) {
-  fs.unlinkSync(filepath);
-}
-
-const spec = `asyncapi: 2.2.0
+const spec = `asyncapi: 2.5.0
 info:
   title: Account Service
   version: 1.0.0
@@ -50,7 +47,7 @@ components:
 `;
 
 function validateGeneratedSpec(filePath, spec) {
-  const generatedSPec = fs.readFileSync(path.resolve(filePath), {encoding: 'utf-8'});
+  const generatedSPec = fs.readFileSync(path.resolve(filePath), { encoding: 'utf-8' });
   return generatedSPec === spec;
 }
 
@@ -65,7 +62,7 @@ describe('bundle', () => {
       expect(ctx.stdout).toContain(
         'Check out your shiny new bundled files at ./test/commands/bundle/final.yaml'
       );
-      cleanup('./test/commands/bundle/final.yaml');
+      fileCleanup('./test/commands/bundle/final.yaml');
       done();
     });
 
@@ -86,7 +83,7 @@ describe('bundle', () => {
     ])
     .it('should be able to refence messages into components', (ctx, done) => {
       expect(ctx.stdout).toContain('Check out your shiny new bundled files at test/commands/bundle/final.yaml\n');
-      cleanup('./test/commands/bundle/final.yaml');
+      fileCleanup('./test/commands/bundle/final.yaml');
       done();
     });
 
@@ -98,7 +95,7 @@ describe('bundle', () => {
     .it('should be able to bundle multiple specs along with custom reference', (ctx, done) => {
       expect(ctx.stdout).toContain('Check out your shiny new bundled files at test/commands/bundle/final.yaml\n');
       expect(validateGeneratedSpec('test/commands/bundle/final.yaml', spec));
-      cleanup('./test/commands/bundle/final.yaml');
+      fileCleanup('./test/commands/bundle/final.yaml');
       done();
     });
 });

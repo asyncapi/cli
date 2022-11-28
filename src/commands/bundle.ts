@@ -19,12 +19,12 @@ export default class Bundle extends Command {
     help: Flags.help({ char: 'h' }),
     output: Flags.string({ char: 'o', description: 'The output file name. Omitting this flag will create a main.yaml.' }),
     'reference-into-components': Flags.boolean({ char: 'r', description: 'Bundle the message $refs into components object.' }),
-    base: Flags.string({ char: 'b' , description: 'Path to the file which will act as a base. This is required when some properties are to needed to be overwritten.'}),
+    base: Flags.string({ char: 'b', description: 'Path to the file which will act as a base. This is required when some properties are to needed to be overwritten.' }),
   };
 
   async run() {
     const { argv, flags } = await this.parse(Bundle);
-    const output = flags.output || 'main.yml';
+    const output = flags.output;
 
     this.resolveFilePaths(argv, flags);
 
@@ -43,20 +43,25 @@ export default class Bundle extends Command {
       }
     );
 
-    const format = path.extname(output);
+    if (!output) {
+      console.log(document.yml())
+    } else {
+      const format = path.extname(output);
 
-    if (format === '.yml' || format === '.yaml') {
-      fs.writeFileSync(path.resolve(process.cwd(), output), document.yml(), {
-        encoding: 'utf-8',
-      });
+      if (format === '.yml' || format === '.yaml') {
+        fs.writeFileSync(path.resolve(process.cwd(), output), document.yml(), {
+          encoding: 'utf-8',
+        });
+      }
+
+      if (format === '.json') {
+        fs.writeFileSync(path.resolve(process.cwd(), output), document.json(), {
+          encoding: 'utf-8',
+        });
+      }
+      this.log(`Check out your shiny new bundled files at ${output}`);
     }
 
-    if (format === '.json') {
-      fs.writeFileSync(path.resolve(process.cwd(), output), document.json(), {
-        encoding: 'utf-8',
-      });
-    }
-    this.log(`Check out your shiny new bundled files at ${output}`);
   }
 
   private checkFilePath(filePath: string) {
