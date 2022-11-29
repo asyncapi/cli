@@ -2,7 +2,7 @@ asyncapi: "2.5.0"
 info:
   title: Account Service
   version: 1.0.0
-  description: This service is in charge of processing user signups
+  description: This service is in charge of processing user logouts
 channels:
   user/loggedOut:
     subcribe:

@@ -98,4 +98,16 @@ describe('bundle', () => {
       fileCleanup('./test/commands/bundle/final.yaml');
       done();
     });
+
+    test
+      .stdout()
+      .command([
+        'bundle', './test/commands/bundle/asyncapi.yaml', './test/commands/bundle/spec.yaml', '--reference-into-components', '--output=test/commands/bundle/final.yaml', '--base=./test/commands/bundle/asyncapi.yaml'
+      ])
+      .it('should be able to bundle correctly with overwriting base file', (ctx, done) => {
+        expect(ctx.stdout).toContain('Check out your shiny new bundled files at test/commands/bundle/final.yaml\n')
+        expect(validateGeneratedSpec('test/commands/bundle/final.yaml', spec));
+        fileCleanup('./test/commands/bundle/final.yaml');
+        done()
+      })
 });
