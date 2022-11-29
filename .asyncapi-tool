@@ -6,9 +6,9 @@ description: |
 links:
     websiteUrl: https://www.asyncapi.com/tools/cli
 filters:
-    language: CLI
     technology:
         - TypeScript
     categories:
         - others
+        - cli
     hasCommercial: false
