@@ -44,7 +44,7 @@ export default class Bundle extends Command {
     );
 
     if (!output) {
-      console.log(document.yml())
+      console.log(document.yml());
     } else {
       const format = path.extname(output);
 
@@ -61,7 +61,6 @@ export default class Bundle extends Command {
       }
       this.log(`Check out your shiny new bundled files at ${output}`);
     }
-
   }
 
   private checkFilePath(filePath: string) {
