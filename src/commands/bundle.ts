@@ -25,8 +25,9 @@ export default class Bundle extends Command {
   async run() {
     const { argv, flags } = await this.parse(Bundle);
     const output = flags.output;
+    const outputFormat = path.extname(argv[0])
 
-    this.resolveFilePaths(argv, flags);
+    this.checkFilePaths(argv, flags);
 
     const document = await bundle(
       argv.map((filePath) =>
@@ -44,7 +45,11 @@ export default class Bundle extends Command {
     );
 
     if (!output) {
-      console.log(document.yml());
+      if (outputFormat === '.yaml' || outputFormat === '.yml') {
+        console.log(document.yml())
+      } else {
+        console.log(document.json());
+      }
     } else {
       const format = path.extname(output);
 
@@ -72,7 +77,7 @@ export default class Bundle extends Command {
     }
   }
 
-  private resolveFilePaths(arg: any, flags: any) {
+  private checkFilePaths(arg: any, flags: any) {
     for (const file of arg) {
       if (!this.checkFilePath(file)) {
         throw new ErrorLoadingSpec('file', file);
