@@ -25,7 +25,7 @@ export default class Bundle extends Command {
   async run() {
     const { argv, flags } = await this.parse(Bundle);
     const output = flags.output;
-    const outputFormat = path.extname(argv[0])
+    const outputFormat = path.extname(argv[0]);
 
     this.checkFilePaths(argv, flags);
 
@@ -46,7 +46,7 @@ export default class Bundle extends Command {
 
     if (!output) {
       if (outputFormat === '.yaml' || outputFormat === '.yml') {
-        console.log(document.yml())
+        console.log(document.yml());
       } else {
         console.log(document.json());
       }
