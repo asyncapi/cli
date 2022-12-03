@@ -38,8 +38,8 @@ export default class Diff extends Command {
       options: ['breaking', 'non-breaking', 'unclassified', 'all'],
     }),
     markdownSubtype: Flags.string({
-      description: 'the format of changes made to AsyncAPI document, when diff is generated as markdown',
-      default: 'json',
+      description: 'the format of changes made to AsyncAPI document. It works only when diff is generated using md type. For example, when you specify subtype as json, then diff information in markdown is dupmed as json structure.',
+      default: 'yaml',
       options: ['json', 'yaml', 'yml']
     }),
     overrides: Flags.string({
