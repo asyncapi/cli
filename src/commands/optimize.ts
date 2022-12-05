@@ -8,19 +8,19 @@ import chalk from 'chalk';
 import { promises } from 'fs';
 const { writeFile } = promises;
 
-enum Optimizations {
+export enum Optimizations {
   REMOVE_COMPONENTS='remove-components',
   REUSE_COMPONENTS='reuse-components',
   MOVE_TO_COMPONETS='move-to-components'
 }
 
-enum Outputs {
+export enum Outputs {
   TERMINAL='terminal',
   NEW_FILE='new-file',
   OVERWRITE='overwrite'
 }
-export default class Validate extends Command {
-  static description = 'optimize asyncapi file';
+export default class Optimize extends Command {
+  static description = 'optimize asyncapi specification file';
   isInteractive = false;
   optimizations?: Optimizations[];
   outputMethod?: Outputs;
@@ -29,7 +29,7 @@ export default class Validate extends Command {
     help: Flags.help({ char: 'h' }),
     optimization: Flags.string({char: 'p', default: Object.values(Optimizations), options: Object.values(Optimizations), multiple: true, description: 'select the type of optimizations that you want to apply.'}),
     output: Flags.string({char: 'o', default: Outputs.TERMINAL, options: Object.values(Outputs), description: 'select where you want the output.'}),
-    'no-tty': Flags.boolean({ description: 'do not use an interactive terminal', default: true }),
+    'no-tty': Flags.boolean({ description: 'do not use an interactive terminal', default: false }),
   };
 
   static args = [
@@ -37,8 +37,7 @@ export default class Validate extends Command {
   ];
 
   async run() {
-    console.clear();
-    const { args, flags } = await this.parse(Validate); //NOSONAR
+    const { args, flags } = await this.parse(Optimize); //NOSONAR
     const filePath = args['spec-file'];
     const specFile = await load(filePath);
     this.isInteractive = !flags['no-tty'];
@@ -46,9 +45,14 @@ export default class Validate extends Command {
     this.outputMethod = flags.output as Outputs;
     const optimizer = new Optimizer(specFile.text());
     const report = await optimizer.getReport();
+    const isURL = !!specFile.getFileURL();
 
     if (!(report.moveToComponents.length || report.removeComponents.length || report.reuseComponents.length)) {
-      this.log('Your file looks optimized. You don\'t need my help :)');
+      if (isURL) {
+        this.log(`URL ${specFile.getFileURL()} looks optimized!`);
+      } else {
+        this.log(`File ${specFile.getFilePath()} looks optimized!`);
+      }
       return;
     }
     const isTTY = process.stdout.isTTY;
@@ -62,6 +66,7 @@ export default class Validate extends Command {
         removeComponents: this.optimizations.includes(Optimizations.REMOVE_COMPONENTS),
         reuseComponents: this.optimizations.includes(Optimizations.REUSE_COMPONENTS)
       }, output: Output.YAML});
+      
       const specPath = specFile.getFilePath();
       let newPath = '';
       if (specPath) {
@@ -72,14 +77,13 @@ export default class Validate extends Command {
       }
 
       if (this.outputMethod === Outputs.TERMINAL) {
-        console.log(this.optimizations, this.outputMethod);
         this.log(optimizedDocument);
       } else if (this.outputMethod === Outputs.NEW_FILE) {
         await writeFile(newPath, optimizedDocument, { encoding: 'utf8' });
-        console.log(`Created file ${newPath}...`);
+        this.log(`Created file ${newPath}...`);
       } else if (this.outputMethod === Outputs.OVERWRITE) {
         await writeFile(specPath ?? 'asyncapi.yaml', optimizedDocument, { encoding: 'utf8' });
-        console.log(`Created file ${newPath}...`);
+        this.log(`Created file ${newPath}...`);
       }
     } catch (error) {
       throw new ValidationError({
