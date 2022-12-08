@@ -20,12 +20,4 @@ describe('new', () => {
       expect(ctx.stdout).to.equals('Created file specification.yaml...\n');
       done();
     });
-
-	test
-		.stdout()
-		.command(['new', '-h'])
-		.it('help includes available examples', (ctx, done) => {
-			expect(ctx.stdout).to.contain('- simple.yml');
-			done();
-		});
 });

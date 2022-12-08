@@ -94,6 +94,7 @@
     "macos": {
       "identifier": "com.asyncapi.cli"
     },
+		"additionalHelpFlags": ["-h"],
     "topicSeparator": " ",
     "topics": {
       "config:context": {},
