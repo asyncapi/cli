@@ -122,6 +122,15 @@
       "contributions": [
         "test"
       ]
+    },
+    {
+      "login": "pranay202",
+      "name": "Pranay Kharabe",
+      "avatar_url": "https://avatars.githubusercontent.com/u/68046838?v=4",
+      "profile": "https://linktr.ee/KharabePranay",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
