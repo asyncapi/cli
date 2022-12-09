@@ -3,48 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileCleanup } from '../../testHelper';
 
-const spec = `asyncapi: 2.5.0
-info:
-  title: Account Service
-  version: 1.0.0
-  description: This service is in charge of processing user signups
-channels:
-  user/signedup:
-    subscribe:
-      message:
-        $ref: '#/components/messages/UserSignedUp'
-  user/loggedOut:
-    subcribe:
-      message:
-        $ref: '#/components/messages/UserLoggedOut'
-components:
-  messages:
-    UserSignedUp:
-      payload:
-        type: object
-        properties:
-          displayName:
-            type: string
-            description: Name of the user
-          email:
-            type: string
-            format: email
-            description: Email of the user
-    UserLoggedOut:
-      payload:
-        type: object
-        properties:
-          displayName:
-            type: string
-            description: Name of the user
-          userId:
-            type: string
-            description: Id the user
-          timestamp:
-            type: number
-            descriptio: Time stamp when the user logged out
-
-`;
+const spec = fs.readFileSync('./test/commands/bundle/final-asyncapi.yaml', {encoding: 'utf-8'})
 
 function validateGeneratedSpec(filePath, spec) {
   const generatedSPec = fs.readFileSync(path.resolve(filePath), { encoding: 'utf-8' });
@@ -90,7 +49,7 @@ describe('bundle', () => {
   test
     .stdout()
     .command([
-      'bundle', './test/commands/bundle/asyncapi.yaml', './test/commands/bundle/spec.yaml', '--reference-into-components', '--output=test/commands/bundle/final.yaml'
+      'bundle', './test/commands/bundle/asyncapi.yaml', './test/commands/bundle/feature.yaml', '--reference-into-components', '--output=test/commands/bundle/final.yaml'
     ])
     .it('should be able to bundle multiple specs along with custom reference', (ctx, done) => {
       expect(ctx.stdout).toContain('Check out your shiny new bundled files at test/commands/bundle/final.yaml\n');
@@ -102,7 +61,7 @@ describe('bundle', () => {
   test
     .stdout()
     .command([
-      'bundle', './test/commands/bundle/asyncapi.yaml', './test/commands/bundle/spec.yaml', '--reference-into-components', '--output=test/commands/bundle/final.yaml', '--base=./test/commands/bundle/asyncapi.yaml'
+      'bundle', './test/commands/bundle/asyncapi.yaml', './test/commands/bundle/feature.yaml', '--reference-into-components', '--output=test/commands/bundle/final.yaml', '--base=./test/commands/bundle/asyncapi.yaml'
     ])
     .it('should be able to bundle correctly with overwriting base file', (ctx, done) => {
       expect(ctx.stdout).toContain('Check out your shiny new bundled files at test/commands/bundle/final.yaml\n');

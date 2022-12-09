@@ -2,17 +2,21 @@ import { Flags } from '@oclif/core';
 import { Example } from '@oclif/core/lib/interfaces';
 import Command from '../base';
 import bundle from '@asyncapi/bundler';
-import fs from 'fs';
+import { promises } from 'fs';
 import path from 'path';
-import { ErrorLoadingSpec } from '../errors/specification-file';
+import { load } from '../models/SpecificationFile';
+
+const { writeFile } = promises;
 
 export default class Bundle extends Command {
   static description = 'Bundle multiple asyncapi files together.';
   static strict = false;
 
   static examples: Example[] = [
-    'asyncapi bundle ./asyncapi.yaml -o final.yaml',
-    'asyncapi bundle ./asyncapi.yaml ./spec.yaml --reference-into-components'
+    'asyncapi bundle ./asyncapi.yaml > final-asyncapi.yaml',
+    'asyncapi bundle ./asyncapi.yaml --output final-asyncapi.yaml',
+    'asyncapi bundle ./asyncapi.yaml ./features.yaml --reference-into-components',
+    'asyncapi bundle ./asyncapi.yaml ./features.yaml --base ./asyncapi.yaml --reference-into-components'
   ];
 
   static flags = {
@@ -25,42 +29,35 @@ export default class Bundle extends Command {
   async run() {
     const { argv, flags } = await this.parse(Bundle);
     const output = flags.output;
+    let baseFile;
     const outputFormat = path.extname(argv[0]);
+    const AsyncAPIFiles = await this.loadFiles(argv);
+    if (flags.base) {baseFile = load(flags.base);}
 
-    this.checkFilePaths(argv, flags);
-
-    const document = await bundle(
-      argv.map((filePath) =>
-        fs.readFileSync(path.resolve(process.cwd(), filePath), 'utf-8')
-      ),
+    const document = await bundle(AsyncAPIFiles,
       {
         referenceIntoComponents: flags['reference-into-components'],
-        base: flags.base
-          ? fs.readFileSync(
-            path.resolve(process.cwd(), flags.base || ''),
-            'utf-8'
-          )
-          : undefined,
+        base: baseFile
       }
     );
 
     if (!output) {
       if (outputFormat === '.yaml' || outputFormat === '.yml') {
-        console.log(document.yml());
+        this.log(document.yml());
       } else {
-        console.log(document.json());
+        this.log(JSON.stringify(document.json()));
       }
     } else {
       const format = path.extname(output);
 
       if (format === '.yml' || format === '.yaml') {
-        fs.writeFileSync(path.resolve(process.cwd(), output), document.yml(), {
+        await writeFile(path.resolve(process.cwd(), output), document.yml(), {
           encoding: 'utf-8',
         });
       }
 
       if (format === '.json') {
-        fs.writeFileSync(path.resolve(process.cwd(), output), document.json(), {
+        await writeFile(path.resolve(process.cwd(), output), document.json(), {
           encoding: 'utf-8',
         });
       }
@@ -68,23 +65,12 @@ export default class Bundle extends Command {
     }
   }
 
-  private checkFilePath(filePath: string) {
-    try {
-      const stats = fs.statSync(path.resolve(process.cwd(), filePath));
-      return fs.existsSync(filePath) && stats.isFile();
-    } catch (error) {
-      return false;
+  async loadFiles(filepaths: string[]): Promise<string[]> {
+    const files = [];
+    for (const filepath of filepaths) {
+      const file = await load(filepath);
+      files.push(file.text());
     }
-  }
-
-  private checkFilePaths(arg: any, flags: any) {
-    for (const file of arg) {
-      if (!this.checkFilePath(file)) {
-        throw new ErrorLoadingSpec('file', file);
-      }
-    }
-    if (flags.base && !this.checkFilePath(flags.base)) {
-      throw new ErrorLoadingSpec('file', flags.base);
-    }
+    return files;
   }
 }
