@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileCleanup } from '../../testHelper';
 
-const spec = fs.readFileSync('./test/commands/bundle/final-asyncapi.yaml', {encoding: 'utf-8'})
+const spec = fs.readFileSync('./test/commands/bundle/final-asyncapi.yaml', {encoding: 'utf-8'});
 
 function validateGeneratedSpec(filePath, spec) {
   const generatedSPec = fs.readFileSync(path.resolve(filePath), { encoding: 'utf-8' });

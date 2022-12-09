@@ -32,7 +32,7 @@ export default class Bundle extends Command {
     let baseFile;
     const outputFormat = path.extname(argv[0]);
     const AsyncAPIFiles = await this.loadFiles(argv);
-    if (flags.base) {baseFile = load(flags.base);}
+    if (flags.base) {baseFile = (await load(flags.base)).text();}
 
     const document = await bundle(AsyncAPIFiles,
       {
