@@ -6,6 +6,7 @@ import { load } from '../models/SpecificationFile';
 import * as inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
+import { Example } from '@oclif/core/lib/interfaces';
 const { writeFile } = promises;
 
 export enum Optimizations {
@@ -25,6 +26,13 @@ export default class Optimize extends Command {
   optimizations?: Optimizations[];
   outputMethod?: Outputs;
 
+  static examples: Example[] = [
+    'asyncapi optimize ./asyncapi.yaml',
+    'asyncapi optimize ./asyncapi.yaml --no-tty',
+    'asyncapi optimize ./asyncapi.yaml --optimization=remove-components,reuse-components,move-to-components --no-tty',
+    'asyncapi optimize ./asyncapi.yaml --optimization=remove-components,reuse-components,move-to-components --output=terminal --no-tty',
+  ];
+  
   static flags = {
     help: Flags.help({ char: 'h' }),
     optimization: Flags.string({char: 'p', default: Object.values(Optimizations), options: Object.values(Optimizations), multiple: true, description: 'select the type of optimizations that you want to apply.'}),
@@ -47,7 +55,7 @@ export default class Optimize extends Command {
     const report = await optimizer.getReport();
     const isURL = !!specFile.getFileURL();
 
-    if (!(report.moveToComponents.length || report.removeComponents.length || report.reuseComponents.length)) {
+    if (!(report.moveToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length)) {
       if (isURL) {
         this.log(`URL ${specFile.getFileURL()} looks optimized!`);
       } else {
@@ -92,7 +100,10 @@ export default class Optimize extends Command {
       });
     }
   }
-  private showOptimizations(elements: ReportElement[]) {
+  private showOptimizations(elements: ReportElement[] | undefined) {
+    if (!elements) {
+      return;
+    }
     for (let i = 0; i < elements.length; i++) {
       const element = elements[+i];
       if (element.action==='move') {
@@ -107,25 +118,25 @@ export default class Optimize extends Command {
     this.log('\n');
   }
   private async interactiveRun(report: Report) {
-    const canMove = report.moveToComponents.length;
-    const canRemove = report.removeComponents.length;
-    const canReuse = report.reuseComponents.length;
+    const canMove = report.moveToComponents?.length;
+    const canRemove = report.removeComponents?.length;
+    const canReuse = report.reuseComponents?.length;
     const choices = [];
 
     if (canMove) {
-      const totalMove = report.moveToComponents.filter((e) => e.action === 'move').length;
+      const totalMove = report.moveToComponents?.filter((e) => e.action === 'move').length;
       this.log(`\n${chalk.green(totalMove)} components can be moved to the components sections.\nthe following changes will be made:`);
       this.showOptimizations(report.moveToComponents);
       choices.push({name: 'move to components section', value: Optimizations.MOVE_TO_COMPONETS});
     }
     if (canRemove) {
-      const totalMove = report.removeComponents.length;
+      const totalMove = report.removeComponents?.length;
       this.log(`${chalk.green(totalMove)} unused components can be removed.\nthe following changes will be made:`);
       this.showOptimizations(report.removeComponents);
       choices.push({name: 'remove components', value: Optimizations.REMOVE_COMPONENTS});
     }
     if (canReuse) {
-      const totalMove = report.reuseComponents.length;
+      const totalMove = report.reuseComponents?.length;
       this.log(`${chalk.green(totalMove)} components can be reused.\nthe following changes will be made:`);
       this.showOptimizations(report.reuseComponents);
       choices.push({name: 'reuse components', value: Optimizations.REUSE_COMPONENTS});
