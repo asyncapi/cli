@@ -16,6 +16,22 @@ async function cleanup(filepath: string) {
 describe('template', () => {
   test
     .stdout()
+    .command([
+      ...generalOptions,
+      '-p=version=1.0.0 mode=development',
+      '--output=./test/docs',
+      '--force-write',
+    ])
+    .it('shoudld pass custom param in the template', (ctx, done) => {
+      expect(ctx.stdout).toContain(
+        'Check out your shiny new generated files at ./test/docs.\n\n'
+      );
+      cleanup('./test/docs');
+      done();
+    });
+
+  test
+    .stdout()
     .command([...generalOptions, '--output=./test/docs', '--force-write'])
     .it('should generate minimal tempalte', (ctx, done) => {
       expect(ctx.stdout).toContain(
@@ -38,22 +54,6 @@ describe('template', () => {
         done();
       }
     );
-
-  test
-    .stdout()
-    .command([
-      ...generalOptions,
-      '-p=version=1.0.0 mode=development',
-      '--output=./test/docs',
-      '--force-write',
-    ])
-    .it('shoudld pass custom param in the template', (ctx, done) => {
-      expect(ctx.stdout).toContain(
-        'Check out your shiny new generated files at ./test/docs.\n\n'
-      );
-      cleanup('./test/docs');
-      done();
-    });
 
   describe('disable-hooks', () => {
     test
