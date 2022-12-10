@@ -104,20 +104,3 @@ ln -s <absolute-path>/bin/asyncapi /user/local/bin/asyncapi
 # The "asyncapi" command should be available to be used
 asyncapi
 ```
-
----
-
-<DocsButton
- suggestions={[
-    {
-      href:'/docs/introduction',
-      type: 'back',  
-      title: 'Introduction',
-   },
-   {
-      href:'/docs/usage',
-      type: 'next',  
-      title: 'Usage',
-   }
- ]}
-/>
