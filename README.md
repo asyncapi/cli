@@ -20,7 +20,7 @@ CLI to work with your AsyncAPI files. Currently under development, we are workin
 <!-- tocstop -->
 
 ## Installation
-Learn how to install the AsyncAPI CLI from the [installation guide](/docs/installation.md) 
+Learn how to install the AsyncAPI CLI from the [installation guide](/docs/installation.md). 
 
 ## Usage
 The [usage guide](/docs/usage.md) provides information about different ways to use the CLI.
