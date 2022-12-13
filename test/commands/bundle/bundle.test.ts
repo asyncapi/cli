@@ -65,7 +65,7 @@ describe('bundle', () => {
     ])
     .it('should be able to bundle correctly with overwriting base file', (ctx, done) => {
       expect(ctx.stdout).toContain('Check out your shiny new bundled files at test/commands/bundle/final.yaml\n');
-      expect(validateGeneratedSpec('test/commands/bundle/final.yaml', spec));
+      expect(validateGeneratedSpec('test/commands/bundle/final-asyncapi.yaml', spec));
       fileCleanup('./test/commands/bundle/final.yaml');
       done();
     });

@@ -9,7 +9,7 @@ import { load } from '../models/SpecificationFile';
 const { writeFile } = promises;
 
 export default class Bundle extends Command {
-  static description = 'Bundle multiple asyncapi files together.';
+  static description = 'bundle one or multiple asyncapi documents and their references together.';
   static strict = false;
 
   static examples: Example[] = [
@@ -21,7 +21,7 @@ export default class Bundle extends Command {
 
   static flags = {
     help: Flags.help({ char: 'h' }),
-    output: Flags.string({ char: 'o', description: 'The output file name. Omitting this flag will create a main.yaml.' }),
+    output: Flags.string({ char: 'o', description: 'The output file name. Omitting this flag the result will be printed in the console.' }),
     'reference-into-components': Flags.boolean({ char: 'r', description: 'Bundle the message $refs into components object.' }),
     base: Flags.string({ char: 'b', description: 'Path to the file which will act as a base. This is required when some properties are to needed to be overwritten.' }),
   };
