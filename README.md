@@ -10,15 +10,8 @@ CLI to work with your AsyncAPI files. Currently under development, we are workin
 
 <!-- toc -->
 
-- [Installation](#installation)
-  * [Using NPM and Node](#using-npm-and-node)
-  * [MacOS](#macos)
-    + [Using brew](#using-brew)
-    + [Using pkg](#using-pkg)
-  * [Linux](#linux)
-    + [For debian based distros](#for-debian-based-distros)
-    + [For other distros](#for-other-distros)
-- [Usage](#usage)
+- [Installation](/docs/installation.md)
+- [Usage](/docs/usage.md)
 - [Contributing](#contributing)
   * [Set up development environment](#set-up-development-environment)
   * [Command Structure and Patterns](#command-structure-and-patterns)
@@ -27,125 +20,10 @@ CLI to work with your AsyncAPI files. Currently under development, we are workin
 <!-- tocstop -->
 
 ## Installation
-
-### Using NPM and Node
-
-To run `@asyncapi/cli`, you'll need Node.js >=v10
-
-Run this terminal command to check your Node.js version:
-
-```
-node -v
-```
-
-> If you don't have Node.js installed or NPM, simply [install both via package manager](https://nodejs.org/en/download/package-manager/)
-
-Install the CLI globaly on your system run CLI it from anywhere:
-
-```
-npm install -g @asyncapi/cli
-```
-
-### MacOS
-
-#### Using brew
-
-You can install this CLI using [`brew`](https://brew.sh/) package manager.
-
-```bash
-# Install brew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-# Install AsyncAPI CLI
-brew install asyncapi
-```
-
-#### Using pkg
-
-Each release of CLI produces a MacOS dedicated `pkg` file that enables you to install this CLI as MacOS application.
-
-```bash
-# Download latest release. To download specific release, your link should look similar to https://github.com/asyncapi/cli/releases/download/v0.13.0/asyncapi.pkg. All releases are listed in https://github.com/asyncapi/cli/releases
-curl -OL https://github.com/asyncapi/cli/releases/latest/download/asyncapi.pkg
-# Install AsyncAPI CLI
-sudo installer -pkg asyncapi.pkg -target /
-```
-
-### Linux
-
-#### For debian based distros
-
-You can install this CLI using `dpkg`, a package manager for debian.
-
-```bash
-# Download latest release. To download specific release, your link should look similar to https://github.com/asyncapi/cli/releases/download/v0.13.0/asyncapi.deb. All releases are listed in https://github.com/asyncapi/cli/releases
-curl -OL https://github.com/asyncapi/cli/releases/latest/download/asyncapi.deb
-# Install AsyncAPI CLI
-sudo dpkg -i asyncapi.deb
-```
-
-#### For other distros
-
-You can install this CLI using the archive(`tar.gz`) file.
-
-```bash
-# Download latest release. To download specific release, your link should look similar to https://github.com/asyncapi/cli/releases/download/v0.13.0/asyncapi.tar.gz. All releases are listed in https://github.com/asyncapi/cli/releases
-curl -OL https://github.com/asyncapi/cli/releases/latest/download/asyncapi.tar.gz
-# Untar the archive file
-tar -xzf asyncapi.tar.gz
-```
-
-The above step will create an `asyncapi` directory in the current path.
-
-Create a symlink to run the CLI from anywhere. We will create the symlink in `/usr/local/bin` directory since this directory is already in the `PATH`.
-
-```bash
-# cd into the unarchived directory
-cd asyncapi
-
-# get the absolute path
-pwd
-
-# Create a symlink
-ln -s <absolute-path>/bin/asyncapi /usr/local/bin/asyncapi
-
-# The `asyncapi` command should be available to be used
-asyncapi
-```
+Learn how to install the AsyncAPI CLI from the [installation guide](/docs/installation.md) 
 
 ## Usage
-
-`@asyncapi/cli` makes it easier to work with asyncpi files. 
-
-We have well-documented help commands so just run:
-
-```
-asyncapi --help
-```
-
-It should print something like:
-
-```
-All in one CLI for all AsyncAPI tools
-
-USAGE
-  $ asyncapi [COMMAND]
-
-COMMANDS
-  config    access configs
-  diff      find diff between two AsyncAPI files
-  new       creates a new AsyncAPI file
-  start     starts a new local instance of Studio
-  validate  validate an AsyncAPI file
-  generate    generate all kinds of stuff
-    models       generate all the typed models for the message payloads defined in the AsyncAPI file
-      typescript    generate the models for TypeScript
-      csharp        generate the models for C#
-      golang        generate the models for Go
-      java          generate the models for Java
-      javascript    generate the models for JavaScript
-      dart          generate the models for Dart
-    fromTemplate    generate whatever you want using templates compatible with AsyncAPI Generator 
-```
+The [usage guide](/docs/usage.md) provides information about different ways to use the CLI.
 
 ## Contributing
 
