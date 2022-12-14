@@ -184,12 +184,9 @@ export default class Template extends Command {
     }
     const generator = new AsyncAPIGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
 
-    CliUx.ux.action.start('Generation in progress. Keep calm and wait a bit');
     try {
       await generator.generateFromString(specification.text(), genOption);
-      CliUx.ux.action.stop();
     } catch (err: any) {
-      CliUx.ux.action.stop('done\n');
       throw new GeneratorError(err);
     }
     console.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
