@@ -119,9 +119,6 @@ describe('optimize', () => {
       .stdout()
       .command(['optimize', unoptimizedFile])
       .it('interactive terminal, only remove components and outputs to terminal', (ctx, done) => {
-        expect(ctx.stdout).toContain('components can be moved to the components sections.');
-        expect(ctx.stdout).toContain('unused components can be removed.');
-        expect(ctx.stdout).toContain('components can be reused.');
         expect(ctx.stdout).toContain('asyncapi: 2.0.0');
         expect(ctx.stderr).toEqual('');
         done();
