@@ -1,30 +1,25 @@
 import {Flags} from '@oclif/core';
 import { promises as fPromises } from 'fs';
-import Command from '../base';
+import Command from '../../base';
 import * as inquirer from 'inquirer';
-import { start as startStudio, DEFAULT_PORT } from '../models/Studio';
+import { start as startStudio, DEFAULT_PORT } from '../../models/Studio';
 import { resolve } from 'path';
 
 const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
 const DEFAULT_ASYNCAPI_TEMPLATE = 'default-example.yaml';
 
-export default class New extends Command {
-  static description = 'Creates a new asyncapi file';
+export default class NewGlee extends Command {
+  static description = 'Creates a new Glee project';
 
   static flags = {
     help: Flags.help({ char: 'h' }),
-    'file-name': Flags.string({ char: 'n', description: 'name of the file' }),
-    example: Flags.string({ char: 'e', description: 'name of the example to use' }),
-    studio: Flags.boolean({ char: 's', description: 'open in Studio' }),
-    port: Flags.integer({ char: 'p', description: 'port in which to start Studio' }),
-    'no-tty': Flags.boolean({ description: 'do not use an interactive terminal' }),
+    name: Flags.string({ char: 'n', description: 'name of the project', default: 'glee-project' }),
   };
 
-  static args = [];
-
   async run() {
-    const { flags } = await this.parse(New); // NOSONAR
+    // Create new asyncapi file
+    const { flags } = await this.parse(NewGlee); // NOSONAR
     const isTTY = process.stdout.isTTY;
 
     if (!flags['no-tty'] && isTTY) {
@@ -43,6 +38,36 @@ export default class New extends Command {
         this.warn('Warning: --studio flag was passed but the terminal is not interactive. Ignoring...');
       }
     }
+    
+    // // Create new glee project
+    // const { args } = await this.parse(New);
+    // const gleePath = args['glee-project'];
+
+    // if (gleePath) {
+    //   // Create glee project folder
+    //   await fPromises.mkdir(gleePath);
+
+
+    //   // Create 'functions' folder inside glee project folder
+    //   await fPromises.mkdir(`${gleePath}/functions`);
+
+
+    //   // DO NOT create asyncapi.yaml file -> Get the file and copy to it to glee folder
+    //   const specFile = this.createAsyncapiFile(fileName, template);
+    //   if (specFile) {
+    //     await fPromises.copyFile(__dirname, `${gleePath}`);
+    //   } else {
+    //     await fPromises.writeFile(`${gleePath}`, '../../assets/examples/examples.json', { encoding: 'utf8' });
+
+    //   }
+
+    //   // Create package.json file
+
+    //       // DO NOT "npm install to generate file" -> Access to "https://github.com/asyncapi/create-glee-app/blob/master/templates/default/package.json"
+    //       // and copy it (same like was done with asyncapi file)
+    //       // DO NOT add glee dependency (already included in the accessed file)
+
+    // }
   }
 
   /* eslint-disable sonarjs/cognitive-complexity */
