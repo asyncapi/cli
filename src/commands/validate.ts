@@ -1,5 +1,6 @@
 import { Flags } from '@oclif/core';
 import * as parser from '@asyncapi/parser';
+import path from 'path';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
@@ -37,9 +38,12 @@ export default class Validate extends Command {
         this.log(`URL ${specFile.getFileURL()} successfully validated`);
       }
     } catch (error) {
+      const filepath : any = specFile.getFilePath();
+      
       throw new ValidationError({
         type: 'parser-error',
-        err: error
+        err: error,
+        filepath: specFile.getFileURL() || path.resolve(process.cwd(), filepath)
       });
     }
   }

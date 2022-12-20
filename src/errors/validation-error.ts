@@ -3,14 +3,14 @@ type ErrorType = 'parser-error' | 'invalid-file' | 'no-spec-found';
 interface IValidationErrorInput {
   type: ErrorType;
   err?: any,
-  filepath?: string,
+  filepath?: any,
 }
 
 export class ValidationError extends Error {
   constructor(error: IValidationErrorInput) {
     super();
     if (error.type === 'parser-error') {
-      this.buildError(error.err);
+      this.buildError(error.err, error.filepath);
     }
     if (error.type === 'invalid-file') {
       this.message = `There is no file or context with name "${error.filepath}".`;
@@ -21,8 +21,13 @@ export class ValidationError extends Error {
     this.name = 'ValidationError';
   }
 
-  private buildError(err: any) {
+  /* eslint-disable sonarjs/cognitive-complexity */
+  private buildError(err: any, filepath: any) {
     const errorsInfo: Array<string> = [];
+
+    if (filepath) {
+      errorsInfo.push(`We tried to validate ${filepath}.`);
+    }
 
     if (err.title) {
       errorsInfo.push(err.title);
