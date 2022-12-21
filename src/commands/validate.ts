@@ -38,7 +38,7 @@ export default class Validate extends Command {
         this.log(`URL ${specFile.getFileURL()} successfully validated`);
       }
     } catch (error) {
-      const filepath : any = specFile.getFilePath();
+      const filepath= specFile.getFilePath() as string;
       
       throw new ValidationError({
         type: 'parser-error',
