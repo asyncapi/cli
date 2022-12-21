@@ -15,17 +15,17 @@ interface Example {
 }
 
 function loadExampleFile() : Example[] {
-	const exampleFiles = readFileSync(resolve(__dirname, '../../assets/examples/examples.json'), { encoding: 'utf8' });
-	return JSON.parse(exampleFiles);
+  const exampleFiles = readFileSync(resolve(__dirname, '../../assets/examples/examples.json'), { encoding: 'utf8' });
+  return JSON.parse(exampleFiles);
 }
 
 function getExamplesFlagDescription() : string {
-	const examples = loadExampleFile();
-	let description = "name of the example to use. Available examples are:";
-	for (const element of examples) {
-		description += `\n\t - ${element.value}`
-	}
-	return description;
+  const examples = loadExampleFile();
+  let description = "name of the example to use. Available examples are:";
+  for (const element of examples) {
+    description += `\n\t - ${element.value}`
+  }
+  return description;
 }
 
 export default class New extends Command {
