@@ -38,12 +38,12 @@ export default class Validate extends Command {
         this.log(`URL ${specFile.getFileURL()} successfully validated`);
       }
     } catch (error) {
-      const filepath= specFile.getFilePath() as string;
+      const filePath= specFile.getFilePath() as string;
       
       throw new ValidationError({
         type: 'parser-error',
         err: error,
-        filepath: specFile.getFileURL() || path.resolve(process.cwd(), filepath)
+        filepath: specFile.getFileURL() || path.resolve(process.cwd(), filePath)
       });
     }
   }
