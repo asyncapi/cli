@@ -8,6 +8,7 @@ import {Optimizations, Outputs} from '../../src/commands/optimize';
 const testHelper = new TestHelper();
 const optimizedFilePath = './test/specification.yml';
 const unoptimizedFile = './test/dummyspec/unoprimizedSpec.yml';
+const invalidFile = './test/specification-invalid.yml';
 
 describe('optimize', () => {
   describe('no optimization needed', () => {
@@ -24,7 +25,7 @@ describe('optimize', () => {
       .stdout()
       .command(['optimize', optimizedFilePath])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).toContain(`File ${optimizedFilePath} looks optimized!`);
+        expect(ctx.stdout).toContain(`No optimization has been applied since ${optimizedFilePath} looks optimized!`);
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -35,7 +36,7 @@ describe('optimize', () => {
       .command(['optimize', './test/not-found.yml'])
       .it('should throw error if file path is wrong', (ctx, done) => {
         expect(ctx.stdout).toEqual('');
-        expect(ctx.stderr).toEqual('error loading AsyncAPI document from file: ./test/not-found.yml file does not exist.\n');
+        expect(ctx.stderr).toContain('ValidationError');
         done();
       });
 
@@ -44,7 +45,7 @@ describe('optimize', () => {
       .stdout()
       .command(['optimize', 'https://bit.ly/asyncapi'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).toContain('URL https://bit.ly/asyncapi looks optimized!');
+        expect(ctx.stdout).toContain('No optimization has been applied since https://bit.ly/asyncapi looks optimized!');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -65,7 +66,7 @@ describe('optimize', () => {
       .stdout()
       .command(['optimize'])
       .it('converts from current context', (ctx, done) => {
-        expect(ctx.stdout).toContain(`File ${path.resolve(__dirname, '../specification.yml')} looks optimized!`);
+        expect(ctx.stdout).toContain(`No optimization has been applied since ${path.resolve(__dirname, '../specification.yml')} looks optimized!`);
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -80,7 +81,7 @@ describe('optimize', () => {
       .command(['optimize'])
       .it('throws error message if no current context', (ctx, done) => {
         expect(ctx.stdout).toEqual('');
-        expect(ctx.stderr).toEqual('ContextError: No context is set as current, please set a current context.\n');
+        expect(ctx.stderr).toContain('ValidationError');
         done();
       });
 
@@ -93,7 +94,7 @@ describe('optimize', () => {
       .command(['optimize'])
       .it('throws error message if no context file exists', (ctx, done) => {
         expect(ctx.stdout).toEqual('');
-        expect(ctx.stderr).toEqual(`error locating AsyncAPI document: ${NO_CONTEXTS_SAVED}\n`);
+        expect(ctx.stderr).toContain('ValidationError');
         done();
       });
   });
@@ -121,6 +122,17 @@ describe('optimize', () => {
       .it('interactive terminal, only remove components and outputs to terminal', (ctx, done) => {
         expect(ctx.stdout).toContain('asyncapi: 2.0.0');
         expect(ctx.stderr).toEqual('');
+        done();
+      });
+  });
+  describe('error if the asyncapi file is invalid', () => {
+    test
+      .stderr()
+      .stdout()
+      .command(['optimize',invalidFile])
+      .it('give ValidationError', (ctx, done) => {
+        expect(ctx.stderr).toContain('ValidationError');
+        expect(ctx.stdout).toEqual('');
         done();
       });
   });

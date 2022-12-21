@@ -26,6 +26,20 @@ describe('template', () => {
     });
 
   test
+    .stderr()
+    .command([...generalOptions, '--output=./test/doc'])
+    .it(
+      'should throw error if output folder is in a git repository',
+      (ctx, done) => {
+        expect(ctx.stderr).toContain(
+          'Error: "./test/doc" is in a git repository with unstaged changes.'
+        );
+        cleanup('./test/doc');
+        done();
+      }
+    );
+
+  test
     .stdout()
     .command([
       ...generalOptions,

@@ -2,7 +2,7 @@ import { Flags } from '@oclif/core';
 import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
-import { load } from '../models/SpecificationFile';
+import { load, Specification } from '../models/SpecificationFile';
 import * as inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
@@ -47,22 +47,30 @@ export default class Optimize extends Command {
   async run() {
     const { args, flags } = await this.parse(Optimize); //NOSONAR
     const filePath = args['spec-file'];
-    const specFile = await load(filePath);
+    let specFile: Specification;
+    let optimizer: Optimizer;
+    let report: Report;
+    try {
+      specFile = await load(filePath);
+      optimizer = new Optimizer(specFile.text());
+      report = await optimizer.getReport();
+    } catch (err) {
+      this.error(
+        new ValidationError({
+          type: 'invalid-file',
+          filepath: filePath,
+        })
+      );
+    }
     this.isInteractive = !flags['no-tty'];
     this.optimizations = flags.optimization as Optimizations[];
     this.outputMethod = flags.output as Outputs;
-    const optimizer = new Optimizer(specFile.text());
-    const report = await optimizer.getReport();
-    const isURL = !!specFile.getFileURL();
-
+    
     if (!(report.moveToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length)) {
-      if (isURL) {
-        this.log(`URL ${specFile.getFileURL()} looks optimized!`);
-      } else {
-        this.log(`File ${specFile.getFilePath()} looks optimized!`);
-      }
+      this.log(`No optimization has been applied since ${specFile.getFilePath() ?? specFile.getFileURL()} looks optimized!`);
       return;
     }
+
     const isTTY = process.stdout.isTTY;
     if (this.isInteractive && isTTY) {
       await this.interactiveRun(report);
@@ -81,7 +89,7 @@ export default class Optimize extends Command {
         const pos = specPath.lastIndexOf('.');
         newPath = `${specPath.substring(0,pos) }_optimized.${ specPath.substring(pos+1)}`;
       } else {
-        newPath = 'asyncapi_optimized.yaml';
+        newPath = 'optimized-asyncapi.yaml';
       }
 
       if (this.outputMethod === Outputs.TERMINAL) {
