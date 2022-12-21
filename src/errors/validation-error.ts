@@ -22,7 +22,7 @@ export class ValidationError extends Error {
   }
 
   /* eslint-disable sonarjs/cognitive-complexity */
-  private buildError(err: any, filePath: any) { // NOSONAR
+  private buildError(err: any, filePath: string) { // NOSONAR
     const errorsInfo: Array<string> = [];
 
     if (filePath) {
