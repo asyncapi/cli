@@ -21,7 +21,7 @@ describe('models', () => {
     .stdout()
     .command([...generalOptions, 'random', './test/specification.yml', `-o=${ path.resolve(outputDir, './random')}`])
     .it('fails when it dont know the language', (ctx, done) => {
-      expect(ctx.stderr).toEqual('Error: Expected random to be one of: typescript, csharp, golang, java, javascript, dart\nSee more help with --help\n');
+      expect(ctx.stderr).toEqual('Error: Expected random to be one of: typescript, csharp, golang, java, javascript, dart, python, rust\nSee more help with --help\n');
       expect(ctx.stdout).toEqual('');
       done();
     });

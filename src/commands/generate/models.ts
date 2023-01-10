@@ -2,7 +2,6 @@ import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeSc
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
-import { Parser } from '@asyncapi/parserV2';
 enum Languages {
   typescript = 'typescript',
   csharp = 'csharp',
@@ -16,7 +15,6 @@ enum Languages {
 const possibleLanguageValues = Object.values(Languages).join(', ');
 export default class Models extends Command {
   static description = 'Generates typed models';
-  static parser = new Parser();
   static args = [
     { 
       name: 'language', 
@@ -45,7 +43,7 @@ export default class Models extends Command {
     const { namespace, packageName, output } = passedArguments.flags;
     const { language, file } = passedArguments.args;
     const inputFile = await load(file) || await load();
-    const { document: parsedInput } = await Models.parser.parse(inputFile.text());
+    const parsedInput = inputFile.text();
     Logger.setLogger({
       info: (message) => {
         this.log(message);
