@@ -1,7 +1,8 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator} from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
+import { parse } from '@asyncapi/parser';
 enum Languages {
   typescript = 'typescript',
   csharp = 'csharp',
@@ -76,11 +77,12 @@ export default class Models extends Command {
   };
 
   async run() {
-    const passedArguments = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, packageName, output } = passedArguments.flags;
-    const { language, file } = passedArguments.args;
+    const { args, flags } = await this.parse(Models);
+    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, packageName, output } = flags;
+    const { language, file } = args;
+
     const inputFile = await load(file) || await load();
-    const parsedInput = inputFile.text();
+    const parsedInput = await parse(inputFile.text());
     Logger.setLogger({
       info: (message) => {
         this.log(message);
@@ -98,63 +100,63 @@ export default class Models extends Command {
     let fileGenerator;
     let fileOptions = {};
     switch (language) {
-    case Languages.typescript:
-      fileGenerator = new TypeScriptFileGenerator({
-        modelType: tsModelType as undefined | 'class' | 'interface',
-        enumType: tsEnumType as undefined | 'enum' | 'union'
-      });
-      fileOptions = {
-        moduleSystem: tsModuleSystem,
-        exportType: tsExportType
-      };
-      break;
-    case Languages.python:
-      fileGenerator = new PythonFileGenerator();
-      break;
-    case Languages.rust:
-      fileGenerator = new RustFileGenerator();
-      break;
-    case Languages.csharp:
-      if (namespace === undefined) {
-        throw new Error('In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
-      }
-      fileGenerator = new CSharpFileGenerator();
-      fileOptions = {
-        namespace
-      };
-      break;
-    case Languages.golang:
-      if (packageName === undefined) {
-        throw new Error('In order to generate models to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
-      }
-      fileGenerator = new GoFileGenerator();
-      fileOptions = {
-        packageName
-      };
-      break;
-    case Languages.java:
-      if (packageName === undefined) {
-        throw new Error('In order to generate models to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
-      }
-      fileGenerator = new JavaFileGenerator();
-      fileOptions = {
-        packageName
-      };
-      break;
-    case Languages.javascript:
-      fileGenerator = new JavaScriptFileGenerator();
-      break;
-    case Languages.dart:
-      if (packageName === undefined) {
-        throw new Error('In order to generate models to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
-      }
-      fileGenerator = new DartFileGenerator();
-      fileOptions = {
-        packageName
-      };
-      break;
-    default:
-      throw new Error(`Could not determine generator for language ${language}, are you using one of the following values ${possibleLanguageValues}?`);
+      case Languages.typescript:
+        fileGenerator = new TypeScriptFileGenerator({
+          modelType: tsModelType as undefined | 'class' | 'interface',
+          enumType: tsEnumType as undefined | 'enum' | 'union'
+        });
+        fileOptions = {
+          moduleSystem: tsModuleSystem,
+          exportType: tsExportType
+        };
+        break;
+      case Languages.python:
+        fileGenerator = new PythonFileGenerator();
+        break;
+      case Languages.rust:
+        fileGenerator = new RustFileGenerator();
+        break;
+      case Languages.csharp:
+        if (namespace === undefined) {
+          throw new Error('In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
+        }
+        fileGenerator = new CSharpFileGenerator();
+        fileOptions = {
+          namespace
+        };
+        break;
+      case Languages.golang:
+        if (packageName === undefined) {
+          throw new Error('In order to generate models to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+        }
+        fileGenerator = new GoFileGenerator();
+        fileOptions = {
+          packageName
+        };
+        break;
+      case Languages.java:
+        if (packageName === undefined) {
+          throw new Error('In order to generate models to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+        }
+        fileGenerator = new JavaFileGenerator();
+        fileOptions = {
+          packageName
+        };
+        break;
+      case Languages.javascript:
+        fileGenerator = new JavaScriptFileGenerator();
+        break;
+      case Languages.dart:
+        if (packageName === undefined) {
+          throw new Error('In order to generate models to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+        }
+        fileGenerator = new DartFileGenerator();
+        fileOptions = {
+          packageName
+        };
+        break;
+      default:
+        throw new Error(`Could not determine generator for language ${language}, are you using one of the following values ${possibleLanguageValues}?`);
     }
     let models;
     if (output) {
@@ -173,7 +175,7 @@ export default class Models extends Command {
         return `
 ## Model name: ${model.modelName}
 ${model.result}
-  `;
+`;
       });
 
       this.log(`Successfully generated the following models: ${generatedModels.join('\n')}`);

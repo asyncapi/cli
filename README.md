@@ -145,7 +145,7 @@ COMMANDS
       javascript    	generate the models for JavaScript
       dart          	generate the models for Dart
       python        	generate the models for Python
-      rust        	  generate the models for Rust
+      rust              generate the models for Rust
     fromTemplate 	generate whatever you want using templates compatible with AsyncAPI Generator 
 ```
 
