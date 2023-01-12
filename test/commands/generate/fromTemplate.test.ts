@@ -14,6 +14,9 @@ function cleanup(filepath: string) {
 }
 
 describe('template', () => {
+  afterAll(() => {
+    cleanup('./test/docs');
+  });
   test
     .stdout()
     .command([...generalOptions, '--output=./test/docs/1', '--force-write'])
