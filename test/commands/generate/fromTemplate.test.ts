@@ -14,6 +14,10 @@ async function cleanup(filepath: string) {
 }
 
 describe('template', () => {
+  afterEach(async () => {
+    await cleanup('./test/doc');
+  });
+
   test
     .stdout()
     .command([...generalOptions, '--output=./test/docs', '--force-write'])
@@ -21,7 +25,6 @@ describe('template', () => {
       expect(ctx.stdout).toContain(
         'Check out your shiny new generated files at ./test/docs.\n\n'
       );
-      cleanup('./test/docs');
       done();
     });
 
@@ -30,11 +33,10 @@ describe('template', () => {
     .command([...generalOptions, '--output=./test/doc'])
     .it(
       'should throw error if output folder is in a git repository',
-      (ctx, done) => {
+      async (ctx, done) => {
         expect(ctx.stderr).toContain(
           'Error: "./test/doc" is in a git repository with unstaged changes.'
         );
-        cleanup('./test/doc');
         done();
       }
     );
@@ -51,7 +53,6 @@ describe('template', () => {
       expect(ctx.stdout).toContain(
         'Check out your shiny new generated files at ./test/docs.\n\n'
       );
-      cleanup('./test/docs');
       done();
     });
 
@@ -67,7 +68,6 @@ describe('template', () => {
       .it('should not create asyncapi.yaml file', (_, done) => {
         const exits = fs.existsSync(path.resolve('./docs/asyncapi.yaml'));
         expect(exits).toBeFalsy();
-        cleanup('./test/docs');
         done();
       });
   });
@@ -87,7 +87,6 @@ describe('template', () => {
             './test/minimaltemplate'
           )}.`
         );
-        cleanup('./test/docs');
         done();
       });
   });
@@ -105,7 +104,6 @@ describe('template', () => {
         expect(ctx.stdout).toContain(
           'Check out your shiny new generated files at ./test/docs.\n\n'
         );
-        cleanup('./test/docs');
         done();
       });
   });
@@ -125,7 +123,6 @@ describe('template', () => {
       ])
       .it('should install template', (ctx, done) => {
         expect(ctx.stdout).toContain('Template installation started because you passed --install flag.');
-        cleanup('./test/docs');
         done();
       });
   });
@@ -147,7 +144,6 @@ describe('template', () => {
           expect(ctx.stdout).toContain(
             'Check out your shiny new generated files at ./test/docs.\n\n'
           );
-          cleanup('./test/docs');
           done();
         }
       );
