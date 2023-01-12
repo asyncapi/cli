@@ -9,34 +9,32 @@ const generalOptions = [
   '@asyncapi/minimaltemplate',
 ];
 
-async function cleanup(filepath: string) {
+function cleanup(filepath: string) {
   rimraf.sync(filepath);
 }
 
 describe('template', () => {
-  afterEach(async () => {
-    await cleanup('./test/doc');
-  });
-
   test
     .stdout()
-    .command([...generalOptions, '--output=./test/docs', '--force-write'])
+    .command([...generalOptions, '--output=./test/docs/1', '--force-write'])
     .it('should generate minimal tempalte', (ctx, done) => {
       expect(ctx.stdout).toContain(
-        'Check out your shiny new generated files at ./test/docs.\n\n'
+        'Check out your shiny new generated files at ./test/docs/1.\n\n'
       );
+      cleanup('./test/docs/1');
       done();
     });
 
   test
     .stderr()
-    .command([...generalOptions, '--output=./test/doc'])
+    .command([...generalOptions, '--output=./test/docs/2'])
     .it(
       'should throw error if output folder is in a git repository',
-      async (ctx, done) => {
+      (ctx, done) => {
         expect(ctx.stderr).toContain(
-          'Error: "./test/doc" is in a git repository with unstaged changes.'
+          'Error: "./test/docs/2" is in a git repository with unstaged changes.'
         );
+        cleanup('./test/docs/2');
         done();
       }
     );
@@ -46,13 +44,14 @@ describe('template', () => {
     .command([
       ...generalOptions,
       '-p=version=1.0.0 mode=development',
-      '--output=./test/docs',
+      '--output=./test/docs/3',
       '--force-write',
     ])
     .it('shoudld pass custom param in the template', (ctx, done) => {
       expect(ctx.stdout).toContain(
-        'Check out your shiny new generated files at ./test/docs.\n\n'
+        'Check out your shiny new generated files at ./test/docs/3.\n\n'
       );
+      cleanup('./test/docs/3');
       done();
     });
 
@@ -61,13 +60,14 @@ describe('template', () => {
       .stdout()
       .command([
         ...generalOptions,
-        '--output=./test/docs',
+        '--output=./test/docs/4',
         '--force-write',
         '-d=generate:after',
       ])
-      .it('should not create asyncapi.yaml file', (_, done) => {
+      .it('should not create asyncapi.yaml file', async (_, done) => {
         const exits = fs.existsSync(path.resolve('./docs/asyncapi.yaml'));
         expect(exits).toBeFalsy();
+        cleanup('./test/docs/4');
         done();
       });
   });
@@ -77,7 +77,7 @@ describe('template', () => {
       .stdout()
       .command([
         ...generalOptions,
-        '--output=./test/docs',
+        '--output=./test/docs/5',
         '--force-write',
         '--debug',
       ])
@@ -87,6 +87,7 @@ describe('template', () => {
             './test/minimaltemplate'
           )}.`
         );
+        cleanup('./test/docs/5');
         done();
       });
   });
@@ -96,14 +97,15 @@ describe('template', () => {
       .stdout()
       .command([
         ...generalOptions,
-        '--output=./test/docs',
+        '--output=./test/docs/6',
         '--force-write',
         '--no-overwrite=./test/docs/asyncapi.md',
       ])
       .it('should skip the filepath and generate normally', (ctx, done) => {
         expect(ctx.stdout).toContain(
-          'Check out your shiny new generated files at ./test/docs.\n\n'
+          'Check out your shiny new generated files at ./test/docs/6.\n\n'
         );
+        cleanup('./test/docs/6');
         done();
       });
   });
@@ -119,10 +121,11 @@ describe('template', () => {
         './test/minimaltemplate',
         '--install',
         '--force-write',
-        '--output=./test/docs'
+        '--output=./test/docs/7'
       ])
       .it('should install template', (ctx, done) => {
         expect(ctx.stdout).toContain('Template installation started because you passed --install flag.');
+        cleanup('./test/docs/7');
         done();
       });
   });
@@ -134,7 +137,7 @@ describe('template', () => {
         'generate:fromTemplate',
         './test/dummyspec/apiwithref.json',
         '@asyncapi/minimaltemplate',
-        '--output=./test/docs',
+        '--output=./test/docs/8',
         '--force-write',
         '--map-base-url=https://schema.example.com/crm/:./test/dummyspec',
       ])
@@ -142,8 +145,9 @@ describe('template', () => {
         'should resolve reference and generate from template',
         (ctx, done) => {
           expect(ctx.stdout).toContain(
-            'Check out your shiny new generated files at ./test/docs.\n\n'
+            'Check out your shiny new generated files at ./test/docs/8.\n\n'
           );
+          cleanup('./test/docs/8');
           done();
         }
       );
