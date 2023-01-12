@@ -33,7 +33,7 @@ describe('template', () => {
     beforeAll(() => {
       fs.mkdirSync(pathToOutput, { recursive: true });
       // Write a random file to trigger that dir has unstaged changes.
-      fs.writeFileSync(path.join(pathToOutput, 'random.md'), "");
+      fs.writeFileSync(path.join(pathToOutput, 'random.md'), '');
     });
     test
       .stderr()

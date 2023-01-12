@@ -100,63 +100,63 @@ export default class Models extends Command {
     let fileGenerator;
     let fileOptions = {};
     switch (language) {
-      case Languages.typescript:
-        fileGenerator = new TypeScriptFileGenerator({
-          modelType: tsModelType as undefined | 'class' | 'interface',
-          enumType: tsEnumType as undefined | 'enum' | 'union'
-        });
-        fileOptions = {
-          moduleSystem: tsModuleSystem,
-          exportType: tsExportType
-        };
-        break;
-      case Languages.python:
-        fileGenerator = new PythonFileGenerator();
-        break;
-      case Languages.rust:
-        fileGenerator = new RustFileGenerator();
-        break;
-      case Languages.csharp:
-        if (namespace === undefined) {
-          throw new Error('In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
-        }
-        fileGenerator = new CSharpFileGenerator();
-        fileOptions = {
-          namespace
-        };
-        break;
-      case Languages.golang:
-        if (packageName === undefined) {
-          throw new Error('In order to generate models to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
-        }
-        fileGenerator = new GoFileGenerator();
-        fileOptions = {
-          packageName
-        };
-        break;
-      case Languages.java:
-        if (packageName === undefined) {
-          throw new Error('In order to generate models to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
-        }
-        fileGenerator = new JavaFileGenerator();
-        fileOptions = {
-          packageName
-        };
-        break;
-      case Languages.javascript:
-        fileGenerator = new JavaScriptFileGenerator();
-        break;
-      case Languages.dart:
-        if (packageName === undefined) {
-          throw new Error('In order to generate models to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
-        }
-        fileGenerator = new DartFileGenerator();
-        fileOptions = {
-          packageName
-        };
-        break;
-      default:
-        throw new Error(`Could not determine generator for language ${language}, are you using one of the following values ${possibleLanguageValues}?`);
+    case Languages.typescript:
+      fileGenerator = new TypeScriptFileGenerator({
+        modelType: tsModelType as undefined | 'class' | 'interface',
+        enumType: tsEnumType as undefined | 'enum' | 'union'
+      });
+      fileOptions = {
+        moduleSystem: tsModuleSystem,
+        exportType: tsExportType
+      };
+      break;
+    case Languages.python:
+      fileGenerator = new PythonFileGenerator();
+      break;
+    case Languages.rust:
+      fileGenerator = new RustFileGenerator();
+      break;
+    case Languages.csharp:
+      if (namespace === undefined) {
+        throw new Error('In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
+      }
+      fileGenerator = new CSharpFileGenerator();
+      fileOptions = {
+        namespace
+      };
+      break;
+    case Languages.golang:
+      if (packageName === undefined) {
+        throw new Error('In order to generate models to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+      }
+      fileGenerator = new GoFileGenerator();
+      fileOptions = {
+        packageName
+      };
+      break;
+    case Languages.java:
+      if (packageName === undefined) {
+        throw new Error('In order to generate models to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+      }
+      fileGenerator = new JavaFileGenerator();
+      fileOptions = {
+        packageName
+      };
+      break;
+    case Languages.javascript:
+      fileGenerator = new JavaScriptFileGenerator();
+      break;
+    case Languages.dart:
+      if (packageName === undefined) {
+        throw new Error('In order to generate models to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+      }
+      fileGenerator = new DartFileGenerator();
+      fileOptions = {
+        packageName
+      };
+      break;
+    default:
+      throw new Error(`Could not determine generator for language ${language}, are you using one of the following values ${possibleLanguageValues}?`);
     }
     let models;
     if (output) {
