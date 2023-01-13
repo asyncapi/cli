@@ -26,6 +26,24 @@ describe('template', () => {
     });
 
   test
+    .do(() => {
+      fs.writeFileSync('emptyFile.txt','');
+    })
+    .stderr()
+    .command([...generalOptions, '--output=./test/doc'])
+    .it(
+      'should throw error if output folder is in a git repository',
+      (ctx, done) => {
+        expect(ctx.stderr).toContain(
+          'Generator Error'
+        );
+        rimraf.sync('./test/doc');
+        fs.unlinkSync('emptyFile.txt');
+        done();
+      }
+    );
+    
+  test
     .stdout()
     .command([
       ...generalOptions,
