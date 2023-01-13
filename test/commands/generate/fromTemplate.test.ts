@@ -13,18 +13,7 @@ async function cleanup(filepath: string) {
   rimraf.sync(filepath);
 }
 
-describe('template', () => {
-  test
-    .stdout()
-    .command([...generalOptions, '--output=./test/docs', '--force-write'])
-    .it('should generate minimal tempalte', (ctx, done) => {
-      expect(ctx.stdout).toContain(
-        'Check out your shiny new generated files at ./test/docs.\n\n'
-      );
-      cleanup('./test/docs');
-      done();
-    });
-
+describe('git-test', () => {
   test
     .stderr()
     .command([...generalOptions, '--output=./test/doc'])
@@ -38,6 +27,19 @@ describe('template', () => {
         done();
       }
     );
+});
+
+describe('template', () => {
+  test
+    .stdout()
+    .command([...generalOptions, '--output=./test/docs', '--force-write'])
+    .it('should generate minimal tempalte', (ctx, done) => {
+      expect(ctx.stdout).toContain(
+        'Check out your shiny new generated files at ./test/docs.\n\n'
+      );
+      cleanup('./test/docs');
+      done();
+    });
 
   test
     .stdout()
