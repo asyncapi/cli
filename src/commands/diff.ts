@@ -2,8 +2,8 @@
 import { Flags } from '@oclif/core';
 import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
-import * as parser from '@asyncapi/parser';
 import { promises as fs } from 'fs';
+import * as parser from '../utils/parser';
 import { load, Specification } from '../models/SpecificationFile';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
