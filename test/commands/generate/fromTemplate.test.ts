@@ -35,14 +35,14 @@ describe('template', () => {
       'should throw error if output folder is in a git repository',
       (ctx, done) => {
         expect(ctx.stderr).toContain(
-          'Generator Error'
+          'Error: "./test/doc" is in a git repository with unstaged changes.'
         );
-        rimraf.sync('./test/doc');
+        cleanup('./test/doc');
         fs.unlinkSync('emptyFile.txt');
         done();
       }
     );
-    
+
   test
     .stdout()
     .command([
