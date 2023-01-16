@@ -1,10 +1,72 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`models for C# should handle configuration file 1`] = `
+"Successfully generated the following models: CustomUserSignedUpPayload
+"
+`;
+
+exports[`models for Dart should handle configuration file 1`] = `
+"Successfully generated the following models: CustomUserSignedUpPayload
+"
+`;
+
+exports[`models for Go should handle configuration file 1`] = `
+"Successfully generated the following models: CustomUserSignedUpPayload
+"
+`;
+
+exports[`models for Java should handle configuration file 1`] = `
+"Successfully generated the following models: CustomUserSignedUpPayload
+"
+`;
+
+exports[`models for JavaScript should handle configuration file 1`] = `
+"Successfully generated the following models: CustomUserSignedUpPayload
+"
+`;
+
+exports[`models for Python should handle configuration file 1`] = `
+"Successfully generated the following models: CustomUserSignedUpPayload
+"
+`;
+
+exports[`models for Rust should handle configuration file 1`] = `
+"Successfully generated the following models: CustomUserSignedUpPayload
+"
+`;
+
+exports[`models for TypeScript should handle configuration file 1`] = `
+"Successfully generated the following models: CustomUserSignedUpPayload
+"
+`;
+
+exports[`models should handle incorrect configuration file correctly 1`] = `
+"Error: There was an error trying to load the Modelina configuration file, it will be ignored. The following error was triggered: Error: 
+  × Expected ';', '}' or <eof>
+    ╭─[/Users/lagoni/Documents/github/cli/test/commands/generate/models_configuration/incorrect_models.js:12:1]
+ 12 │ WRONG SYNTAX
+    ·       ──────
+    ╰────
+
+Error: 
+  ☞ This is the expression part of an expression statement
+    ╭─[/Users/lagoni/Documents/github/cli/test/commands/generate/models_configuration/incorrect_models.js:12:1]
+ 12 │ WRONG SYNTAX
+    · ─────
+    ╰────
+
+
+Caused by:
+    0: failed to process input file
+    1: Syntax Error
+"
+`;
+
 exports[`models works when generating in memory 1`] = `
 "Successfully generated the following models: 
-## Model name: AnonymousSchema_1
+## Model name: UserSignedUpPayload
 
-class AnonymousSchema_1 {
+class UserSignedUpPayload {
   private _displayName?: string;
   private _email?: string;
   private _additionalProperties?: Map<string, any>;
@@ -28,7 +90,7 @@ class AnonymousSchema_1 {
   get additionalProperties(): Map<string, any> | undefined { return this._additionalProperties; }
   set additionalProperties(additionalProperties: Map<string, any> | undefined) { this._additionalProperties = additionalProperties; }
 }
-export default AnonymousSchema_1;
+export default UserSignedUpPayload;
 
 
 "
