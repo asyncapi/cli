@@ -1,0 +1,139 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`models works when generating in memory 1`] = `
+"Successfully generated the following models: 
+## Model name: AnonymousSchema_1
+
+class AnonymousSchema_1 {
+  private _displayName?: string;
+  private _email?: string;
+  private _additionalProperties?: Map<string, any>;
+
+  constructor(input: {
+    displayName?: string,
+    email?: string,
+    additionalProperties?: Map<string, any>,
+  }) {
+    this._displayName = input.displayName;
+    this._email = input.email;
+    this._additionalProperties = input.additionalProperties;
+  }
+
+  get displayName(): string | undefined { return this._displayName; }
+  set displayName(displayName: string | undefined) { this._displayName = displayName; }
+
+  get email(): string | undefined { return this._email; }
+  set email(email: string | undefined) { this._email = email; }
+
+  get additionalProperties(): Map<string, any> | undefined { return this._additionalProperties; }
+  set additionalProperties(additionalProperties: Map<string, any> | undefined) { this._additionalProperties = additionalProperties; }
+}
+export default AnonymousSchema_1;
+
+
+"
+`;
+
+exports[`models works with remote AsyncAPI files 1`] = `
+"Successfully generated the following models: 
+## Model name: LightMeasuredPayload
+
+class LightMeasuredPayload {
+  private _lumens?: number;
+  private _sentAt?: string;
+  private _additionalProperties?: Map<string, any>;
+
+  constructor(input: {
+    lumens?: number,
+    sentAt?: string,
+    additionalProperties?: Map<string, any>,
+  }) {
+    this._lumens = input.lumens;
+    this._sentAt = input.sentAt;
+    this._additionalProperties = input.additionalProperties;
+  }
+
+  get lumens(): number | undefined { return this._lumens; }
+  set lumens(lumens: number | undefined) { this._lumens = lumens; }
+
+  get sentAt(): string | undefined { return this._sentAt; }
+  set sentAt(sentAt: string | undefined) { this._sentAt = sentAt; }
+
+  get additionalProperties(): Map<string, any> | undefined { return this._additionalProperties; }
+  set additionalProperties(additionalProperties: Map<string, any> | undefined) { this._additionalProperties = additionalProperties; }
+}
+export default LightMeasuredPayload;
+
+
+
+## Model name: TurnOnOffPayload
+import AnonymousSchema_6 from './AnonymousSchema_6';
+class TurnOnOffPayload {
+  private _command?: AnonymousSchema_6;
+  private _sentAt?: string;
+  private _additionalProperties?: Map<string, any>;
+
+  constructor(input: {
+    command?: AnonymousSchema_6,
+    sentAt?: string,
+    additionalProperties?: Map<string, any>,
+  }) {
+    this._command = input.command;
+    this._sentAt = input.sentAt;
+    this._additionalProperties = input.additionalProperties;
+  }
+
+  get command(): AnonymousSchema_6 | undefined { return this._command; }
+  set command(command: AnonymousSchema_6 | undefined) { this._command = command; }
+
+  get sentAt(): string | undefined { return this._sentAt; }
+  set sentAt(sentAt: string | undefined) { this._sentAt = sentAt; }
+
+  get additionalProperties(): Map<string, any> | undefined { return this._additionalProperties; }
+  set additionalProperties(additionalProperties: Map<string, any> | undefined) { this._additionalProperties = additionalProperties; }
+}
+export default TurnOnOffPayload;
+
+
+
+## Model name: AnonymousSchema_6
+
+enum AnonymousSchema_6 {
+  ON = "on",
+  OFF = "off",
+}
+export default AnonymousSchema_6;
+
+
+
+## Model name: DimLightPayload
+
+class DimLightPayload {
+  private _percentage?: number;
+  private _sentAt?: string;
+  private _additionalProperties?: Map<string, any>;
+
+  constructor(input: {
+    percentage?: number,
+    sentAt?: string,
+    additionalProperties?: Map<string, any>,
+  }) {
+    this._percentage = input.percentage;
+    this._sentAt = input.sentAt;
+    this._additionalProperties = input.additionalProperties;
+  }
+
+  get percentage(): number | undefined { return this._percentage; }
+  set percentage(percentage: number | undefined) { this._percentage = percentage; }
+
+  get sentAt(): string | undefined { return this._sentAt; }
+  set sentAt(sentAt: string | undefined) { this._sentAt = sentAt; }
+
+  get additionalProperties(): Map<string, any> | undefined { return this._additionalProperties; }
+  set additionalProperties(additionalProperties: Map<string, any> | undefined) { this._additionalProperties = additionalProperties; }
+}
+export default DimLightPayload;
+
+
+"
+`;
