@@ -2,7 +2,7 @@ import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeSc
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
-import { parse } from '@asyncapi/parser';
+import { parse } from '../../utils/parser';
 enum Languages {
   typescript = 'typescript',
   csharp = 'csharp',
