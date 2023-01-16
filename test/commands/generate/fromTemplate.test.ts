@@ -28,23 +28,27 @@ describe('template', () => {
       done();
     });
 
-  test
-    .do(() => {
-      fs.writeFileSync('emptyFile.txt','');
-    })
-    .stderr()
-    .command([...generalOptions, '--output=./test/doc'])
-    .it(
-      'should throw error if output folder is in a git repository',
-      (ctx, done) => {
-        expect(ctx.stderr).toContain(
-          'Error: "./test/doc" is in a git repository with unstaged changes.'
-        );
-        cleanup('./test/doc');
-        fs.unlinkSync('emptyFile.txt');
-        done();
-      }
-    );
+  describe('git clash', () => {
+    const pathToOutput = './test/docs/2';
+    beforeAll(() => {
+      fs.mkdirSync(pathToOutput, { recursive: true });
+      // Write a random file to trigger that dir has unstaged changes.
+      fs.writeFileSync(path.join(pathToOutput, 'random.md'), '');
+    });
+    test
+      .stderr()
+      .command([...generalOptions, '--output=./test/docs/2'])
+      .it(
+        'should throw error if output folder is in a git repository',
+        (ctx, done) => {
+          expect(ctx.stderr).toContain(
+            'Error: "./test/docs/2" is in a git repository with unstaged changes.'
+          );
+          cleanup('./test/docs/2');
+          done();
+        }
+      );
+  });
 
   test
     .stdout()
