@@ -3,7 +3,7 @@ import { Flags } from '@oclif/core';
 import Command from '../../base';
 import path from 'path';
 import { load } from '../../models/SpecificationFile';
-import { parse } from '@asyncapi/parser';
+import { parse } from '../../utils/parser';
 enum Languages {
   typescript = 'typescript',
   csharp = 'csharp',
