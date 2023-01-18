@@ -1,5 +1,5 @@
 import { Flags } from '@oclif/core';
-import * as parser from '@asyncapi/parser';
+import * as parser from '../utils/parser';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';

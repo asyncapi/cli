@@ -17,8 +17,6 @@ node_modules
 asyncapi.json
 asyncapi.yaml
 asyncapi.yml
-!/test/commands/bundle/asyncapi.yaml
-/test/docs
 test/minimaltemplate/__transpiled
 
 

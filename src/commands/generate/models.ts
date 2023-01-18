@@ -1,20 +1,21 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator} from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
-import { parse } from '@asyncapi/parser';
+import { parse } from '../../utils/parser';
 enum Languages {
   typescript = 'typescript',
   csharp = 'csharp',
   golang = 'golang',
   java = 'java',
   javascript = 'javascript',
-  dart = 'dart'
+  dart = 'dart',
+  python = 'python',
+  rust = 'rust'
 }
 const possibleLanguageValues = Object.values(Languages).join(', ');
 export default class Models extends Command {
   static description = 'Generates typed models';
-
   static args = [
     {
       name: 'language',
@@ -76,9 +77,10 @@ export default class Models extends Command {
   };
 
   async run() {
-    const passedArguments = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, packageName, output } = passedArguments.flags;
-    const { language, file } = passedArguments.args;
+    const { args, flags } = await this.parse(Models);
+    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, packageName, output } = flags;
+    const { language, file } = args;
+
     const inputFile = await load(file) || await load();
     const parsedInput = await parse(inputFile.text());
     Logger.setLogger({
@@ -107,6 +109,12 @@ export default class Models extends Command {
         moduleSystem: tsModuleSystem,
         exportType: tsExportType
       };
+      break;
+    case Languages.python:
+      fileGenerator = new PythonFileGenerator();
+      break;
+    case Languages.rust:
+      fileGenerator = new RustFileGenerator();
       break;
     case Languages.csharp:
       if (namespace === undefined) {
@@ -167,7 +175,7 @@ export default class Models extends Command {
         return `
 ## Model name: ${model.modelName}
 ${model.result}
-  `;
+`;
       });
 
       this.log(`Successfully generated the following models: ${generatedModels.join('\n')}`);

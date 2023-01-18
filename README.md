@@ -131,13 +131,13 @@ USAGE
   $ asyncapi [COMMAND]
 
 COMMANDS
-  config    access configs
-  diff      find diff between two AsyncAPI files
-  new       creates a new AsyncAPI file
-  start     starts a new local instance of Studio
-  validate  validate an AsyncAPI file
-  bundle    bundle one or multiple asyncapi documents and their references together 
-  generate  generate all kinds of stuff
+  config     access configs
+  diff       find diff between two AsyncAPI files
+  new        creates a new AsyncAPI file
+  start      starts a new local instance of Studio
+  validate   validate an AsyncAPI file
+  bundle     bundle one or multiple asyncapi documents and their references together
+  generate   generate all kinds of stuff
     models       generate all the typed models for the message payloads defined in the AsyncAPI file
       typescript    generate the models for TypeScript
       csharp        generate the models for C#
@@ -145,6 +145,8 @@ COMMANDS
       java          generate the models for Java
       javascript    generate the models for JavaScript
       dart          generate the models for Dart
+      python        generate the models for Python
+      rust          generate the models for Rust
     fromTemplate    generate whatever you want using templates compatible with AsyncAPI Generator 
 ```
 

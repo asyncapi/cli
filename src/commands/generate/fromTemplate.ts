@@ -228,7 +228,7 @@ export default class Template extends Command {
       this.warn(`WARNING: ${template} is a remote template. Changes may be lost on subsequent installations.`);
     }
 
-    watcher.watch(watchHandler, (paths: any) => {
+    await watcher.watch(watchHandler, (paths: any) => {
       this.error(`[WATCHER] Could not find the file path ${paths}, are you sure it still exists? If it has been deleted or moved please rerun the generator.`, {
         exit: 1,
       });

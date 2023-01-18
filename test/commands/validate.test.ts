@@ -33,6 +33,18 @@ describe('validate', () => {
     test
       .stderr()
       .stdout()
+      .command(['validate', './test/specification-avro.yml'])
+      .it('works when file path is passed and schema is avro', (ctx, done) => {
+        expect(ctx.stdout).toEqual(
+          'File ./test/specification-avro.yml successfully validated!\n'
+        );
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
       .command(['validate', './test/not-found.yml'])
       .it('should throw error if file path is wrong', (ctx, done) => {
         expect(ctx.stdout).toEqual('');
