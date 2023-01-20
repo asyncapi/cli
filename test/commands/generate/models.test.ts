@@ -161,6 +161,29 @@ describe('models', () => {
       });
   });
 
+  describe('for Kotlin', () => {  
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'kotlin', './test/specification.yml', `-o=${ path.resolve(outputDir, './kotlin')}`, '--packageName', 'test.package'])
+      .it('works when file path is passed', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toContain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'kotlin', './test/specification.yml', `-o=${ path.resolve(outputDir, './kotlin')}`])
+      .it('fails when no package defined', (ctx, done) => {
+        expect(ctx.stderr).toEqual('Error: In order to generate models to Kotlin, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
+        expect(ctx.stdout).toEqual('');
+        done();
+      });
+  });
+
   describe('for Dart', () => {  
     test
       .stderr()
