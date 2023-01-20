@@ -5,6 +5,13 @@ const fs = require('fs');
 const unzipper = require('unzipper');
 const path = require('path');
 const parser = require('@asyncapi/parser');
+const openapiSchemaParser = require('@asyncapi/openapi-schema-parser');
+const avroSchemaParser = require('@asyncapi/avro-schema-parser');
+const ramlDtSchemaParser = require('@asyncapi/raml-dt-schema-parser');
+
+parser.registerSchemaParser(openapiSchemaParser);
+parser.registerSchemaParser(avroSchemaParser);
+parser.registerSchemaParser(ramlDtSchemaParser);
 
 const SPEC_EXAMPLES_ZIP_URL = 'https://github.com/asyncapi/spec/archive/refs/heads/master.zip';
 const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
