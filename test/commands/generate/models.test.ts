@@ -96,7 +96,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${path.resolve(outputDir, './csharp')}`, '--namespace=\'test.namespace\''])
+      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\''])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -119,7 +119,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'java', './test/specification.yml', `-o=${ path.resolve(outputDir, './java')}`, '--packageName', 'test.package'])
+      .command([...generalOptions, 'java', './test/specification.yml', `-o=${ path.resolve(outputDir, './java')}`, '--packageName', 'asyncapi.models'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -142,7 +142,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'golang', './test/specification.yml', `-o=${ path.resolve(outputDir, './go')}`, '--packageName', 'test.package'])
+      .command([...generalOptions, 'golang', './test/specification.yml', `-o=${ path.resolve(outputDir, './go')}`, '--packageName', 'asyncapi.models'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -165,7 +165,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'dart', './test/specification.yml', `-o=${ path.resolve(outputDir, './dart')}`, '--packageName', 'test.package'])
+      .command([...generalOptions, 'dart', './test/specification.yml', `-o=${ path.resolve(outputDir, './dart')}`, '--packageName', 'asyncapi.models'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
