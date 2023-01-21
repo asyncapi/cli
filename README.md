@@ -146,6 +146,7 @@ COMMANDS
       dart          	generate the models for Dart
       python        	generate the models for Python
       rust              generate the models for Rust
+      kotlin            generate the models for Kotlin
     fromTemplate 	generate whatever you want using templates compatible with AsyncAPI Generator 
 ```
 
