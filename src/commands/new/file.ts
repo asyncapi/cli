@@ -22,7 +22,6 @@ export default class NewFile extends Command {
   };
   
   async run() {
-    // Create new asyncapi file
     const { flags } = await this.parse(NewFile); // NOSONAR
     const isTTY = process.stdout.isTTY;
 
