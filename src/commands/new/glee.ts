@@ -1,7 +1,9 @@
 import {Flags} from '@oclif/core';
-import { promises as fPromises } from 'fs';
+import { fstat, promises as fPromises } from 'fs';
 import Command from '../../base';
 import { resolve } from 'path';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const { writeFile, readFile } = fPromises;
 
@@ -15,33 +17,30 @@ export default class NewGlee extends Command {
 
   async run() {
     const { flags } = await this.parse(NewGlee); // NOSONAR
-    
+
     const projectName = flags.name;
 
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    console.log(__dirname);
+
+    const PROJECT_DIRECTORY = path.resolve(__dirname, `../../../${projectName}`);
+    const GLEE_TEMPLATES_DIRECTORY = path.resolve(__dirname, '../../../create-glee-app/templates/default');
+    
     // Create glee project folder
-    //  if (gleePath) {
-    //  await fPromises.mkdir(gleePath);
+    await fPromises.mkdir(PROJECT_DIRECTORY);
+    console.log('Glee project folder created!');
 
+    // Add 'functions' folder to Glee project
+    await fPromises.copyFile(path.join(GLEE_TEMPLATES_DIRECTORY, 'functions'), PROJECT_DIRECTORY);
+    console.log('functions folder added.');
 
-    // Create 'functions' folder inside glee project folder
-    //   await fPromises.mkdir(`${gleePath}/functions`);
+    // Add 'asyncapi.yaml' file to Glee project
+    await fPromises.copyFile(path.join(GLEE_TEMPLATES_DIRECTORY, 'asyncapi.yaml'), PROJECT_DIRECTORY);
+    console.log('asyncapi.yaml file added.');
 
-
-    // asyncapi.yaml file -> Get the file and copy to it to glee folder
-    //   const specFile = this.createAsyncapiFile(fileName, template);
-    //   if (specFile) {
-    //     await fPromises.copyFile(__dirname, `${gleePath}`);
-    //   } else {
-    //     await fPromises.writeFile(`${gleePath}`, '../../assets/examples/examples.json', { encoding: 'utf8' });
-
-    //   }
-
-    // Create package.json file
-
-    //       // DO NOT "npm install to generate file" -> Access to "https://github.com/asyncapi/create-glee-app/blob/master/templates/default/package.json"
-    //       // and copy it (same like was done with asyncapi file)
-    //       // DO NOT add glee dependency (already included in the accessed file)
-
-    // }
+    // Add 'package.json' file to Glee project
+    await fPromises.copyFile(path.join(GLEE_TEMPLATES_DIRECTORY, 'package.json'), PROJECT_DIRECTORY);
+    console.log('package.json file added.');
   }
 }
