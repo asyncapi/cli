@@ -12,6 +12,6 @@ You can start editing the API by modifying `functions/onHello.js` and `asyncapi.
 
 ## Learn More
 
-To learn more about Glee features and API, take a look at the [documentation](https://asyncapi.org/glee/docs).
+To learn more about Glee features and API, take a look at the [documentation](https://github.com/asyncapi/glee/tree/master/docs).
 
 You can check out [the Glee Github repository](https://github.com/asyncapi/glee/) - your feedback and contributions are welcome!
