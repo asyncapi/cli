@@ -54,7 +54,7 @@ export class Specification {
     return this.getFilePath() || this.getFileURL();
   }
 
-  toDetails() {
+  toSourceString() {
     if (this.kind === 'file') {
       return `File ${this.filePath}`;
     }

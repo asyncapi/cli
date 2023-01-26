@@ -1,5 +1,5 @@
 import { Flags } from '@oclif/core';
-import { Parser } from '@asyncapi/parser/cjs';
+import { Parser, convertToOldAPI } from '@asyncapi/parser/cjs';
 import { AvroSchemaParser } from '@asyncapi/parser/cjs/schema-parser/avro-schema-parser';
 import { OpenAPISchemaParser } from '@asyncapi/parser/cjs/schema-parser/openapi-schema-parser';
 import { RamlSchemaParser } from '@asyncapi/parser/cjs/schema-parser/raml-schema-parser';
@@ -13,6 +13,8 @@ import type { Specification } from './models/SpecificationFile';
 
 export type SeveritytKind = 'error' | 'warn' | 'info' | 'hint';
 
+export { convertToOldAPI };
+
 const parser = new Parser({
   __unstable: {
     resolver: {
@@ -25,11 +27,15 @@ parser.registerSchemaParser(AvroSchemaParser());
 parser.registerSchemaParser(OpenAPISchemaParser());
 parser.registerSchemaParser(RamlSchemaParser());
 
-export function validationFlags() {
+export interface ValidationFlagsOptions {
+  logDiagnostics?: boolean;
+}
+
+export function validationFlags({ logDiagnostics = true }: ValidationFlagsOptions = {}) {
   return {
     'log-diagnostics': Flags.boolean({
       description: 'log validation diagnostics or not',
-      default: true,
+      default: logDiagnostics,
       allowNo: true,
     }),
     'diagnostics-format': Flags.enum({
@@ -59,7 +65,7 @@ export async function validate(command: Command, specFile: Specification, option
 export async function parse(command: Command, specFile: Specification, options: ValidateOptions = {}) {
   const { document, diagnostics } = await parser.parse(specFile.text(), { source: specFile.getSource() });
   const status = logDiagnostics(diagnostics, command, specFile, options);
-  return { document, status };
+  return { document, diagnostics, status };
 }
 
 function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: Specification, options: ValidateOptions = {}): 'valid' | 'invalid' {
@@ -67,22 +73,25 @@ function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: S
   const failSeverity = options['fail-severity'] || 'error';
   const diagnosticsFormat = options['diagnostics-format'] || 'stylish';
 
+  const sourceString = specFile.toSourceString();
   if (diagnostics.length) {
     if (hasFailSeverity(diagnostics, failSeverity)) {
       if (logDiagnostics) {
-        command.logToStderr(`\n${specFile.toDetails()} and/or referenced documents have governance issues.\n`);
+        command.logToStderr(`\n${sourceString} and/or referenced documents have governance issues.`);
         command.logToStderr(formatOutput(diagnostics, diagnosticsFormat, failSeverity));
       }
       command.exit(1);
       return 'invalid';
-    } 
+    }
+
     if (logDiagnostics) {
-      command.log(`\n${specFile.toDetails()} and/or referenced documents have governance issues.\n`);
+      command.log(`\n${sourceString} is valid but has (itself and/or referenced documents) governance issues.`);
       command.log(formatOutput(diagnostics, diagnosticsFormat, failSeverity));
     }
   } else if (logDiagnostics) {
-    command.log(`\n${specFile.toDetails()} is valid! ${specFile.toDetails()} and referenced documents don't have governance issues.`);
+    command.log(`\n${sourceString} is valid! ${sourceString} and referenced documents don't have governance issues.`);
   }
+
   return 'valid';
 }
 

@@ -3,7 +3,6 @@ import { Flags } from '@oclif/core';
 import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
 import { promises as fs } from 'fs';
-import * as parser from '../utils/parser';
 import { load, Specification } from '../models/SpecificationFile';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
@@ -14,7 +13,7 @@ import {
 } from '../errors/diff-error';
 import { specWatcher } from '../globals';
 import { watchFlag } from '../flags';
-import { validationFlags, parse } from '../parser';
+import { validationFlags, parse, convertToOldAPI } from '../parser';
 
 import type { SpecWatcherParams } from '../globals';
 
@@ -42,7 +41,7 @@ export default class Diff extends Command {
       description: 'path to JSON file containing the override properties',
     }),
     watch: watchFlag(),
-    ...validationFlags(),
+    ...validationFlags({ logDiagnostics: false }),
   };
 
   static args = [
@@ -111,7 +110,7 @@ export default class Diff extends Command {
       this.error(err as Error);
     }
 
-    let overrides = {};
+    let overrides: Awaited<ReturnType<typeof readOverrideFile>> = {};
     if (overrideFilePath) {
       try {
         overrides = await readOverrideFile(overrideFilePath);
@@ -122,7 +121,6 @@ export default class Diff extends Command {
 
     try {
       const parsed = await parseDocuments(this, firstDocument, secondDocument, flags);
-
       if (!parsed) {
         return;
       }
@@ -152,6 +150,7 @@ export default class Diff extends Command {
       });
     }
   }
+
   outputJSON(diffOutput: AsyncAPIDiff, outputType: string) {
     if (outputType === 'breaking') {
       this.log(JSON.stringify(diffOutput.breaking(), null, 2));
@@ -191,7 +190,6 @@ async function parseDocuments(command: Command, firstDocument: Specification, se
 
   const firstDocumentParsed = convertToOldAPI(newFirstDocumentParsed);
   const secondDocumentParsed = convertToOldAPI(newSecondDocumentParsed);
-
   return { firstDocumentParsed, secondDocumentParsed };
 }
 

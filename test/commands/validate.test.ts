@@ -23,7 +23,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/specification.yml'])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).toMatch('File ./test/specification.yml and/or referenced documents have governance issues.\n\n\ntest/specification.yml');
+        expect(ctx.stdout).toMatch('File ./test/specification.yml is valid but has (itself and/or referenced documents) governance issues.\n\ntest/specification.yml');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -33,8 +33,8 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/specification-avro.yml'])
       .it('works when file path is passed and schema is avro', (ctx, done) => {
-        expect(ctx.stdout).toEqual(
-          'File ./test/specification-avro.yml successfully validated!\n'
+        expect(ctx.stdout).toMatch(
+          'File ./test/specification-avro.yml is valid but has (itself and/or referenced documents) governance issues.\n'
         );
         expect(ctx.stderr).toEqual('');
         done();
@@ -55,7 +55,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', 'https://bit.ly/asyncapi'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).toMatch('URL https://bit.ly/asyncapi and/or referenced documents have governance issues.\n\n\nhttps://bit.ly/asyncapi');
+        expect(ctx.stdout).toMatch('URL https://bit.ly/asyncapi is valid but has (itself and/or referenced documents) governance issues.\n\nhttps://bit.ly/asyncapi');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -86,7 +86,7 @@ describe('validate', () => {
       .command(['validate', 'code'])
       .it('validates if context name exists', (ctx, done) => {
         const fileName = path.resolve(__dirname, '../specification.yml');
-        expect(ctx.stdout).toMatch(`File ${fileName} and/or referenced documents have governance issues.`);
+        expect(ctx.stdout).toMatch(`File ${fileName} is valid but has (itself and/or referenced documents) governance issues.`);
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -118,7 +118,7 @@ describe('validate', () => {
       .command(['validate'])
       .it('validates from current context', (ctx, done) => {
         const fileName = path.resolve(__dirname, '../specification.yml');
-        expect(ctx.stdout).toMatch(`File ${fileName} and/or referenced documents have governance issues.`);
+        expect(ctx.stdout).toMatch(`File ${fileName} is valid but has (itself and/or referenced documents) governance issues`);
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -165,7 +165,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/specification.yml', '--log-diagnostics'])
       .it('works with --log-diagnostics', (ctx, done) => {
-        expect(ctx.stdout).toMatch('File ./test/specification.yml and/or referenced documents have governance issues.\n\n\ntest/specification.yml\n  1:1');
+        expect(ctx.stdout).toMatch('File ./test/specification.yml is valid but has (itself and/or referenced documents) governance issues.\n\ntest/specification.yml');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -195,7 +195,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/specification.yml', '--diagnostics-format=text'])
       .it('works with --diagnostics-format flag (with governance issues)', (ctx, done) => {
-        expect(ctx.stdout).toMatch('File ./test/specification.yml and/or referenced documents have governance issues.\n\ntest/specification.yml:1:1');
+        expect(ctx.stdout).toMatch('File ./test/specification.yml is valid but has (itself and/or referenced documents) governance issues.\ntest/specification.yml:1:1');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -225,7 +225,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/specification.yml', '--fail-severity=warn'])
       .it('works with --fail-severity', (ctx, done) => {
-        expect(ctx.stderr).toMatch('File ./test/specification.yml and/or referenced documents have governance issues.\n\n\ntest/specification.yml');
+        expect(ctx.stderr).toMatch('File ./test/specification.yml and/or referenced documents have governance issues.\n\ntest/specification.yml');
         done();
       });
   });

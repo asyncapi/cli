@@ -1,10 +1,10 @@
-import { convertToOldAPI } from '@asyncapi/parser/cjs';
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator} from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
+import { parse, validationFlags } from '../../parser';
 
-import { validationFlags, parse } from '../../parser';
+import type { AbstractGenerator, AbstractFileGenerator } from '@asyncapi/modelina';
 
 enum Languages {
   typescript = 'typescript',
@@ -27,7 +27,7 @@ export default class Models extends Command {
       options: Object.keys(Languages),
       required: true
     },
-    { name: 'file', description: 'Path or URL to the AsyncAPI document, or context-name', required: false },
+    { name: 'file', description: 'Path or URL to the AsyncAPI document, or context-name', required: true },
   ];
 
   static flags = {
@@ -74,22 +74,23 @@ export default class Models extends Command {
     /**
      * C# specific options
      */
-    namespace: Flags.string({ description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.', required: false }),
-    ...validationFlags(),
+    namespace: Flags.string({
+      description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.',
+      required: false
+    }),
+    ...validationFlags({ logDiagnostics: false }),
   };
 
   async run() {
-    const { flags, args } = await this.parse(Models);
-    const { namespace, packageName, output } = flags;
+    const { args, flags } = await this.parse(Models);
+    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, packageName, output } = flags;
     const { language, file } = args;
 
-    const inputFile = await load(file);
+    const inputFile = (await load(file)) || (await load());
     const { document, status } = await parse(this, inputFile, flags);
-
     if (!document || status === 'invalid') {
       return;
     }
-    const parsedDocument = convertToOldAPI(document);
 
     Logger.setLogger({
       info: (message) => {
@@ -106,8 +107,8 @@ export default class Models extends Command {
       },
     });
 
-    let fileGenerator;
-    let fileOptions = {};
+    let fileGenerator: AbstractGenerator<any, any> & AbstractFileGenerator<any>;
+    let fileOptions: any = {};
     switch (language) {
     case Languages.typescript:
       fileGenerator = new TypeScriptFileGenerator({
@@ -167,27 +168,26 @@ export default class Models extends Command {
     default:
       throw new Error(`Could not determine generator for language ${language}, are you using one of the following values ${possibleLanguageValues}?`);
     }
-    let models;
+
     if (output) {
-      models = await fileGenerator.generateToFiles(
-        parsedDocument as any,
+      const models = await fileGenerator.generateToFiles(
+        document as any,
         output,
         { ...fileOptions, } as any);
       const generatedModels = models.map((model) => { return model.modelName; });
-
       this.log(`Successfully generated the following models: ${generatedModels.join(', ')}`);
-    } else {
-      models = await fileGenerator.generateCompleteModels(
-        parsedDocument as any,
-        { ...fileOptions } as any);
-      const generatedModels = models.map((model) => {
-        return `
+      return;
+    }
+
+    const models = await fileGenerator.generateCompleteModels(
+      document as any,
+      { ...fileOptions } as any);
+    const generatedModels = models.map((model) => {
+      return `
 ## Model name: ${model.modelName}
 ${model.result}
 `;
-      });
-
-      this.log(`Successfully generated the following models: ${generatedModels.join('\n')}`);
-    }
+    });
+    this.log(`Successfully generated the following models: ${generatedModels.join('\n')}`);
   }
 }
