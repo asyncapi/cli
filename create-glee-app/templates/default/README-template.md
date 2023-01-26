@@ -1,4 +1,4 @@
-This is a [Glee](https://github.com/asyncapi/glee) project bootstrapped with [`create-glee-app`](https://github.com/asyncapi/create-glee-app).
+This is a [Glee](https://github.com/asyncapi/glee) project bootstrapped with the [AsyncAPI CLI](https://github.com/asyncapi/cli).
 
 ## Getting Started
 
