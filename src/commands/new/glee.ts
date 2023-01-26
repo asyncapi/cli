@@ -21,20 +21,19 @@ export default class NewGlee extends Command {
 
     const projectName = flags.name;
 
-    const PROJECT_DIRECTORY = path.join(process.cwd(), projectName); // cwd-> /Users/pedro.ramos/cli
-    const GLEE_TEMPLATES_DIRECTORY = resolve(__dirname, '../../../create-glee-app/templates/default'); // __dirname-> /Users/pedro.ramos/cli/lib/commands/new
+    const PROJECT_DIRECTORY = path.join(process.cwd(), projectName);
+    const GLEE_TEMPLATES_DIRECTORY = resolve(__dirname, '../../../create-glee-app/templates/default');
 
     try {
       await fPromises.mkdir(PROJECT_DIRECTORY);
-      console.log('Glee project folder created!');
     } catch (err) {
-      console.error('An existing folder is already using the same name of your Glee project. Please specify a different name for the new project, or just remove the existing folder from the current directory.');
+      console.error(`Unable to create the project. We tried to use "${projectName}" as the directory of your new project but it already exists (${PROJECT_DIRECTORY}). Please specify a different name for the new project. For example, run the following command instead:\n\n  asyncapi new glee --name ${projectName}-1\n  OR\n  asyncapi new project --name ${projectName}-1`);
       return;
     }
     
     try {
       await fs.copy(GLEE_TEMPLATES_DIRECTORY, PROJECT_DIRECTORY);
-      console.log('Content copied to your project folder!');
+      console.log(`Your project "${projectName}" has been created successfully!\n\nNext steps:\n\n  cd ${projectName}\n  npm install\n  npm run dev\n\nAlso, you can already open the project in your favorite editor and start tweaking it.`);
     } catch (err) {
       console.error(err);
     }

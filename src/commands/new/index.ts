@@ -1,2 +1,2 @@
-import file from './file.js';
+import file from './file';
 export default file;
