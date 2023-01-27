@@ -1,11 +1,9 @@
-//import glee from './glee';
-//export default glee;
-
-import NewGlee from './glee'
+import { Config } from '@oclif/core';
+import NewGlee from './glee';
 
 export default class NewProject extends NewGlee {
-  constructor(...args: string[]) {
-    super(..args)
-    this.commandName = 'project'
+  constructor(argv: string[], config: Config) {
+    super(argv, config);
+    this.commandName = 'project';
   }
 }
