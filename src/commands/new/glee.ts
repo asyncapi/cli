@@ -10,6 +10,8 @@ const fs = require('fs-extra');
 
 export default class NewGlee extends Command {
   static description = 'Creates a new Glee project';
+  
+  protected commandName = 'glee';
 
   static flags = {
     help: Flags.help({ char: 'h' }),
@@ -27,7 +29,7 @@ export default class NewGlee extends Command {
     try {
       await fPromises.mkdir(PROJECT_DIRECTORY);
     } catch (err) {
-      console.error(`Unable to create the project. We tried to use "${projectName}" as the directory of your new project but it already exists (${PROJECT_DIRECTORY}). Please specify a different name for the new project. For example, run the following command instead:\n\n  asyncapi new glee --name ${projectName}-1\n  OR\n  asyncapi new project --name ${projectName}-1`);
+      console.error(`Unable to create the project. We tried to use "${projectName}" as the directory of your new project but it already exists (${PROJECT_DIRECTORY}). Please specify a different name for the new project. For example, run the following command instead:\n\n  asyncapi new ${this.commandName} --name ${projectName}-1\n`);
       return;
     }
     
