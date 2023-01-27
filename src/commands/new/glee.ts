@@ -39,5 +39,13 @@ export default class NewGlee extends Command {
     } catch (err) {
       console.error(err);
     }
+
+    try {
+      await fPromises.rename(`${PROJECT_DIRECTORY}/env`, `${PROJECT_DIRECTORY}/.env`);
+      await fPromises.rename(`${PROJECT_DIRECTORY}/gitignore`, `${PROJECT_DIRECTORY}/.gitignore`);
+      await fPromises.rename(`${PROJECT_DIRECTORY}/README-template.md`, `${PROJECT_DIRECTORY}/README.md`);
+    } catch (err) {
+      console.error(err);
+    }
   }
 }
