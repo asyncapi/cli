@@ -32,5 +32,6 @@ COMMANDS
       java          generate the models for Java
       javascript    generate the models for JavaScript
       dart          generate the models for Dart
+      rust          generate the models for Rust
     fromTemplate    generate whatever you want using templates compatible with AsyncAPI Generator 
 ```
