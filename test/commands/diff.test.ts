@@ -25,7 +25,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--type=all',
-        '--format=json'
+        '--format=json',
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(
@@ -45,7 +45,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--type=breaking',
-        '--format=json'
+        '--format=json',
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(
@@ -65,7 +65,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--type=non-breaking',
-        '--format=json'
+        '--format=json',
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(
@@ -85,7 +85,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--type=unclassified',
-        '--format=json'
+        '--format=json',
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(
@@ -125,7 +125,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--overrides=./test/fixtures/overrides.json',
-        '--format=json'
+        '--format=json',
       ])
       .it((ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(
@@ -145,7 +145,7 @@ describe('diff', () => {
         './test/fixtures/specification_v1.yml',
         './test/fixtures/specification_v2.yml',
         '--overrides=./overrides-wrong.json',
-        '--format=json'
+        '--format=json',
       ])
       .it((ctx, done) => {
         expect(ctx.stdout).toEqual('');
@@ -188,6 +188,20 @@ describe('diff', () => {
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(
           '"changes:\\n  - action: edit\\n    path: >-\\n      /channels/light~1measured/publish/message/x-parser-original-payload/properties/id/minimum\\n    before: 0\\n    after: 1\\n    type: unclassified\\n  - action: edit\\n    path: /channels/light~1measured/publish/message/payload/properties/id/minimum\\n    before: 0\\n    after: 1\\n    type: unclassified\\n  - action: edit\\n    path: /servers/mosquitto/protocol\\n    before: mqtt\\n    after: http\\n    type: unclassified\\n  - action: edit\\n    path: /servers/mosquitto/url\\n    before: mqtt://test.mosquitto.org\\n    after: http://test.mosquitto.org\\n    type: breaking\\n  - action: edit\\n    path: /info/title\\n    before: Streetlights API\\n    after: Streetlights API V2\\n    type: non-breaking\\n\\n"'
+        );
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+  });
+
+  describe('with logging diagnostics', () => {
+    test
+      .stderr()
+      .stdout()
+      .command(['diff', './test/specification.yml', './test/specification.yml', '--format=json', '--log-diagnostics'])
+      .it('works when file path is passed', (ctx, done) => {
+        expect(ctx.stdout).toMatch(
+          'File ./test/specification.yml is valid but has (itself and/or referenced documents) governance issues.'
         );
         expect(ctx.stderr).toEqual('');
         done();

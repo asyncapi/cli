@@ -4,7 +4,19 @@ const request = require('request');
 const fs = require('fs');
 const unzipper = require('unzipper');
 const path = require('path');
-const parser = require('@asyncapi/parser');
+
+const { Parser } = require('@asyncapi/parser/cjs');
+const { AvroSchemaParser } = require('@asyncapi/parser/cjs/schema-parser/avro-schema-parser');
+const { OpenAPISchemaParser } = require('@asyncapi/parser/cjs/schema-parser/openapi-schema-parser');
+const { RamlSchemaParser } = require('@asyncapi/parser/cjs/schema-parser/raml-schema-parser');
+
+const parser = new Parser({
+  schemaParsers: [
+    AvroSchemaParser(),
+    OpenAPISchemaParser(),
+    RamlSchemaParser(),
+  ]
+});
 
 const SPEC_EXAMPLES_ZIP_URL = 'https://github.com/asyncapi/spec/archive/refs/heads/master.zip';
 const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
@@ -51,20 +63,19 @@ const buildCLIListFromExamples = async () => {
   const files = fs.readdirSync(EXAMPLE_DIRECTORY);
   const examples = files.filter(file => file.includes('.yml')).sort();
 
-  const listAllProtocolsForFile = (parsedAsyncAPI) => {
-    if (!parsedAsyncAPI.hasServers()) {return '';}
-    const servers = parsedAsyncAPI.servers();
-    return Object.keys(servers).map(server => servers[String(server)].protocol()).join(',');
-  };
-
   const buildExampleList = examples.map(async example => {
     const examplePath = path.join(EXAMPLE_DIRECTORY, example);
     const exampleContent = fs.readFileSync(examplePath, { encoding: 'utf-8'});
     
     try {
-      const parsedSpec = await parser.parse(exampleContent);
-      const title = parsedSpec.info().title();
-      const protocols = listAllProtocolsForFile(parsedSpec);
+      const { document } = await parser.parse(exampleContent);
+      // Failed for somereason to parse this spec file (document is undefined), ignore for now
+      if (!document) {
+        return;
+      }
+
+      const title = document.info().title();
+      const protocols = listAllProtocolsForFile(document);
       return {
         name: protocols ? `${title} - (protocols: ${protocols})` : title,
         value: example
@@ -79,6 +90,15 @@ const buildCLIListFromExamples = async () => {
   const orderedExampleList = exampleList.sort((a, b) => a.name.localeCompare(b.name));
 
   fs.writeFileSync(path.join(EXAMPLE_DIRECTORY, 'examples.json'), JSON.stringify(orderedExampleList, null, 4));
+};
+
+const listAllProtocolsForFile = (document) => {
+  const servers = document.servers();
+  if (servers.length === 0) {
+    return '';
+  }
+
+  return servers.all().map(server => server.protocol()).join(',');
 };
 
 const tidyup = async () => {

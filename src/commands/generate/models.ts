@@ -1,20 +1,25 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator} from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
-import { parse } from '@asyncapi/parser';
+import { parse, validationFlags } from '../../parser';
+
+import type { AbstractGenerator, AbstractFileGenerator } from '@asyncapi/modelina';
+
 enum Languages {
   typescript = 'typescript',
   csharp = 'csharp',
   golang = 'golang',
   java = 'java',
   javascript = 'javascript',
-  dart = 'dart'
+  dart = 'dart',
+  python = 'python',
+  rust = 'rust'
 }
 const possibleLanguageValues = Object.values(Languages).join(', ');
+
 export default class Models extends Command {
   static description = 'Generates typed models';
-
   static args = [
     {
       name: 'language',
@@ -73,14 +78,20 @@ export default class Models extends Command {
       description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.',
       required: false
     }),
+    ...validationFlags({ logDiagnostics: false }),
   };
 
   async run() {
-    const passedArguments = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, packageName, output } = passedArguments.flags;
-    const { language, file } = passedArguments.args;
-    const inputFile = await load(file) || await load();
-    const parsedInput = await parse(inputFile.text());
+    const { args, flags } = await this.parse(Models);
+    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, packageName, output } = flags;
+    const { language, file } = args;
+
+    const inputFile = (await load(file)) || (await load());
+    const { document, status } = await parse(this, inputFile, flags);
+    if (!document || status === 'invalid') {
+      return;
+    }
+
     Logger.setLogger({
       info: (message) => {
         this.log(message);
@@ -95,8 +106,9 @@ export default class Models extends Command {
         this.error(message);
       },
     });
-    let fileGenerator;
-    let fileOptions = {};
+
+    let fileGenerator: AbstractGenerator<any, any> & AbstractFileGenerator<any>;
+    let fileOptions: any = {};
     switch (language) {
     case Languages.typescript:
       fileGenerator = new TypeScriptFileGenerator({
@@ -107,6 +119,12 @@ export default class Models extends Command {
         moduleSystem: tsModuleSystem,
         exportType: tsExportType
       };
+      break;
+    case Languages.python:
+      fileGenerator = new PythonFileGenerator();
+      break;
+    case Languages.rust:
+      fileGenerator = new RustFileGenerator();
       break;
     case Languages.csharp:
       if (namespace === undefined) {
@@ -150,27 +168,26 @@ export default class Models extends Command {
     default:
       throw new Error(`Could not determine generator for language ${language}, are you using one of the following values ${possibleLanguageValues}?`);
     }
-    let models;
+
     if (output) {
-      models = await fileGenerator.generateToFiles(
-        parsedInput as any,
+      const models = await fileGenerator.generateToFiles(
+        document as any,
         output,
         { ...fileOptions, } as any);
       const generatedModels = models.map((model) => { return model.modelName; });
-
       this.log(`Successfully generated the following models: ${generatedModels.join(', ')}`);
-    } else {
-      models = await fileGenerator.generateCompleteModels(
-        parsedInput as any,
-        { ...fileOptions } as any);
-      const generatedModels = models.map((model) => {
-        return `
+      return;
+    }
+
+    const models = await fileGenerator.generateCompleteModels(
+      document as any,
+      { ...fileOptions } as any);
+    const generatedModels = models.map((model) => {
+      return `
 ## Model name: ${model.modelName}
 ${model.result}
-  `;
-      });
-
-      this.log(`Successfully generated the following models: ${generatedModels.join('\n')}`);
-    }
+`;
+    });
+    this.log(`Successfully generated the following models: ${generatedModels.join('\n')}`);
   }
 }
