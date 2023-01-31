@@ -15,7 +15,7 @@ export default class NewGlee extends Command {
 
   static flags = {
     help: Flags.help({ char: 'h' }),
-    name: Flags.string({ char: 'n', description: 'name of the project', default: 'glee-project' }),
+    name: Flags.string({ char: 'n', description: 'name of the project', default: 'project' }),
   };
 
   async run() {
