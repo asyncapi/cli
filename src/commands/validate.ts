@@ -1,7 +1,7 @@
 import { Flags } from '@oclif/core';
-import * as parser from '../utils/parser';
+
 import Command from '../base';
-import { ValidationError } from '../errors/validation-error';
+import { validate, validationFlags } from '../parser';
 import { load } from '../models/SpecificationFile';
 import { specWatcher } from '../globals';
 import { watchFlag } from '../flags';
@@ -11,7 +11,8 @@ export default class Validate extends Command {
 
   static flags = {
     help: Flags.help({ char: 'h' }),
-    watch: watchFlag()
+    watch: watchFlag(),
+    ...validationFlags(),
   };
 
   static args = [
@@ -21,26 +22,13 @@ export default class Validate extends Command {
   async run() {
     const { args, flags } = await this.parse(Validate); //NOSONAR
     const filePath = args['spec-file'];
-    const watchMode = flags['watch'];
+    const watchMode = flags.watch;
 
     const specFile = await load(filePath);
     if (watchMode) {
       specWatcher({ spec: specFile, handler: this, handlerName: 'validate' });
     }
     
-    try {  
-      if (specFile.getFilePath()) {
-        await parser.parse(specFile.text());
-        this.log(`File ${specFile.getFilePath()} successfully validated!`);
-      } else if (specFile.getFileURL()) {
-        await parser.parse(specFile.text());
-        this.log(`URL ${specFile.getFileURL()} successfully validated`);
-      }
-    } catch (error) {
-      throw new ValidationError({
-        type: 'parser-error',
-        err: error
-      });
-    }
+    await validate(this, specFile, flags);
   }
 }
