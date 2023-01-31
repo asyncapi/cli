@@ -35,16 +35,12 @@ export default class NewGlee extends Command {
     
     try {
       await fs.copy(GLEE_TEMPLATES_DIRECTORY, PROJECT_DIRECTORY);
-      console.log(`Your project "${projectName}" has been created successfully!\n\nNext steps:\n\n  cd ${projectName}\n  npm install\n  npm run dev\n\nAlso, you can already open the project in your favorite editor and start tweaking it.`);
-    } catch (err) {
-      console.error(err);
-    }
-
-    try {
       await fPromises.rename(`${PROJECT_DIRECTORY}/env`, `${PROJECT_DIRECTORY}/.env`);
       await fPromises.rename(`${PROJECT_DIRECTORY}/gitignore`, `${PROJECT_DIRECTORY}/.gitignore`);
       await fPromises.rename(`${PROJECT_DIRECTORY}/README-template.md`, `${PROJECT_DIRECTORY}/README.md`);
+      console.log(`Your project "${projectName}" has been created successfully!\n\nNext steps:\n\n  cd ${projectName}\n  npm install\n  npm run dev\n\nAlso, you can already open the project in your favorite editor and start tweaking it.`);
     } catch (err) {
+      console.log('Unable to create the project. Something went wrong during the creation process. Check the following error message for further info about the issue actually happening:');
       console.error(err);
     }
   }
