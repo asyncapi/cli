@@ -1,8 +1,7 @@
 import {Flags} from '@oclif/core';
-import { fstat, promises as fPromises } from 'fs';
+import { promises as fPromises } from 'fs';
 import Command from '../../base';
-import { resolve } from 'path';
-import path from 'path';
+import { resolve, path } from 'path';
 import fs from 'fs-extra';
 
 const { writeFile, readFile } = fPromises;
