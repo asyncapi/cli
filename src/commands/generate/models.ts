@@ -65,7 +65,7 @@ export default class Models extends Command {
      * Go and Java specific package name to use for the generated models
      */
     packageName: Flags.string({
-      description: 'Go ,Java and Kotlin specific, define the package to use for the generated models. This is required when language is `go`, `java` or `kotlin`.',
+      description: 'Go, Java and Kotlin specific, define the package to use for the generated models. This is required when language is `go`, `java` or `kotlin`.',
       required: false
     }),
     /**
