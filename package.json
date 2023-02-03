@@ -11,7 +11,7 @@
     "@asyncapi/converter": "^1.2.0",
     "@asyncapi/diff": "^0.4.1",
     "@asyncapi/generator": "^1.9.12",
-    "@asyncapi/modelina": "^1.0.0-next.40",
+    "@asyncapi/modelina": "^1.2.0",
     "@asyncapi/parser": "^2.0.0-next-major.11",
     "@asyncapi/studio": "^0.16.1",
     "@oclif/core": "^1.18.0",
