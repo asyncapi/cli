@@ -75,7 +75,7 @@ export default class Template extends Command {
     }),
     'map-base-url': Flags.string({
       description: 'Maps all schema references from base url to local folder'
-    })
+    }),
   };
 
   static args = [
@@ -99,15 +99,14 @@ export default class Template extends Command {
       mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
       disabledHooks: parsedFlags.disableHooks,
     };
+
     const watchTemplate = flags['watch'];
     const genOption: any = {};
-
     if (flags['map-base-url']) {
       genOption.resolve = {resolve: this.getMapBaseUrlToFolderResolver(parsedFlags.mapBaseUrlToFolder)};
     }
 
     await this.generate(asyncapi, template, output, options, genOption);    
-
     if (watchTemplate) {
       const watcherHandler = this.watcherHandler(asyncapi, template, output, options, genOption);
       await this.runWatchMode(asyncapi, template, output, watcherHandler);
@@ -263,6 +262,7 @@ export default class Template extends Command {
       }
     };
   }
+
   private getMapBaseUrlToFolderResolver = (urlToFolder: IMapBaseUrlToFlag) => {
     return {
       order: 1,
