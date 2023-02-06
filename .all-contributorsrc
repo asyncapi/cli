@@ -131,6 +131,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "activus-d",
+      "name": "Damilola Oladele",
+      "avatar_url": "https://avatars.githubusercontent.com/u/98895460?v=4",
+      "profile": "https://d-m-oladele.netlify.app/",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
