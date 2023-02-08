@@ -3,7 +3,6 @@ import { Flags } from '@oclif/core';
 import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
 import { promises as fs } from 'fs';
-import * as parser from '../utils/parser';
 import { load, Specification } from '../models/SpecificationFile';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
@@ -12,8 +11,11 @@ import {
   DiffOverrideFileError,
   DiffOverrideJSONError,
 } from '../errors/diff-error';
-import { specWatcher, specWatcherParams } from '../globals';
+import { specWatcher } from '../globals';
 import { watchFlag } from '../flags';
+import { validationFlags, parse, convertToOldAPI } from '../parser';
+
+import type { SpecWatcherParams } from '../globals';
 
 const { readFile } = fs;
 
@@ -39,6 +41,7 @@ export default class Diff extends Command {
       description: 'path to JSON file containing the override properties',
     }),
     watch: watchFlag(),
+    ...validationFlags({ logDiagnostics: false }),
   };
 
   static args = [
@@ -107,7 +110,7 @@ export default class Diff extends Command {
       this.error(err as Error);
     }
 
-    let overrides = {};
+    let overrides: Awaited<ReturnType<typeof readOverrideFile>> = {};
     if (overrideFilePath) {
       try {
         overrides = await readOverrideFile(overrideFilePath);
@@ -117,11 +120,14 @@ export default class Diff extends Command {
     }
 
     try {
-      const firstDocumentParsed = await parser.parse(firstDocument.text());
-      const secondDocumentParsed = await parser.parse(secondDocument.text());
+      const parsed = await parseDocuments(this, firstDocument, secondDocument, flags);
+      if (!parsed) {
+        return;
+      }
+
       const diffOutput = diff.diff(
-        firstDocumentParsed.json(),
-        secondDocumentParsed.json(),
+        parsed.firstDocumentParsed.json(),
+        parsed.secondDocumentParsed.json(),
         {
           override: overrides,
           outputType: outputFormat as diff.OutputType, // NOSONAR
@@ -144,6 +150,7 @@ export default class Diff extends Command {
       });
     }
   }
+
   outputJSON(diffOutput: AsyncAPIDiff, outputType: string) {
     if (outputType === 'breaking') {
       this.log(JSON.stringify(diffOutput.breaking(), null, 2));
@@ -173,6 +180,19 @@ export default class Diff extends Command {
   }
 }
 
+async function parseDocuments(command: Command, firstDocument: Specification, secondDocument: Specification, flags: Record<string, any>) {
+  const { document: newFirstDocumentParsed, status: firstDocumentStatus } = await parse(command, firstDocument, flags);
+  const { document: newSecondDocumentParsed, status: secondDocumentStatus } = await parse(command, secondDocument, flags);
+
+  if (!newFirstDocumentParsed || !newSecondDocumentParsed || firstDocumentStatus === 'invalid' || secondDocumentStatus === 'invalid') {
+    return;
+  }
+
+  const firstDocumentParsed = convertToOldAPI(newFirstDocumentParsed);
+  const secondDocumentParsed = convertToOldAPI(newSecondDocumentParsed);
+  return { firstDocumentParsed, secondDocumentParsed };
+}
+
 /**
  * Reads the file from give path and parses it as JSON
  * @param path The path to override file
@@ -192,11 +212,12 @@ async function readOverrideFile(path: string): Promise<diff.OverrideObject> {
     throw new DiffOverrideJSONError();
   }
 }
+
 /**
  * function to enable watchmode.
  * The function is abstracted here, to avoid eslint cognitive complexity error.
  */
-const enableWatch = (status: boolean, watcher: specWatcherParams) => {
+const enableWatch = (status: boolean, watcher: SpecWatcherParams) => {
   if (status) {
     specWatcher(watcher);
   }
