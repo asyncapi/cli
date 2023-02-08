@@ -21,6 +21,7 @@ USAGE
 COMMANDS
   config    access configs
   diff      find diff between two AsyncAPI files
+  optimize  optimizes your asyncAPI file by removing un-used components, re-using duplicates etc...
   new       creates a new AsyncAPI file
   start     starts a new local instance of Studio
   validate  validate an AsyncAPI file
