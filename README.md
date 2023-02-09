@@ -10,8 +10,8 @@ CLI to work with your AsyncAPI files. Currently under development, we are workin
 
 <!-- toc -->
 
-- [Installation](/docs/installation.md)
-- [Usage](/docs/usage.md)
+- [Installation](#installation)
+- [Usage](#usage)
 - [Contributing](#contributing)
   * [Set up development environment](#set-up-development-environment)
   * [Command Structure and Patterns](#command-structure-and-patterns)
