@@ -23,7 +23,6 @@ CLI to work with your AsyncAPI files. Currently under development, we are workin
 Learn how to install the AsyncAPI CLI from the [installation guide](/docs/installation.md). 
 
 ## Usage
-
 The [usage guide](/docs/usage.md) provides information about different ways to use the CLI.
 
 
