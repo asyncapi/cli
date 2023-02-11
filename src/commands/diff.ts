@@ -4,7 +4,6 @@ import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
 import { promises as fs } from 'fs';
 import chalk from 'chalk';
-import * as parser from '../utils/parser';
 import { load, Specification } from '../models/SpecificationFile';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
