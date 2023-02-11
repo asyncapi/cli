@@ -3,6 +3,8 @@ import { Flags } from '@oclif/core';
 import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
 import { promises as fs } from 'fs';
+import chalk from 'chalk';
+import * as parser from '../utils/parser';
 import { load, Specification } from '../models/SpecificationFile';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
@@ -38,8 +40,8 @@ export default class Diff extends Command {
       options: ['breaking', 'non-breaking', 'unclassified', 'all'],
     }),
     markdownSubtype: Flags.string({
-      description: 'the format of changes made to AsyncAPI document. It works only when diff is generated using md type. For example, when you specify subtype as json, then diff information in markdown is dupmed as json structure.',
-      default: 'yaml',
+      description: 'the format of changes made to AsyncAPI document. It works only when diff is generated using md type. For example, when you specify subtype as json, then diff information in markdown is dumped as json structure.',
+      default: undefined,
       options: ['json', 'yaml', 'yml']
     }),
     overrides: Flags.string({
@@ -75,10 +77,13 @@ export default class Diff extends Command {
     const outputFormat = flags['format'];
     const outputType = flags['type'];
     const overrideFilePath = flags['overrides'];
-    const markdownSubtype = flags['markdownSubtype'];
+    let markdownSubtype = flags['markdownSubtype'];
     const watchMode = flags['watch'];
     const noError = flags['no-error'];
     let firstDocument: Specification, secondDocument: Specification;
+
+    checkAndWarnFalseFlag(outputFormat, markdownSubtype);
+    markdownSubtype = setDefaultMarkdownSubtype(outputFormat, markdownSubtype);
 
     try {
       firstDocument = await load(firstDocumentPath);
@@ -265,4 +270,24 @@ function throwOnBreakingChange(diffOutput: AsyncAPIDiff, outputFormat: string) {
   ) {
     throw new DiffBreakingChangeError();
   } 
+}
+
+/**
+ * Checks and warns user about providing unnecessary markdownSubtype option.
+ */
+function checkAndWarnFalseFlag(format: string, markdownSubtype: string | undefined) {
+  if (format !== 'md' && typeof (markdownSubtype) !== 'undefined') {
+    const warningMessage = chalk.yellowBright(`Warning: The given markdownSubtype flag will not work with the given format.\nProvided flag markdownSubtype: ${markdownSubtype}`);
+    console.log(warningMessage);
+  }
+}
+
+/**
+ * Sets the default markdownSubtype option in case user doesn't provide one.
+ */
+function setDefaultMarkdownSubtype(format: string, markdownSubtype: string | undefined) {
+  if (format === 'md' && typeof (markdownSubtype) === 'undefined') {
+    return 'yaml';
+  } 
+  return markdownSubtype;
 }
