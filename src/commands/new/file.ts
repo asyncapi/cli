@@ -112,7 +112,7 @@ export default class NewFile extends Command {
   }
 
   async createAsyncapiFile(fileName:string, selectedTemplate:string) {
-    const asyncApiFile = await readFile(resolve(__dirname, '../../assets/examples/', selectedTemplate), { encoding: 'utf8' });
+    const asyncApiFile = await readFile(resolve(__dirname, '../../../assets/examples/', selectedTemplate), { encoding: 'utf8' });
 
     const fileNameHasFileExtension = fileName.includes('.');
     const fileNameToWriteToDisk = fileNameHasFileExtension ? fileName : `${fileName}.yaml`;

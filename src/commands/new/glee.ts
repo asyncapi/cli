@@ -1,11 +1,10 @@
 import {Flags} from '@oclif/core';
 import { promises as fPromises } from 'fs';
 import Command from '../../base';
-import { resolve, path } from 'path';
+import { resolve, join } from 'path';
 import fs from 'fs-extra';
 
 const { writeFile, readFile } = fPromises;
-const fs = require('fs-extra');
 
 export default class NewGlee extends Command {
   static description = 'Creates a new Glee project';
@@ -22,12 +21,12 @@ export default class NewGlee extends Command {
 
     const projectName = flags.name;
 
-    const PROJECT_DIRECTORY = path.join(process.cwd(), projectName);
+    const PROJECT_DIRECTORY = join(process.cwd(), projectName);
     const GLEE_TEMPLATES_DIRECTORY = resolve(__dirname, '../../../create-glee-app/templates/default');
 
     try {
       await fPromises.mkdir(PROJECT_DIRECTORY);
-    } catch (err) {
+    } catch (err: any) {
       switch (err.code) {
       case 'EEXIST':
         console.error(`Unable to create the project. We tried to use "${projectName}" as the directory of your new project but it already exists (${PROJECT_DIRECTORY}). Please specify a different name for the new project. For example, run the following command instead:\n\n  asyncapi new ${this.commandName} --name ${projectName}-1\n`);
