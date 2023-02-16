@@ -95,7 +95,7 @@ describe('template', () => {
       .it('should print debug logs', (ctx, done) => {
         expect(ctx.stdout).toContain(
           `Template sources taken from ${path.resolve(
-            './test/minimaltemplate'
+            './node_modules/@asyncapi/minimaltemplate'
           )}.`
         );
         cleanup('./test/docs/5');
