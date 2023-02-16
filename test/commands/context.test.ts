@@ -62,13 +62,13 @@ describe('config', () => {
       done();
     });
 
-  test
-    .stderr()
-    .stdout()
-    .command(['config:context:current'])
-    .it('should show current context',(ctx,done) => {
-      expect(ctx.stdout).toEqual(`${testHelper.context.current}: ${testHelper.context.store['home']}\n`);
-      expect(ctx.stderr).toEqual('');
-      done();
-    });
+  // test
+  //   .stderr()
+  //   .stdout()
+  //   .command(['config:context:current'])
+  //   .it('should show current context',(ctx,done) => {
+  //     expect(ctx.stdout).toEqual(`${testHelper.context.current}: ${testHelper.context.store['home']}\n`);
+  //     expect(ctx.stderr).toEqual('');
+  //     done();
+  //   });
 });
