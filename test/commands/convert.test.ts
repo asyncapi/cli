@@ -3,6 +3,8 @@ import { test } from '@oclif/test';
 
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
 import TestHelper from '../testHelper';
+import { DEFAULT_CONTEXT_FILE_PATH } from '../../src/models/Context';
+import { existsSync } from 'fs';
 
 const testHelper = new TestHelper();
 const filePath = './test/specification.yml';
@@ -81,13 +83,22 @@ describe('convert', () => {
         expect(ctx.stderr).toEqual('ContextError: No context is set as current, please set a current context.\n');
         done();
       });
+  });
 
+  describe('with no context file', () => {
+    beforeEach(() => {
+      try {
+        testHelper.deleteDummyContextFile();
+      } catch (e) {
+        if (e.code !== 'ENOENT') {
+          throw e;
+        }
+      }
+    });
+    
     test
       .stderr()
       .stdout()
-      .do(() => {
-        testHelper.deleteDummyContextFile();
-      })
       .command(['convert'])
       .it('throws error message if no context file exists', (ctx, done) => {
         expect(ctx.stdout).toEqual('');

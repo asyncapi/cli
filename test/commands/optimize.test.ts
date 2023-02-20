@@ -84,17 +84,26 @@ describe('optimize', () => {
         expect(ctx.stderr).toContain('ValidationError');
         done();
       });
+  });
 
+  describe('with no context file', () => {
+    beforeEach(() => {
+      try {
+        testHelper.deleteDummyContextFile();
+      } catch (e) {
+        if (e.code !== 'ENOENT') {
+          throw e;
+        }
+      }
+    });
+    
     test
       .stderr()
       .stdout()
-      .do(() => {
-        testHelper.deleteDummyContextFile();
-      })
       .command(['optimize'])
       .it('throws error message if no context file exists', (ctx, done) => {
         expect(ctx.stdout).toEqual('');
-        expect(ctx.stderr).toContain('ValidationError');
+        expect(ctx.stderr).toEqual('ValidationError: There is no file or context with name "undefined".\n');
         done();
       });
   });
