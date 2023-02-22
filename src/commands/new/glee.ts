@@ -4,8 +4,6 @@ import Command from '../../base';
 import { resolve, join } from 'path';
 import fs from 'fs-extra';
 
-const { writeFile, readFile } = fPromises;
-
 export default class NewGlee extends Command {
   static description = 'Creates a new Glee project';
   
