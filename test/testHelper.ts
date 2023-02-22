@@ -28,10 +28,10 @@ export default class ContextTestingHelper {
   createDummyContextFile(): void {
     writeFileSync(DEFAULT_CONTEXT_FILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8' });
   }
-
+  
   deleteDummyContextFile(): void {
-    if (existsSync(DEFAULT_CONTEXT_FILE_PATH)) { unlinkSync(DEFAULT_CONTEXT_FILE_PATH); }
-  }
+    unlinkSync(DEFAULT_CONTEXT_FILE_PATH);
+  } 
 
   unsetCurrentContext(): void {
     delete this._context.current;

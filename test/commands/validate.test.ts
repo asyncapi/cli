@@ -136,13 +136,22 @@ describe('validate', () => {
         expect(ctx.stderr).toEqual('ContextError: No context is set as current, please set a current context.\n');
         done();
       });
+  });
+
+  describe('with no context file', () => {
+    beforeEach(() => {
+      try {
+        testHelper.deleteDummyContextFile();
+      } catch (e) {
+        if (e.code !== 'ENOENT') {
+          throw e;
+        }
+      }
+    });
     
     test
       .stderr()
       .stdout()
-      .do(() => {
-        testHelper.deleteDummyContextFile();
-      })
       .command(['validate'])
       .it('throws error message if no context file exists', (ctx, done) => {
         expect(ctx.stdout).toEqual('');
