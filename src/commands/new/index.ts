@@ -1,2 +1,3 @@
-import file from './file';
-export default file;
+import File from './file';
+
+export default class New extends File {}
