@@ -4,7 +4,7 @@ import { IContextFile, DEFAULT_CONTEXT_FILE_PATH } from '../src/models/Context';
 import SpecificationFile from '../src/models/SpecificationFile';
 
 const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'asyncapi.yaml');
-const PROJECT_DIRECTORY_PATH = path.join(process.cwd(), 'test-project');
+export const PROJECT_DIRECTORY_PATH = path.join(process.cwd(), 'test-project');
 
 export default class ContextTestingHelper {
   private _context: IContextFile;
@@ -67,7 +67,7 @@ export default class ContextTestingHelper {
       }
     };
   }
-  
+
   createDummyProjectDirectory(): void {
     mkdirSync(PROJECT_DIRECTORY_PATH);
   }
