@@ -3,7 +3,7 @@ import * as path from 'path';
 import { IContextFile, DEFAULT_CONTEXT_FILE_PATH } from '../src/models/Context';
 import SpecificationFile from '../src/models/SpecificationFile';
 
-const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'asyncapi.yaml');
+const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'specification.yaml');
 export const PROJECT_DIRECTORY_PATH = path.join(process.cwd(), 'test-project');
 
 export default class ContextTestingHelper {

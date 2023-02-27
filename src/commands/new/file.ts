@@ -119,7 +119,7 @@ export default class NewFile extends Command {
 
     try {
       const content = await readFile(fileNameToWriteToDisk, { encoding: 'utf8' });
-      if (content !== '') {
+      if (content !== undefined) {
         console.log(`File ${fileNameToWriteToDisk} already exists. Ignoring...`);
         return;
       }
