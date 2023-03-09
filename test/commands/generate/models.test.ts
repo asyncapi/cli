@@ -165,7 +165,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'kotlin', './test/specification.yml', `-o=${ path.resolve(outputDir, './kotlin')}`, '--packageName', 'test.package'])
+      .command([...generalOptions, 'kotlin', './test/specification.yml', `-o=${ path.resolve(outputDir, './kotlin')}`, '--packageName', 'asyncapi.models'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
