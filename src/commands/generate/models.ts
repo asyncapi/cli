@@ -68,6 +68,9 @@ export default class Models extends Command {
       required: false,
       default: 'default',
     }),
+    tsMarshalling: Flags.boolean({
+      default: false,
+    }),
     /**
      * Go and Java specific package name to use for the generated models
      */
@@ -87,7 +90,7 @@ export default class Models extends Command {
 
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, packageName, output } = flags;
+    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, tsMarshalling, namespace, packageName, output } = flags;
     const { language, file } = args;
 
     const inputFile = (await load(file)) || (await load());
@@ -121,7 +124,8 @@ export default class Models extends Command {
       });
       fileOptions = {
         moduleSystem: tsModuleSystem,
-        exportType: tsExportType
+        exportType: tsExportType,
+        marshalling: tsMarshalling
       };
       break;
     case Languages.python:
