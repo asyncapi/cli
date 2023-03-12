@@ -1,4 +1,4 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator } from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
@@ -69,6 +69,7 @@ export default class Models extends Command {
       default: 'default',
     }),
     tsMarshalling: Flags.boolean({
+      description: 'TypeScript specific, defines whether marshaling functions needs to be generated.',
       default: false,
     }),
     /**
@@ -119,13 +120,20 @@ export default class Models extends Command {
     switch (language) {
     case Languages.typescript:
       fileGenerator = new TypeScriptFileGenerator({
+        presets: tsMarshalling ? [
+          {
+            preset: TS_COMMON_PRESET,
+            options: {
+              marshalling: true
+            }
+          }
+        ] : [],
         modelType: tsModelType as 'class' | 'interface',
         enumType: tsEnumType as 'enum' | 'union',
       });
       fileOptions = {
         moduleSystem: tsModuleSystem,
         exportType: tsExportType,
-        marshalling: tsMarshalling
       };
       break;
     case Languages.python:
