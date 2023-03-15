@@ -32,7 +32,7 @@ jobs:
         working-directory: ./website
         run: |
           git checkout -b update-cli-docs-${{ github.sha }}
-      - name: Copy CLI folder from Current Repo to Another
+      - name: Copy cli folder from Current Repo to Another
         working-directory: ./website
         run: |
           mkdir -p ./pages/docs/tools/cli
