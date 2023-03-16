@@ -1,4 +1,5 @@
-asyncapi: 2.5.0
+asyncapi: 2.6.0
+id: urn:some:company
 info:
   title: Account Service
   version: 1.0.0
@@ -10,6 +11,7 @@ info:
     name: API Support
     url: https://www.example.com/support
     email: support@example.com
+defaultContentType: 'application/json'
 tags:
   - name: some-tag
 servers:
@@ -28,6 +30,7 @@ channels:
 components:
   messages:
     UserSignedUp:
+      messageId: UserSignedUp
       payload:
         type: object
         properties:

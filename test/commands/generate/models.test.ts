@@ -119,7 +119,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'java', './test/specification.yml', `-o=${ path.resolve(outputDir, './java')}`, '--packageName', 'asyncapi.models'])
+      .command([...generalOptions, 'java', './test/specification.yml', `-o=${ path.resolve(outputDir, './java')}`, '--packageName', 'test.pkg'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(

@@ -45,24 +45,28 @@ export default class Models extends Command {
       options: ['class', 'interface'],
       description: 'TypeScript specific, define which type of model needs to be generated.',
       required: false,
+      default: 'class',
     }),
     tsEnumType: Flags.string({
       type: 'option',
       options: ['enum', 'union'],
       description: 'TypeScript specific, define which type of enums needs to be generated.',
       required: false,
+      default: 'enum',
     }),
     tsModuleSystem: Flags.string({
       type: 'option',
       options: ['ESM', 'CJS'],
       description: 'TypeScript specific, define the module system to be used.',
       required: false,
+      default: 'ESM',
     }),
     tsExportType: Flags.string({
       type: 'option',
       options: ['default', 'named'],
       description: 'TypeScript specific, define which type of export needs to be generated.',
       required: false,
+      default: 'default',
     }),
     /**
      * Go and Java specific package name to use for the generated models
@@ -112,8 +116,8 @@ export default class Models extends Command {
     switch (language) {
     case Languages.typescript:
       fileGenerator = new TypeScriptFileGenerator({
-        modelType: tsModelType as undefined | 'class' | 'interface',
-        enumType: tsEnumType as undefined | 'enum' | 'union'
+        modelType: tsModelType as 'class' | 'interface',
+        enumType: tsEnumType as 'enum' | 'union',
       });
       fileOptions = {
         moduleSystem: tsModuleSystem,
