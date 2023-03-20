@@ -1,4 +1,4 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator } from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, KotlinFileGenerator} from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
@@ -14,7 +14,8 @@ enum Languages {
   javascript = 'javascript',
   dart = 'dart',
   python = 'python',
-  rust = 'rust'
+  rust = 'rust',
+  kotlin='kotlin'
 }
 const possibleLanguageValues = Object.values(Languages).join(', ');
 
@@ -45,34 +46,30 @@ export default class Models extends Command {
       options: ['class', 'interface'],
       description: 'TypeScript specific, define which type of model needs to be generated.',
       required: false,
-      default: 'class',
     }),
     tsEnumType: Flags.string({
       type: 'option',
       options: ['enum', 'union'],
       description: 'TypeScript specific, define which type of enums needs to be generated.',
       required: false,
-      default: 'enum',
     }),
     tsModuleSystem: Flags.string({
       type: 'option',
       options: ['ESM', 'CJS'],
       description: 'TypeScript specific, define the module system to be used.',
       required: false,
-      default: 'ESM',
     }),
     tsExportType: Flags.string({
       type: 'option',
       options: ['default', 'named'],
       description: 'TypeScript specific, define which type of export needs to be generated.',
       required: false,
-      default: 'default',
     }),
     /**
      * Go and Java specific package name to use for the generated models
      */
     packageName: Flags.string({
-      description: 'Go and Java specific, define the package to use for the generated models. This is required when language is `go` or `java`.',
+      description: 'Go, Java and Kotlin specific, define the package to use for the generated models. This is required when language is `go`, `java` or `kotlin`.',
       required: false
     }),
     /**
@@ -116,8 +113,8 @@ export default class Models extends Command {
     switch (language) {
     case Languages.typescript:
       fileGenerator = new TypeScriptFileGenerator({
-        modelType: tsModelType as 'class' | 'interface',
-        enumType: tsEnumType as 'enum' | 'union',
+        modelType: tsModelType as undefined | 'class' | 'interface',
+        enumType: tsEnumType as undefined | 'enum' | 'union'
       });
       fileOptions = {
         moduleSystem: tsModuleSystem,
@@ -165,6 +162,15 @@ export default class Models extends Command {
         throw new Error('In order to generate models to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
       }
       fileGenerator = new DartFileGenerator();
+      fileOptions = {
+        packageName
+      };
+      break;
+    case Languages.kotlin:
+      if (packageName === undefined) {
+        throw new Error('In order to generate models to Kotlin, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+      }
+      fileGenerator = new KotlinFileGenerator();
       fileOptions = {
         packageName
       };

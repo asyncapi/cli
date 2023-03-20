@@ -15,13 +15,13 @@ describe('models', () => {
       expect(ctx.stdout).toMatchSnapshot();
       done();
     });
-
+    
   test
     .stderr()
     .stdout()
     .command([...generalOptions, 'random', './test/specification.yml', `-o=${ path.resolve(outputDir, './random')}`])
     .it('fails when it dont know the language', (ctx, done) => {
-      expect(ctx.stderr).toEqual('Error: Expected random to be one of: typescript, csharp, golang, java, javascript, dart, python, rust\nSee more help with --help\n');
+      expect(ctx.stderr).toEqual('Error: Expected random to be one of: typescript, csharp, golang, java, javascript, dart, python, rust, kotlin\nSee more help with --help\n');
       expect(ctx.stdout).toEqual('');
       done();
     });
@@ -35,8 +35,8 @@ describe('models', () => {
       expect(ctx.stdout).toMatchSnapshot();
       done();
     });
-
-  describe('for TypeScript', () => {
+    
+  describe('for TypeScript', () => {  
     test
       .stderr()
       .stdout()
@@ -50,7 +50,7 @@ describe('models', () => {
       });
   });
 
-  describe('for JavaScript', () => {
+  describe('for JavaScript', () => {  
     test
       .stderr()
       .stdout()
@@ -64,7 +64,7 @@ describe('models', () => {
       });
   });
 
-  describe('for Python', () => {
+  describe('for Python', () => {  
     test
       .stderr()
       .stdout()
@@ -78,7 +78,7 @@ describe('models', () => {
       });
   });
 
-  describe('for Rust', () => {
+  describe('for Rust', () => {  
     test
       .stderr()
       .stdout()
@@ -92,11 +92,11 @@ describe('models', () => {
       });
   });
 
-  describe('for C#', () => {
+  describe('for C#', () => {  
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\''])
+      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${path.resolve(outputDir, './csharp')}`, '--namespace=\'test.namespace\''])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -115,11 +115,11 @@ describe('models', () => {
       });
   });
 
-  describe('for Java', () => {
+  describe('for Java', () => {  
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'java', './test/specification.yml', `-o=${ path.resolve(outputDir, './java')}`, '--packageName', 'test.pkg'])
+      .command([...generalOptions, 'java', './test/specification.yml', `-o=${ path.resolve(outputDir, './java')}`, '--packageName', 'test.package'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -138,11 +138,11 @@ describe('models', () => {
       });
   });
 
-  describe('for Go', () => {
+  describe('for Go', () => {  
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'golang', './test/specification.yml', `-o=${ path.resolve(outputDir, './go')}`, '--packageName', 'asyncapi.models'])
+      .command([...generalOptions, 'golang', './test/specification.yml', `-o=${ path.resolve(outputDir, './go')}`, '--packageName', 'test.package'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -161,11 +161,34 @@ describe('models', () => {
       });
   });
 
-  describe('for Dart', () => {
+  describe('for Kotlin', () => {  
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'dart', './test/specification.yml', `-o=${ path.resolve(outputDir, './dart')}`, '--packageName', 'asyncapi.models'])
+      .command([...generalOptions, 'kotlin', './test/specification.yml', `-o=${ path.resolve(outputDir, './kotlin')}`, '--packageName', 'asyncapi.models'])
+      .it('works when file path is passed', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toContain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'kotlin', './test/specification.yml', `-o=${ path.resolve(outputDir, './kotlin')}`])
+      .it('fails when no package defined', (ctx, done) => {
+        expect(ctx.stderr).toEqual('Error: In order to generate models to Kotlin, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
+        expect(ctx.stdout).toEqual('');
+        done();
+      });
+  });
+
+  describe('for Dart', () => {  
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'dart', './test/specification.yml', `-o=${ path.resolve(outputDir, './dart')}`, '--packageName', 'test.package'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
