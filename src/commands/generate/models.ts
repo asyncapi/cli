@@ -82,12 +82,19 @@ export default class Models extends Command {
       description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.',
       required: false
     }),
+    csharpArrayType: Flags.string({
+      type: 'option',
+      description: 'C# specific, define which type of array needs to be generated. This is required when language is `csharp`.',
+      options: ['Array', 'List'],
+      required: false,
+      default: 'Array',
+    }),
     ...validationFlags({ logDiagnostics: false }),
   };
 
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, packageName, output } = flags;
+    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, csharpArrayType, packageName, output } = flags;
     const { language, file } = args;
 
     const inputFile = (await load(file)) || (await load());
@@ -134,7 +141,9 @@ export default class Models extends Command {
       if (namespace === undefined) {
         throw new Error('In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
       }
-      fileGenerator = new CSharpFileGenerator();
+      fileGenerator = new CSharpFileGenerator({
+        collectionType: csharpArrayType as 'Array' | 'List'
+      });
       fileOptions = {
         namespace
       };
