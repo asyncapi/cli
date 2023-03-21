@@ -83,7 +83,7 @@ export default class Models extends Command {
       required: false
     }),
     csharpAutoImplement: Flags.boolean({
-      description: 'C# specific, define whether to generate auto-implemented properties or not. This is required when language is `csharp`.',
+      description: 'C# specific, define whether to generate auto-implemented properties or not.',
       required: false,
       default: false
     }),
