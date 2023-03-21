@@ -119,7 +119,7 @@ export default class Models extends Command {
     case Languages.typescript:
       fileGenerator = new TypeScriptFileGenerator({
         modelType: tsModelType as undefined | 'class' | 'interface',
-        enumType: tsEnumType as undefined | 'enum' | 'union',
+        enumType: tsEnumType as 'enum' | 'union',
       });
       fileOptions = {
         moduleSystem: tsModuleSystem,
