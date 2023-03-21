@@ -64,6 +64,7 @@ export default class Models extends Command {
       options: ['default', 'named'],
       description: 'TypeScript specific, define which type of export needs to be generated.',
       required: false,
+      default: 'default'
     }),
     /**
      * Go and Java specific package name to use for the generated models
@@ -114,7 +115,7 @@ export default class Models extends Command {
     case Languages.typescript:
       fileGenerator = new TypeScriptFileGenerator({
         modelType: tsModelType as undefined | 'class' | 'interface',
-        enumType: tsEnumType as undefined | 'enum' | 'union'
+        enumType: tsEnumType as 'enum' | 'union',
       });
       fileOptions = {
         moduleSystem: tsModuleSystem,
