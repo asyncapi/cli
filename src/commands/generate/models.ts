@@ -84,7 +84,7 @@ export default class Models extends Command {
     }),
     csharpArrayType: Flags.string({
       type: 'option',
-      description: 'C# specific, define which type of array needs to be generated. This is required when language is `csharp`.',
+      description: 'C# specific, define which type of array needs to be generated.',
       options: ['Array', 'List'],
       required: false,
       default: 'Array',
