@@ -48,6 +48,17 @@ describe('models', () => {
         );
         done();
       });
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'typescript', './test/specification.yml', `-o=${ path.resolve(outputDir, './ts')}`, '--tsJsonBinPack'])
+      .it('works when tsJsonBinPack is set', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toContain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
   });
 
   describe('for JavaScript', () => {
