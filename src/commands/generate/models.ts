@@ -118,7 +118,7 @@ export default class Models extends Command {
     switch (language) {
     case Languages.typescript:
       fileGenerator = new TypeScriptFileGenerator({
-        modelType: tsModelType as undefined | 'class' | 'interface',
+        modelType: tsModelType as 'class' | 'interface',
         enumType: tsEnumType as 'enum' | 'union',
       });
       fileOptions = {
