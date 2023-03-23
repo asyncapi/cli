@@ -6,14 +6,26 @@ import TestHelper from '../testHelper';
 const testHelper = new TestHelper();
 
 describe('config', () => {
-  beforeEach(() => {
+  beforeAll(() => {
     testHelper.createDummyContextFile();
   });
 
-  afterEach(() => {
+  afterAll(() => {
     testHelper.deleteDummyContextFile();
   });
 
+  describe('config:context:current', () => {
+    test
+      .stderr()
+      .stdout()
+      .command(['config:context:current'])
+      .it('should show current context', (ctx, done) => {
+        expect(ctx.stdout).toEqual(`${testHelper.context.current}: ${testHelper.context.store['home']}\n`);
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+  });
+  
   describe('config:context:list', () => {
     test
       .stderr()
@@ -70,15 +82,4 @@ describe('config', () => {
       });
   });
 
-  describe('config:context:current', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:current'])
-      .it('should show current context', (ctx, done) => {
-        expect(ctx.stdout).toEqual(`${testHelper.context.current}: ${testHelper.context.store['home']}\n`);
-        expect(ctx.stderr).toEqual('');
-        done();
-      });
-  });
 });
