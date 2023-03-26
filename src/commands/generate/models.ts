@@ -87,12 +87,19 @@ export default class Models extends Command {
       required: false,
       default: false
     }),
+    csharpArrayType: Flags.string({
+      type: 'option',
+      description: 'C# specific, define which type of array needs to be generated.',
+      options: ['Array', 'List'],
+      required: false,
+      default: 'Array'
+    }),
     ...validationFlags({ logDiagnostics: false }),
   };
 
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, csharpAutoImplement, packageName, output } = flags;
+    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, csharpAutoImplement, csharpArrayType, packageName, output } = flags;
     const { language, file } = args;
 
     const inputFile = (await load(file)) || (await load());
@@ -147,7 +154,8 @@ export default class Models extends Command {
               autoImplementedProperties: true
             }
           }
-        ] : []
+        ] : [],
+        collectionType: csharpArrayType as 'Array' | 'List'
       });
       fileOptions = {
         namespace
