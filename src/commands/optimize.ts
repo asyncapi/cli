@@ -132,7 +132,7 @@ export default class Optimize extends Command {
     const choices = [];
 
     if (canMove) {
-      const totalMove = report.moveToComponents?.filter((e) => e.action === 'move').length;
+      const totalMove = report.moveToComponents?.filter((e: ReportElement) => e.action === 'move').length;
       this.log(`\n${chalk.green(totalMove)} components can be moved to the components sections.\nthe following changes will be made:`);
       this.showOptimizations(report.moveToComponents);
       choices.push({name: 'move to components section', value: Optimizations.MOVE_TO_COMPONETS});
