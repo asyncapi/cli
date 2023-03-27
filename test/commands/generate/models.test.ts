@@ -92,7 +92,7 @@ describe('models', () => {
       });
   });
 
-  describe('for C#', () => {  
+  describe('for C#', () => {
     test
       .stderr()
       .stdout()
@@ -113,9 +113,6 @@ describe('models', () => {
         expect(ctx.stdout).toEqual('');
         done();
       });
-  });
-
-  describe('for Java', () => {  
     test
       .stderr()
       .stdout()
@@ -138,6 +135,20 @@ describe('models', () => {
         );
         done();
       });
+  });
+
+  describe('for Java', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'java', './test/specification.yml', `-o=${ path.resolve(outputDir, './java')}`, '--packageName', 'test.pkg'])
+      .it('works when file path is passed', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toContain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
     test
       .stderr()
       .stdout()
@@ -148,7 +159,7 @@ describe('models', () => {
         done();
       });
   });
-
+  
   describe('for Go', () => {  
     test
       .stderr()
