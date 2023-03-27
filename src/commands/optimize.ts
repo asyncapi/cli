@@ -168,4 +168,5 @@ export default class Optimize extends Command {
     }]);
     this.outputMethod = outputRes.output;
   }
+  
 }
