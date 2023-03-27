@@ -101,7 +101,8 @@ export default class Models extends Command {
     }),
     ...validationFlags({ logDiagnostics: false }),
   };
-
+  
+  /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Models);
     const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpAutoImplement, csharpArrayType, packageName, output } = flags;
