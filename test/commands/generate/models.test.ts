@@ -119,8 +119,19 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'java', './test/specification.yml', `-o=${ path.resolve(outputDir, './java')}`, '--packageName', 'test.pkg'])
-      .it('works when file path is passed', (ctx, done) => {
+      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpAutoImplement'])
+      .it('works when auto implement properties flag is passed', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toContain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpArrayType=List']) 
+      .it('works when array type is provided', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
           'Successfully generated the following models: '
