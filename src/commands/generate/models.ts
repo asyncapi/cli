@@ -1,4 +1,4 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator } from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, CSHARP_DEFAULT_PRESET } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
@@ -45,24 +45,28 @@ export default class Models extends Command {
       options: ['class', 'interface'],
       description: 'TypeScript specific, define which type of model needs to be generated.',
       required: false,
+      default: 'class',
     }),
     tsEnumType: Flags.string({
       type: 'option',
       options: ['enum', 'union'],
       description: 'TypeScript specific, define which type of enums needs to be generated.',
       required: false,
+      default: 'enum',
     }),
     tsModuleSystem: Flags.string({
       type: 'option',
       options: ['ESM', 'CJS'],
       description: 'TypeScript specific, define the module system to be used.',
       required: false,
+      default: 'ESM',
     }),
     tsExportType: Flags.string({
       type: 'option',
       options: ['default', 'named'],
       description: 'TypeScript specific, define which type of export needs to be generated.',
       required: false,
+      default: 'default',
     }),
     /**
      * Go and Java specific package name to use for the generated models
@@ -78,12 +82,24 @@ export default class Models extends Command {
       description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.',
       required: false
     }),
+    csharpAutoImplement: Flags.boolean({
+      description: 'C# specific, define whether to generate auto-implemented properties or not.',
+      required: false,
+      default: false
+    }),
+    csharpArrayType: Flags.string({
+      type: 'option',
+      description: 'C# specific, define which type of array needs to be generated.',
+      options: ['Array', 'List'],
+      required: false,
+      default: 'Array'
+    }),
     ...validationFlags({ logDiagnostics: false }),
   };
 
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, packageName, output } = flags;
+    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, csharpAutoImplement, csharpArrayType, packageName, output } = flags;
     const { language, file } = args;
 
     const inputFile = (await load(file)) || (await load());
@@ -112,8 +128,8 @@ export default class Models extends Command {
     switch (language) {
     case Languages.typescript:
       fileGenerator = new TypeScriptFileGenerator({
-        modelType: tsModelType as undefined | 'class' | 'interface',
-        enumType: tsEnumType as undefined | 'enum' | 'union'
+        modelType: tsModelType as 'class' | 'interface',
+        enumType: tsEnumType as 'enum' | 'union',
       });
       fileOptions = {
         moduleSystem: tsModuleSystem,
@@ -130,7 +146,17 @@ export default class Models extends Command {
       if (namespace === undefined) {
         throw new Error('In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
       }
-      fileGenerator = new CSharpFileGenerator();
+      fileGenerator = new CSharpFileGenerator({
+        presets: csharpAutoImplement ? [
+          {
+            preset: CSHARP_DEFAULT_PRESET,
+            options: {
+              autoImplementedProperties: true
+            }
+          }
+        ] : [],
+        collectionType: csharpArrayType as 'Array' | 'List'
+      });
       fileOptions = {
         namespace
       };

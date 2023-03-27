@@ -15,7 +15,7 @@ describe('models', () => {
       expect(ctx.stdout).toMatchSnapshot();
       done();
     });
-    
+
   test
     .stderr()
     .stdout()
@@ -35,8 +35,8 @@ describe('models', () => {
       expect(ctx.stdout).toMatchSnapshot();
       done();
     });
-    
-  describe('for TypeScript', () => {  
+
+  describe('for TypeScript', () => {
     test
       .stderr()
       .stdout()
@@ -50,7 +50,7 @@ describe('models', () => {
       });
   });
 
-  describe('for JavaScript', () => {  
+  describe('for JavaScript', () => {
     test
       .stderr()
       .stdout()
@@ -64,7 +64,7 @@ describe('models', () => {
       });
   });
 
-  describe('for Python', () => {  
+  describe('for Python', () => {
     test
       .stderr()
       .stdout()
@@ -78,7 +78,7 @@ describe('models', () => {
       });
   });
 
-  describe('for Rust', () => {  
+  describe('for Rust', () => {
     test
       .stderr()
       .stdout()
@@ -92,11 +92,11 @@ describe('models', () => {
       });
   });
 
-  describe('for C#', () => {  
+  describe('for C#', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${path.resolve(outputDir, './csharp')}`, '--namespace=\'test.namespace\''])
+      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\''])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -113,13 +113,35 @@ describe('models', () => {
         expect(ctx.stdout).toEqual('');
         done();
       });
-  });
-
-  describe('for Java', () => {  
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'java', './test/specification.yml', `-o=${ path.resolve(outputDir, './java')}`, '--packageName', 'test.package'])
+      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpAutoImplement'])
+      .it('works when auto implement properties flag is passed', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toContain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpArrayType=List']) 
+      .it('works when array type is provided', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toContain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
+  });
+
+  describe('for Java', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'java', './test/specification.yml', `-o=${ path.resolve(outputDir, './java')}`, '--packageName', 'test.pkg'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -138,11 +160,11 @@ describe('models', () => {
       });
   });
 
-  describe('for Go', () => {  
+  describe('for Go', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'golang', './test/specification.yml', `-o=${ path.resolve(outputDir, './go')}`, '--packageName', 'test.package'])
+      .command([...generalOptions, 'golang', './test/specification.yml', `-o=${ path.resolve(outputDir, './go')}`, '--packageName', 'asyncapi.models'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -161,11 +183,11 @@ describe('models', () => {
       });
   });
 
-  describe('for Dart', () => {  
+  describe('for Dart', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'dart', './test/specification.yml', `-o=${ path.resolve(outputDir, './dart')}`, '--packageName', 'test.package'])
+      .command([...generalOptions, 'dart', './test/specification.yml', `-o=${ path.resolve(outputDir, './dart')}`, '--packageName', 'asyncapi.models'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(

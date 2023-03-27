@@ -18,6 +18,7 @@ asyncapi.json
 asyncapi.yaml
 asyncapi.yml
 test/minimaltemplate/__transpiled
+.vscode
 
 
 spec-examples.zip

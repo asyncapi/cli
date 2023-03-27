@@ -58,7 +58,7 @@ describe('template', () => {
       '--output=./test/docs/3',
       '--force-write',
     ])
-    .it('shoudld pass custom param in the template', (ctx, done) => {
+    .it('should pass custom param in the template', (ctx, done) => {
       expect(ctx.stdout).toContain(
         'Check out your shiny new generated files at ./test/docs/3.\n\n'
       );
