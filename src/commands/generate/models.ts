@@ -233,4 +233,5 @@ ${model.result}
     });
     this.log(`Successfully generated the following models: ${generatedModels.join('\n')}`);
   }
+  
 }
