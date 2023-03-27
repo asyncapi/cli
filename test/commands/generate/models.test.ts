@@ -228,5 +228,5 @@ describe('models', () => {
         expect(ctx.stdout).toMatch('URL http://bit.ly/asyncapi is valid but has (itself and/or referenced documents) governance issues.');
         done();
       });
- });
+  });
 });
