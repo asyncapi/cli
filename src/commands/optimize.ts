@@ -167,5 +167,5 @@ export default class Optimize extends Command {
       choices: [{name: 'log to terminal',value: Outputs.TERMINAL}, {name: 'create new file', value: Outputs.NEW_FILE}, {name: 'update original', value: Outputs.OVERWRITE}]
     }]);
     this.outputMethod = outputRes.output;
-  } 
+  }
 }
