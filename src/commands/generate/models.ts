@@ -1,4 +1,4 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET } from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
@@ -87,19 +87,24 @@ export default class Models extends Command {
       description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.',
       required: false
     }),
+    csharpAutoImplement: Flags.boolean({
+      description: 'C# specific, define whether to generate auto-implemented properties or not.',
+      required: false,
+      default: false
+    }),
     csharpArrayType: Flags.string({
       type: 'option',
       description: 'C# specific, define which type of array needs to be generated.',
       options: ['Array', 'List'],
       required: false,
-      default: 'Array',
+      default: 'Array'
     }),
     ...validationFlags({ logDiagnostics: false }),
   };
 
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpArrayType, packageName, output } = flags;
+    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpAutoImplement, csharpArrayType, packageName, output } = flags;
     const { language, file } = args;
 
     const inputFile = (await load(file)) || (await load());
@@ -156,6 +161,14 @@ export default class Models extends Command {
         throw new Error('In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
       }
       fileGenerator = new CSharpFileGenerator({
+        presets: csharpAutoImplement ? [
+          {
+            preset: CSHARP_DEFAULT_PRESET,
+            options: {
+              autoImplementedProperties: true
+            }
+          }
+        ] : [],
         collectionType: csharpArrayType as 'Array' | 'List'
       });
       fileOptions = {
