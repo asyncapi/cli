@@ -103,11 +103,8 @@ export default class Models extends Command {
 
   async run() {
     const { args, flags } = await this.parse(Models);
-
     const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, csharpAutoImplement, csharpArrayType, packageName, output } = flags;
-
     const { language, file } = args;
-
     const inputFile = (await load(file)) || (await load());
     const { document, status } = await parse(this, inputFile, flags);
     if (!document || status === 'invalid') {
