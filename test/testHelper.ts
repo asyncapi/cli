@@ -76,3 +76,7 @@ export default class ContextTestingHelper {
     rmSync(PROJECT_DIRECTORY_PATH, {recursive: true});
   }
 }
+
+export function fileCleanup(filepath: string) {
+  unlinkSync(filepath);
+}
