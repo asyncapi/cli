@@ -1,4 +1,4 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, CSHARP_DEFAULT_PRESET, KotlinFileGenerator} from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, KotlinFileGenerator} from '@asyncapi/modelina';
 
 import { Flags } from '@oclif/core';
 import Command from '../../base';
@@ -71,6 +71,11 @@ export default class Models extends Command {
       required: false,
       default: 'default',
     }),
+    tsJsonBinPack: Flags.boolean({
+      description: 'TypeScript specific, define basic support for serializing to and from binary with jsonbinpack.',
+      required: false,
+      default: false,
+    }),
     /**
      * Go and Java specific package name to use for the generated models
      */
@@ -100,10 +105,11 @@ export default class Models extends Command {
     }),
     ...validationFlags({ logDiagnostics: false }),
   };
-
+  
+  /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, namespace, csharpAutoImplement, csharpArrayType, packageName, output } = flags;
+    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpAutoImplement, csharpArrayType, packageName, output } = flags;
     const { language, file } = args;
     const inputFile = (await load(file)) || (await load());
     const { document, status } = await parse(this, inputFile, flags);
@@ -133,6 +139,15 @@ export default class Models extends Command {
       fileGenerator = new TypeScriptFileGenerator({
         modelType: tsModelType as 'class' | 'interface',
         enumType: tsEnumType as 'enum' | 'union',
+        presets: tsJsonBinPack ? [
+          {
+            preset: TS_COMMON_PRESET,
+            options: {
+              marshalling: true
+            }
+          },
+          TS_JSONBINPACK_PRESET
+        ] : []
       });
       fileOptions = {
         moduleSystem: tsModuleSystem,
