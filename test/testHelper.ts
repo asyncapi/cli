@@ -67,7 +67,3 @@ export default class ContextTestingHelper {
     };
   }
 }
-
-export function fileCleanup(filepath: string) {
-  unlinkSync(filepath);
-}
