@@ -72,6 +72,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://d-m-oladele.netlify.app/"><img src="https://avatars.githubusercontent.com/u/98895460?v=4?s=100" width="100px;" alt="Damilola Oladele"/><br /><sub><b>Damilola Oladele</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=activus-d" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/prayutsu"><img src="https://avatars.githubusercontent.com/u/54636525?v=4?s=100" width="100px;" alt="Abhay Garg"/><br /><sub><b>Abhay Garg</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=prayutsu" title="Code">💻</a> <a href="https://github.com/asyncapi/cli/commits?author=prayutsu" title="Tests">⚠️</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/sambhavgupta0705"><img src="https://avatars.githubusercontent.com/u/81870866?v=4?s=100" width="100px;" alt="Sambhav Gupta"/><br /><sub><b>Sambhav Gupta</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=sambhavgupta0705" title="Code">💻</a> <a href="https://github.com/asyncapi/cli/commits?author=sambhavgupta0705" title="Tests">⚠️</a></td>
+    </tr>
   </tbody>
 </table>
 
