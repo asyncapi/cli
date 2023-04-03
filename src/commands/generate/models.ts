@@ -1,4 +1,5 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET } from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, KotlinFileGenerator} from '@asyncapi/modelina';
+
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
@@ -14,7 +15,8 @@ enum Languages {
   javascript = 'javascript',
   dart = 'dart',
   python = 'python',
-  rust = 'rust'
+  rust = 'rust',
+  kotlin='kotlin'
 }
 const possibleLanguageValues = Object.values(Languages).join(', ');
 
@@ -60,6 +62,7 @@ export default class Models extends Command {
       description: 'TypeScript specific, define the module system to be used.',
       required: false,
       default: 'ESM',
+      
     }),
     tsExportType: Flags.string({
       type: 'option',
@@ -77,7 +80,7 @@ export default class Models extends Command {
      * Go and Java specific package name to use for the generated models
      */
     packageName: Flags.string({
-      description: 'Go and Java specific, define the package to use for the generated models. This is required when language is `go` or `java`.',
+      description: 'Go, Java and Kotlin specific, define the package to use for the generated models. This is required when language is `go`, `java` or `kotlin`.',
       required: false
     }),
     /**
@@ -87,6 +90,7 @@ export default class Models extends Command {
       description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.',
       required: false
     }),
+
     csharpAutoImplement: Flags.boolean({
       description: 'C# specific, define whether to generate auto-implemented properties or not.',
       required: false,
@@ -107,7 +111,6 @@ export default class Models extends Command {
     const { args, flags } = await this.parse(Models);
     const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpAutoImplement, csharpArrayType, packageName, output } = flags;
     const { language, file } = args;
-
     const inputFile = (await load(file)) || (await load());
     const { document, status } = await parse(this, inputFile, flags);
     if (!document || status === 'invalid') {
@@ -161,6 +164,7 @@ export default class Models extends Command {
       if (namespace === undefined) {
         throw new Error('In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
       }
+
       fileGenerator = new CSharpFileGenerator({
         presets: csharpAutoImplement ? [
           {
@@ -172,6 +176,7 @@ export default class Models extends Command {
         ] : [],
         collectionType: csharpArrayType as 'Array' | 'List'
       });
+      
       fileOptions = {
         namespace
       };
@@ -202,6 +207,15 @@ export default class Models extends Command {
         throw new Error('In order to generate models to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
       }
       fileGenerator = new DartFileGenerator();
+      fileOptions = {
+        packageName
+      };
+      break;
+    case Languages.kotlin:
+      if (packageName === undefined) {
+        throw new Error('In order to generate models to Kotlin, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+      }
+      fileGenerator = new KotlinFileGenerator();
       fileOptions = {
         packageName
       };
