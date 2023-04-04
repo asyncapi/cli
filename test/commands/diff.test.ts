@@ -22,8 +22,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/specification_v1.yml',
-        './test/fixtures/specification_v2.yml',
+        './test/fixtures/asyncapi_v1.yml',
+        './test/fixtures/asyncapi_v2.yml',
         '--type=all',
         '--format=json',
       ])
@@ -42,8 +42,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/specification_v1.yml',
-        './test/fixtures/specification_v2.yml',
+        './test/fixtures/asyncapi_v1.yml',
+        './test/fixtures/asyncapi_v2.yml',
         '--type=breaking',
         '--format=json',
       ])
@@ -62,8 +62,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/specification_v1.yml',
-        './test/fixtures/specification_v2.yml',
+        './test/fixtures/asyncapi_v1.yml',
+        './test/fixtures/asyncapi_v2.yml',
         '--type=non-breaking',
         '--format=json',
       ])
@@ -82,8 +82,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/specification_v1.yml',
-        './test/fixtures/specification_v2.yml',
+        './test/fixtures/asyncapi_v1.yml',
+        './test/fixtures/asyncapi_v2.yml',
         '--type=unclassified',
         '--format=json',
       ])
@@ -102,8 +102,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/specification_v1.yml',
-        './test/fixtures/specification_v2.yml',
+        './test/fixtures/asyncapi_v1.yml',
+        './test/fixtures/asyncapi_v2.yml',
         '--format=json',
       ])
       // eslint-disable-next-line sonarjs/no-identical-functions
@@ -122,8 +122,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/specification_v1.yml',
-        './test/fixtures/specification_v2.yml',
+        './test/fixtures/asyncapi_v1.yml',
+        './test/fixtures/asyncapi_v2.yml',
         '--overrides=./test/fixtures/overrides.json',
         '--format=json',
       ])
@@ -142,8 +142,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/specification_v1.yml',
-        './test/fixtures/specification_v2.yml',
+        './test/fixtures/asyncapi_v1.yml',
+        './test/fixtures/asyncapi_v2.yml',
         '--overrides=./overrides-wrong.json',
         '--format=json',
       ])
@@ -162,8 +162,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/specification_v1.yml',
-        './test/fixtures/specification_v2.yml',
+        './test/fixtures/asyncapi_v1.yml',
+        './test/fixtures/asyncapi_v2.yml',
         '--overrides=./test/fixtures/invalid-overrides.json',
       ])
       .it((ctx, done) => {
@@ -181,8 +181,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/specification_v1.yml',
-        './test/fixtures/specification_v2.yml',
+        './test/fixtures/asyncapi_v1.yml',
+        './test/fixtures/asyncapi_v2.yml',
         '--type=all',
       ])
       .it('works when file path is passed', (ctx, done) => {
