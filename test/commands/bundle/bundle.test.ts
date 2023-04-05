@@ -14,7 +14,7 @@ describe('bundle', () => {
   test
     .stdout()
     .command([
-      'bundle', './test/commands/bundle/asyncapi.yaml',
+      'bundle', './test/commands/bundle/first-asyncapi.yaml',
       '--output=./test/commands/bundle/final.yaml',
     ])
     .it('should successfully bundle specification', (ctx, done) => {
@@ -38,7 +38,7 @@ describe('bundle', () => {
   test
     .stdout()
     .command([
-      'bundle', './test/commands/bundle/asyncapi.yaml', '--reference-into-components', '--output=test/commands/bundle/final.yaml'
+      'bundle', './test/commands/bundle/first-asyncapi.yaml', '--reference-into-components', '--output=test/commands/bundle/final.yaml'
     ])
     .it('should be able to refence messages into components', (ctx, done) => {
       expect(ctx.stdout).toContain('Check out your shiny new bundled files at test/commands/bundle/final.yaml\n');
@@ -49,7 +49,7 @@ describe('bundle', () => {
   test
     .stdout()
     .command([
-      'bundle', './test/commands/bundle/asyncapi.yaml', './test/commands/bundle/feature.yaml', '--reference-into-components', '--output=test/commands/bundle/final.yaml'
+      'bundle', './test/commands/bundle/first-asyncapi.yaml', './test/commands/bundle/feature.yaml', '--reference-into-components', '--output=test/commands/bundle/final.yaml'
     ])
     .it('should be able to bundle multiple specs along with custom reference', (ctx, done) => {
       expect(ctx.stdout).toContain('Check out your shiny new bundled files at test/commands/bundle/final.yaml\n');
@@ -61,7 +61,7 @@ describe('bundle', () => {
   test
     .stdout()
     .command([
-      'bundle', './test/commands/bundle/asyncapi.yaml', './test/commands/bundle/feature.yaml', '--reference-into-components', '--output=test/commands/bundle/final.yaml', '--base=./test/commands/bundle/asyncapi.yaml'
+      'bundle', './test/commands/bundle/first-asyncapi.yaml', './test/commands/bundle/feature.yaml', '--reference-into-components', '--output=test/commands/bundle/final.yaml', '--base=./test/commands/bundle/first-asyncapi.yaml'
     ])
     .it('should be able to bundle correctly with overwriting base file', (ctx, done) => {
       expect(ctx.stdout).toContain('Check out your shiny new bundled files at test/commands/bundle/final.yaml\n');
