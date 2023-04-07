@@ -1,6 +1,5 @@
 import { existsSync, promises as fPromises } from 'fs';
 import { SpecificationFileNotFound } from '../errors/specification-file';
-import { resolve } from 'path';
 import { createServer } from 'http';
 import serveHandler from 'serve-handler';
 import { WebSocketServer } from 'ws';
@@ -45,8 +44,13 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
   });
 
   const server = createServer((request, response) => {
+    //not all CLI users use npm. Some package managers put dependencies in different weird places
+    //this is why we need to first figure out where exactly is the index.html located 
+    //and then strip index.html from the path to point to directory with the rest of the studio
+    const indexLocation = require.resolve('@asyncapi/studio/build/index.html');
+    const hostFolder = indexLocation.substring(0, indexLocation.lastIndexOf('/'));
     return serveHandler(request, response, {
-      public: resolve(__dirname, '../../node_modules/@asyncapi/studio/build'),
+      public: hostFolder,
     });
   });
 
