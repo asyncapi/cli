@@ -46,6 +46,11 @@ export default class Convert extends Command {
           this.log(`URL ${specFile.getFileURL()} successfully converted!`);
         }
       }
+      
+      if (typeof convertedFile === 'object') {
+        convertedFile = JSON.stringify(convertedFile);
+      }
+
       if (flags.output) {
         await fPromises.writeFile(`${flags.output}`, convertedFile, { encoding: 'utf8' });
       } else {
