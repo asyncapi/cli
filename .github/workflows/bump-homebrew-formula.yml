@@ -25,6 +25,10 @@ jobs:
           else
             echo "::set-output name=changed::false"
           fi
+      - name: Get default branch name
+        id: get_default_branch
+        run: echo "::set-output name=default_branch::${{ github.head_ref }}"
+        if: github.event_name == 'pull_request'
 
       - uses: mislav/bump-homebrew-formula-action@v2
         with:
@@ -46,5 +50,6 @@ jobs:
           labels: |
             automerge
             homebrew
-          base: main
+          base: ${{ steps.get_default_branch.outputs.default_branch }}
         if: steps.brew-check.outputs.changed == 'true'
+
