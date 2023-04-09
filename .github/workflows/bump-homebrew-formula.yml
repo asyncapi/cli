@@ -1,11 +1,7 @@
 name: Bump Homebrew formula for CLI
-
 on:
-  # It cannot run on release event as when release is created then version is not yet bumped in package.json
-  # This means we cannot extract easily latest version and have a risk that package is not yet on npm
-  push:
-    branches:
-      - master
+  schedule:
+    - cron: "0 23 * * *"
 
 jobs:
   bump-formula-in-homebrew:
@@ -13,16 +9,42 @@ jobs:
     if: startsWith(github.event.commits[0].message, 'chore(release):')
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v2
+
       - name: Get version from package.json
         id: extractver
-        run: echo "::set-output name=version::$(npm run get-version --silent)"
+        run: echo "::set-output name=version::$(node -p 'require("./package.json").version')"
+
+      - name: Check for changes in Homebrew formula
+        id: brew-check
+        run: |
+          brew update
+          if brew formula --tap=homebrew/core asyncapi | grep 'stable.*->.*' >/dev/null 2>&1; then
+            echo "::set-output name=changed::true"
+          else
+            echo "::set-output name=changed::false"
+          fi
+
       - uses: mislav/bump-homebrew-formula-action@v2
         with:
-          # A PR will be sent to github.com/Homebrew/homebrew-core to update this formula:
           formula-name: asyncapi
           tag-name: ${{ steps.extractver.outputs.version }}
-          download-url: https://registry.npmjs.org/@asyncapi/cli/-/cli-${{ steps.extractver.outputs.version }}.tgz #we need to point to npm not github as there is a dist that is not on github
+          download-url: https://registry.npmjs.org/@asyncapi/cli/-/cli-${{ steps.extractver.outputs.version }}.tgz
         env:
           COMMITTER_TOKEN: ${{ secrets.GH_TOKEN_BOT_EVE }}
+        if: steps.brew-check.outputs.changed == 'true'
+      - name: Opening pull request
+        uses: peter-evans/create-pull-request@v3.9.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: master
+          title: Updating the AsyncAPI formula to ${{ steps.extractver.outputs.version }}
+          body: |
+            This pull request to update the AsyncAPI formula to version ${{ steps.extractver.outputs.version }}.
+          commit-message: Update AsyncAPI formula to ${{ steps.extractver.outputs.version }}
+          labels: |
+            automerge
+            homebrew
+          base: main
+        if: steps.brew-check.outputs.changed == 'true'
