@@ -32,6 +32,7 @@ export default class Convert extends Command {
     const filePath = args['spec-file'];
     let specFile;
     let convertedFile;
+    let convertedFileFormatted;
 
     try {
       // LOAD FILE
@@ -48,13 +49,15 @@ export default class Convert extends Command {
       }
       
       if (typeof convertedFile === 'object') {
-        convertedFile = JSON.stringify(convertedFile);
+        convertedFileFormatted = JSON.stringify(convertedFile, null, 4);
+      } else {
+        convertedFileFormatted = convertedFile;
       }
 
       if (flags.output) {
-        await fPromises.writeFile(`${flags.output}`, convertedFile, { encoding: 'utf8' });
+        await fPromises.writeFile(`${flags.output}`, convertedFileFormatted, { encoding: 'utf8' });
       } else {
-        this.log(convertedFile);
+        this.log(convertedFileFormatted);
       }
     } catch (err) {
       if (err instanceof SpecificationFileNotFound) {
