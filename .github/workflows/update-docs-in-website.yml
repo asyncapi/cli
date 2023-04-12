@@ -36,7 +36,7 @@ jobs:
         working-directory: ./website
         run: |
           mkdir -p ./pages/docs/tools/cli
-          printf "%s\ntitle: cli\nweight: 30\n%s" "---" "---"> ../cli/docs/_section.md
+          printf "%s\ntitle: CLI\nweight: 30\n%s" "---" "---"> ../cli/docs/_section.md
           mv ../cli/docs/*.md ./pages/docs/tools/cli
       - name: Commit and push
         working-directory: ./website
