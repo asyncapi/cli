@@ -160,6 +160,16 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "CyberHippo",
+      "name": "Hippolyte Vergnol",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18269437?v=4",
+      "profile": "https://github.com/CyberHippo",
+      "contributions": [
+        "code",
+        "infra"
+      ]
     }
   ],
   "contributorsPerLine": 7,
