@@ -74,6 +74,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/sambhavgupta0705"><img src="https://avatars.githubusercontent.com/u/81870866?v=4?s=100" width="100px;" alt="Sambhav Gupta"/><br /><sub><b>Sambhav Gupta</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=sambhavgupta0705" title="Code">💻</a> <a href="https://github.com/asyncapi/cli/commits?author=sambhavgupta0705" title="Tests">⚠️</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/CyberHippo"><img src="https://avatars.githubusercontent.com/u/18269437?v=4?s=100" width="100px;" alt="Hippolyte Vergnol"/><br /><sub><b>Hippolyte Vergnol</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=CyberHippo" title="Code">💻</a> <a href="#infra-CyberHippo" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
     </tr>
   </tbody>
 </table>
