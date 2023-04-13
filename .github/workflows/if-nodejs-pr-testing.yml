@@ -19,33 +19,33 @@ jobs:
       - if: >
           !github.event.pull_request.draft && !(
             (github.actor == 'asyncapi-bot' && (
-              startsWith(github.event.pull_request.title, 'ci: update global workflows') || 
-              startsWith(github.event.pull_request.title, 'chore: update code of conduct') || 
-              startsWith(github.event.pull_request.title, 'ci: update global contribution guide') || 
-              startsWith(github.event.pull_request.title, 'ci: update workflows for go projects') || 
-              startsWith(github.event.pull_request.title, 'ci: update workflows for nodejs projects') || 
-              startsWith(github.event.pull_request.title, 'ci: update release-related workflows for nodejs projects') || 
-              startsWith(github.event.pull_request.title, 'ci: update semantic release config file') || 
-              startsWith(github.event.pull_request.title, 'ci: update generic workflows') || 
+              startsWith(github.event.pull_request.title, 'ci: update global workflows') ||
+              startsWith(github.event.pull_request.title, 'chore: update code of conduct') ||
+              startsWith(github.event.pull_request.title, 'ci: update global contribution guide') ||
+              startsWith(github.event.pull_request.title, 'ci: update workflows for go projects') ||
+              startsWith(github.event.pull_request.title, 'ci: update workflows for nodejs projects') ||
+              startsWith(github.event.pull_request.title, 'ci: update release-related workflows for nodejs projects') ||
+              startsWith(github.event.pull_request.title, 'ci: update semantic release config file') ||
+              startsWith(github.event.pull_request.title, 'ci: update generic workflows') ||
               startsWith(github.event.pull_request.title, 'ci: update workflows for docker-based projects') ||
               startsWith(github.event.pull_request.title, 'chore(release):')
             )) ||
-            (github.actor == 'allcontributors[bot]' && 
+            (github.actor == 'allcontributors[bot]' &&
               startsWith(github.event.pull_request.title, 'docs: add')
             )
           )
         id: should_run
         name: Should Run
         run: echo "shouldrun=true" >> $GITHUB_OUTPUT
-      - if: steps.should_run.outputs.shouldrun == 'true' 
+      - if: steps.should_run.outputs.shouldrun == 'true'
         name: Set git to use LF #to once and for all finish neverending fight between Unix and Windows
         run: |
           git config --global core.autocrlf false
           git config --global core.eol lf
-      - if: steps.should_run.outputs.shouldrun == 'true' 
+      - if: steps.should_run.outputs.shouldrun == 'true'
         name: Checkout repository
         uses: actions/checkout@v3
-      - if: steps.should_run.outputs.shouldrun == 'true' 
+      - if: steps.should_run.outputs.shouldrun == 'true'
         name: Check if Node.js project and has package.json
         id: packagejson
         run: test -e ./package.json && echo "exists=true" >> $GITHUB_OUTPUT || echo "exists=false" >> $GITHUB_OUTPUT
@@ -54,7 +54,7 @@ jobs:
         name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 16
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
       - if: steps.packagejson.outputs.exists == 'true'
@@ -64,7 +64,7 @@ jobs:
         continue-on-error: true
       - if: steps.first-installation.outputs.status == 'failure' && steps.packagejson.outputs.exists == 'true'
         name: Clear NPM cache and install deps again
-        run: | 
+        run: |
           npm cache clean --force
           npm install --loglevel verbose
       - if: steps.packagejson.outputs.exists == 'true'
