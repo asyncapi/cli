@@ -39,10 +39,14 @@ brew install asyncapi
 ```
 
 #### `pkg` installation
-Every release of the AsyncAPI CLI has its own macOS dedicated `pkg` file that enables you to install the CLI tool as a macOS application. 
+Every release of the AsyncAPI CLI has two macOS dedicated `pkg` file that enables you to install the CLI tool as a macOS application for x64 as well as arm64 architecture.
 To download the latest CLI release, run this command in your terminal:
 ```sh
-curl -OL https://github.com/asyncapi/cli/releases/latest/download/asyncapi.pkg
+# For x64
+curl -OL https://github.com/asyncapi/cli/releases/latest/download/asyncapi.x64.pkg
+
+# For arm64
+curl -OL https://github.com/asyncapi/cli/releases/latest/download/asyncapi.arm64.pkg
 ```
 
 To download a specific CLI release, run this command in your terminal:

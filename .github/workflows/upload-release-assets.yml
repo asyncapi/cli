@@ -30,7 +30,11 @@ jobs:
           - os: macos-latest
             npm_script: pack:macos
             dist_folder: macos
-            extension: pkg
+            extension: arm64.pkg
+          - os: macos-latest
+            npm_script: pack:macos
+            dist_folder: macos
+            extension: x64.pkg
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
