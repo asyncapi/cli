@@ -1,5 +1,4 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, KotlinFileGenerator} from '@asyncapi/modelina';
-
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
@@ -64,6 +63,11 @@ export default class Models extends Command {
       default: 'ESM',
       
     }),
+    tsIncludeComments: Flags.boolean({
+      description: 'TypeScript specific, if enabled add comments while generating models.',
+      required: false,
+      default: false,
+    }),
     tsExportType: Flags.string({
       type: 'option',
       options: ['default', 'named'],
@@ -109,7 +113,7 @@ export default class Models extends Command {
   /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpAutoImplement, csharpArrayType, packageName, output } = flags;
+    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpAutoImplement, csharpArrayType, packageName, output } = flags;
     const { language, file } = args;
     const inputFile = (await load(file)) || (await load());
     const { document, status } = await parse(this, inputFile, flags);
@@ -134,20 +138,23 @@ export default class Models extends Command {
 
     let fileGenerator: AbstractGenerator<any, any> & AbstractFileGenerator<any>;
     let fileOptions: any = {};
+    const presets = [];
     switch (language) {
     case Languages.typescript:
+      if (tsIncludeComments) {presets.push(TS_DESCRIPTION_PRESET);}
+      if (tsJsonBinPack) {
+        presets.push({
+          preset: TS_COMMON_PRESET,
+          options: {
+            marshalling: true
+          }
+        },
+        TS_JSONBINPACK_PRESET);
+      }
       fileGenerator = new TypeScriptFileGenerator({
         modelType: tsModelType as 'class' | 'interface',
         enumType: tsEnumType as 'enum' | 'union',
-        presets: tsJsonBinPack ? [
-          {
-            preset: TS_COMMON_PRESET,
-            options: {
-              marshalling: true
-            }
-          },
-          TS_JSONBINPACK_PRESET
-        ] : []
+        presets
       });
       fileOptions = {
         moduleSystem: tsModuleSystem,
