@@ -59,6 +59,15 @@ describe('models', () => {
         );
         done();
       });
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'typescript', './test/specification.yml', '--tsIncludeComments'])
+      .it('works when tsIncludeComments is set', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toMatchSnapshot();
+        done();
+      });
   });
 
   describe('for JavaScript', () => {  
