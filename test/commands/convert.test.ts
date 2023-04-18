@@ -3,8 +3,7 @@ import { test } from '@oclif/test';
 
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
 import TestHelper from '../testHelper';
-import { DEFAULT_CONTEXT_FILE_PATH } from '../../src/models/Context';
-import { existsSync } from 'fs';
+import fs from 'fs-extra';
 
 const testHelper = new TestHelper();
 const filePath = './test/specification.yml';
@@ -132,6 +131,37 @@ describe('convert', () => {
       .command(['convert', filePath, '-t=2.95.0'])
       .it('should throw error if non-supported target-version is passed', (ctx, done) => {
         expect(ctx.stdout).toEqual('');
+        expect(ctx.stderr).toContain('Error: Cannot convert');
+        done();
+      });
+  });
+
+  describe('with output flag', () => {
+    beforeEach(() => {
+      testHelper.createDummyContextFile();
+    });
+
+    afterEach(() => {
+      testHelper.deleteDummyContextFile();
+    });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['convert', filePath, '-o=./test/specification_output.yml'])
+      .it('works when .yml file is passed', (ctx, done) => {
+        expect(ctx.stdout).toEqual(`File ${filePath} successfully converted!\n`);
+        expect(fs.existsSync('./test/specification_output.yml')).toBe(true);
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['convert', filePath, '-o=./test/specification_output.json'])
+      .it('works when .json file is passed', (ctx, done) => {
+        expect(ctx.stdout).toEqual(`File ${filePath} successfully converted!\n`);
         expect(ctx.stderr).toContain('Error: Cannot convert');
         done();
       });
