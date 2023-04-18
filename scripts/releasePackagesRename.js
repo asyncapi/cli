@@ -16,7 +16,7 @@ async function fileExists(checkPath) {
 }
 
 async function checkAndRenameFile(generatedPath, newPath) {
-  if (await fileExists(generatedPath)) { 
+  if (await fileExists(generatedPath)) {
     await rename(generatedPath, newPath);
   }
 }
@@ -46,11 +46,11 @@ async function renameTar({version, name, sha}) {
   await checkAndRenameFile(generatedPath, newPath);
 }
 
-async function renamePkg({version, name, sha}) {
+async function renamePkg({version, name, sha, arch}) {
   const dist = 'dist/macos';
 
-  const generatedPath = path.resolve(dist, `${name}-v${version}-${sha}.pkg`);
-  const newPath = path.resolve(dist, 'asyncapi.pkg');
+  const generatedPath = path.resolve(dist, `${name}-v${version}-${sha}-${arch}.pkg`);
+  const newPath = path.resolve(dist, `asyncapi.${arch}.pkg`);
   await checkAndRenameFile(generatedPath, newPath);
 }
 
@@ -59,7 +59,8 @@ async function renamePackages() {
   const name = 'asyncapi';
   const sha = await git.revparse(['--short', 'HEAD']);
   await renameDeb({version: version.split('-')[0], name, sha});
-  await renamePkg({version, name, sha});
+  await renamePkg({version, name, sha, arch: 'x64'});
+  await renamePkg({version, name, sha, arch: 'arm64'});
   await renameTar({version, name, sha});
 }
 
