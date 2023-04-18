@@ -4,9 +4,11 @@ import { test } from '@oclif/test';
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
 import TestHelper from '../testHelper';
 import fs from 'fs-extra';
+import { unlink, unlinkSync } from 'fs';
 
 const testHelper = new TestHelper();
 const filePath = './test/specification.yml';
+const JSONFilePath = './test/specification.json';
 
 describe('convert', () => {
   describe('with file paths', () => {
@@ -153,16 +155,19 @@ describe('convert', () => {
         expect(ctx.stdout).toEqual(`File ${filePath} successfully converted!\n`);
         expect(fs.existsSync('./test/specification_output.yml')).toBe(true);
         expect(ctx.stderr).toEqual('');
+        fs.unlinkSync('./test/specification_output.yml');
         done();
       });
 
     test
       .stderr()
       .stdout()
-      .command(['convert', filePath, '-o=./test/specification_output.json'])
+      .command(['convert', JSONFilePath, '-o=./test/specification_output.json'])
       .it('works when .json file is passed', (ctx, done) => {
-        expect(ctx.stdout).toEqual(`File ${filePath} successfully converted!\n`);
-        expect(ctx.stderr).toContain('Error: Cannot convert');
+        expect(ctx.stdout).toEqual(`File ${JSONFilePath} successfully converted!\n`);
+        expect(fs.existsSync('./test/specification_output.json')).toBe(true);
+        expect(ctx.stderr).toEqual('');
+        fs.unlinkSync('./test/specification_output.json');
         done();
       });
   });
