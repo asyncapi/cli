@@ -18,6 +18,11 @@ All in one CLI for all AsyncAPI tools
 USAGE
   $ asyncapi [COMMAND]
 
+TOPICS
+  config    CLI config settings
+  generate  Generate models and template
+  start     Start AsyncAPI studio
+
 COMMANDS
   config    access configs
   diff      find diff between two AsyncAPI files
