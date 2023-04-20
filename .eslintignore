@@ -4,3 +4,4 @@ lib
 /test/commands/generate/models/
 test/helpers
 /test/minimaltemplate
+create-glee-app
