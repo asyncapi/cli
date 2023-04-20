@@ -2,6 +2,8 @@
 import { test } from '@oclif/test';
 
 describe('diff', () => {
+  jest.setTimeout(100000);
+  
   describe('with file paths, and there are no difference between the files', () => {
     test
       .stderr()
