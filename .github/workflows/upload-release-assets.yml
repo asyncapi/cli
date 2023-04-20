@@ -23,10 +23,10 @@ jobs:
             npm_script: pack:tarballs
             dist_folder: tar
             extension: tar.gz
-          # - os: windows-latest
-          #   npm_script: pack:windows
-          #   dist_folder: win
-          #   extension: exe
+          - os: windows-latest
+            npm_script: pack:windows
+            dist_folder: win
+            extension: exe
           - os: macos-latest
             npm_script: pack:macos
             dist_folder: macos
