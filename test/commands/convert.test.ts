@@ -1,10 +1,7 @@
 import path from 'path';
 import { test } from '@oclif/test';
-
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
 import TestHelper from '../testHelper';
-import { DEFAULT_CONTEXT_FILE_PATH } from '../../src/models/Context';
-import { existsSync } from 'fs';
 
 const testHelper = new TestHelper();
 const filePath = './test/specification.yml';

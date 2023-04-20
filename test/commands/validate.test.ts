@@ -2,7 +2,6 @@
 
 import path from 'path';
 import { test } from '@oclif/test';
-
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
 import TestHelper from '../testHelper';
 
