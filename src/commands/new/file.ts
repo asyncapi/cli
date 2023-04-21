@@ -1,15 +1,15 @@
 import {Flags} from '@oclif/core';
 import { promises as fPromises } from 'fs';
-import Command from '../base';
+import Command from '../../base';
 import * as inquirer from 'inquirer';
-import { start as startStudio, DEFAULT_PORT } from '../models/Studio';
+import { start as startStudio, DEFAULT_PORT } from '../../models/Studio';
 import { resolve } from 'path';
 
 const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
 const DEFAULT_ASYNCAPI_TEMPLATE = 'default-example.yaml';
 
-export default class New extends Command {
+export default class NewFile extends Command {
   static description = 'Creates a new asyncapi file';
 
   static flags = {
@@ -20,11 +20,9 @@ export default class New extends Command {
     port: Flags.integer({ char: 'p', description: 'port in which to start Studio' }),
     'no-tty': Flags.boolean({ description: 'do not use an interactive terminal' }),
   };
-
-  static args = [];
-
+  
   async run() {
-    const { flags } = await this.parse(New); // NOSONAR
+    const { flags } = await this.parse(NewFile); // NOSONAR
     const isTTY = process.stdout.isTTY;
 
     if (!flags['no-tty'] && isTTY) {
@@ -47,7 +45,7 @@ export default class New extends Command {
 
   /* eslint-disable sonarjs/cognitive-complexity */
   async runInteractive() { // NOSONAR
-    const { flags } = await this.parse(New); // NOSONAR
+    const { flags } = await this.parse(NewFile); // NOSONAR
     let fileName = flags['file-name'];
     let selectedTemplate = flags['example'];
     let openStudio = flags.studio;
@@ -114,14 +112,14 @@ export default class New extends Command {
   }
 
   async createAsyncapiFile(fileName:string, selectedTemplate:string) {
-    const asyncApiFile = await readFile(resolve(__dirname, '../../assets/examples/', selectedTemplate), { encoding: 'utf8' });
+    const asyncApiFile = await readFile(resolve(__dirname, '../../../assets/examples/', selectedTemplate), { encoding: 'utf8' });
 
     const fileNameHasFileExtension = fileName.includes('.');
     const fileNameToWriteToDisk = fileNameHasFileExtension ? fileName : `${fileName}.yaml`;
 
     try {
       const content = await readFile(fileNameToWriteToDisk, { encoding: 'utf8' });
-      if (content !== '') {
+      if (content !== undefined) {
         console.log(`File ${fileNameToWriteToDisk} already exists. Ignoring...`);
         return;
       }
