@@ -1,28 +1,36 @@
 name: Bump Homebrew formula for CLI
 
 on:
-  # It cannot run on release event as when release is created then version is not yet bumped in package.json
-  # This means we cannot extract easily latest version and have a risk that package is not yet on npm
-  push:
-    branches:
-      - master
+  # We cannot run brew release continusly every time we release something as sometimes we release a couple of times a day and overload brew pipelines
+  # More details https://github.com/asyncapi/cli/issues/503
+  schedule:
+    - cron: "0 23 * * *"
 
 jobs:
   bump-formula-in-homebrew:
+    if: github.repository == 'asyncapi/cli'
     name: Bump the formula in homebrew-core repo
-    if: startsWith(github.event.commits[0].message, 'chore(release):')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
       - name: Get version from package.json
         id: extractver
-        run: echo "::set-output name=version::$(npm run get-version --silent)"
+        run: echo "version=$(npm run get-version --silent)" >> $GITHUB_OUTPUT
       - uses: mislav/bump-homebrew-formula-action@v2
         with:
-          # A PR will be sent to github.com/Homebrew/homebrew-core to update this formula:
+          # A PR will be sent to github.com/Homebrew/homebrew-core to update AsyncAPI CLI formula:
           formula-name: asyncapi
           tag-name: ${{ steps.extractver.outputs.version }}
           download-url: https://registry.npmjs.org/@asyncapi/cli/-/cli-${{ steps.extractver.outputs.version }}.tgz #we need to point to npm not github as there is a dist that is not on github
         env:
           COMMITTER_TOKEN: ${{ secrets.GH_TOKEN_BOT_EVE }}
+      - if: failure() # Only, on failure, send a message on the 94_bot-failing-ci slack channel
+        name: Report workflow run status to Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,action,workflow
+          text: 'AsyncAPI CLI release to BREW failed'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_CI_FAIL_NOTIFY }}
