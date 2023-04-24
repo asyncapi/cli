@@ -1,6 +1,8 @@
 name: Bump Homebrew formula for CLI
 
 on:
+  # Since now release depends on schedule, might be that there is a situation we cannot wait for schedule and trigger release manually
+  workflow_dispatch:
   # We cannot run brew release continusly every time we release something as sometimes we release a couple of times a day and overload brew pipelines
   # More details https://github.com/asyncapi/cli/issues/503
   schedule:
