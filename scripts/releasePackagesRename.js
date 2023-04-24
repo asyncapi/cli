@@ -46,6 +46,14 @@ async function renameTar({version, name, sha}) {
   await checkAndRenameFile(generatedPath, newPath);
 }
 
+async function renameWindows({version, name, sha, arch}) {
+  const dist = 'dist/win32';
+
+  const generatedPath = path.resolve(dist, `${name}-v${version}-${sha}-${arch}.exe`);
+  const newPath = path.resolve(dist, `asyncapi.${arch}.exe`);
+  await checkAndRenameFile(generatedPath, newPath);
+}
+
 async function renamePkg({version, name, sha, arch}) {
   const dist = 'dist/macos';
 
@@ -61,6 +69,8 @@ async function renamePackages() {
   await renameDeb({version: version.split('-')[0], name, sha});
   await renamePkg({version, name, sha, arch: 'x64'});
   await renamePkg({version, name, sha, arch: 'arm64'});
+  await renameWindows({version, name, sha, arch: 'x64'});
+  await renameWindows({version, name, sha, arch: 'x86'});
   await renameTar({version, name, sha});
 }
 
