@@ -29,9 +29,6 @@ npm install -g @asyncapi/cli
 ## Mac
 There are two ways to install the AsyncAPI CLI on your macOS: using the `brew` package manager or `pkg` files.
 
-### Windows 
-To install a Command Line Interface (CLI) on Windows, you should first download the appropriate [installer](https://github.com/asyncapi/cli/releases) based on whether your Windows operating system is 64-bit or 32-bit. Once you have downloaded the installer, simply follow the default installation steps to complete the installation process
-
 ### brew
 
 To install the AsyncAPI CLI using the `brew` package manager, run the following commands in your terminal:
@@ -69,6 +66,11 @@ After downloading the AsyncAPI CLI, install it via the following command:
 ```sh
 sudo installer -pkg asyncapi.pkg -target /
 ```
+
+## Windows 
+For Windows just install the appropriate installer and simply follow the default installation steps to complete the installation process.
+
+Download `aynscapi.x64.exe` for 64-bit Windows and download `asyncapi.x86.exe` for 32-bit Windows. 
 
 ## Linux
 Selecting the appropriate AsyncAPI CLI installation method on a Linux operating system depends on your Linux distro.
