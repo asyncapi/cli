@@ -159,7 +159,7 @@
     "pack:macos": "oclif pack macos && npm run pack:rename",
     "pack:linux": "oclif pack deb && npm run pack:rename",
     "pack:tarballs": "oclif pack tarballs -t linux-x64 && npm run pack:rename",
-    "pack:windows": "oclif pack win",
+    "pack:windows": "oclif pack win && npm run pack:rename",
     "pack:rename": "node scripts/releasePackagesRename.js",
     "postpack": "rimraf oclif.manifest.json",
     "prepublishOnly": "npm run build && oclif manifest",
