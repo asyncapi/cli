@@ -5,6 +5,7 @@ import serveHandler from 'serve-handler';
 import { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
 import open from 'open';
+import path from 'path';
 
 const { readFile, writeFile } = fPromises;
 
@@ -48,7 +49,7 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
     //this is why we need to first figure out where exactly is the index.html located 
     //and then strip index.html from the path to point to directory with the rest of the studio
     const indexLocation = require.resolve('@asyncapi/studio/build/index.html');
-    const hostFolder = indexLocation.substring(0, indexLocation.lastIndexOf('/'));
+    const hostFolder = indexLocation.substring(0, indexLocation.lastIndexOf(path.sep));
     return serveHandler(request, response, {
       public: hostFolder,
     });
