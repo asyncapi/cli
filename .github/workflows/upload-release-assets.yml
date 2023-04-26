@@ -49,8 +49,13 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
       - name: Get version from package.json
+        uses: actions/github-script@v6
         id: extractver
-        run: echo "::set-output name=version::$(npm run get-version --silent)"
+        with:
+          script: |
+            const packageJson = require('./package.json');
+            const packageJsonVersion = packageJson.version;
+            core.setOutput('version', packageJsonVersion);
       - name: Install dependencies
         run: npm install
       - name: Build project
