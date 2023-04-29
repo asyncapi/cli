@@ -39,7 +39,7 @@ Follow these steps:
 - Run `npm run test` to make sure everything is properly set up
 - Run `npm run build` and then `bin/run` to try new CLI locally
 
-he UX developed for the CLI should comply with the [Command Line Interface Guideline](https://clig.dev/)
+The UX developed for the CLI should comply with the [Command Line Interface Guideline](https://clig.dev/)
 
 ### Command Structure and Patterns
 
