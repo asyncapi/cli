@@ -20,7 +20,7 @@ CLI to work with your AsyncAPI files. Currently under development, we are workin
 <!-- tocstop -->
 
 ## Installation
-Learn how to install the AsyncAPI CLI from the [installation guide](/docs/installation.md). 
+Learn how to install the AsyncAPI CLI by following the instructions in the [installation guide](/docs/installation.md). 
 
 ## Usage
 The [usage guide](/docs/usage.md) provides information about different ways to use the CLI.
@@ -39,7 +39,7 @@ Follow these steps:
 - Run `npm run test` to make sure everything is properly set up
 - Run `npm run build` and then `bin/run` to try new CLI locally
 
-UX developed for the CLI should be compliant with [Command Line Interface Guideline](https://clig.dev/)
+he UX developed for the CLI should comply with the [Command Line Interface Guideline](https://clig.dev/)
 
 ### Command Structure and Patterns
 
@@ -47,7 +47,7 @@ We are following `verb + noun` and `namespace + noun + [verb]` pattern for makin
 
 ## Contributors
 
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+Thanks go to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
