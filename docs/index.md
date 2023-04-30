@@ -42,4 +42,4 @@ graph TD
     J[End: User closes the AsyncAPI CLI]
 ```
 
-This flowchart shows the high-level process that occurs when using the AsyncAPI CLI. The user starts by running a command (such as 'validate', 'generate', or 'info'), which is processed by the CLI. The CLI then performs the corresponding operation (such as validating or generating an AsyncAPI document), and returns the results to the user. If an error occurs, the CLI displays an error message and suggests possible next steps for the user to take.
+This flowchart shows the high-level process that occurs when using the AsyncAPI CLI. The user starts by running a command (such as `validate`, `generate`, or `info`), which is processed by the CLI. The CLI then performs the corresponding operation (such as validating or generating an AsyncAPI document), and returns the results to the user. If an error occurs, the CLI displays an error message and suggests possible next steps for the user to take.
