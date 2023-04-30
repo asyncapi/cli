@@ -7,6 +7,7 @@ weight: 20
 The AsyncAPI CLI is a command-line tool that provides developers with a set of commands for working with AsyncAPI documents. AsyncAPI is a specification for describing asynchronous APIs, which allows developers to define the structure of messages exchanged between different parts of their application. The AsyncAPI CLI simplifies the process of creating, validating, and manipulating AsyncAPI documents, making it easier to work with asynchronous APIs.
 
 ## Features
+
 The AsyncAPI CLI offers the following key features:
 
 ### Validation
@@ -21,19 +22,24 @@ Create new AsyncAPI documents from scratch using the CLI. This is useful if you'
 ### Format Conversion
 Convert AsyncAPI documents between different formats, such as YAML and JSON, using the CLI. This can be useful if you need to work with a tool that requires a specific format.
 
-graph LR
-    Start --> UserRunsCommand
-    UserRunsCommand --> CLIProcessesCommand
-    CLIProcessesCommand --> |Validate/Generate/Info| RunCorrespondingOperation
-    RunCorrespondingOperation --> |Successful| ReturnResults
-    RunCorrespondingOperation --> |Not recoverable| ExitWithError
-    RunCorrespondingOperation --> |Recoverable| SuggestNextSteps
-    ExitWithError --> CLIExitWithError
-    ReturnResults --> CLIReturnsResults
-    SuggestNextSteps --> CLIDisplayErrorMessage
-    CLIDisplayErrorMessage --> UserReceivesErrorMessage
-    CLIReturnsResults --> UserReceivesResults
-    UserReceivesErrorMessage --> End
-    UserReceivesResults --> End
+## AsyncAPI CLI Flowchart
 
-This flowchart shows the high-level process that occurs when using the AsyncAPI CLI. The user starts by running a command, which is processed by the CLI. The CLI then performs the corresponding operation (such as validating or generating an AsyncAPI document), and returns the results to the user. If an error occurs, the CLI may suggest next steps for the user to take.
+The following flowchart illustrates the process flow of the AsyncAPI CLI:
+
+```mermaid
+graph TD
+    A[Start] --> B[User runs the AsyncAPI CLI]
+    B --> C[User runs a command]
+    C --> D[CLI processes command and runs corresponding operation]
+    D --> |Is operation successful?| E{Yes}
+    D --> |Is operation recoverable?| F{No}
+    E --> G[CLI returns results of operation to the user]
+    F --> H[CLI exits with an error message]
+    F --> |Suggests possible next steps to the user | I[CLI displays error message]
+    G --> J[User receives results]
+    H --> J
+    I --> J
+    J[End: User closes the AsyncAPI CLI]
+```
+
+This flowchart shows the high-level process that occurs when using the AsyncAPI CLI. The user starts by running a command (such as 'validate', 'generate', or 'info'), which is processed by the CLI. The CLI then performs the corresponding operation (such as validating or generating an AsyncAPI document), and returns the results to the user. If an error occurs, the CLI displays an error message and suggests possible next steps for the user to take.
