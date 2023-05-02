@@ -105,12 +105,9 @@ const tidyup = async () => {
   fs.unlinkSync(TEMP_ZIP_NAME);
 };
 
-const main = async () => {
+(async () => {
   await fetchAsyncAPIExamplesFromExternalURL();
   await unzipAsyncAPIExamples();
   await buildCLIListFromExamples();
   await tidyup();
-};
-
-main();
-
+})();
