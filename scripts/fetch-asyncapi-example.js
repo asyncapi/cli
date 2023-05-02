@@ -6,15 +6,15 @@ const unzipper = require('unzipper');
 const path = require('path');
 
 const { Parser } = require('@asyncapi/parser/cjs');
-const { AvroSchemaParser } = require('@asyncapi/parser/cjs/schema-parser/avro-schema-parser');
-const { OpenAPISchemaParser } = require('@asyncapi/parser/cjs/schema-parser/openapi-schema-parser');
-const { RamlSchemaParser } = require('@asyncapi/parser/cjs/schema-parser/raml-schema-parser');
+const { AvroSchemaParser } = require('@asyncapi/avro-schema-parser');
+const { OpenAPISchemaParser } = require('@asyncapi/openapi-schema-parser');
+const { RamlDTSchemaParser } = require('@asyncapi/raml-dt-schema-parser');
 
 const parser = new Parser({
   schemaParsers: [
     AvroSchemaParser(),
     OpenAPISchemaParser(),
-    RamlSchemaParser(),
+    RamlDTSchemaParser(),
   ]
 });
 
@@ -66,7 +66,7 @@ const buildCLIListFromExamples = async () => {
   const buildExampleList = examples.map(async example => {
     const examplePath = path.join(EXAMPLE_DIRECTORY, example);
     const exampleContent = fs.readFileSync(examplePath, { encoding: 'utf-8'});
-    
+
     try {
       const { document } = await parser.parse(exampleContent);
       // Failed for somereason to parse this spec file (document is undefined), ignore for now
