@@ -70,8 +70,8 @@ export async function parse(command: Command, specFile: Specification, options: 
 
 function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: Specification, options: ValidateOptions = {}): 'valid' | 'invalid' {
   const logDiagnostics = options['log-diagnostics'];
-  const failSeverity = options['fail-severity'] || 'error';
-  const diagnosticsFormat = options['diagnostics-format'] || 'stylish';
+  const failSeverity = options['fail-severity'] ?? 'error';
+  const diagnosticsFormat = options['diagnostics-format'] ?? 'stylish';
 
   const sourceString = specFile.toSourceString();
   if (diagnostics.length) {
