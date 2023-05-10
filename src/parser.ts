@@ -1,8 +1,8 @@
 import { Flags } from '@oclif/core';
 import { Parser, convertToOldAPI } from '@asyncapi/parser/cjs';
-import { AvroSchemaParser } from '@asyncapi/parser/cjs/schema-parser/avro-schema-parser';
-import { OpenAPISchemaParser } from '@asyncapi/parser/cjs/schema-parser/openapi-schema-parser';
-import { RamlSchemaParser } from '@asyncapi/parser/cjs/schema-parser/raml-schema-parser';
+import { AvroSchemaParser } from '@asyncapi/avro-schema-parser';
+import { OpenAPISchemaParser } from '@asyncapi/openapi-schema-parser';
+import { RamlDTSchemaParser } from '@asyncapi/raml-dt-schema-parser';
 import { getDiagnosticSeverity } from '@stoplight/spectral-core';
 import { html, json, junit, stylish, teamcity, text, pretty } from '@stoplight/spectral-cli/dist/formatters';
 import { OutputFormat } from '@stoplight/spectral-cli/dist/services/config';
@@ -25,7 +25,7 @@ const parser = new Parser({
 
 parser.registerSchemaParser(AvroSchemaParser());
 parser.registerSchemaParser(OpenAPISchemaParser());
-parser.registerSchemaParser(RamlSchemaParser());
+parser.registerSchemaParser(RamlDTSchemaParser());
 
 export interface ValidationFlagsOptions {
   logDiagnostics?: boolean;
@@ -49,7 +49,7 @@ export function validationFlags({ logDiagnostics = true }: ValidationFlagsOption
       default: 'error',
     }),
   };
-} 
+}
 
 interface ValidateOptions {
   'log-diagnostics'?: boolean;
@@ -70,8 +70,8 @@ export async function parse(command: Command, specFile: Specification, options: 
 
 function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: Specification, options: ValidateOptions = {}): 'valid' | 'invalid' {
   const logDiagnostics = options['log-diagnostics'];
-  const failSeverity = options['fail-severity'] || 'error';
-  const diagnosticsFormat = options['diagnostics-format'] || 'stylish';
+  const failSeverity = options['fail-severity'] ?? 'error';
+  const diagnosticsFormat = options['diagnostics-format'] ?? 'stylish';
 
   const sourceString = specFile.toSourceString();
   if (diagnostics.length) {
