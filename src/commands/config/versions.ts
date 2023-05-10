@@ -13,7 +13,7 @@ export default class Versions extends Command {
   async run() {
     // Preparation of the array with all dependencies '@asyncapi/*' along with
     // their versions.
-    for (let key in this.config.pjson.dependencies) {
+    for (const key in this.config.pjson.dependencies) {
       // Making sure with .indexOf() that only package names which START with
       // string '@asyncapi' are considered.
       if (key.indexOf('@asyncapi', 0) === 0) {
@@ -24,12 +24,10 @@ export default class Versions extends Command {
           // Goofy name `importedPJSON` is chosen to distinguish from name `pjson`
           // used in `@oclif` source code.
           const importedPJSON = await import(key + '/package.json');
-          key = key + '/' + importedPJSON.default.version;
+          this.dependencies.push(key + '/' + importedPJSON.default.version);
         } catch (e) {
-          key = key + '/' + '`package.json` not found';
+          this.dependencies.push(key + '/' + '`package.json` not found');
         }
-
-        this.dependencies.push(key);
       }
     }
 
