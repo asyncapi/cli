@@ -24,6 +24,7 @@
     "@oclif/plugin-not-found": "^2.3.22",
     "@stoplight/spectral-cli": "6.6.0",
     "ajv": "^8.12.0",
+    "app-root-path": "^3.1.0",
     "chalk": "^4.1.0",
     "chokidar": "^3.5.2",
     "fs-extra": "^11.1.0",
@@ -149,7 +150,7 @@
     "release": "semantic-release",
     "pretest": "npm run build",
     "test": "npm run test:unit",
-    "test:unit": "cross-env NODE_ENV=development TEST=1 CONTEXT_FILENAME=\"./test.asyncapi\" CONTEXT_FILE_PATH=\"./\" jest --coverage -i",
+    "test:unit": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"./test.asyncapi\" CUSTOM_CONTEXT_FILE_LOCATION=\"./\" jest --coverage -i",
     "get-version": "echo $npm_package_version"
   },
   "types": "lib/index.d.ts"

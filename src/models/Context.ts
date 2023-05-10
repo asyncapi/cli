@@ -1,12 +1,19 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import * as repoRoot from 'app-root-path';
 
 import { ContextNotFound, MissingContextFileError, MissingCurrentContextError } from '../errors/context-error';
 
 const { readFile, writeFile } = fs;
-const CONTEXT_FILENAME = process.env.CONTEXT_FILENAME || '.asyncapi';
-export const DEFAULT_CONTEXT_FILE_PATH = path.resolve(process.env.CONTEXT_FILE_PATH || os.homedir(), CONTEXT_FILENAME);
+
+const DEFAULT_CONTEXT_FILENAME = '.asyncapi';
+const DEFAULT_CONTEXT_FILE_LOCATION = os.homedir();
+const DEFAULT_CONTEXT_FILE_PATH = path.resolve(DEFAULT_CONTEXT_FILE_LOCATION, DEFAULT_CONTEXT_FILENAME);
+
+const CONTEXT_FILENAME = process.env.CUSTOM_CONTEXT_FILENAME || DEFAULT_CONTEXT_FILENAME;
+const CONTEXT_FILE_LOCATION = process.env.CUSTOM_CONTEXT_FILE_LOCATION || DEFAULT_CONTEXT_FILE_LOCATION;
+const CONTEXT_FILE_PATH = path.resolve(CONTEXT_FILE_LOCATION, CONTEXT_FILENAME);
 
 export interface IContextFile {
   current?: string,
@@ -87,7 +94,7 @@ export async function setCurrentContext(contextName: string) {
 
 export async function loadContextFile(): Promise<IContextFile> {
   try {
-    return JSON.parse(await readFile(DEFAULT_CONTEXT_FILE_PATH, { encoding: 'utf8' })) as IContextFile;
+    return JSON.parse(await readFile(await getContextFilePath(), { encoding: 'utf8' })) as IContextFile;
   } catch (e) {
     throw new MissingContextFileError();
   }
@@ -95,7 +102,7 @@ export async function loadContextFile(): Promise<IContextFile> {
 
 async function saveContextFile(fileContent: IContextFile) {
   try {
-    writeFile(DEFAULT_CONTEXT_FILE_PATH, JSON.stringify({
+    writeFile(CONTEXT_FILE_PATH, JSON.stringify({
       current: fileContent.current,
       store: fileContent.store
     }), { encoding: 'utf8' });
@@ -103,4 +110,25 @@ async function saveContextFile(fileContent: IContextFile) {
   } catch (error) {
     return;
   }
+}
+
+async function getContextFilePath(): Promise<string> {
+  const currentPath = process.cwd().slice(repoRoot.path.length + 1).split(path.sep);
+  currentPath.unshift(repoRoot.path);
+
+  for (let i = currentPath.length; i >= 0; i--) {
+    const currentPathString = currentPath[0]
+      ? currentPath.join(path.sep) + path.sep + CONTEXT_FILENAME
+      : os.homedir() + path.sep + CONTEXT_FILENAME;
+
+    try {
+      if (JSON.parse(await readFile(currentPathString + path.sep + CONTEXT_FILENAME, { encoding: 'utf8' })) as IContextFile) {
+        return currentPathString;
+      }
+    } catch (e) {}
+
+    currentPath.pop();
+  }
+
+  return '';
 }
