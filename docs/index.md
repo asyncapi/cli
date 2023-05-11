@@ -10,17 +10,37 @@ The AsyncAPI CLI is a command-line tool that provides developers with a set of c
 
 The AsyncAPI CLI offers the following key features:
 
-### Validation
-Validate AsyncAPI documents quickly and easily using the CLI's built-in validation tool. This ensures that your documents conform to the AsyncAPI specification and catch errors early in the development process.
+* Validation: AsyncAPI documents can be quickly and easily validated using the built-in validation tool, which ensures that the documents conform to the AsyncAPI specification and catches errors early in the development process.
+  
+* Generator: New AsyncAPI documents can be created based on templates using the CLI's Generator tool, saving time and effort when creating new APIs and ensuring that they follow best practices.
 
-### Generator
-Create new AsyncAPI documents based on templates using the CLI's Generator tool. This can save you time and effort when creating new APIs and ensure that they follow best practices.
+* Creation: New AsyncAPI documents can be created from scratch using the CLI, which is useful when starting a new project or needing to create a new version of an existing API.
+  
+* Format Conversion: AsyncAPI documents can be converted between different formats, such as YAML and JSON, using the CLI, which can be useful when working with a tool that requires a specific format.
+  
+* Templates: New AsyncAPI files can be quickly created using the CLI tool by selecting from a range of templates (MQTT, WebSockets, Kafka, and more).
+  
+* Validation with Spectral: AsyncAPI documents can be validated with Spectral, providing feedback to verify that the document is within the correct format.
+  
+To summarize, the AsyncAPI CLI offers the following features and process flow, as shown in the diagram below:
 
-### Creation
-Create new AsyncAPI documents from scratch using the CLI. This is useful if you're starting a new project or need to create a new version of an existing API.
+```mermaid
+graph TD;
+A[AsyncAPI Document]
+B[Validation]
+C[Generator]
+D[Creation]
+E[Format Conversion]
+F[Templates]
+G[Spectral Validation]
+A-->|Validate|B;
+A-->|Generate|C;
+A-->|Create|D;
+A-->|Convert|E;
+A-->|Create with Templates|F;
+B-->|Validate using Spectral|G;
 
-### Format Conversion
-Convert AsyncAPI documents between different formats, such as YAML and JSON, using the CLI. This can be useful if you need to work with a tool that requires a specific format.
+```
 
 ## AsyncAPI CLI Flowchart
 
