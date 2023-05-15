@@ -10,17 +10,21 @@ The AsyncAPI CLI is a command-line tool that provides developers with a set of c
 
 The AsyncAPI CLI offers the following key features:
 
-* Validation: AsyncAPI documents can be quickly and easily validated using the built-in validation tool, which ensures that the documents conform to the AsyncAPI specification and catches errors early in the development process.
-  
-* Generator: New AsyncAPI documents can be created based on templates using the CLI's Generator tool, saving time and effort when creating new APIs and ensuring that they follow best practices.
-
 * Creation: New AsyncAPI documents can be created from scratch using the CLI, which is useful when starting a new project or needing to create a new version of an existing API.
+
+* Validation: AsyncAPI documents can be quickly and easily validated using the [AsyncAPI Parser](https://github.com/asyncapi/parser-js), which ensures that the documents conform to the AsyncAPI specification and catches errors early in the development process.
+
+* Conversion: The AsyncAPI CLI can be used to convert AsyncAPI documents from one version to another. This is useful for migrating APIs to a newer version of the AsyncAPI specification.
+
+* Difference: The AsyncAPI CLI can be used to find the differences between two AsyncAPI documents. This is useful for comparing different versions of an API or for identifying changes that have been made to an API.
   
-* Format Conversion: AsyncAPI documents can be converted between different formats, such as YAML and JSON, using the CLI, which can be useful when working with a tool that requires a specific format.
-  
-* Templates: New AsyncAPI files can be quickly created using the CLI tool by selecting from a range of templates (MQTT, WebSockets, Kafka, and more).
-  
-* Validation with Spectral: AsyncAPI documents can be validated with Spectral, providing feedback to verify that the document is within the correct format.
+* Generator: The AsyncAPI CLI includes a powerful tool called the Generator, which allows you to generate various types of documentation, applications, and models in different programming languages. The Generator leverages external libraries like [Generator](https://github.com/asyncapi/generator) and [Modelina](https://github.com/asyncapi/modelina) to automate the creation of new APIs, ensuring they follow best practices. This feature can save a significant amount of time and effort when creating new APIs.
+
+* Optimize: The AsyncAPI CLI can be used to optimize an AsyncAPI specification file. This can improve the performance of APIs and make them easier to understand.
+
+* Start: The AsyncAPI CLI can be used to start AsyncAPI Studio. This is a web-based tool that can be used to view, edit, and test AsyncAPI documents.
+
+* Format Conversion: The AsyncAPI CLI offers seamless conversion of AsyncAPI documents between different formats, such as YAML and JSON, through integration with the [AsyncAPI Converter](https://github.com/asyncapi/converter-js). This feature is helpful when working with tools that require a specific document format.
   
 To summarize, the AsyncAPI CLI offers the following features and process flow, as shown in the diagram below:
 
@@ -32,13 +36,14 @@ C[Generator]
 D[Creation]
 E[Format Conversion]
 F[Templates]
-G[Spectral Validation]
 A-->|Validate|B;
 A-->|Generate|C;
 A-->|Create|D;
 A-->|Convert|E;
 A-->|Create with Templates|F;
-B-->|Validate using Spectral|G;
+A-->|Diff|H;
+A-->|Optimize|I;
+A-->|Start Studio|J;
 
 ```
 
@@ -62,4 +67,4 @@ graph TD
     J[End: User closes the AsyncAPI CLI]
 ```
 
-This flowchart shows the high-level process that occurs when using the AsyncAPI CLI. The user starts by running a command (such as `validate`, `generate`, or `info`), which is processed by the CLI. The CLI then performs the corresponding operation (such as validating or generating an AsyncAPI document), and returns the results to the user. If an error occurs, the CLI displays an error message and suggests possible next steps for the user to take.
+This flowchart shows the high-level process that occurs when using the AsyncAPI CLI. The user starts by running a command (such as `validate`, `generate`, or `start`), which is processed by the CLI. The CLI then performs the corresponding operation (such as validating or generating an AsyncAPI document), and returns the results to the user. If an error occurs, the CLI displays an error message and suggests possible next steps for the user to take.
