@@ -1,8 +1,5 @@
-import fs from 'fs';
-import util from 'util';
-import { exec } from 'child_process';
-
-const execPromisified = util.promisify(exec);
+import fs from 'fs/promises';
+import { exec } from 'child_process/promises';
 
 // Define the paths to the README (which will be created inside the ./script folder) and usage files
 const README_PATH = './README.md';
@@ -14,10 +11,10 @@ const USAGE_PATH = '../docs/usage.md';
 // <!-- usage -->
 // # Commands
 // <!-- commands -->
-fs.appendFileSync(README_PATH, '\n\n# Usage\n\n<!-- usage -->\n\n# Commands\n\n<!-- commands -->\n');
+fs.appendFile(README_PATH, '\n\n# Usage\n\n<!-- usage -->\n\n# Commands\n\n<!-- commands -->\n');
 
 // Generate the usage documentation using the `oclif readme` command
-execPromisified('oclif readme')
+exec('oclif readme')
   .then(() => {
     // Define the header for the usage file
     const header = `---
@@ -28,12 +25,15 @@ weight: 40
 The AsyncAPI CLI makes it easier to work with AsyncAPI documents.
 `;
 
-    fs.writeFileSync(USAGE_PATH, header);
-    const readmeContents = fs.readFileSync(README_PATH, 'utf8');
-    fs.appendFileSync(USAGE_PATH, `\n${readmeContents}`);
-
+    fs.writeFile(USAGE_PATH, header);
+    return fs.readFile(README_PATH, 'utf8');
+  })
+  .then((readmeContents) => {
+    return fs.appendFile(USAGE_PATH, `\n${readmeContents}`);
+  })
+  .then(() => {
     // Remove the generated README file
-    fs.unlinkSync(README_PATH);
+    return fs.unlink(README_PATH);
   })
   .catch((err) => {
     console.error(err);
