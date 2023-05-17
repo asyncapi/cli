@@ -1,23 +1,18 @@
+// Import the necessary modules
 const fs = require('fs').promises;
 const { exec } = require('child_process');
 
-// Define the paths to the README (which will be created inside the ./script folder) and usage files
-const README_PATH = './scripts/README.md';
-const USAGE_PATH = './docs/usage.md';
-// const README_PATH = './README.md';
-// const USAGE_PATH = '../docs/usage.md';
+// Define the paths to the README and usage files
+const README_PATH = './scripts/README.md'; // File path for the generated README file
+const USAGE_PATH = './docs/usage.md'; // File path for the usage documentation file
 
-// Append the usage and commands tags to the README file
-// The readme must have any of the following tags inside of it for it to be replaced after running `oclif readme` command
-// # Usage
-// <!-- usage -->
-// # Commands
-// <!-- commands -->
+// Append usage and commands tags to the README file
+// These tags are later replaced by the `oclif readme` command with actual usage documentation
 fs.appendFile(README_PATH, '\n\n# Usage\n\n<!-- usage -->\n\n# Commands\n\n<!-- commands -->\n')
   .then(() => {
     // Generate the usage documentation using the `oclif readme` command
     return new Promise((resolve, reject) => {
-      exec('oclif readme', (error, stdout, stderr) => {
+      exec('oclif readme', { cwd: './scripts' }, (error, stdout, stderr) => {
         if (error) {
           reject(error);
         } else {
