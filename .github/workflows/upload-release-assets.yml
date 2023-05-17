@@ -68,3 +68,12 @@ jobs:
           files: dist/${{ matrix.dist_folder }}/asyncapi.${{ matrix.extension }}
           tag_name: v${{ steps.extractver.outputs.version }}
           token: ${{ secrets.GH_TOKEN }}
+      - if: failure() # Only, on failure, send a message on the 94_bot-failing-ci slack channel
+        name: Report workflow run status to Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,action,workflow
+          text: 'AsyncAPI CLI release build artifacts failed'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_CI_FAIL_NOTIFY }}
