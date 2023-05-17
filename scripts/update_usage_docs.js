@@ -12,7 +12,7 @@ const USAGE_PATH = './docs/usage.md';
 
     // Generate the usage documentation using the `oclif readme` command
     await new Promise((resolve, reject) => {
-      exec('oclif readme', { cwd: './scripts' }, (error, stdout, stderr) => {
+      exec('oclif readme', { cwd: './scripts' }, (error, _stdout, _stderr) => {
         if (error) {
           reject(error);
         } else {
