@@ -12,7 +12,7 @@ fs.appendFile(README_PATH, '\n\n# Usage\n\n<!-- usage -->\n\n# Commands\n\n<!-- 
   .then(() => {
     // Generate the usage documentation using the `oclif readme` command
     return new Promise((resolve, reject) => {
-      exec('oclif readme', { cwd: './scripts' }, (error, stdout, stderr) => {
+      exec('oclif readme', { cwd: './scripts' }, (error) => {
         if (error) {
           reject(error);
         } else {
@@ -40,7 +40,7 @@ The AsyncAPI CLI makes it easier to work with AsyncAPI documents.
   })
   .then((readmeContents) => {
     // Append the README contents to the usage file
-    return fs.appendFile(USAGE_PATH, `\n${readmeContents}`);
+    return fs.writeFile(USAGE_PATH, readmeContents, { flag: 'a' });
   })
   .then(() => {
     // Remove the generated README file
