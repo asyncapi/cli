@@ -1,6 +1,5 @@
-// Import the necessary modules
-const fs = require('fs').promises;
-const { exec } = require('child_process');
+import { promises as fs } from 'fs';
+import { exec } from 'child_process';
 
 // Define the paths to the README and usage files
 const README_PATH = './scripts/README.md'; // File path for the generated README file
