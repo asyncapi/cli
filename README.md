@@ -1,4 +1,4 @@
-[![AsyncAPI CLI](./assets/logo.png)](https://www.asyncapi.com)
+[![AsyncAPI CLI](./assets/logo.png)](https://www.asyncapi.com/tools/cli)
 
 CLI to work with your AsyncAPI files. Currently under development, we are working to bring more features. 
 
