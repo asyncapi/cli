@@ -18,7 +18,7 @@ async function run() {
   try {
     await writeFile(USAGE_PATH, header);
     const readmeContents = await readFile(README_PATH, 'utf8');
-      // Append the contents of the README file to the usage documentation file
+    // Append the contents of the README file to the usage documentation file
     await writeFile(USAGE_PATH, readmeContents, { flag: 'a' });
   } catch (e) {
     console.error(e);
