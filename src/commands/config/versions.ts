@@ -3,7 +3,7 @@ import Command from '../../base';
 
 export default class Versions extends Command {
   static description = 'Show versions of AsyncAPI tools used';
-  
+
   static flags = {
     help: Flags.help({ char: 'h' }),
   };
@@ -23,10 +23,10 @@ export default class Versions extends Command {
         try {
           // Goofy name `importedPJSON` is chosen to distinguish from name `pjson`
           // used in `@oclif` source code.
-          const importedPJSON = await import(`${key }/package.json`);
-          this.dependencies.push(`${key }/${ importedPJSON.default.version}`);
+          const importedPJSON = await import(`${key}/package.json`);
+          this.dependencies.push(`${key}/${importedPJSON.default.version}`);
         } catch (e) {
-          this.dependencies.push(`${key }/` + '`package.json` not found');
+          this.dependencies.push(`${key}/` + '`package.json` not found');
         }
       }
     }
@@ -46,12 +46,12 @@ export default class Versions extends Command {
       // eslint-disable-next-line
       this.dependency = this.dependencies[i];
       if (i !== this.dependencies.length - 1) {
-        this.log(`  ├${ this.dependency }`);
+        this.log(`  ├${this.dependency}`);
       } else {
-        this.log(`  └${ this.dependency }\n`);
+        this.log(`  └${this.dependency}\n`);
       }
     }
 
-    this.log(`Repository: ${ this.config.pjson.homepage}`);
+    this.log(`Repository: ${this.config.pjson.homepage}`);
   }
 }
