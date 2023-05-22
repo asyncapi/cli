@@ -3,7 +3,7 @@ import Command from '../../../base';
 import { loadContextFile } from '../../../models/Context';
 
 export default class ContextList extends Command {
-  static description = 'List all the stored context in the store';
+  static description = 'List all the stored contexts in the store';
   static flags = {
     help: Flags.help({char: 'h'})
   };

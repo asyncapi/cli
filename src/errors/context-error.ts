@@ -1,4 +1,4 @@
-const CONTEXT_NOT_FOUND = (contextName: string) => `Context "${contextName}" does not exists.`;
+const CONTEXT_NOT_FOUND = (contextName: string) => `Context "${contextName}" does not exist.`;
 const MISSING_CURRENT_CONTEXT = 'No context is set as current, please set a current context.';
 export const NO_CONTEXTS_SAVED = `These are your options to specify in the CLI what AsyncAPI file should be used:
 	- You can provide a path to the AsyncAPI file: asyncapi <command> path/to/file/asyncapi.yml
@@ -7,7 +7,8 @@ export const NO_CONTEXTS_SAVED = `These are your options to specify in the CLI w
 	- In case you did not specify a context that you want to use, the CLI checks if there is a default context and uses it. To set default context run: asyncapi config context use mycontext
 	- In case you did not provide any reference to AsyncAPI file and there is no default context, the CLI detects if in your current working directory you have files like asyncapi.json, asyncapi.yaml, asyncapi.yml. Just rename your file accordingly.
 `;
-const CONTEXT_WRONG_FORMAT = 'Context file has wrong format';
+const CONTEXT_WRONG_FORMAT = (contextFileName: string) => `Context file ${contextFileName} has wrong format.`;
+const CONTEXT_ALREADY_EXISTS = (contextName: string, contextFileName: string) => `Context with name '${contextName}' already exists in context file '${contextFileName}'.`;
 
 class ContextError extends Error {
   constructor() {
@@ -20,6 +21,13 @@ export class MissingContextFileError extends ContextError {
   constructor() {
     super();
     this.message = NO_CONTEXTS_SAVED;
+  }
+}
+
+export class ContextFileWrongFormatError extends ContextError {
+  constructor(contextFileName: string) {
+    super();
+    this.message = CONTEXT_WRONG_FORMAT(contextFileName);
   }
 }
 
@@ -37,9 +45,9 @@ export class ContextNotFound extends ContextError {
   }
 }
 
-export class ContextWrongFormat extends ContextError {
-  constructor() {
+export class ContextAlreadyExistsError extends ContextError {
+  constructor(contextName: string, contextFileName: string) {
     super();
-    this.message = CONTEXT_WRONG_FORMAT;
+    this.message = CONTEXT_ALREADY_EXISTS(contextName, contextFileName);
   }
 }
