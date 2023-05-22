@@ -21,7 +21,7 @@ describe('models', () => {
     .stdout()
     .command([...generalOptions, 'random', './test/specification.yml', `-o=${ path.resolve(outputDir, './random')}`])
     .it('fails when it dont know the language', (ctx, done) => {
-      expect(ctx.stderr).toEqual('Error: Expected random to be one of: typescript, csharp, golang, java, javascript, dart, python, rust, kotlin\nSee more help with --help\n');
+      expect(ctx.stderr).toEqual('Error: Expected random to be one of: typescript, csharp, golang, java, javascript, dart, python, rust, kotlin, php\nSee more help with --help\n');
       expect(ctx.stdout).toEqual('');
       done();
     });
@@ -248,7 +248,29 @@ describe('models', () => {
         done();
       });
   });
-
+  
+  describe('for Php', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'php', './test/specification.yml', `-o=${ path.resolve(outputDir, './php')}`, '--namespace=\'asyncapi.models\''])
+      .it('works when file path is passed', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toContain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'php', './test/specification.yml', `-o=${ path.resolve(outputDir, './php')}`])
+      .it('fails when no namespace defined', (ctx, done) => {
+        expect(ctx.stderr).toEqual('Error: In order to generate models to PHP, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.\n');
+        expect(ctx.stdout).toEqual('');
+        done();
+      });
+  });
   describe('with logging diagnostics', () => {
     test
       .stderr()

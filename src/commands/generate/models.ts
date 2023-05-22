@@ -1,4 +1,4 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET } from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET, PhpFileGenerator } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
@@ -15,7 +15,8 @@ enum Languages {
   dart = 'dart',
   python = 'python',
   rust = 'rust',
-  kotlin='kotlin'
+  kotlin='kotlin',
+  php='php'
 }
 const possibleLanguageValues = Object.values(Languages).join(', ');
 
@@ -91,7 +92,7 @@ export default class Models extends Command {
      * C# specific options
      */
     namespace: Flags.string({
-      description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.',
+      description: 'C# and Php specific, define the namespace to use for the generated models. This is required when language is `csharp` or `php`.',
       required: false
     }),
 
@@ -225,6 +226,15 @@ export default class Models extends Command {
       fileGenerator = new KotlinFileGenerator();
       fileOptions = {
         packageName
+      };
+      break;
+    case Languages.php:
+      if (namespace === undefined) {
+        throw new Error('In order to generate models to PHP, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
+      }
+      fileGenerator = new PhpFileGenerator();
+      fileOptions = {
+        namespace
       };
       break;
     default:
