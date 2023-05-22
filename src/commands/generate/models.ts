@@ -15,7 +15,7 @@ enum Languages {
   dart = 'dart',
   python = 'python',
   rust = 'rust',
-  kotlin='kotlin'
+  kotlin = 'kotlin'
 }
 const possibleLanguageValues = Object.values(Languages).join(', ');
 
@@ -61,7 +61,7 @@ export default class Models extends Command {
       description: 'TypeScript specific, define the module system to be used.',
       required: false,
       default: 'ESM',
-      
+
     }),
     tsIncludeComments: Flags.boolean({
       description: 'TypeScript specific, if enabled add comments while generating models.',
@@ -77,6 +77,11 @@ export default class Models extends Command {
     }),
     tsJsonBinPack: Flags.boolean({
       description: 'TypeScript specific, define basic support for serializing to and from binary with jsonbinpack.',
+      required: false,
+      default: false,
+    }),
+    tsExampleInstance: Flags.boolean({
+      description: 'Typescript specific, if enabled add example while generating models.',
       required: false,
       default: false,
     }),
@@ -109,11 +114,11 @@ export default class Models extends Command {
     }),
     ...validationFlags({ logDiagnostics: false }),
   };
-  
+
   /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpAutoImplement, csharpArrayType, packageName, output } = flags;
+    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsExampleInstance , namespace, csharpAutoImplement, csharpArrayType, packageName, output } = flags;
     const { language, file } = args;
     const inputFile = (await load(file)) || (await load());
     const { document, status } = await parse(this, inputFile, flags);
@@ -140,95 +145,103 @@ export default class Models extends Command {
     let fileOptions: any = {};
     const presets = [];
     switch (language) {
-    case Languages.typescript:
-      if (tsIncludeComments) {presets.push(TS_DESCRIPTION_PRESET);}
-      if (tsJsonBinPack) {
-        presets.push({
-          preset: TS_COMMON_PRESET,
-          options: {
-            marshalling: true
-          }
-        },
-        TS_JSONBINPACK_PRESET);
-      }
-      fileGenerator = new TypeScriptFileGenerator({
-        modelType: tsModelType as 'class' | 'interface',
-        enumType: tsEnumType as 'enum' | 'union',
-        presets
-      });
-      fileOptions = {
-        moduleSystem: tsModuleSystem,
-        exportType: tsExportType
-      };
-      break;
-    case Languages.python:
-      fileGenerator = new PythonFileGenerator();
-      break;
-    case Languages.rust:
-      fileGenerator = new RustFileGenerator();
-      break;
-    case Languages.csharp:
-      if (namespace === undefined) {
-        throw new Error('In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
-      }
-
-      fileGenerator = new CSharpFileGenerator({
-        presets: csharpAutoImplement ? [
-          {
-            preset: CSHARP_DEFAULT_PRESET,
+      case Languages.typescript:
+        if (tsIncludeComments) { presets.push(TS_DESCRIPTION_PRESET); }
+        if (tsExampleInstance) {
+          presets.push({
+            preset: TS_COMMON_PRESET,
             options: {
-              autoImplementedProperties: true
+              example : true
             }
-          }
-        ] : [],
-        collectionType: csharpArrayType as 'Array' | 'List'
-      });
-      
-      fileOptions = {
-        namespace
-      };
-      break;
-    case Languages.golang:
-      if (packageName === undefined) {
-        throw new Error('In order to generate models to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
-      }
-      fileGenerator = new GoFileGenerator();
-      fileOptions = {
-        packageName
-      };
-      break;
-    case Languages.java:
-      if (packageName === undefined) {
-        throw new Error('In order to generate models to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
-      }
-      fileGenerator = new JavaFileGenerator();
-      fileOptions = {
-        packageName
-      };
-      break;
-    case Languages.javascript:
-      fileGenerator = new JavaScriptFileGenerator();
-      break;
-    case Languages.dart:
-      if (packageName === undefined) {
-        throw new Error('In order to generate models to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
-      }
-      fileGenerator = new DartFileGenerator();
-      fileOptions = {
-        packageName
-      };
-      break;
-    case Languages.kotlin:
-      if (packageName === undefined) {
-        throw new Error('In order to generate models to Kotlin, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
-      }
-      fileGenerator = new KotlinFileGenerator();
-      fileOptions = {
-        packageName
-      };
-      break;
-    default:
-      throw new Error(`Could not determine generator for language ${language}, are you using one of the following values ${possibleLanguageValues}?`);
+          })
+        }
+        if (tsJsonBinPack) {
+          presets.push({
+            preset: TS_COMMON_PRESET,
+            options: {
+              marshalling: true
+            }
+          },
+            TS_JSONBINPACK_PRESET);
+        }
+        fileGenerator = new TypeScriptFileGenerator({
+          modelType: tsModelType as 'class' | 'interface',
+          enumType: tsEnumType as 'enum' | 'union',
+          presets
+        });
+        fileOptions = {
+          moduleSystem: tsModuleSystem,
+          exportType: tsExportType
+        };
+        break;
+      case Languages.python:
+        fileGenerator = new PythonFileGenerator();
+        break;
+      case Languages.rust:
+        fileGenerator = new RustFileGenerator();
+        break;
+      case Languages.csharp:
+        if (namespace === undefined) {
+          throw new Error('In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
+        }
+
+        fileGenerator = new CSharpFileGenerator({
+          presets: csharpAutoImplement ? [
+            {
+              preset: CSHARP_DEFAULT_PRESET,
+              options: {
+                autoImplementedProperties: true
+              }
+            }
+          ] : [],
+          collectionType: csharpArrayType as 'Array' | 'List'
+        });
+
+        fileOptions = {
+          namespace
+        };
+        break;
+      case Languages.golang:
+        if (packageName === undefined) {
+          throw new Error('In order to generate models to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+        }
+        fileGenerator = new GoFileGenerator();
+        fileOptions = {
+          packageName
+        };
+        break;
+      case Languages.java:
+        if (packageName === undefined) {
+          throw new Error('In order to generate models to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+        }
+        fileGenerator = new JavaFileGenerator();
+        fileOptions = {
+          packageName
+        };
+        break;
+      case Languages.javascript:
+        fileGenerator = new JavaScriptFileGenerator();
+        break;
+      case Languages.dart:
+        if (packageName === undefined) {
+          throw new Error('In order to generate models to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+        }
+        fileGenerator = new DartFileGenerator();
+        fileOptions = {
+          packageName
+        };
+        break;
+      case Languages.kotlin:
+        if (packageName === undefined) {
+          throw new Error('In order to generate models to Kotlin, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+        }
+        fileGenerator = new KotlinFileGenerator();
+        fileOptions = {
+          packageName
+        };
+        break;
+      default:
+        throw new Error(`Could not determine generator for language ${language}, are you using one of the following values ${possibleLanguageValues}?`);
     }
 
     if (output) {

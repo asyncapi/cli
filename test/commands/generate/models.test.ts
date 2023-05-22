@@ -15,7 +15,7 @@ describe('models', () => {
       expect(ctx.stdout).toMatchSnapshot();
       done();
     });
-    
+
   test
     .stderr()
     .stdout()
@@ -35,8 +35,8 @@ describe('models', () => {
       expect(ctx.stdout).toMatchSnapshot();
       done();
     });
-    
-  describe('for TypeScript', () => {  
+
+  describe('for TypeScript', () => {
     test
       .stderr()
       .stdout()
@@ -68,9 +68,18 @@ describe('models', () => {
         expect(ctx.stdout).toMatchSnapshot();
         done();
       });
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'typescript', './test/specification.yml', '--tsExampleInstance'])
+      .it('works when tsExampleInstance is set', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toMatchSnapShot();
+        done();
+      });
   });
 
-  describe('for JavaScript', () => {  
+  describe('for JavaScript', () => {
     test
       .stderr()
       .stdout()
@@ -84,7 +93,7 @@ describe('models', () => {
       });
   });
 
-  describe('for Python', () => {  
+  describe('for Python', () => {
     test
       .stderr()
       .stdout()
@@ -98,7 +107,7 @@ describe('models', () => {
       });
   });
 
-  describe('for Rust', () => {  
+  describe('for Rust', () => {
     test
       .stderr()
       .stdout()
@@ -147,7 +156,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpArrayType=List']) 
+      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpArrayType=List'])
       .it('works when array type is provided', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -179,8 +188,8 @@ describe('models', () => {
         done();
       });
   });
-  
-  describe('for Go', () => {  
+
+  describe('for Go', () => {
     test
       .stderr()
       .stdout()
@@ -203,7 +212,7 @@ describe('models', () => {
       });
   });
 
-  describe('for Kotlin', () => {  
+  describe('for Kotlin', () => {
     test
       .stderr()
       .stdout()
@@ -226,7 +235,7 @@ describe('models', () => {
       });
   });
 
-  describe('for Dart', () => {  
+  describe('for Dart', () => {
     test
       .stderr()
       .stdout()
