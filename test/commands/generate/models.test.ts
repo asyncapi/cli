@@ -74,7 +74,7 @@ describe('models', () => {
       .command([...generalOptions, 'typescript', './test/specification.yml', '--tsExampleInstance'])
       .it('works when tsExampleInstance is set', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
-        expect(ctx.stdout).toMatchSnapShot();
+        expect(ctx.stdout).toMatchSnapshot();
         done();
       });
   });
