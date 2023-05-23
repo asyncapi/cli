@@ -197,6 +197,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "meetagrawal09",
+      "name": "Meet Agrawal",
+      "avatar_url": "https://avatars.githubusercontent.com/u/73902874?v=4",
+      "profile": "https://github.com/meetagrawal09",
+      "contributions": [
+        "infra"
+      ]
     }
   ],
   "contributorsPerLine": 7,
