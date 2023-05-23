@@ -92,7 +92,7 @@ export default class Models extends Command {
      * C# specific options
      */
     namespace: Flags.string({
-      description: 'C# and Php specific, define the namespace to use for the generated models. This is required when language is `csharp` or `php`.',
+      description: 'C# and PHP specific, define the namespace to use for the generated models. This is required when language is `csharp` or `php`.',
       required: false
     }),
 

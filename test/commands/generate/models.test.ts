@@ -249,7 +249,7 @@ describe('models', () => {
       });
   });
   
-  describe('for Php', () => {
+  describe('for PHP', () => {
     test
       .stderr()
       .stdout()
