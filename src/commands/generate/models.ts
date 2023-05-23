@@ -1,4 +1,4 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET, PhpFileGenerator } from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET, PhpFileGenerator, CplusplusFileGenerator } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
@@ -16,7 +16,8 @@ enum Languages {
   python = 'python',
   rust = 'rust',
   kotlin='kotlin',
-  php='php'
+  php='php',
+  cplusplus='cplusplus'
 }
 const possibleLanguageValues = Object.values(Languages).join(', ');
 
@@ -62,7 +63,7 @@ export default class Models extends Command {
       description: 'TypeScript specific, define the module system to be used.',
       required: false,
       default: 'ESM',
-      
+
     }),
     tsIncludeComments: Flags.boolean({
       description: 'TypeScript specific, if enabled add comments while generating models.',
@@ -88,14 +89,18 @@ export default class Models extends Command {
       description: 'Go, Java and Kotlin specific, define the package to use for the generated models. This is required when language is `go`, `java` or `kotlin`.',
       required: false
     }),
+
     /**
-     * C# specific options
+     * C++ and C# specific namespace to use for the generated models
      */
     namespace: Flags.string({
-      description: 'C# and PHP specific, define the namespace to use for the generated models. This is required when language is `csharp` or `php`.',
+      description: 'C#, C++ and PHP specific, define the namespace to use for the generated models. This is required when language is `csharp`,`c++` or `php`.',
       required: false
     }),
 
+    /**
+     * C# specific options
+     */
     csharpAutoImplement: Flags.boolean({
       description: 'C# specific, define whether to generate auto-implemented properties or not.',
       required: false,
@@ -110,7 +115,7 @@ export default class Models extends Command {
     }),
     ...validationFlags({ logDiagnostics: false }),
   };
-  
+
   /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Models);
@@ -184,10 +189,18 @@ export default class Models extends Command {
         ] : [],
         collectionType: csharpArrayType as 'Array' | 'List'
       });
-      
+
       fileOptions = {
         namespace
       };
+      break;
+    case Languages.cplusplus:
+      if (namespace === undefined) {
+        throw new Error('In order to generate models to C++, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
+      }
+      fileGenerator = new CplusplusFileGenerator({
+        namespace
+      });
       break;
     case Languages.golang:
       if (packageName === undefined) {
