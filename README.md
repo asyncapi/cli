@@ -77,6 +77,7 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/CyberHippo"><img src="https://avatars.githubusercontent.com/u/18269437?v=4?s=100" width="100px;" alt="Hippolyte Vergnol"/><br /><sub><b>Hippolyte Vergnol</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=CyberHippo" title="Code">💻</a> <a href="#infra-CyberHippo" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://www.jentevets.com"><img src="https://avatars.githubusercontent.com/u/22449126?v=4?s=100" width="100px;" alt="Jente Vets"/><br /><sub><b>Jente Vets</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=Vetsoo" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/kaushik-rishi"><img src="https://avatars.githubusercontent.com/u/52498617?v=4?s=100" width="100px;" alt="Rishi"/><br /><sub><b>Rishi</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=kaushik-rishi" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://ashishpadhy.live"><img src="https://avatars.githubusercontent.com/u/100484401?v=4?s=100" width="100px;" alt="Ashish Padhy"/><br /><sub><b>Ashish Padhy</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=Shurtu-gal" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
