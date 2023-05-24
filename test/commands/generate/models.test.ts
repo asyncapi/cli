@@ -67,6 +67,24 @@ describe('models', () => {
         expect(ctx.stdout).toMatchSnapshot();
         done();
       });
+      test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'typescript', './test/specification.yml', '--tsExampleInstance'])
+      .it('works when tsExampleInstance is set', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toMatchSnapshot();
+        done();
+      });
+      test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'typescript', './test/specification.yml', '--tsMarshalling'])
+      .it('works when tsMarshalling is set', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toMatchSnapshot();
+        done();
+      });
   });
 
   describe('for JavaScript', () => {

@@ -1,5 +1,46 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`models for TypeScript works when tsExampleInstance is set 1`] = `
+"Successfully generated the following models: 
+## Model name: AnonymousSchema_1
+
+class AnonymousSchema_1 {
+  private _displayName?: string;
+  private _email?: string;
+  private _additionalProperties?: Map<string, any>;
+
+  constructor(input: {
+    displayName?: string,
+    email?: string,
+    additionalProperties?: Map<string, any>,
+  }) {
+    this._displayName = input.displayName;
+    this._email = input.email;
+    this._additionalProperties = input.additionalProperties;
+  }
+
+  get displayName(): string | undefined { return this._displayName; }
+  set displayName(displayName: string | undefined) { this._displayName = displayName; }
+
+  get email(): string | undefined { return this._email; }
+  set email(email: string | undefined) { this._email = email; }
+
+  get additionalProperties(): Map<string, any> | undefined { return this._additionalProperties; }
+  set additionalProperties(additionalProperties: Map<string, any> | undefined) { this._additionalProperties = additionalProperties; }
+
+  public static example(): AnonymousSchema_1 {
+    const instance = new AnonymousSchema_1({} as any);
+    instance.displayName = "string";
+    instance.email = "string";
+    return instance;
+  }
+}
+export default AnonymousSchema_1;
+
+
+"
+`;
+
 exports[`models for TypeScript works when tsIncludeComments is set 1`] = `
 "Successfully generated the following models: 
 ## Model name: AnonymousSchema_1
@@ -33,6 +74,79 @@ class AnonymousSchema_1 {
 
   get additionalProperties(): Map<string, any> | undefined { return this._additionalProperties; }
   set additionalProperties(additionalProperties: Map<string, any> | undefined) { this._additionalProperties = additionalProperties; }
+}
+export default AnonymousSchema_1;
+
+
+"
+`;
+
+exports[`models for TypeScript works when tsMarshalling is set 1`] = `
+"Successfully generated the following models: 
+## Model name: AnonymousSchema_1
+
+class AnonymousSchema_1 {
+  private _displayName?: string;
+  private _email?: string;
+  private _additionalProperties?: Map<string, any>;
+
+  constructor(input: {
+    displayName?: string,
+    email?: string,
+    additionalProperties?: Map<string, any>,
+  }) {
+    this._displayName = input.displayName;
+    this._email = input.email;
+    this._additionalProperties = input.additionalProperties;
+  }
+
+  get displayName(): string | undefined { return this._displayName; }
+  set displayName(displayName: string | undefined) { this._displayName = displayName; }
+
+  get email(): string | undefined { return this._email; }
+  set email(email: string | undefined) { this._email = email; }
+
+  get additionalProperties(): Map<string, any> | undefined { return this._additionalProperties; }
+  set additionalProperties(additionalProperties: Map<string, any> | undefined) { this._additionalProperties = additionalProperties; }
+
+  public marshal() : string {
+    let json = '{'
+    if(this.displayName !== undefined) {
+      json += \`"displayName": \${typeof this.displayName === 'number' || typeof this.displayName === 'boolean' ? this.displayName : JSON.stringify(this.displayName)},\`; 
+    }
+    if(this.email !== undefined) {
+      json += \`"email": \${typeof this.email === 'number' || typeof this.email === 'boolean' ? this.email : JSON.stringify(this.email)},\`; 
+    }
+    if(this.additionalProperties !== undefined) { 
+    for (const [key, value] of this.additionalProperties.entries()) {
+      //Only unwrap those who are not already a property in the JSON object
+      if(Object.keys(this).includes(String(key))) continue;
+        json += \`"\${key}": \${typeof value === 'number' || typeof value === 'boolean' ? value : JSON.stringify(value)},\`;
+      }
+    }
+
+    //Remove potential last comma 
+    return \`\${json.charAt(json.length-1) === ',' ? json.slice(0, json.length-1) : json}}\`;
+  }
+
+  public static unmarshal(json: string | object): AnonymousSchema_1 {
+    const obj = typeof json === "object" ? json : JSON.parse(json);
+    const instance = new AnonymousSchema_1({} as any);
+
+    if (obj["displayName"] !== undefined) {
+      instance.displayName = obj["displayName"];
+    }
+    if (obj["email"] !== undefined) {
+      instance.email = obj["email"];
+    }
+
+    if (instance.additionalProperties === undefined) {instance.additionalProperties = new Map();}
+      for (const [key, value] of Object.entries(obj).filter((([key,]) => {return !["displayName","email","additionalProperties"].includes(key);}))) {
+        instance.additionalProperties.set(key, value as any);
+      }
+
+    return instance;
+  }
 }
 export default AnonymousSchema_1;
 
