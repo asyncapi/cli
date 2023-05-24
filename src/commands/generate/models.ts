@@ -82,6 +82,11 @@ export default class Models extends Command {
       required: false,
       default: false,
     }),
+    tsMarshalling: Flags.boolean({
+      description: 'TypeScript specific, generate the models with marshalling functions.',
+      required: false,
+      default: false,
+    }),
     /**
      * Go and Java specific package name to use for the generated models
      */
@@ -139,7 +144,7 @@ export default class Models extends Command {
   /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, output } = flags;
+    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, output } = flags;
     const { language, file } = args;
     const inputFile = (await load(file)) || (await load());
     const { document, status } = await parse(this, inputFile, flags);
@@ -176,6 +181,14 @@ export default class Models extends Command {
           }
         },
         TS_JSONBINPACK_PRESET);
+      }
+      if (tsMarshalling) {
+        presets.push({
+          preset: TS_COMMON_PRESET,
+          options: {
+            marshalling: true
+          }
+        });
       }
       fileGenerator = new TypeScriptFileGenerator({
         modelType: tsModelType as 'class' | 'interface',
