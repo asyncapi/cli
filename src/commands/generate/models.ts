@@ -1,4 +1,4 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, CSHARP_NEWTONSOFT_SERIALIZER_PRESET, CSHARP_COMMON_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET, PhpFileGenerator, CplusplusFileGenerator } from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, CSHARP_NEWTONSOFT_SERIALIZER_PRESET, CSHARP_COMMON_PRESET, CSHARP_JSON_SERIALIZER_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET, PhpFileGenerator, CplusplusFileGenerator } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
@@ -128,13 +128,18 @@ export default class Models extends Command {
       required: false,
       default: false
     }),
+    csharpSystemJson: Flags.boolean({
+      description: 'C# specific, generate the models with System.Text.Json serialization support',
+      required: false,
+      default: false
+    }),
     ...validationFlags({ logDiagnostics: false }),
   };
 
   /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, packageName, output } = flags;
+    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, output } = flags;
     const { language, file } = args;
     const inputFile = (await load(file)) || (await load());
     const { document, status } = await parse(this, inputFile, flags);
@@ -192,6 +197,7 @@ export default class Models extends Command {
       if (namespace === undefined) {
         throw new Error('In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
       }
+
       if (csharpAutoImplement) {
         presets.push({
           preset: CSHARP_DEFAULT_PRESET,
@@ -200,18 +206,11 @@ export default class Models extends Command {
           }
         });
       }
-
       if (csharpNewtonsoft) {
         presets.push(CSHARP_NEWTONSOFT_SERIALIZER_PRESET);
       }
-
-      if (csharpAutoImplement) {
-        presets.push({
-          preset: CSHARP_DEFAULT_PRESET,
-          options: {
-            autoImplementedProperties: true
-          }
-        });
+      if (csharpSystemJson) {
+        presets.push(CSHARP_JSON_SERIALIZER_PRESET);
       }
       if (csharpHashcode || csharpEqual) {
         presets.push({
