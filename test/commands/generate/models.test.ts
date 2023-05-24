@@ -15,7 +15,7 @@ describe('models', () => {
       expect(ctx.stdout).toMatchSnapshot();
       done();
     });
-    
+
   test
     .stderr()
     .stdout()
@@ -34,8 +34,8 @@ describe('models', () => {
       expect(ctx.stdout).toMatchSnapshot();
       done();
     });
-    
-  describe('for TypeScript', () => {  
+
+  describe('for TypeScript', () => {
     test
       .stderr()
       .stdout()
@@ -69,7 +69,7 @@ describe('models', () => {
       });
   });
 
-  describe('for JavaScript', () => {  
+  describe('for JavaScript', () => {
     test
       .stderr()
       .stdout()
@@ -83,7 +83,7 @@ describe('models', () => {
       });
   });
 
-  describe('for Python', () => {  
+  describe('for Python', () => {
     test
       .stderr()
       .stdout()
@@ -97,7 +97,7 @@ describe('models', () => {
       });
   });
 
-  describe('for Rust', () => {  
+  describe('for Rust', () => {
     test
       .stderr()
       .stdout()
@@ -146,7 +146,54 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpArrayType=List']) 
+      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpNewtonsoft'])
+      .it('works when newtonsoft flag is passed', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toContain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpHashcode'])
+      .it('works when hash code flag is passed', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toContain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpEqual'])
+      .it('works when equal flag is passed', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toContain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpSystemJson'])
+      .it('works when system json flag is passed', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toContain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'csharp', './test/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpArrayType=List'])
       .it('works when array type is provided', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -201,8 +248,8 @@ describe('models', () => {
         done();
       });
   });
-  
-  describe('for Go', () => {  
+
+  describe('for Go', () => {
     test
       .stderr()
       .stdout()
@@ -225,7 +272,7 @@ describe('models', () => {
       });
   });
 
-  describe('for Kotlin', () => {  
+  describe('for Kotlin', () => {
     test
       .stderr()
       .stdout()
@@ -248,7 +295,7 @@ describe('models', () => {
       });
   });
 
-  describe('for Dart', () => {  
+  describe('for Dart', () => {
     test
       .stderr()
       .stdout()
@@ -270,7 +317,7 @@ describe('models', () => {
         done();
       });
   });
-  
+
   describe('for PHP', () => {
     test
       .stderr()
