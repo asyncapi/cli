@@ -31,7 +31,7 @@ export default class Validate extends Command {
     try {
       await validate(this, specFile, flags);
     } catch (error) {
-      this.log('Empty or Invalid document. Please fix errors in the document')
+      this.log('Empty or Invalid document. Please fix errors in the document');
     }
   }
 }
