@@ -21,6 +21,7 @@
     "@asyncapi/studio": "^0.17.3",
     "@oclif/core": "^1.26.2",
     "@oclif/errors": "^1.3.6",
+    "@oclif/plugin-not-found": "^2.3.22",
     "@stoplight/spectral-cli": "6.6.0",
     "ajv": "^8.12.0",
     "chalk": "^4.1.0",
@@ -30,7 +31,7 @@
     "inquirer": "^8.2.0",
     "lodash.template": "^4.4.0",
     "node-fetch": "^2.0.0",
-    "oclif": "^3.9.0",
+    "oclif": "^3.7.3",
     "open": "^8.4.0",
     "reflect-metadata": "^0.1.13",
     "request": "^2.88.2",
@@ -104,13 +105,10 @@
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
-    "hooks": {
-      "command_not_found": [
-        "./lib/hooks/command_not_found/example"
-      ]
-    },
     "bin": "asyncapi",
-
+    "plugins": [
+      "@oclif/plugin-not-found"
+    ],
     "macos": {
       "identifier": "com.asyncapi.cli"
     },
@@ -123,6 +121,11 @@
       "generate": {
         "description": "Generate models and template"
       }
+    },
+    "hooks": {
+      "command_not_found": [
+        "./lib/hooks/command_not_found/help-command-handler"
+      ]
     }
   },
   "publishConfig": {
