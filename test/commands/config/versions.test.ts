@@ -1,6 +1,6 @@
 import { test } from '@oclif/test';
 
-describe('versions', () => {
+describe('config', () => {
   describe('config:versions', () => {
     test
       .stderr()

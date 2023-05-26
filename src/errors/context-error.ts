@@ -7,8 +7,8 @@ export const NO_CONTEXTS_SAVED = `These are your options to specify in the CLI w
 	- In case you did not specify a context that you want to use, the CLI checks if there is a default context and uses it. To set default context run: asyncapi config context use mycontext
 	- In case you did not provide any reference to AsyncAPI file and there is no default context, the CLI detects if in your current working directory you have files like asyncapi.json, asyncapi.yaml, asyncapi.yml. Just rename your file accordingly.
 `;
-const CONTEXT_WRONG_FORMAT = (contextFileName: string) => `Context file ${contextFileName} has wrong format.`;
-const CONTEXT_ALREADY_EXISTS = (contextName: string, contextFileName: string) => `Context with name '${contextName}' already exists in context file '${contextFileName}'.`;
+const CONTEXT_WRONG_FORMAT = (contextFileName: string) => `Context file "${contextFileName}" has wrong format.`;
+const CONTEXT_ALREADY_EXISTS = (contextName: string, contextFileName: string) => `Context with name "${contextName}" already exists in context file "${contextFileName}".`;
 
 class ContextError extends Error {
   constructor() {

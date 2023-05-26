@@ -15,7 +15,7 @@ const { readFile, writeFile } = fs;
 
 const DEFAULT_CONTEXT_FILENAME = '.asyncapi-cli';
 const DEFAULT_CONTEXT_FILE_LOCATION = os.homedir();
-const DEFAULT_CONTEXT_FILE_PATH = path.resolve(DEFAULT_CONTEXT_FILE_LOCATION, DEFAULT_CONTEXT_FILENAME);
+export const DEFAULT_CONTEXT_FILE_PATH = path.resolve(DEFAULT_CONTEXT_FILE_LOCATION, DEFAULT_CONTEXT_FILENAME);
 
 const CONTEXT_FILENAME = process.env.CUSTOM_CONTEXT_FILENAME || DEFAULT_CONTEXT_FILENAME;
 const CONTEXT_FILE_LOCATION = process.env.CUSTOM_CONTEXT_FILE_LOCATION || DEFAULT_CONTEXT_FILE_LOCATION;
@@ -158,7 +158,7 @@ export async function loadContextFile(): Promise<IContextFile> {
 
 async function saveContextFile(fileContent: IContextFile) {
   try {
-    writeFile(CONTEXT_FILE_PATH, JSON.stringify({
+    await writeFile(CONTEXT_FILE_PATH, JSON.stringify({
       current: fileContent.current,
       store: fileContent.store
     }), { encoding: 'utf8' });
@@ -209,6 +209,7 @@ export async function isContextFileValid(
   // Validation of context file's format against interface `IContextFile`.
   return (
     Object.keys(fileContent).length !== 0 &&
+    Object.keys(fileContent).length <= 2 &&
     fileContent.hasOwnProperty.call(fileContent, 'store') &&
     !Array.from(Object.keys(fileContent.store)).find(
       (elem) => typeof elem !== 'string'

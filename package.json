@@ -150,7 +150,7 @@
     "release": "semantic-release",
     "pretest": "npm run build",
     "test": "npm run test:unit",
-    "test:unit": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"./test.asyncapi\" CUSTOM_CONTEXT_FILE_LOCATION=\"./\" jest --coverage -i",
+    "test:unit": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" jest --coverage -i",
     "get-version": "echo $npm_package_version"
   },
   "types": "lib/index.d.ts"
