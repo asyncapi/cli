@@ -8,10 +8,10 @@ export default class Versions extends Command {
     help: Flags.help({ char: 'h' }),
   };
 
-  private dependencies: string[] = [];
-  private dependency = '';
-
   async run() {
+    const dependencies: string[] = [];
+    let dependency = '';
+
     // Preparation of the array with all dependencies '@asyncapi/*' along with
     // their versions.
     for (const key in this.config.pjson.dependencies) {
@@ -24,9 +24,9 @@ export default class Versions extends Command {
           // Goofy name `importedPJSON` is chosen to distinguish from name `pjson`
           // used in `@oclif` source code.
           const importedPJSON = await import(`${key}/package.json`);
-          this.dependencies.push(`${key}/${importedPJSON.default.version}`);
+          dependencies.push(`${key}/${importedPJSON.default.version}`);
         } catch (e) {
-          this.dependencies.push(`${key}/` + '`package.json` not found');
+          dependencies.push(`${key}/` + '`package.json` not found');
         }
       }
     }
@@ -36,18 +36,18 @@ export default class Versions extends Command {
 
     // Iteration through the array containing all dependencies '@asyncapi/*'
     // along with their versions.
-    for (let i = 0; i < this.dependencies.length; i++) {
+    for (let i = 0; i < dependencies.length; i++) {
       // Minimization of the theoretical possibility of a Generic Object
       // Injection Sink, at the same time disabling eslint parsing for this
       // line since it is actually a false positive.
       // https://github.com/eslint-community/eslint-plugin-security/issues/21#issuecomment-530184612
       // https://github.com/eslint-community/eslint-plugin-security/issues/21#issuecomment-1157887653
       // https://web.archive.org/web/20150430062816/https://blog.liftsecurity.io/2015/01/15/the-dangers-of-square-bracket-notation
-      this.dependency = this.dependencies[i]; // eslint-disable-line
-      if (i !== this.dependencies.length - 1) {
-        this.log(`  ├${this.dependency}`);
+      dependency = dependencies[i]; // eslint-disable-line
+      if (i !== dependencies.length - 1) {
+        this.log(`  ├${dependency}`);
       } else {
-        this.log(`  └${this.dependency}\n`);
+        this.log(`  └${dependency}\n`);
       }
     }
 
