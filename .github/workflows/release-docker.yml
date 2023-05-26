@@ -1,0 +1,35 @@
+name: Release Docker Image
+on:
+  push:
+    branches:
+      - master
+
+# on: 
+#  release:
+#    types: 
+#      - published
+jobs:
+
+  publish-docker:
+    name: Generating Docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Get version without v character
+        id: version
+        run: |
+          VERSION=${{github.event.release.tag_name}}
+          VERSION_WITHOUT_V=${VERSION:1}
+          echo "value=${VERSION_WITHOUT_V}" >> $GITHUB_OUTPUT
+#old syntax echo "::set-output name=value::$(echo $VERSION_WITHOUT_V)"
+      - name: Release to Docker
+        run: | 
+          echo ${{secrets.DOCKER_PASSWORD}} | docker login -u ${{secrets.DOCKER_USERNAME}} --password-stdin
+          npm run docker:build
+          docker tag asyncapi/cli:latest asyncapi/cli:${{ steps.version.outputs.value }}
+          docker push asyncapi/cli:${{ steps.version.outputs.value }}
+          docker push asyncapi/cli:latest
+
+
+
