@@ -43,8 +43,7 @@ export default class Versions extends Command {
       // https://github.com/eslint-community/eslint-plugin-security/issues/21#issuecomment-530184612
       // https://github.com/eslint-community/eslint-plugin-security/issues/21#issuecomment-1157887653
       // https://web.archive.org/web/20150430062816/https://blog.liftsecurity.io/2015/01/15/the-dangers-of-square-bracket-notation
-      // eslint-disable-next-line
-      this.dependency = this.dependencies[i];
+      this.dependency = this.dependencies[i]; // eslint-disable-line
       if (i !== this.dependencies.length - 1) {
         this.log(`  ├${this.dependency}`);
       } else {
