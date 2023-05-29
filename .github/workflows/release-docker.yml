@@ -31,5 +31,12 @@ jobs:
           docker push asyncapi/cli:${{ steps.version.outputs.value }}
           docker push asyncapi/cli:latest
 
-
-
+      - name :  Sync README.md and Description to Docker Hub
+        uses: actions/checkout@master
+            
+      - uses: meeDamian/sync-readme@v1.0.6
+        with:
+          user: ${{secrets.DOCKER_USERNAME}}
+          pass: ${{ secrets.DOCKER_PASSWORD }}
+          slug: asyncapi/cli
+          description: true
