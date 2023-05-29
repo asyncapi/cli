@@ -1,4 +1,4 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET } from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, CSHARP_NEWTONSOFT_SERIALIZER_PRESET, CSHARP_COMMON_PRESET, CSHARP_JSON_SERIALIZER_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET, PhpFileGenerator, CplusplusFileGenerator } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
@@ -15,7 +15,9 @@ enum Languages {
   dart = 'dart',
   python = 'python',
   rust = 'rust',
-  kotlin='kotlin'
+  kotlin='kotlin',
+  php='php',
+  cplusplus='cplusplus'
 }
 const possibleLanguageValues = Object.values(Languages).join(', ');
 
@@ -61,7 +63,7 @@ export default class Models extends Command {
       description: 'TypeScript specific, define the module system to be used.',
       required: false,
       default: 'ESM',
-      
+
     }),
     tsIncludeComments: Flags.boolean({
       description: 'TypeScript specific, if enabled add comments while generating models.',
@@ -87,16 +89,25 @@ export default class Models extends Command {
       description: 'Go, Java and Kotlin specific, define the package to use for the generated models. This is required when language is `go`, `java` or `kotlin`.',
       required: false
     }),
+
     /**
-     * C# specific options
+     * C++ and C# and PHP specific namespace to use for the generated models
      */
     namespace: Flags.string({
-      description: 'C# specific, define the namespace to use for the generated models. This is required when language is `csharp`.',
+      description: 'C#, C++ and PHP specific, define the namespace to use for the generated models. This is required when language is `csharp`,`c++` or `php`.',
       required: false
     }),
 
+    /**
+     * C# specific options
+     */
     csharpAutoImplement: Flags.boolean({
       description: 'C# specific, define whether to generate auto-implemented properties or not.',
+      required: false,
+      default: false
+    }),
+    csharpNewtonsoft: Flags.boolean({
+      description: 'C# specific, generate the models with newtonsoft serialization support',
       required: false,
       default: false
     }),
@@ -107,13 +118,28 @@ export default class Models extends Command {
       required: false,
       default: 'Array'
     }),
+    csharpHashcode: Flags.boolean({
+      description: 'C# specific, generate the models with the GetHashCode method overwritten',
+      required: false,
+      default: false
+    }),
+    csharpEqual: Flags.boolean({
+      description: 'C# specific, generate the models with the Equal method overwritten',
+      required: false,
+      default: false
+    }),
+    csharpSystemJson: Flags.boolean({
+      description: 'C# specific, generate the models with System.Text.Json serialization support',
+      required: false,
+      default: false
+    }),
     ...validationFlags({ logDiagnostics: false }),
   };
-  
+
   /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpAutoImplement, csharpArrayType, packageName, output } = flags;
+    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, output } = flags;
     const { language, file } = args;
     const inputFile = (await load(file)) || (await load());
     const { document, status } = await parse(this, inputFile, flags);
@@ -172,21 +198,46 @@ export default class Models extends Command {
         throw new Error('In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
       }
 
-      fileGenerator = new CSharpFileGenerator({
-        presets: csharpAutoImplement ? [
-          {
-            preset: CSHARP_DEFAULT_PRESET,
-            options: {
-              autoImplementedProperties: true
-            }
+      if (csharpAutoImplement) {
+        presets.push({
+          preset: CSHARP_DEFAULT_PRESET,
+          options: {
+            autoImplementedProperties: true
           }
-        ] : [],
+        });
+      }
+      if (csharpNewtonsoft) {
+        presets.push(CSHARP_NEWTONSOFT_SERIALIZER_PRESET);
+      }
+      if (csharpSystemJson) {
+        presets.push(CSHARP_JSON_SERIALIZER_PRESET);
+      }
+      if (csharpHashcode || csharpEqual) {
+        presets.push({
+          preset: CSHARP_COMMON_PRESET,
+          options: {
+            hashCode: csharpHashcode,
+            equals: csharpEqual
+          }
+        });
+      }
+
+      fileGenerator = new CSharpFileGenerator({
+        presets,
         collectionType: csharpArrayType as 'Array' | 'List'
       });
-      
+
       fileOptions = {
         namespace
       };
+      break;
+    case Languages.cplusplus:
+      if (namespace === undefined) {
+        throw new Error('In order to generate models to C++, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
+      }
+      fileGenerator = new CplusplusFileGenerator({
+        namespace
+      });
       break;
     case Languages.golang:
       if (packageName === undefined) {
@@ -225,6 +276,15 @@ export default class Models extends Command {
       fileGenerator = new KotlinFileGenerator();
       fileOptions = {
         packageName
+      };
+      break;
+    case Languages.php:
+      if (namespace === undefined) {
+        throw new Error('In order to generate models to PHP, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
+      }
+      fileGenerator = new PhpFileGenerator();
+      fileOptions = {
+        namespace
       };
       break;
     default:
