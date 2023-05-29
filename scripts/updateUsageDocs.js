@@ -32,7 +32,7 @@ The AsyncAPI CLI makes it easier to work with AsyncAPI documents.
 async function run() {
   try {
     await writeFile(USAGE_PATH, header);
-    const readmeContents = await readFile(README_PATH, 'utf8');
+    const readmeContents = await readContents();
     // Append the contents of the README file to the usage documentation file
     await writeFile(USAGE_PATH, readmeContents, { flag: 'a' });
   } catch (e) {
@@ -41,3 +41,33 @@ async function run() {
 }
 
 run();
+
+async function readContents() {
+  let readmeContents;
+  let commandsContent = '';
+
+  while (commandsContent.length === 0) {
+    readmeContents = await readFile(README_PATH, 'utf8');
+    
+    // Check if the content between <!-- commands --> and <!-- commandsstop --> is empty
+    const commandsStartText = '<!-- commands -->';
+    const commandStartIndex = readmeContents.indexOf(commandsStartText);
+    const commandStopIndex = readmeContents.indexOf('<!-- commandsstop -->');
+    //cutting the content between the above mentioned tags, removing white spaces and checking if there is some text as it will mean text was added by oclif
+    commandsContent = readmeContents.slice(commandStartIndex + commandsStartText.length, commandStopIndex).trim();
+
+    if (commandsContent.length === 0) {
+      console.log('No content between <!-- commands --> and <!-- commandsstop -->. Trying again...');
+    } else {
+      console.log('Content found!');
+    }
+
+    await delay(3000); // 3-second delay
+  }
+
+  return readmeContents;
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
