@@ -2,7 +2,7 @@ import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeSc
 import { Flags } from '@oclif/core';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
-import { parse, validationFlags } from '../../parser';
+import { formatOutput, parse, validationFlags } from '../../parser';
 
 import type { AbstractGenerator, AbstractFileGenerator } from '@asyncapi/modelina';
 
@@ -142,8 +142,10 @@ export default class Models extends Command {
     const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, output } = flags;
     const { language, file } = args;
     const inputFile = (await load(file)) || (await load());
-    const { document, status } = await parse(this, inputFile, flags);
+    const { document, diagnostics ,status } = await parse(this, inputFile, flags);
     if (!document || status === 'invalid') {
+      const severityErrors = diagnostics.filter((obj) => obj.severity === 0);
+      this.log(`Input is an empty file or not a correct AsyncAPI document so it cannot be processed.${formatOutput(severityErrors,'stylish','error')}`);
       return;
     }
 
