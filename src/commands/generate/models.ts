@@ -145,7 +145,7 @@ export default class Models extends Command {
     const { document, diagnostics ,status } = await parse(this, inputFile, flags);
     if (!document || status === 'invalid') {
       const severityErrors = diagnostics.filter((obj) => obj.severity === 0);
-      this.log(`Input is an empty file or not a correct AsyncAPI document so it cannot be processed.${formatOutput(severityErrors,'stylish','error')}`);
+      this.log(`Input is not a correct AsyncAPI document so it cannot be processed.${formatOutput(severityErrors,'stylish','error')}`);
       return;
     }
 
