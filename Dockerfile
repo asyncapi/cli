@@ -12,6 +12,6 @@ RUN apk --update add git chromium && \
     rm /var/cache/apk/*
 
 # Installing latest released npm package
-RUN npm install -g @asyncapi/cli
+RUN npm install --install-scripts -g @asyncapi/cli
 
 ENTRYPOINT [ "asyncapi" ]
