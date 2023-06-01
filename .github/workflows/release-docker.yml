@@ -1,13 +1,8 @@
 name: Release Docker Image
-on:
-  push:
-    branches:
-      - master
-
-# on: 
-#  release:
-#    types: 
-#      - published
+on: 
+  release:
+    types: 
+      - published
 jobs:
 
   publish-docker:
