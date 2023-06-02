@@ -1,4 +1,8 @@
 FROM node:16-alpine
+
+# Create a non-root user
+RUN addgroup -S myuser && adduser -S myuser -G myuser
+
 WORKDIR /app
 
 # Since 0.14.0 release of html-template chromium is needed for pdf generation
@@ -13,5 +17,8 @@ RUN apk --update add git chromium && \
 
 # Installing latest released npm package
 RUN npm install --ignore-scripts -g @asyncapi/cli
+
+# Switch to the non-root user
+USER myuser
 
 ENTRYPOINT [ "asyncapi" ]
