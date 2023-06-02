@@ -155,6 +155,7 @@
     "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && tsc && echo \"Build Completed\"",
     "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
     "dev": "tsc --watch",
+    "docker:build": "docker build -t asyncapi/cli:latest .",
     "generate:readme:create": "printf '\n\n# Usage\n\n<!-- usage -->\n\n# Commands\n\n<!-- commands -->\n' > scripts/README.md",
     "generate:readme:commands": "npm run build && cd scripts && DEBUG=* oclif readme",
     "generate:assets": "npm run generate:readme:toc && npm run generate:commands",
