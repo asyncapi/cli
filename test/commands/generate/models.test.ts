@@ -7,13 +7,12 @@ const generalOptions = ['generate:models'];
 const outputDir = './test/commands/generate/models';
 
 describe('models', () => {
-
-  beforeAll(()=>{
+  beforeAll(() => {
     createMockServer();
   });
-  afterAll(()=>{
+  afterAll(() => {
     stopMockServer();
-  })
+  });
   test
     .stderr()
     .stdout()

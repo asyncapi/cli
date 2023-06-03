@@ -2,8 +2,8 @@ import { existsSync, writeFileSync, unlinkSync, rmSync, mkdirSync } from 'fs';
 import * as path from 'path';
 import { IContextFile, DEFAULT_CONTEXT_FILE_PATH } from '../src/models/Context';
 import SpecificationFile from '../src/models/SpecificationFile';
-import http from "http";
-import fs from "fs";
+import http from 'http';
+import fs from 'fs';
 
 const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'specification.yaml');
 const SERVER_DIRECTORY= path.join(__dirname, 'dummyspec');
@@ -86,10 +86,10 @@ export function fileCleanup(filepath: string) {
   unlinkSync(filepath);
 }
 
-export function createMockServer(port: number = 8080){
-  server = http.createServer((req,res)=>{
-    if(req.method==='GET'){
-      let filePath= path.join(SERVER_DIRECTORY, req.url!);
+export function createMockServer (port = 8080) {
+  server = http.createServer((req,res) => {
+    if (req.method ==='GET') {
+      const filePath= path.join(SERVER_DIRECTORY, req.url || '/');
       fs.readFile(filePath, (error, content) => {
         if (error) {
           if (error.code === 'ENOENT') {
@@ -104,27 +104,26 @@ export function createMockServer(port: number = 8080){
           res.end(content);
         }
       });
-
     }
   });
   server.listen(port);
 }
 
-export function stopMockServer(){
+export function stopMockServer() {
   server.close();
 }
 
-function getContentType(filePath:string):string{
+function getContentType(filePath:string):string {
   const extname = path.extname(filePath);
   switch (extname) {
-    case '.json':
-      return 'application/json';
-    case '.yml':
-    case '.yaml':
-      return 'application/yaml';
-    default:
-      // Any other suggestion?
-      return 'application/octet-stream';
+  case '.json':
+    return 'application/json';
+  case '.yml':
+  case '.yaml':
+    return 'application/yaml';
+  default:
+    // Any other suggestion?
+    return 'application/octet-stream';
   }
 }
 
