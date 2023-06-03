@@ -2,14 +2,22 @@
 /* eslint-disable sonarjs/no-identical-functions */
 import path from 'path';
 import { test } from '@oclif/test';
+import { createMockServer, stopMockServer } from '../../testHelper';
 const generalOptions = ['generate:models'];
 const outputDir = './test/commands/generate/models';
 
 describe('models', () => {
+
+  beforeAll(()=>{
+    createMockServer();
+  });
+  afterAll(()=>{
+    stopMockServer();
+  })
   test
     .stderr()
     .stdout()
-    .command([...generalOptions, 'typescript', 'http://bit.ly/asyncapi'])
+    .command([...generalOptions, 'typescript', 'http://localhost:8080/streetlights.yml'])
     .it('works with remote AsyncAPI files', (ctx, done) => {
       expect(ctx.stderr).toEqual('');
       expect(ctx.stdout).toMatchSnapshot();

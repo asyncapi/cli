@@ -2,9 +2,14 @@ import { existsSync, writeFileSync, unlinkSync, rmSync, mkdirSync } from 'fs';
 import * as path from 'path';
 import { IContextFile, DEFAULT_CONTEXT_FILE_PATH } from '../src/models/Context';
 import SpecificationFile from '../src/models/SpecificationFile';
+import http from "http";
+import fs from "fs";
 
 const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'specification.yaml');
+const SERVER_DIRECTORY= path.join(__dirname, 'dummyspec');
 export const PROJECT_DIRECTORY_PATH = path.join(process.cwd(), 'test-project');
+
+let server: http.Server;
 
 export default class ContextTestingHelper {
   private _context: IContextFile;
@@ -28,10 +33,10 @@ export default class ContextTestingHelper {
   createDummyContextFile(): void {
     writeFileSync(DEFAULT_CONTEXT_FILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8' });
   }
-  
+
   deleteDummyContextFile(): void {
     unlinkSync(DEFAULT_CONTEXT_FILE_PATH);
-  } 
+  }
 
   unsetCurrentContext(): void {
     delete this._context.current;
@@ -71,7 +76,7 @@ export default class ContextTestingHelper {
   createDummyProjectDirectory(): void {
     mkdirSync(PROJECT_DIRECTORY_PATH);
   }
-  
+
   deleteDummyProjectDirectory(): void {
     rmSync(PROJECT_DIRECTORY_PATH, {recursive: true});
   }
@@ -80,3 +85,46 @@ export default class ContextTestingHelper {
 export function fileCleanup(filepath: string) {
   unlinkSync(filepath);
 }
+
+export function createMockServer(port: number = 8080){
+  server = http.createServer((req,res)=>{
+    if(req.method==='GET'){
+      let filePath= path.join(SERVER_DIRECTORY, req.url!);
+      fs.readFile(filePath, (error, content) => {
+        if (error) {
+          if (error.code === 'ENOENT') {
+            res.writeHead(404);
+            res.end('404 Not Found');
+          } else {
+            res.writeHead(500);
+            res.end('Internal Server Error');
+          }
+        } else {
+          res.writeHead(200, { 'Content-Type': getContentType(filePath) });
+          res.end(content);
+        }
+      });
+
+    }
+  });
+  server.listen(port);
+}
+
+export function stopMockServer(){
+  server.close();
+}
+
+function getContentType(filePath:string):string{
+  const extname = path.extname(filePath);
+  switch (extname) {
+    case '.json':
+      return 'application/json';
+    case '.yml':
+    case '.yaml':
+      return 'application/yaml';
+    default:
+      // Any other suggestion?
+      return 'application/octet-stream';
+  }
+}
+
