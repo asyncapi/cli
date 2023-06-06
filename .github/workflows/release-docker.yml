@@ -34,4 +34,4 @@ jobs:
           user: ${{secrets.DOCKER_USERNAME}}
           pass: ${{ secrets.DOCKER_PASSWORD }}
           slug: asyncapi/cli
-          description: true
+          description: CLI to work with your AsyncAPI files
