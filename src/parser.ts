@@ -80,7 +80,6 @@ function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: S
         command.logToStderr(`\n${sourceString} and/or referenced documents have governance issues.`);
         command.logToStderr(formatOutput(diagnostics, diagnosticsFormat, failSeverity));
       }
-      command.exit(1);
       return 'invalid';
     }
 
@@ -95,7 +94,7 @@ function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: S
   return 'valid';
 }
 
-function formatOutput(diagnostics: Diagnostic[], format: `${OutputFormat}`, failSeverity: SeveritytKind) {
+export function formatOutput(diagnostics: Diagnostic[], format: `${OutputFormat}`, failSeverity: SeveritytKind) {
   const options = { failSeverity: getDiagnosticSeverity(failSeverity) };
   switch (format) {
   case 'stylish': return stylish(diagnostics, options);
