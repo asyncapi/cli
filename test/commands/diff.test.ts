@@ -17,6 +17,20 @@ describe('diff', () => {
         done();
       });
   });
+  
+  describe('yaml output: with file paths, and there are no difference between the files', () => {
+    test
+      .stderr()
+      .stdout()
+      .command(['diff', './test/specification.yml', './test/specification.yml'])
+      .it('works when file path is passed', (ctx, done) => {
+        expect(JSON.stringify(ctx.stdout)).toEqual(
+          '"changes: []\\n\\n"'
+        );
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+  });
 
   describe('with file paths, and getting all changes', () => {
     test

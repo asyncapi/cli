@@ -150,11 +150,11 @@ export default class Diff extends Command {
         );
       }
       if (!noError) {
-        throwOnBreakingChange(diffOutput);
+        throwOnBreakingChange(diffOutput, outputFormat);
       }
     } catch (error) {
       if (error instanceof DiffBreakingChangeError) {
-        throw error;
+        this.error(error);
       } 
       throw new ValidationError({
         type: 'parser-error',
@@ -238,9 +238,12 @@ const enableWatch = (status: boolean, watcher: SpecWatcherParams) => {
 /**
  * Throws `DiffBreakingChangeError` when breaking changes are detected
  */
-function throwOnBreakingChange(diffOutput: AsyncAPIDiff) {
+function throwOnBreakingChange(diffOutput: AsyncAPIDiff, outputFormat: string) {
   const breakingChanges = diffOutput.breaking();
-  if (breakingChanges.length !== 0) {
+  if (
+    (outputFormat === 'json' && breakingChanges.length !== 0) || 
+    ((outputFormat === 'yaml' || outputFormat === 'yml') && breakingChanges !== '[]\n')
+  ) {
     throw new DiffBreakingChangeError();
-  }
+  } 
 }
