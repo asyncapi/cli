@@ -17,8 +17,8 @@ const DEFAULT_CONTEXT_FILENAME = '.asyncapi-cli';
 const DEFAULT_CONTEXT_FILE_LOCATION = os.homedir();
 export const DEFAULT_CONTEXT_FILE_PATH = path.resolve(DEFAULT_CONTEXT_FILE_LOCATION, DEFAULT_CONTEXT_FILENAME);
 
-const CONTEXT_FILENAME = process.env.CUSTOM_CONTEXT_FILENAME || DEFAULT_CONTEXT_FILENAME;
-const CONTEXT_FILE_LOCATION = process.env.CUSTOM_CONTEXT_FILE_LOCATION || DEFAULT_CONTEXT_FILE_LOCATION;
+const CONTEXT_FILENAME = process.env.CUSTOM_CONTEXT_FILENAME ?? DEFAULT_CONTEXT_FILENAME;
+const CONTEXT_FILE_LOCATION = process.env.CUSTOM_CONTEXT_FILE_LOCATION ?? DEFAULT_CONTEXT_FILE_LOCATION;
 
 // Usage of promises for assignment of their resolved values to constants is
 // known to be troublesome:
@@ -60,7 +60,7 @@ export interface ICurrentContext {
 }
 
 export async function loadContext(contextName?: string): Promise<string> {
-  const fileContent = await loadContextFile();
+  const fileContent: IContextFile = await loadContextFile();
   if (contextName) {
     const context = fileContent.store[String(contextName)];
     if (!context) {throw new ContextNotFound(contextName);}
@@ -101,7 +101,7 @@ export async function addContext(contextName: string, pathToFile: string) {
 }
 
 export async function removeContext(contextName: string) {
-  const fileContent = await loadContextFile();
+  const fileContent: IContextFile = await loadContextFile();
   if (!fileContent.store[String(contextName)]) {
     throw new ContextNotFound(contextName);
   }
@@ -113,7 +113,7 @@ export async function removeContext(contextName: string) {
 }
 
 export async function getCurrentContext(): Promise<ICurrentContext> {
-  const fileContent = await loadContextFile();
+  const fileContent: IContextFile = await loadContextFile();
   const context = await loadContext();
   return {
     current: fileContent.current as string,
@@ -122,7 +122,7 @@ export async function getCurrentContext(): Promise<ICurrentContext> {
 }
 
 export async function setCurrentContext(contextName: string) {
-  const fileContent = await loadContextFile();
+  const fileContent: IContextFile = await loadContextFile();
   if (!fileContent.store[String(contextName)]) {
     throw new ContextNotFound(contextName);
   }

@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import path from 'path';
 import { test } from '@oclif/test';
 
