@@ -2,8 +2,6 @@
 import { test } from '@oclif/test';
 
 describe('diff', () => {
-  jest.setTimeout(100000);
-
   describe('with file paths, and there are no difference between the files', () => {
     test
       .stderr()
@@ -235,19 +233,6 @@ describe('diff', () => {
       });
   });
 
-  describe('with logging diagnostics', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['diff', './test/specification.yml', './test/specification.yml', '--format=json', '--log-diagnostics'])
-      .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).toMatch(
-          'File ./test/specification.yml is valid but has (itself and/or referenced documents) governance issues.'
-        );
-        expect(ctx.stderr).toEqual('');
-      });
-  });
-
   describe('Markdown output with subtype as json, getting all changes', () => {
     test
       .stderr()
@@ -308,6 +293,20 @@ describe('diff', () => {
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(
           '"Warning: The given markdownSubtype flag will not work with the given format.\\nProvided flag markdownSubtype: yaml\\n{\\n  \\"changes\\": [\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/channels/light~1measured/publish/message/x-parser-original-payload/x-parser-schema-id\\",\\n      \\"before\\": \\"<anonymous-schema-1>\\",\\n      \\"after\\": \\"<anonymous-schema-4>\\",\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/channels/light~1measured/publish/message/x-parser-original-payload/properties/sentAt/x-parser-schema-id\\",\\n      \\"before\\": \\"<anonymous-schema-4>\\",\\n      \\"after\\": \\"<anonymous-schema-7>\\",\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/channels/light~1measured/publish/message/x-parser-original-payload/properties/lumens/x-parser-schema-id\\",\\n      \\"before\\": \\"<anonymous-schema-3>\\",\\n      \\"after\\": \\"<anonymous-schema-6>\\",\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/channels/light~1measured/publish/message/x-parser-original-payload/properties/id/x-parser-schema-id\\",\\n      \\"before\\": \\"<anonymous-schema-2>\\",\\n      \\"after\\": \\"<anonymous-schema-5>\\",\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/channels/light~1measured/publish/message/x-parser-original-payload/properties/id/minimum\\",\\n      \\"before\\": 0,\\n      \\"after\\": 1,\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/channels/light~1measured/publish/message/payload/x-parser-schema-id\\",\\n      \\"before\\": \\"<anonymous-schema-1>\\",\\n      \\"after\\": \\"<anonymous-schema-4>\\",\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/channels/light~1measured/publish/message/payload/properties/sentAt/x-parser-schema-id\\",\\n      \\"before\\": \\"<anonymous-schema-4>\\",\\n      \\"after\\": \\"<anonymous-schema-7>\\",\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/channels/light~1measured/publish/message/payload/properties/lumens/x-parser-schema-id\\",\\n      \\"before\\": \\"<anonymous-schema-3>\\",\\n      \\"after\\": \\"<anonymous-schema-6>\\",\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/channels/light~1measured/publish/message/payload/properties/id/x-parser-schema-id\\",\\n      \\"before\\": \\"<anonymous-schema-2>\\",\\n      \\"after\\": \\"<anonymous-schema-5>\\",\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/channels/light~1measured/publish/message/payload/properties/id/minimum\\",\\n      \\"before\\": 0,\\n      \\"after\\": 1,\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"add\\",\\n      \\"path\\": \\"/channels/user~1signedup\\",\\n      \\"after\\": {\\n        \\"subscribe\\": {\\n          \\"message\\": {\\n            \\"payload\\": {\\n              \\"type\\": \\"object\\",\\n              \\"properties\\": {\\n                \\"displayName\\": {\\n                  \\"type\\": \\"string\\",\\n                  \\"description\\": \\"Name of the user\\",\\n                  \\"x-parser-schema-id\\": \\"<anonymous-schema-2>\\"\\n                },\\n                \\"email\\": {\\n                  \\"type\\": \\"string\\",\\n                  \\"format\\": \\"email\\",\\n                  \\"description\\": \\"Email of the user\\",\\n                  \\"x-parser-schema-id\\": \\"<anonymous-schema-3>\\"\\n                }\\n              },\\n              \\"x-parser-schema-id\\": \\"<anonymous-schema-1>\\"\\n            },\\n            \\"x-parser-message-name\\": \\"UserSignedUp\\",\\n            \\"x-parser-original-schema-format\\": \\"application/vnd.aai.asyncapi;version=2.1.0\\",\\n            \\"schemaFormat\\": \\"application/vnd.aai.asyncapi;version=2.1.0\\",\\n            \\"x-parser-original-payload\\": {\\n              \\"type\\": \\"object\\",\\n              \\"properties\\": {\\n                \\"displayName\\": {\\n                  \\"type\\": \\"string\\",\\n                  \\"description\\": \\"Name of the user\\",\\n                  \\"x-parser-schema-id\\": \\"<anonymous-schema-2>\\"\\n                },\\n                \\"email\\": {\\n                  \\"type\\": \\"string\\",\\n                  \\"format\\": \\"email\\",\\n                  \\"description\\": \\"Email of the user\\",\\n                  \\"x-parser-schema-id\\": \\"<anonymous-schema-3>\\"\\n                }\\n              },\\n              \\"x-parser-schema-id\\": \\"<anonymous-schema-1>\\"\\n            },\\n            \\"x-parser-message-parsed\\": true\\n          }\\n        }\\n      },\\n      \\"type\\": \\"non-breaking\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/servers/mosquitto/protocol\\",\\n      \\"before\\": \\"mqtt\\",\\n      \\"after\\": \\"http\\",\\n      \\"type\\": \\"unclassified\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/servers/mosquitto/url\\",\\n      \\"before\\": \\"mqtt://test.mosquitto.org\\",\\n      \\"after\\": \\"http://test.mosquitto.org\\",\\n      \\"type\\": \\"breaking\\"\\n    },\\n    {\\n      \\"action\\": \\"edit\\",\\n      \\"path\\": \\"/info/title\\",\\n      \\"before\\": \\"Streetlights API\\",\\n      \\"after\\": \\"Streetlights API V2\\",\\n      \\"type\\": \\"non-breaking\\"\\n    },\\n    {\\n      \\"action\\": \\"add\\",\\n      \\"path\\": \\"/components\\",\\n      \\"after\\": {\\n        \\"messages\\": {\\n          \\"UserSignedUp\\": {\\n            \\"payload\\": {\\n              \\"type\\": \\"object\\",\\n              \\"properties\\": {\\n                \\"displayName\\": {\\n                  \\"type\\": \\"string\\",\\n                  \\"description\\": \\"Name of the user\\",\\n                  \\"x-parser-schema-id\\": \\"<anonymous-schema-2>\\"\\n                },\\n                \\"email\\": {\\n                  \\"type\\": \\"string\\",\\n                  \\"format\\": \\"email\\",\\n                  \\"description\\": \\"Email of the user\\",\\n                  \\"x-parser-schema-id\\": \\"<anonymous-schema-3>\\"\\n                }\\n              },\\n              \\"x-parser-schema-id\\": \\"<anonymous-schema-1>\\"\\n            },\\n            \\"x-parser-message-name\\": \\"UserSignedUp\\",\\n            \\"x-parser-original-schema-format\\": \\"application/vnd.aai.asyncapi;version=2.1.0\\",\\n            \\"schemaFormat\\": \\"application/vnd.aai.asyncapi;version=2.1.0\\",\\n            \\"x-parser-original-payload\\": {\\n              \\"type\\": \\"object\\",\\n              \\"properties\\": {\\n                \\"displayName\\": {\\n                  \\"type\\": \\"string\\",\\n                  \\"description\\": \\"Name of the user\\",\\n                  \\"x-parser-schema-id\\": \\"<anonymous-schema-2>\\"\\n                },\\n                \\"email\\": {\\n                  \\"type\\": \\"string\\",\\n                  \\"format\\": \\"email\\",\\n                  \\"description\\": \\"Email of the user\\",\\n                  \\"x-parser-schema-id\\": \\"<anonymous-schema-3>\\"\\n                }\\n              },\\n              \\"x-parser-schema-id\\": \\"<anonymous-schema-1>\\"\\n            },\\n            \\"x-parser-message-parsed\\": true\\n          }\\n        }\\n      },\\n      \\"type\\": \\"non-breaking\\"\\n    }\\n  ]\\n}\\n"'
+        );
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+  });
+
+  describe('with logging diagnostics', () => {
+    test
+      .stderr()
+      .stdout()
+      .command(['diff', './test/specification.yml', './test/specification.yml', '--format=json', '--log-diagnostics'])
+      .it('works when file path is passed', (ctx, done) => {
+        expect(ctx.stdout).toMatch(
+          'File ./test/specification.yml is valid but has (itself and/or referenced documents) governance issues.'
         );
         expect(ctx.stderr).toEqual('');
         done();
