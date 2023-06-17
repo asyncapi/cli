@@ -265,7 +265,8 @@ function throwOnBreakingChange(diffOutput: AsyncAPIDiff, outputFormat: string) {
   const breakingChanges = diffOutput.breaking();
   if (
     (outputFormat === 'json' && breakingChanges.length !== 0) ||
-    ((outputFormat === 'yaml' || outputFormat === 'yml') && breakingChanges !== '[]\n')
+    ((outputFormat === 'yaml' || outputFormat === 'yml') && breakingChanges !== '[]\n') ||
+    (outputFormat === 'md' && breakingChanges.length !== 0)
   ) {
     throw new DiffBreakingChangeError();
   }
