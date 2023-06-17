@@ -1,4 +1,3 @@
-// NOSONAR
 /* eslint-disable sonarjs/no-duplicate-string */
 import { test } from '@oclif/test';
 
