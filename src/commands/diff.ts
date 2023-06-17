@@ -168,7 +168,7 @@ export default class Diff extends Command {
     } catch (error) {
       if (error instanceof DiffBreakingChangeError) {
         this.error(error);
-      } 
+      }
       throw new ValidationError({
         type: 'parser-error',
         err: error,
@@ -264,11 +264,11 @@ const enableWatch = (status: boolean, watcher: SpecWatcherParams) => {
 function throwOnBreakingChange(diffOutput: AsyncAPIDiff, outputFormat: string) {
   const breakingChanges = diffOutput.breaking();
   if (
-    (outputFormat === 'json' && breakingChanges.length !== 0) || 
+    (outputFormat === 'json' && breakingChanges.length !== 0) ||
     ((outputFormat === 'yaml' || outputFormat === 'yml') && breakingChanges !== '[]\n')
   ) {
     throw new DiffBreakingChangeError();
-  } 
+  }
 }
 
 /**
@@ -287,6 +287,6 @@ function checkAndWarnFalseFlag(format: string, markdownSubtype: string | undefin
 function setDefaultMarkdownSubtype(format: string, markdownSubtype: string | undefined) {
   if (format === 'md' && typeof (markdownSubtype) === 'undefined') {
     return 'yaml';
-  } 
+  }
   return markdownSubtype;
 }
