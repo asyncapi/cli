@@ -8,6 +8,7 @@ import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { SpecificationFileNotFound } from '../errors/specification-file';
 import {
+  DiffBreakingChangeError,
   DiffOverrideFileError,
   DiffOverrideJSONError,
 } from '../errors/diff-error';
@@ -40,6 +41,9 @@ export default class Diff extends Command {
       char: 'o',
       description: 'path to JSON file containing the override properties',
     }),
+    'no-error': Flags.boolean({
+      description: 'don\'t show error on breaking changes',
+    }),
     watch: watchFlag(),
     ...validationFlags({ logDiagnostics: false }),
   };
@@ -57,6 +61,7 @@ export default class Diff extends Command {
     },
   ];
 
+  /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Diff); // NOSONAR
     const firstDocumentPath = args['old'];
@@ -66,6 +71,7 @@ export default class Diff extends Command {
     const outputType = flags['type'];
     const overrideFilePath = flags['overrides'];
     const watchMode = flags['watch'];
+    const noError = flags['no-error'];
     let firstDocument: Specification, secondDocument: Specification;
 
     try {
@@ -143,7 +149,13 @@ export default class Diff extends Command {
           `The output format ${outputFormat} is not supported at the moment.`
         );
       }
+      if (!noError) {
+        throwOnBreakingChange(diffOutput, outputFormat);
+      }
     } catch (error) {
+      if (error instanceof DiffBreakingChangeError) {
+        this.error(error);
+      } 
       throw new ValidationError({
         type: 'parser-error',
         err: error,
@@ -222,3 +234,16 @@ const enableWatch = (status: boolean, watcher: SpecWatcherParams) => {
     specWatcher(watcher);
   }
 };
+
+/**
+ * Throws `DiffBreakingChangeError` when breaking changes are detected
+ */
+function throwOnBreakingChange(diffOutput: AsyncAPIDiff, outputFormat: string) {
+  const breakingChanges = diffOutput.breaking();
+  if (
+    (outputFormat === 'json' && breakingChanges.length !== 0) || 
+    ((outputFormat === 'yaml' || outputFormat === 'yml') && breakingChanges !== '[]\n')
+  ) {
+    throw new DiffBreakingChangeError();
+  } 
+}
