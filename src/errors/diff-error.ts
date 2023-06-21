@@ -13,3 +13,11 @@ export class DiffOverrideJSONError extends Error {
     this.message = 'Provided override file is not a valid JSON file';
   }
 }
+
+export class DiffBreakingChangeError extends Error {
+  constructor() {
+    super();
+    this.name = 'DiffBreakingChangeError';
+    this.message = 'Breaking changes detected';
+  }
+}
