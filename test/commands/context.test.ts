@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 import path from 'path';
 import { test } from '@oclif/test';
 
@@ -14,7 +13,7 @@ const testHelper = new TestHelper();
 // cannot be recognized, so workarounds with explicit calls of `TestHelper`
 // methods inside of `describe`s had to be implemented.
 
-describe('config:context, correct format', () => {
+describe('config:context, positive scenario', () => {
   beforeAll(() => {
     testHelper.createDummyContextFile();
   });
@@ -91,6 +90,10 @@ describe('config:context, correct format', () => {
       });
   });
 
+  // On direct execution of `chmodSync(CONTEXT_FILE_PATH, '444')` context file's
+  // permissions get changed to 'read only' in file system, but `@oclif/test`'s
+  // test still passes. Thus there is no sense in implementation of
+  // `writeFile()` faulty scenario with `@oclif/test` framework.
   describe('config:context:remove', () => {
     test
       .stderr()
@@ -106,7 +109,7 @@ describe('config:context, correct format', () => {
   });
 });
 
-describe('config:context, wrong format', () => {  
+describe('config:context, negative scenario', () => {  
   beforeAll(() => {
     // Any context file needs to be created before starting test suite,
     // otherwise a totally legitimate context file will be created automatically
@@ -174,9 +177,33 @@ describe('config:context, wrong format', () => {
         }
       );
   });
+  
+  // Totally correct (and considered correct by `@oclif/core`) format of the
+  // context file
+  // `{"current":"home","store":{"home":"homeSpecFile","code":"codeSpecFile"}}`
+  // is considered wrong in `@oclif/test`, limiting possibilities of negative
+  // scenarios coding.
+  describe('config:context:add', () => {
+    testHelper.deleteDummyContextFile();
+    testHelper.createDummyContextFileWrong('{"current":"home","current2":"test","store":{"home":"homeSpecFile","code":"codeSpecFile"}}');
+    test
+      .stderr()
+      .stdout()
+      .command(['config:context:add', 'home', './test/specification.yml'])
+      .it(
+        'should throw error on file with object having three root properties, saying that context file has wrong format.',
+        (ctx, done) => {
+          expect(ctx.stdout).toEqual('');
+          expect(ctx.stderr).toEqual(
+            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.\n`
+          );
+          done();
+        }
+      );
+  });
 });
 
-describe('config:context, wrong format', () => {
+describe('config:context, negative scenario', () => {
   afterAll(() => {
     testHelper.deleteDummyContextFile();
   });
