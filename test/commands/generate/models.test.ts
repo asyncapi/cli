@@ -68,6 +68,17 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
+      .command([...generalOptions, 'typescript', './test/specification.yml', '--tsMarshalling'])
+      .it('works when tsMarshalling is set', (ctx, done) => {
+        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).toContain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
+    test
+      .stderr()
+      .stdout()
       .command([...generalOptions, 'typescript', './test/specification.yml', '--tsIncludeComments'])
       .it('works when tsIncludeComments is set', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
