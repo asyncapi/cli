@@ -82,13 +82,8 @@ export default class Models extends Command {
       required: false,
       default: false,
     }),
-    tsExampleInstance: Flags.boolean({
-      description:'Typescript specific, if enabled add example while generating models',
-      required: false,
-      default: false,
-    }),
     tsMarshalling: Flags.boolean({
-      description:'Typescript specific, if enabled add marshalling functions while generating models',
+      description: 'TypeScript specific, generate the models with marshalling functions.',
       required: false,
       default: false,
     }),
@@ -149,7 +144,7 @@ export default class Models extends Command {
   /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsExampleInstance , tsMarshalling ,namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, output } = flags;
+    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, output } = flags;
     const { language, file } = args;
     const inputFile = (await load(file)) || (await load());
     const { document, diagnostics ,status } = await parse(this, inputFile, flags);
@@ -190,6 +185,14 @@ export default class Models extends Command {
           preset: TS_COMMON_PRESET,
         },
         TS_JSONBINPACK_PRESET);
+      }
+      if (tsMarshalling) {
+        presets.push({
+          preset: TS_COMMON_PRESET,
+          options: {
+            marshalling: true
+          }
+        });
       }
       fileGenerator = new TypeScriptFileGenerator({
         modelType: tsModelType as 'class' | 'interface',
