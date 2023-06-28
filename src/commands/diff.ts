@@ -3,11 +3,13 @@ import { Flags } from '@oclif/core';
 import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
 import { promises as fs } from 'fs';
+import chalk from 'chalk';
 import { load, Specification } from '../models/SpecificationFile';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { SpecificationFileNotFound } from '../errors/specification-file';
 import {
+  DiffBreakingChangeError,
   DiffOverrideFileError,
   DiffOverrideJSONError,
 } from '../errors/diff-error';
@@ -28,7 +30,7 @@ export default class Diff extends Command {
       char: 'f',
       description: 'format of the output',
       default: 'yaml',
-      options: ['json', 'yaml', 'yml'],
+      options: ['json', 'yaml', 'yml', 'md'],
     }),
     type: Flags.string({
       char: 't',
@@ -36,9 +38,17 @@ export default class Diff extends Command {
       default: 'all',
       options: ['breaking', 'non-breaking', 'unclassified', 'all'],
     }),
+    markdownSubtype: Flags.string({
+      description: 'the format of changes made to AsyncAPI document. It works only when diff is generated using md type. For example, when you specify subtype as json, then diff information in markdown is dumped as json structure.',
+      default: undefined,
+      options: ['json', 'yaml', 'yml']
+    }),
     overrides: Flags.string({
       char: 'o',
       description: 'path to JSON file containing the override properties',
+    }),
+    'no-error': Flags.boolean({
+      description: 'don\'t show error on breaking changes',
     }),
     watch: watchFlag(),
     ...validationFlags({ logDiagnostics: false }),
@@ -57,6 +67,7 @@ export default class Diff extends Command {
     },
   ];
 
+  /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Diff); // NOSONAR
     const firstDocumentPath = args['old'];
@@ -65,8 +76,13 @@ export default class Diff extends Command {
     const outputFormat = flags['format'];
     const outputType = flags['type'];
     const overrideFilePath = flags['overrides'];
+    let markdownSubtype = flags['markdownSubtype'];
     const watchMode = flags['watch'];
+    const noError = flags['no-error'];
     let firstDocument: Specification, secondDocument: Specification;
+
+    checkAndWarnFalseFlag(outputFormat, markdownSubtype);
+    markdownSubtype = setDefaultMarkdownSubtype(outputFormat, markdownSubtype);
 
     try {
       firstDocument = await load(firstDocumentPath);
@@ -131,6 +147,7 @@ export default class Diff extends Command {
         {
           override: overrides,
           outputType: outputFormat as diff.OutputType, // NOSONAR
+          markdownSubtype: markdownSubtype as diff.MarkdownSubtype
         }
       );
 
@@ -138,12 +155,20 @@ export default class Diff extends Command {
         this.outputJSON(diffOutput, outputType);
       } else if (outputFormat === 'yaml' || outputFormat === 'yml') {
         this.outputYAML(diffOutput, outputType);
+      } else if (outputFormat === 'md') {
+        this.outputMarkdown(diffOutput, outputType);
       } else {
         this.log(
           `The output format ${outputFormat} is not supported at the moment.`
         );
       }
+      if (!noError) {
+        throwOnBreakingChange(diffOutput, outputFormat);
+      }
     } catch (error) {
+      if (error instanceof DiffBreakingChangeError) {
+        this.error(error);
+      }
       throw new ValidationError({
         type: 'parser-error',
         err: error,
@@ -166,17 +191,27 @@ export default class Diff extends Command {
   }
 
   outputYAML(diffOutput: AsyncAPIDiff, outputType: string) {
-    if (outputType === 'breaking') {
-      this.log(diffOutput.breaking() as string);
-    } else if (outputType === 'non-breaking') {
-      this.log(diffOutput.nonBreaking() as string);
-    } else if (outputType === 'unclassified') {
-      this.log(diffOutput.unclassified() as string);
-    } else if (outputType === 'all') {
-      this.log(diffOutput.getOutput() as string);
-    } else {
-      this.log(`The output type ${outputType} is not supported at the moment.`);
-    }
+    this.log(genericOutput(diffOutput, outputType) as string);
+  }
+
+  outputMarkdown(diffOutput: AsyncAPIDiff, outputType: string) {
+    this.log(genericOutput(diffOutput, outputType) as string);
+  }
+}
+
+/**
+ * A generic output function for diff output
+ * @param diffOutput The diff output data
+ * @param outputType The output format requested by the user
+ * @returns The output(if the format exists) or a message indicating the format doesn't exist
+ */
+function genericOutput(diffOutput: AsyncAPIDiff, outputType: string) {
+  switch (outputType) {
+  case 'breaking': return diffOutput.breaking();
+  case 'non-breaking': return diffOutput.nonBreaking();
+  case 'unclassified': return diffOutput.unclassified();
+  case 'all': return diffOutput.getOutput();
+  default: return `The output type ${outputType} is not supported at the moment.`;
   }
 }
 
@@ -222,3 +257,37 @@ const enableWatch = (status: boolean, watcher: SpecWatcherParams) => {
     specWatcher(watcher);
   }
 };
+
+/**
+ * Throws `DiffBreakingChangeError` when breaking changes are detected
+ */
+function throwOnBreakingChange(diffOutput: AsyncAPIDiff, outputFormat: string) {
+  const breakingChanges = diffOutput.breaking();
+  if (
+    (outputFormat === 'json' && breakingChanges.length !== 0) ||
+    ((outputFormat === 'yaml' || outputFormat === 'yml') && breakingChanges !== '[]\n') ||
+    (outputFormat === 'md' && breakingChanges.length !== 0)
+  ) {
+    throw new DiffBreakingChangeError();
+  }
+}
+
+/**
+ * Checks and warns user about providing unnecessary markdownSubtype option.
+ */
+function checkAndWarnFalseFlag(format: string, markdownSubtype: string | undefined) {
+  if (format !== 'md' && typeof (markdownSubtype) !== 'undefined') {
+    const warningMessage = chalk.yellowBright(`Warning: The given markdownSubtype flag will not work with the given format.\nProvided flag markdownSubtype: ${markdownSubtype}`);
+    console.log(warningMessage);
+  }
+}
+
+/**
+ * Sets the default markdownSubtype option in case user doesn't provide one.
+ */
+function setDefaultMarkdownSubtype(format: string, markdownSubtype: string | undefined) {
+  if (format === 'md' && typeof (markdownSubtype) === 'undefined') {
+    return 'yaml';
+  }
+  return markdownSubtype;
+}
