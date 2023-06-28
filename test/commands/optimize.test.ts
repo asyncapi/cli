@@ -1,7 +1,7 @@
 import path from 'path';
 import { test } from '@oclif/test';
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
-import TestHelper from '../testHelper';
+import TestHelper, { createMockServer, stopMockServer } from '../testHelper';
 import inquirer from 'inquirer';
 import {Optimizations, Outputs} from '../../src/commands/optimize';
 
@@ -18,6 +18,14 @@ describe('optimize', () => {
 
     afterEach(() => {
       testHelper.deleteDummyContextFile();
+    });
+
+    beforeAll(() => {
+      createMockServer();
+    });
+
+    afterAll(() => {
+      stopMockServer();
     });
 
     test
@@ -43,9 +51,9 @@ describe('optimize', () => {
     test
       .stderr()
       .stdout()
-      .command(['optimize', 'https://bit.ly/asyncapi'])
+      .command(['optimize', 'http://localhost:8080/streetlights.yml'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).toContain('No optimization has been applied since https://bit.ly/asyncapi looks optimized!');
+        expect(ctx.stdout).toContain('No optimization has been applied since http://localhost:8080/streetlights.yml looks optimized!');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -96,7 +104,7 @@ describe('optimize', () => {
         }
       }
     });
-    
+
     test
       .stderr()
       .stdout()

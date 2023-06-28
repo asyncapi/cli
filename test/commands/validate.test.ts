@@ -3,7 +3,7 @@
 import path from 'path';
 import { test } from '@oclif/test';
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
-import TestHelper from '../testHelper';
+import TestHelper, { createMockServer, stopMockServer } from '../testHelper';
 
 const testHelper = new TestHelper();
 
@@ -12,9 +12,17 @@ describe('validate', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
     });
-    
+
     afterEach(() => {
       testHelper.deleteDummyContextFile();
+    });
+
+    beforeAll(() => {
+      createMockServer();
+    });
+
+    afterAll(() => {
+      stopMockServer();
     });
 
     test
@@ -26,7 +34,7 @@ describe('validate', () => {
         expect(ctx.stderr).toEqual('');
         done();
       });
-    
+
     test
       .stderr()
       .stdout()
@@ -52,9 +60,9 @@ describe('validate', () => {
     test
       .stderr()
       .stdout()
-      .command(['validate', 'https://bit.ly/asyncapi'])
+      .command(['validate', 'http://localhost:8080/streetlights.yml'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).toMatch('URL https://bit.ly/asyncapi is valid but has (itself and/or referenced documents) governance issues.\n\nhttps://bit.ly/asyncapi');
+        expect(ctx.stdout).toMatch('URL http://localhost:8080/streetlights.yml is valid but has (itself and/or referenced documents) governance issues.\n\nhttp://localhost:8080/streetlights.yml');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -69,16 +77,16 @@ describe('validate', () => {
         done();
       });
   });
-  
+
   describe('with context names', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
     });
-    
+
     afterEach(() => {
       testHelper.deleteDummyContextFile();
     });
-  
+
     test
       .stderr()
       .stdout()
@@ -89,7 +97,7 @@ describe('validate', () => {
         expect(ctx.stderr).toEqual('');
         done();
       });
-    
+
     test
       .stderr()
       .stdout()
@@ -100,7 +108,7 @@ describe('validate', () => {
         done();
       });
   });
-  
+
   describe('with no arguments', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
@@ -110,7 +118,7 @@ describe('validate', () => {
       testHelper.setCurrentContext('home');
       testHelper.deleteDummyContextFile();
     });
-  
+
     test
       .stderr()
       .stdout()
@@ -121,7 +129,7 @@ describe('validate', () => {
         expect(ctx.stderr).toEqual('');
         done();
       });
-    
+
     test
       .stderr()
       .stdout()
@@ -147,7 +155,7 @@ describe('validate', () => {
         }
       }
     });
-    
+
     test
       .stderr()
       .stdout()
@@ -163,11 +171,11 @@ describe('validate', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
     });
-    
+
     afterEach(() => {
       testHelper.deleteDummyContextFile();
     });
-  
+
     test
       .stderr()
       .stdout()
@@ -193,11 +201,11 @@ describe('validate', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
     });
-    
+
     afterEach(() => {
       testHelper.deleteDummyContextFile();
     });
-  
+
     test
       .stderr()
       .stdout()
@@ -223,11 +231,11 @@ describe('validate', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
     });
-    
+
     afterEach(() => {
       testHelper.deleteDummyContextFile();
     });
-  
+
     test
       .stderr()
       .stdout()

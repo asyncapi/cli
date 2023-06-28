@@ -1,7 +1,7 @@
 import path from 'path';
 import { test } from '@oclif/test';
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
-import TestHelper from '../testHelper';
+import TestHelper, { createMockServer, stopMockServer } from '../testHelper';
 import fs from 'fs-extra';
 import { unlink, unlinkSync } from 'fs';
 
@@ -17,6 +17,14 @@ describe('convert', () => {
 
     afterEach(() => {
       testHelper.deleteDummyContextFile();
+    });
+
+    beforeAll(() => {
+      createMockServer();
+    });
+
+    afterAll(() => {
+      stopMockServer();
     });
 
     test
@@ -42,9 +50,9 @@ describe('convert', () => {
     test
       .stderr()
       .stdout()
-      .command(['convert', 'https://bit.ly/asyncapi'])
+      .command(['convert', 'http://localhost:8080/streetlights.yml'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).toContain('URL https://bit.ly/asyncapi successfully converted!\n');
+        expect(ctx.stdout).toContain('URL http://localhost:8080/streetlights.yml successfully converted!\n');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -95,7 +103,7 @@ describe('convert', () => {
         }
       }
     });
-    
+
     test
       .stderr()
       .stdout()
@@ -170,4 +178,4 @@ describe('convert', () => {
         done();
       });
   });
-}); 
+});

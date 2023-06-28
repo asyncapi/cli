@@ -351,10 +351,10 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'typescript', 'http://bit.ly/asyncapi', '--log-diagnostics'])
+      .command([...generalOptions, 'typescript', 'http://localhost:8080/streetlights.yml', '--log-diagnostics'])
       .it('works with remote AsyncAPI files', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
-        expect(ctx.stdout).toMatch('URL http://bit.ly/asyncapi is valid but has (itself and/or referenced documents) governance issues.');
+        expect(ctx.stdout).toMatch('URL http://localhost:8080/streetlights.yml is valid but has (itself and/or referenced documents) governance issues.');
         done();
       });
   });

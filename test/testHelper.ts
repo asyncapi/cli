@@ -3,7 +3,7 @@ import * as path from 'path';
 import { IContextFile, DEFAULT_CONTEXT_FILE_PATH } from '../src/models/Context';
 import SpecificationFile from '../src/models/SpecificationFile';
 import http from 'http';
-import fs from 'fs';
+import {promises as fs} from 'fs';
 
 const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'specification.yaml');
 const SERVER_DIRECTORY= path.join(__dirname, 'dummyspec');
@@ -87,23 +87,22 @@ export function fileCleanup(filepath: string) {
 }
 
 export function createMockServer (port = 8080) {
-  server = http.createServer((req,res) => {
+  server = http.createServer(async (req,res) => {
     if (req.method ==='GET') {
       const filePath= path.join(SERVER_DIRECTORY, req.url || '/');
-      fs.readFile(filePath, (error, content) => {
-        if (error) {
-          if (error.code === 'ENOENT') {
-            res.writeHead(404);
-            res.end('404 Not Found');
-          } else {
-            res.writeHead(500);
-            res.end('Internal Server Error');
-          }
+      try {
+        const content = await fs.readFile(filePath, {encoding: 'utf8'});
+        res.writeHead(200, {'Content-Type': getContentType(filePath)});
+        res.end(content);
+      } catch (error) {
+        if (error.code === 'ENOENT') {
+          res.writeHead(404);
+          res.end('404 NOT FOUND');
         } else {
-          res.writeHead(200, { 'Content-Type': getContentType(filePath) });
-          res.end(content);
+          res.writeHead(500);
+          res.end('Internal Server Error');
         }
-      });
+      }
     }
   });
   server.listen(port);
