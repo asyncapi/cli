@@ -1,9 +1,8 @@
-import { existsSync, writeFileSync, unlinkSync, rmSync, mkdirSync } from 'fs';
+import { existsSync, writeFileSync, unlinkSync, rmSync, mkdirSync , promises as fs } from 'fs';
 import * as path from 'path';
 import { IContextFile, DEFAULT_CONTEXT_FILE_PATH } from '../src/models/Context';
 import SpecificationFile from '../src/models/SpecificationFile';
 import http from 'http';
-import {promises as fs} from 'fs';
 
 const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'specification.yaml');
 const SERVER_DIRECTORY= path.join(__dirname, 'dummyspec');
