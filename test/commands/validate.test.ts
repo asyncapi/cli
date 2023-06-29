@@ -60,9 +60,9 @@ describe('validate', () => {
     test
       .stderr()
       .stdout()
-      .command(['validate', 'http://localhost:8080/streetlights.yml'])
+      .command(['validate', 'http://localhost:8080/dummySpec.yml'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).toMatch('URL http://localhost:8080/streetlights.yml is valid but has (itself and/or referenced documents) governance issues.\n\nhttp://localhost:8080/streetlights.yml');
+        expect(ctx.stdout).toMatch('URL http://localhost:8080/dummySpec.yml is valid but has (itself and/or referenced documents) governance issues.\n\nhttp://localhost:8080/dummySpec.yml');
         expect(ctx.stderr).toEqual('');
         done();
       });

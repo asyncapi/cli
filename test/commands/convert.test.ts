@@ -49,9 +49,9 @@ describe('convert', () => {
     test
       .stderr()
       .stdout()
-      .command(['convert', 'http://localhost:8080/streetlights.yml'])
+      .command(['convert', 'http://localhost:8080/dummySpec.yml'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).toContain('URL http://localhost:8080/streetlights.yml successfully converted!\n');
+        expect(ctx.stdout).toContain('URL http://localhost:8080/dummySpec.yml successfully converted!\n');
         expect(ctx.stderr).toEqual('');
         done();
       });

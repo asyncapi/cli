@@ -50,9 +50,9 @@ describe('optimize', () => {
     test
       .stderr()
       .stdout()
-      .command(['optimize', 'http://localhost:8080/streetlights.yml'])
+      .command(['optimize', 'http://localhost:8080/dummySpec.yml'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).toContain('No optimization has been applied since http://localhost:8080/streetlights.yml looks optimized!');
+        expect(ctx.stdout).toContain('No optimization has been applied since http://localhost:8080/dummySpec.yml looks optimized!');
         expect(ctx.stderr).toEqual('');
         done();
       });

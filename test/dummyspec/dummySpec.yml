@@ -1,9 +1,9 @@
 asyncapi: '2.0.0'
 info:
-  title: Streetlights API
+  title: Dummy example used in tests related to fetching AsyncAPI from URL
   version: '1.0.0'
   description: |
-    The Smartylighting Streetlights API allows you to remotely manage the city lights.
+    The Dummy API allows you to remotely manage the city lights.
 
     ### Check out its awesome features:
 
