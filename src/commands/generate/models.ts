@@ -87,6 +87,11 @@ export default class Models extends Command {
       required: false,
       default: false,
     }),
+    tsExampleInstance: Flags.boolean({
+      description: 'Typescript specific, generate example of the model',
+      required: false,
+      default: false,
+    }),
     /**
      * Go and Java specific package name to use for the generated models
      */
@@ -144,7 +149,7 @@ export default class Models extends Command {
   /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, output } = flags;
+    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, tsExampleInstance, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, output } = flags;
     const { language, file } = args;
     const inputFile = (await load(file)) || (await load());
     const { document, diagnostics ,status } = await parse(this, inputFile, flags);
@@ -172,25 +177,23 @@ export default class Models extends Command {
     let fileGenerator: AbstractGenerator<any, any> & AbstractFileGenerator<any>;
     let fileOptions: any = {};
     const presets = [];
+    const options = {
+      marshalling: tsMarshalling,
+      example: tsExampleInstance,
+    };
     switch (language) {
     case Languages.typescript:
+      presets.push({
+        preset: TS_COMMON_PRESET,
+        options
+      });
       if (tsIncludeComments) {presets.push(TS_DESCRIPTION_PRESET);}
       if (tsJsonBinPack) {
         presets.push({
           preset: TS_COMMON_PRESET,
-          options: {
-            marshalling: true
-          }
+          options
         },
         TS_JSONBINPACK_PRESET);
-      }
-      if (tsMarshalling) {
-        presets.push({
-          preset: TS_COMMON_PRESET,
-          options: {
-            marshalling: true
-          }
-        });
       }
       fileGenerator = new TypeScriptFileGenerator({
         modelType: tsModelType as 'class' | 'interface',
