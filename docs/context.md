@@ -11,21 +11,21 @@ Event driven architecture involves multiple actors, subscribers and publishers. 
 
 In short it means that for example instead of writing `asyncapi validate /some/folder/my-asyncapi.yml` you can create a context called `myasync` that will be an alias for and point to `/some/folder/my-asyncapi.yml`. This way next time you use the CLI you can do `asyncapi validate myasync`.
 
-### Context File location
+## Context File location
 
 You can have a global context for your workstation, and a project specific context.
 
 If your use case is that you work with multiple repositories, you might want to use a global context. The `.asyncapi-cli` context file is then located in your home directory. You can also store your custom `.asyncapi-cli` file in your project with custom configuration. This way when you run `asyncapi config context add` inside your project, the new context is added to the context file under your project.
 
-### How to add context to a project
+## How to add context to a project
 
-#### Manually:
+### Manually
   - Create file `.asyncapi-cli` containing [minimal empty context file](#minimalEmptyContextFile) in:
     - current directory
     - root of current repository
     - user's home directory
 
-#### Using CLI's `init` command:
+### Using CLI's `init` command
 
 `asyncapi config context init [CONTEXT-FILE-PATH]`
 
@@ -40,7 +40,7 @@ Make use of newly created `.asyncapi-cli` by executing command:
 
 `asyncapi config context add [CONTEXT-NAME] [SPEC-FILE-PATH]`
 
-##### Setup example in a real project
+### Setup example in a real project
 
 Below you can see an example of context setup for [Event Driven Flight status notification service](https://github.com/amadeus4dev-examples/amadeus-async-flight-status/tree/ff433b6d320a3a6a2499976cbf0782353bc57c16) of the [Amadeus Airline Platform](https://amadeus.com/en/industries/airlines/airline-platform), with multiple microservices and their AsyncAPI documents.
 
@@ -106,26 +106,26 @@ notifier: notifier/asyncapi.yaml
 subscriber: subscriber/asyncapi.yaml
 ```
 
-### Context File structure
+## Context File structure
 
-##### Fixed Fields
+### Fixed Fields
 
 Field Name | Type | Description
 ---|:---:|---
 current | `string` | An optional string value representing one of context names, which is used as default in CLI. Default means you can run CLI commands without providing context name, like `asyncapi validate`, and it will run against the default - `current` - context.
 store | [Store Object](#storeObject) | **REQUIRED**. Map of filesystem paths to target AsyncAPI documents.
 
-#### <a name="storeObject"></a>Store Object
+### <a name="storeObject"></a>Store Object
 
 Map of filesystem paths to target AsyncAPI documents.
 
-##### Patterned Fields
+**Patterned Fields**
 
 Field Pattern | Type | Description
 ---|:---:|---
 {contextName} | `string` | An optional string value representing filesystem path to the target AsyncAPI document.
 
-##### <a name="minimalEmptyContextFile"></a>Minimal Empty Context File
+### <a name="minimalEmptyContextFile"></a>Minimal Empty Context File
 Raw JSON:
 ```
 {
@@ -137,7 +137,7 @@ Stringified JSON:
 {"store":{}}
 ```
 
-##### Context File Example
+### Context File Example
 
 Example of a context file for [Event Driven Flight status notification service](https://github.com/amadeus4dev-examples/amadeus-async-flight-status/tree/ff433b6d320a3a6a2499976cbf0782353bc57c16) of the [Amadeus Airline Platform](https://amadeus.com/en/industries/airlines/airline-platform), with multiple microservices and their AsyncAPI documents:
 ```
@@ -151,6 +151,6 @@ Example of a context file for [Event Driven Flight status notification service](
 }
 ```
 
-### How to work with context using CLI
+## More context related CLI options
 
 All commands for managing contexts are available under `asyncapi config context` [CLI commands group](usage#asyncapi-config-context).
