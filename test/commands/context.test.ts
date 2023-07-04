@@ -217,10 +217,8 @@ describe('config:context, negative scenario', () => {
       .it(
         'should throw error on absence of context file.',
         (ctx, done) => {
-          expect(ctx.stdout).toEqual('');
-          expect(ctx.stderr).toContain(
-            'ContextError: These are your options to specify in the CLI what AsyncAPI file should be used:'
-          );
+          expect(ctx.stdout).toContain('You have no context configured. Run "asyncapi config context" to see all available options.');
+          expect(ctx.stderr).toEqual('');
           done();
         }
       );
