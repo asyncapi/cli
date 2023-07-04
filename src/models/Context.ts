@@ -1,7 +1,6 @@
-import { promises as fs } from 'fs';
+import { promises as fs, existsSync, lstatSync } from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import * as repoRoot from 'app-root-path';
 
 import {
   ContextNotFoundError,
@@ -14,6 +13,19 @@ import {
 } from '../errors/context-error';
 
 const { readFile, writeFile } = fs;
+
+// `repoRootPath` is optimistically assigned current working directory's
+// filesystem path because chances are it will become 'official' repository root
+// down the execution.
+//
+// `REPO_ROOT_PATH` will be converted to a real constant after migration of the
+// codebase to ES2022 or higher and introduction of construction
+//
+// const REPO_ROOT_PATH = await getRepoRootPath(process.cwd());
+//
+// See explanation of the situation with `CONTEXT_FILE_PATH` below.
+let REPO_ROOT_PATH = process.cwd();
+getRepoRootPath(process.cwd());
 
 const DEFAULT_CONTEXT_FILENAME = '.asyncapi-cli';
 const DEFAULT_CONTEXT_FILE_LOCATION = os.homedir();
@@ -82,7 +94,7 @@ export async function initContext(contextFilePath: string) {
       contextWritePath = process.cwd() + path.sep + CONTEXT_FILENAME;
       break;
     case './':
-      contextWritePath = repoRoot.path + path.sep + CONTEXT_FILENAME;
+      contextWritePath = REPO_ROOT_PATH + path.sep + CONTEXT_FILENAME;
       break;
     // There are two variants of `~` case because tilde expansion in UNIX
     // systems is not a guaranteed feature - sometimes `~` can return just `~`
@@ -249,12 +261,60 @@ async function saveContextFile(fileContent: IContextFile) {
   }
 }
 
+async function getRepoRootPath(repoRootPath: string): Promise<string | null> {
+  // Asynchronous `fs.exists()` is deprecated, asynchronous `fs.stat()`
+  // introduces race condition, thus synchronous functions are used.
+
+  let pathToCheck = `${repoRootPath}${path.sep}.git`;
+
+  // If directory where `init` was requested in, happens to contain `.git`
+  // directory, then it surely is a root of repository, no need to search
+  // further and `REPO_ROOT_PATH` will remain as it was.
+  if (existsSync(pathToCheck) && lstatSync(pathToCheck).isDirectory()) {
+    return null;
+  }
+
+  // Directory where `init` was requested in, did not happen to contain `.git`
+  // directory, so preparation for iterating through array of filesystem paths
+  // is started.
+  const repoRootPathArray = repoRootPath.split(path.sep);
+
+  // Last element in array is thrown away because it is already known that it
+  // does not contain directory `.git`.
+  repoRootPathArray.pop();
+
+  // Backwards search of the array of filesystem paths will now be performed.
+  let i = repoRootPathArray.length - 1;
+
+  while (i > 0) {
+    pathToCheck = `${repoRootPathArray.join(path.sep)}${path.sep}.git`;
+
+    if (existsSync(pathToCheck) && lstatSync(pathToCheck).isDirectory()) {
+      REPO_ROOT_PATH = repoRootPathArray.join(path.sep);
+      return REPO_ROOT_PATH;
+    }
+
+    // Last (`0th`) element is an empty string, so if directory `.git` was not
+    // found on 1st element (last actual directory in filesystem), the search
+    // does not need to continue and `REPO_ROOT_PATH` will remain having the
+    // value of current (where `init` was requested in) directory.
+    if (i === 1) {
+      return null;
+    }
+
+    repoRootPathArray.pop();
+
+    i--;
+  }
+  return null;
+}
+
 async function getContextFilePath(): Promise<string | null> {
   const currentPath = process
     .cwd()
-    .slice(repoRoot.path.length + 1)
+    .slice(REPO_ROOT_PATH.length + 1)
     .split(path.sep);
-  currentPath.unshift(repoRoot.path);
+  currentPath.unshift(REPO_ROOT_PATH);
 
   for (let i = currentPath.length; i >= 0; i--) {
     const currentPathString = currentPath[0]
