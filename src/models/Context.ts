@@ -112,6 +112,18 @@ export async function addContext(contextName: string, pathToFile: string) {
   await saveContextFile(fileContent);
 }
 
+export async function editContext(contextName: string, pathToFile: string) {
+  let fileContent: IContextFile;
+
+  try {
+    fileContent = await loadContextFile();
+  } catch (e) {
+    throw e;
+  }
+  fileContent.store[String(contextName)] = pathToFile;
+  await saveContextFile(fileContent);
+}
+
 export async function removeContext(contextName: string) {
   const fileContent: IContextFile = await loadContextFile();
   if (!fileContent.store[String(contextName)]) {

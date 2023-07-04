@@ -3,7 +3,7 @@ import Command from '../../../base';
 import { addContext } from '../../../models/Context';
 
 export default class ContextAdd extends Command {
-  static description='Add or modify a context in the store';
+  static description='Add a context to the store';
   static flags = {
     help: Flags.help({char: 'h'})
   };
