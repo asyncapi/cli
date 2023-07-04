@@ -24,14 +24,8 @@ export default class ContextInit extends Command {
   async run() {
     const { args } = await this.parse(ContextInit);
     const contextFilePath = args['context-file-path'];
-    const contextName = args['context-name'];
-    const specFilePath = args['spec-file-path'];
 
-    const contextWritePath = await initContext(
-      contextFilePath,
-      contextName,
-      specFilePath
-    );
+    const contextWritePath = await initContext(contextFilePath);
     this.log(`Initialized context ${contextWritePath}`);
   }
 }

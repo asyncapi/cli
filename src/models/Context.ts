@@ -69,12 +69,8 @@ export interface ICurrentContext {
   readonly context: string;
 }
 
-export async function initContext(
-  contextFilePath: string,
-  contextName: string,
-  specFilePath: string
-) {
-  let fileContent: IContextFile = {
+export async function initContext(contextFilePath: string) {
+  const fileContent: IContextFile = {
     store: {},
   };
   let contextWritePath = '';
@@ -88,6 +84,10 @@ export async function initContext(
     case './':
       contextWritePath = repoRoot.path + path.sep + CONTEXT_FILENAME;
       break;
+    // There are two variants of `~` case because tilde expansion in UNIX
+    // systems is not a guaranteed feature - sometimes `~` can return just `~`
+    // instead of home directory path.
+    // https://stackoverflow.com/questions/491877/how-to-find-a-users-home-directory-on-linux-or-unix#comment17161699_492669
     case os.homedir():
       contextWritePath = os.homedir() + path.sep + CONTEXT_FILENAME;
       break;
@@ -96,14 +96,6 @@ export async function initContext(
       break;
     default:
       contextWritePath = process.cwd() + path.sep + CONTEXT_FILENAME;
-  }
-
-  if (contextName && specFilePath) {
-    fileContent = {
-      store: {
-        [String(contextName)]: String(specFilePath),
-      },
-    };
   }
 
   try {

@@ -19,23 +19,26 @@ If your use case is that you work with multiple repositories, you might want to 
 
 ### How to add context to a project
 
-##### Using previously created context file:
+##### Manually:
   - Create file `.asyncapi-cli` containing [minimal empty context file](#minimalEmptyContextFile) in:
     - current directory
     - root of current repository
     - user's home directory
-  - Make use of this file by executing command `asyncapi config context add [CONTEXT-NAME] [SPEC-FILE-PATH]`
 
 ##### Using CLI's `init` command:
 
 `asyncapi config context init [CONTEXT-FILE-PATH]`
 
-Where `[CONTEXT-FILE-PATH]` instructs CLI what directory should the context file be created in:
-  - current directory: `asyncapi config context init . (default)`
+Where `[CONTEXT-FILE-PATH]` instructs CLI what directory should the file `.asyncapi-cli` containing [minimal empty context file](#minimalEmptyContextFile) be created in:
+  - current directory: `asyncapi config context init .` (default)
   - root of current repository: `asyncapi config context init ./`
   - user's home directory: `asyncapi config context init ~`
+  
+(if `[CONTEXT-FILE-PATH]` is omitted, empty context file is created in current directory)
 
-If `[CONTEXT-FILE-PATH]` is omitted, the context file is created in current directory.
+Make use of newly created `.asyncapi-cli` by executing command:
+
+`asyncapi config context add [CONTEXT-NAME] [SPEC-FILE-PATH]`
 
 ### Context File structure
 

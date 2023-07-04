@@ -28,24 +28,32 @@ describe('config:context, positive scenario', () => {
       .stdout()
       .command(['config:context:current'])
       .it('should show current context', (ctx, done) => {
-        expect(ctx.stdout).toEqual(`${testHelper.context.current}: ${testHelper.context.store['home']}\n`);
+        expect(ctx.stdout).toEqual(
+          `${testHelper.context.current}: ${testHelper.context.store['home']}\n`
+        );
         expect(ctx.stderr).toEqual('');
         done();
       });
   });
-  
+
   describe('config:context:list', () => {
     test
       .stderr()
       .stdout()
       .command(['config:context:list'])
-      .it('should list contexts prints list if context file is present', (ctx, done) => {
-        expect(ctx.stdout).toEqual(
-          `home: ${path.resolve(__dirname, '../specification.yml')}\ncode: ${path.resolve(__dirname, '../specification.yml')}\n`
-        );
-        expect(ctx.stderr).toEqual('');
-        done();
-      });
+      .it(
+        'should list contexts prints list if context file is present',
+        (ctx, done) => {
+          expect(ctx.stdout).toEqual(
+            `home: ${path.resolve(
+              __dirname,
+              '../specification.yml'
+            )}\ncode: ${path.resolve(__dirname, '../specification.yml')}\n`
+          );
+          expect(ctx.stderr).toEqual('');
+          done();
+        }
+      );
   });
 
   describe('config:context:add', () => {
@@ -67,15 +75,18 @@ describe('config:context, positive scenario', () => {
       .stderr()
       .stdout()
       .command(['config:context:add', 'test', './test/specification.yml'])
-      .it('should NOT add new context with already existing in context file name "test"', (ctx, done) => {
-        expect(ctx.stdout).toEqual(
-          ''
-        );
-        expect(ctx.stderr).toEqual(`ContextError: Context with name "test" already exists in context file "${CONTEXT_FILE_PATH}".\n`);
-        done();
-      });
+      .it(
+        'should NOT add new context with already existing in context file name "test"',
+        (ctx, done) => {
+          expect(ctx.stdout).toEqual('');
+          expect(ctx.stderr).toEqual(
+            `ContextError: Context with name "test" already exists in context file "${CONTEXT_FILE_PATH}".\n`
+          );
+          done();
+        }
+      );
   });
-  
+
   describe('config:context:edit', () => {
     test
       .stderr()
@@ -94,9 +105,7 @@ describe('config:context, positive scenario', () => {
       .stdout()
       .command(['config:context:use', 'code'])
       .it('should update the current context', (ctx, done) => {
-        expect(ctx.stdout).toEqual(
-          'code is set as current\n'
-        );
+        expect(ctx.stdout).toEqual('code is set as current\n');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -112,16 +121,62 @@ describe('config:context, positive scenario', () => {
       .stdout()
       .command(['config:context:remove', 'code'])
       .it('should remove existing context', (ctx, done) => {
-        expect(ctx.stdout).toEqual(
-          'code successfully deleted\n'
-        );
+        expect(ctx.stdout).toEqual('code successfully deleted\n');
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+  });
+  
+  describe('config:context:init', () => {
+    test
+      .stderr()
+      .stdout()
+      .command(['config:context:init'])
+      .it('should initialize new empty context file without a switch', (ctx, done) => {
+        expect(ctx.stdout).toContain('Initialized context');
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+  });
+
+  describe('config:context:init', () => {
+    test
+      .stderr()
+      .stdout()
+      .command(['config:context:init', '.'])
+      .it('should initialize new empty context file with switch "."', (ctx, done) => {
+        expect(ctx.stdout).toContain('Initialized context');
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+  });
+
+  describe('config:context:init', () => {
+    test
+      .stderr()
+      .stdout()
+      .command(['config:context:init', './'])
+      .it('should initialize new empty context file with switch "./"', (ctx, done) => {
+        expect(ctx.stdout).toContain('Initialized context');
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+  });
+
+  describe('config:context:init', () => {
+    test
+      .stderr()
+      .stdout()
+      .command(['config:context:init', '~'])
+      .it('should initialize new empty context file with switch "~"', (ctx, done) => {
+        expect(ctx.stdout).toContain('Initialized context');
         expect(ctx.stderr).toEqual('');
         done();
       });
   });
 });
 
-describe('config:context, negative scenario', () => {  
+describe('config:context, negative scenario', () => {
   beforeAll(() => {
     // Any context file needs to be created before starting test suite,
     // otherwise a totally legitimate context file will be created automatically
@@ -141,7 +196,7 @@ describe('config:context, negative scenario', () => {
       .stdout()
       .command(['config:context:add', 'home', './test/specification.yml'])
       .it(
-        'should throw error on empty file saying that context file has wrong format.',
+        'should throw error on zero-sized file saying that context file has wrong format.',
         (ctx, done) => {
           expect(ctx.stdout).toEqual('');
           expect(ctx.stderr).toContain(
@@ -189,7 +244,7 @@ describe('config:context, negative scenario', () => {
         }
       );
   });
-  
+
   // Totally correct (and considered correct by `@oclif/core`) format of the
   // context file
   // `{"current":"home","store":{"home":"homeSpecFile","code":"codeSpecFile"}}`
@@ -197,7 +252,9 @@ describe('config:context, negative scenario', () => {
   // scenarios coding.
   describe('config:context:add', () => {
     testHelper.deleteDummyContextFile();
-    testHelper.createDummyContextFileWrong('{"current":"home","current2":"test","store":{"home":"homeSpecFile","code":"codeSpecFile"}}');
+    testHelper.createDummyContextFileWrong(
+      '{"current":"home","current2":"test","store":{"home":"homeSpecFile","code":"codeSpecFile"}}'
+    );
     test
       .stderr()
       .stdout()
