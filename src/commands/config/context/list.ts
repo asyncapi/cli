@@ -22,6 +22,8 @@ export default class ContextList extends Command {
         this.log(
           'You have no context configured. Run "asyncapi config context" to see all available options.'
         );
+      } else {
+        throw e;
       }
     }
 

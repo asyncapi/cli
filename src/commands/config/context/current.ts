@@ -23,13 +23,11 @@ export default class ContextCurrent extends Command {
         e instanceof MissingContextFileError ||
         ContextFileWrongFormatError ||
         ContextNotFoundError ||
-        (fileContent && !fileContent.current) ||
-        !fileContent
+        (fileContent && !fileContent.current)
       ) {
         this.log(
           'No context is set as current. Run "asyncapi config context" to see all available options.'
         );
-        return;
       } else {
         throw e;
       }
