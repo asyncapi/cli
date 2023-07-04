@@ -9,10 +9,15 @@ import {
   MissingCurrentContextError,
   ContextFileWrongFormatError,
   ContextAlreadyExistsError,
+  ContextFileEmptyError,
   ContextFileWriteError,
 } from '../errors/context-error';
 
 const { readFile, writeFile } = fs;
+
+export const EMPTY_CONTEXT_FILE = {
+  store: {},
+};
 
 const DEFAULT_CONTEXT_FILENAME = '.asyncapi-cli';
 const DEFAULT_CONTEXT_FILE_LOCATION = os.homedir();
@@ -68,6 +73,50 @@ export interface ICurrentContext {
   readonly context: string;
 }
 
+export async function initContext(
+  contextFilePath: string,
+  contextName: string,
+  specFilePath: string
+) {
+  let fileContent: IContextFile = EMPTY_CONTEXT_FILE;
+  let contextWritePath = '';
+
+  switch (contextFilePath) {
+  /* eslint-disable indent */
+    case '.':
+      contextWritePath = process.cwd() + path.sep + CONTEXT_FILENAME;
+      break;
+    case './':
+      contextWritePath = repoRoot.path + path.sep + CONTEXT_FILENAME;
+      break;
+    case os.homedir():
+      contextWritePath = os.homedir() + path.sep + CONTEXT_FILENAME;
+      break;
+    case '~':
+      contextWritePath = os.homedir() + path.sep + CONTEXT_FILENAME;
+      break;
+    default:
+  }
+
+  if (contextName && specFilePath) {
+    fileContent = {
+      store: {
+        [String(contextName)]: String(specFilePath),
+      },
+    };
+  }
+
+  try {
+    await writeFile(contextWritePath, JSON.stringify(fileContent), {
+      encoding: 'utf8',
+    });
+  } catch (e) {
+    throw new ContextFileWriteError(contextWritePath);
+  }
+
+  return contextWritePath;
+}
+
 export async function loadContext(contextName?: string): Promise<string> {
   const fileContent: IContextFile = await loadContextFile();
   if (contextName) {
@@ -87,28 +136,63 @@ export async function loadContext(contextName?: string): Promise<string> {
 }
 
 export async function addContext(contextName: string, pathToFile: string) {
-  let fileContent: IContextFile;
+  const fileContent: IContextFile = await loadContextFile();
 
-  try {
-    fileContent = await loadContextFile();
-    // If context file already has context name similar to the one specified as
-    // an argument, notify user about it (throw `ContextAlreadyExistsError`
-    // error) and exit.
-    if (fileContent.store.hasOwnProperty.call(fileContent.store, contextName)) {
-      throw new ContextAlreadyExistsError(contextName, CONTEXT_FILE_PATH);
-    }
-  } catch (e) {
-    if (e instanceof MissingContextFileError) {
-      fileContent = {
-        store: {
-          [contextName]: pathToFile,
-        },
-      };
-    } else {
-      throw e;
-    }
+  // If context file already has context name similar to the one specified as
+  // an argument, notify user about it (throw `ContextAlreadyExistsError`
+  // error) and exit.
+  if (fileContent.store.hasOwnProperty.call(fileContent.store, contextName)) {
+    throw new ContextAlreadyExistsError(contextName, CONTEXT_FILE_PATH);
   }
-  fileContent.store[String(contextName)] = pathToFile;
+
+  fileContent.store[String(contextName)] = String(pathToFile);
+  await saveContextFile(fileContent);
+}
+
+export async function removeContext(contextName: string) {
+  const fileContent: IContextFile = await loadContextFile();
+
+  if (await isContextFileEmpty(fileContent)) {
+    throw new ContextFileEmptyError(CONTEXT_FILE_PATH);
+  }
+  if (!fileContent.store[String(contextName)]) {
+    throw new ContextNotFoundError(contextName);
+  }
+  if (fileContent.current === contextName) {
+    delete fileContent.current;
+  }
+
+  delete fileContent.store[String(contextName)];
+  await saveContextFile(fileContent);
+}
+
+export async function getCurrentContext(): Promise<ICurrentContext> {
+  const fileContent: IContextFile = await loadContextFile();
+
+  if (await isContextFileEmpty(fileContent)) {
+    throw new ContextFileEmptyError(CONTEXT_FILE_PATH);
+  }
+
+  const context = await loadContext();
+
+  return {
+    current: fileContent.current as string,
+    context,
+  };
+}
+
+export async function setCurrentContext(contextName: string) {
+  const fileContent: IContextFile = await loadContextFile();
+
+  if (await isContextFileEmpty(fileContent)) {
+    throw new ContextFileEmptyError(CONTEXT_FILE_PATH);
+  }
+
+  if (!fileContent.store[String(contextName)]) {
+    throw new ContextNotFoundError(contextName);
+  }
+
+  fileContent.current = String(contextName);
   await saveContextFile(fileContent);
 }
 
@@ -119,37 +203,11 @@ export async function editContext(contextName: string, pathToFile: string) {
   // some REAL error happened and user should know about it.
   const fileContent: IContextFile = await loadContextFile();
 
-  fileContent.store[String(contextName)] = pathToFile;
-  await saveContextFile(fileContent);
-}
-
-export async function removeContext(contextName: string) {
-  const fileContent: IContextFile = await loadContextFile();
-  if (!fileContent.store[String(contextName)]) {
-    throw new ContextNotFoundError(contextName);
+  if (await isContextFileEmpty(fileContent)) {
+    throw new ContextFileEmptyError(CONTEXT_FILE_PATH);
   }
-  if (fileContent.current === contextName) {
-    delete fileContent.current;
-  }
-  delete fileContent.store[String(contextName)];
-  await saveContextFile(fileContent);
-}
 
-export async function getCurrentContext(): Promise<ICurrentContext> {
-  const fileContent: IContextFile = await loadContextFile();
-  const context = await loadContext();
-  return {
-    current: fileContent.current as string,
-    context,
-  };
-}
-
-export async function setCurrentContext(contextName: string) {
-  const fileContent: IContextFile = await loadContextFile();
-  if (!fileContent.store[String(contextName)]) {
-    throw new ContextNotFoundError(contextName);
-  }
-  fileContent.current = contextName;
+  fileContent.store[String(contextName)] = String(pathToFile);
   await saveContextFile(fileContent);
 }
 
@@ -248,5 +306,17 @@ async function isContextFileValid(fileContent: IContextFile): Promise<boolean> {
     !Array.from(Object.values(fileContent.store)).find(
       (elem) => typeof elem !== 'string'
     )
+  );
+}
+
+export async function isContextFileEmpty(
+  fileContent: IContextFile
+): Promise<boolean> {
+  // If context file contains only one empty property `store` then the whole
+  // context file is considered empty.
+  return (
+    fileContent &&
+    Object.keys(fileContent).length === 1 &&
+    Object.keys(fileContent.store).length === 0
   );
 }

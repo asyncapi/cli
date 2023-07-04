@@ -7,22 +7,35 @@ weight: 50
 
 AsyncAPI CLI provides functionality called `context`. It's purpose is to help to work with AsyncAPI CLI in large projects where you do not have just one service exposing AsyncAPI document, but multiple.
 
-Event driven architecture involves multiple actors, subscribers and publishers. One time you want to validate document **A** and the other time you want to generate models from document **B**. Every time you do it, you need to provide to AsyncAPI CLI the location of the AsyncAPI document, which might be time consuming. You can workaround it with aliases in bash profiles or with other solutions but it is better to use `context` feature as you can then store it in your repository and share with other team members.
+Event driven architecture involves multiple actors, subscribers and publishers. One time you want to validate document **A** and the other time you want to generate models from document **B**. Every time you do it, you need to provide to AsyncAPI CLI the location of the AsyncAPI document, which might be time consuming. You can workaround it with aliases in bash profiles or with other solutions but it is better to use `context` feature, as you can then store it in your repository and share with other team members.
 
-In short it means that for example instead of writing `asyncapi validate /some/folder/my-asyncapi.yml` you can create a context called `myasync` that will point to `/some/folder/my-asyncapi.yml`. This way next time you use the CLI you can do `asyncapi validate myasync`.
+In short it means that for example instead of writing `asyncapi validate /some/folder/my-asyncapi.yml` you can create a context called `myasync` that will be an alias for and point to `/some/folder/my-asyncapi.yml`. This way next time you use the CLI you can do `asyncapi validate myasync`.
 
 ### Context File location
 
 You can have a global context for your workstation, and a project specific context.
 
-If your use case is that you work with multiple repositories, you might want to use a global context. The `.asyncapi-cli` context file is then located in your home directory. This file is automatically created by the CLI once you run `asyncapi config context add` in a project that doesn't have its own context file
-
-You can also store your custom `.asyncapi-cli` file in your project with custom configuration. This way when you run `asyncapi config context add` inside your project, the new context is added to the context file under your project.
+If your use case is that you work with multiple repositories, you might want to use a global context. The `.asyncapi-cli` context file is then located in your home directory. You can also store your custom `.asyncapi-cli` file in your project with custom configuration. This way when you run `asyncapi config context add` inside your project, the new context is added to the context file under your project.
 
 ### How to add context to a project
 
-1. Create file `.asyncapi-cli` in the root of your project
-2. Execute command `asyncapi config context add [CONTEXT-NAME] [SPEC-FILE-PATH]`
+##### Using previously created context file:
+  - Create file `.asyncapi-cli` containing [minimal empty context file](#minimalEmptyContextFile) in:
+    - current directory
+    - root of current repository
+    - user's home directory
+  - Make use of this file by executing command `asyncapi config context add [CONTEXT-NAME] [SPEC-FILE-PATH]`
+
+##### Using CLI's `init` command:
+
+`asyncapi config context init [CONTEXT-FILE-PATH] [CONTEXT-NAME] [SPEC-FILE-PATH]`
+
+Where `[CONTEXT-FILE-PATH]` instructs CLI what directory should the context file be created in:
+  - current directory: `asyncapi config context init . [CONTEXT-NAME] [SPEC-FILE-PATH]`
+  - root of current repository: `asyncapi config context init ./ [CONTEXT-NAME] [SPEC-FILE-PATH]`
+  - user's home directory: `asyncapi config context init ~ [CONTEXT-NAME] [SPEC-FILE-PATH]`
+
+The only mandatory switch is `[CONTEXT-FILE-PATH]`, additional switches can be omitted. In case of `asyncapi config context init .|./|~` the [minimal empty context file](#minimalEmptyContextFile) will be created in predefined location.
 
 ### Context File structure
 
@@ -30,7 +43,7 @@ You can also store your custom `.asyncapi-cli` file in your project with custom 
 
 Field Name | Type | Description
 ---|:---:|---
-current | `string` | An optional string value representing one of context names used as default in CLI.
+current | `string` | An optional string value representing one of context names, which is used as default in CLI. Default means you can run CLI commands without providing context name, like `asyncapi validate`, and it will run against the default - `current` - context.
 store | [Store Object](#storeObject) | **REQUIRED**. Map of filesystem paths to target AsyncAPI documents.
 
 #### <a name="storeObject"></a>Store Object
@@ -41,7 +54,19 @@ Map of filesystem paths to target AsyncAPI documents.
 
 Field Pattern | Type | Description
 ---|:---:|---
-{contextName} | `string` | **REQUIRED**. A filesystem path to the target AsyncAPI document.
+{contextName} | `string` | An optional string value representing filesystem path to the target AsyncAPI document.
+
+##### <a name="minimalEmptyContextFile"></a>Minimal Empty Context File
+Raw JSON:
+```
+{
+  "store": {}
+}
+```
+Stringified JSON:
+```
+{"store":{}}
+```
 
 ##### Context File Example
 

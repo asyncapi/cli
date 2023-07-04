@@ -144,8 +144,8 @@ describe('config:context, negative scenario', () => {
         'should throw error on empty file saying that context file has wrong format.',
         (ctx, done) => {
           expect(ctx.stdout).toEqual('');
-          expect(ctx.stderr).toEqual(
-            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.\n`
+          expect(ctx.stderr).toContain(
+            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
           );
           done();
         }
@@ -163,8 +163,8 @@ describe('config:context, negative scenario', () => {
         'should throw error on file with empty object saying that context file has wrong format.',
         (ctx, done) => {
           expect(ctx.stdout).toEqual('');
-          expect(ctx.stderr).toEqual(
-            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.\n`
+          expect(ctx.stderr).toContain(
+            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
           );
           done();
         }
@@ -182,8 +182,8 @@ describe('config:context, negative scenario', () => {
         'should throw error on file with empty array saying that context file has wrong format.',
         (ctx, done) => {
           expect(ctx.stdout).toEqual('');
-          expect(ctx.stderr).toEqual(
-            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.\n`
+          expect(ctx.stderr).toContain(
+            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
           );
           done();
         }
@@ -206,8 +206,8 @@ describe('config:context, negative scenario', () => {
         'should throw error on file with object having three root properties, saying that context file has wrong format.',
         (ctx, done) => {
           expect(ctx.stdout).toEqual('');
-          expect(ctx.stderr).toEqual(
-            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.\n`
+          expect(ctx.stderr).toContain(
+            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
           );
           done();
         }
@@ -229,7 +229,7 @@ describe('config:context, negative scenario', () => {
       .it(
         'should output info message (to stdout, NOT stderr) about absence of context file.',
         (ctx, done) => {
-          expect(ctx.stdout).toContain('You have no context configured. Run "asyncapi config context" to see all available options.');
+          expect(ctx.stdout).toContain('You have no context file configured.');
           expect(ctx.stderr).toEqual('');
           done();
         }

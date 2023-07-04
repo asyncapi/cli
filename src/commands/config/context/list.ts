@@ -1,6 +1,10 @@
 import { Flags } from '@oclif/core';
 import Command from '../../../base';
-import { loadContextFile, CONTEXT_FILE_PATH } from '../../../models/Context';
+import {
+  loadContextFile,
+  isContextFileEmpty,
+  CONTEXT_FILE_PATH,
+} from '../../../models/Context';
 import {
   MissingContextFileError,
   ContextFileWrongFormatError,
@@ -13,34 +17,32 @@ export default class ContextList extends Command {
   };
 
   async run() {
-    let fileContent;
-
     try {
-      fileContent = await loadContextFile();
-    } catch (e) {
-      if (e instanceof MissingContextFileError || ContextFileWrongFormatError) {
-        this.log(
-          'You have no context configured. Run "asyncapi config context" to see all available options.'
-        );
-      } else {
-        throw e;
+      const fileContent = await loadContextFile();
+
+      if (await isContextFileEmpty(fileContent)) {
+        this.log(`Context file "${CONTEXT_FILE_PATH}" is empty.`);
+        return;
       }
-    }
 
-    // If context file contains only one empty property `store` then the whole
-    // context file is considered empty.
-    if (
-      fileContent &&
-      Object.keys(fileContent).length === 1 &&
-      Object.keys(fileContent.store).length === 0
-    ) {
-      this.log(`Context file "${CONTEXT_FILE_PATH}" is empty.`);
-      return;
-    }
-
-    if (fileContent) {
-      for (const [contextName, filePath] of Object.entries(fileContent.store)) {
-        this.log(`${contextName}: ${filePath}`);
+      if (fileContent) {
+        for (const [contextName, filePath] of Object.entries(
+          fileContent.store
+        )) {
+          this.log(`${contextName}: ${filePath}`);
+        }
+      }
+    } catch (e) {
+      if (
+        e instanceof (MissingContextFileError || ContextFileWrongFormatError)
+      ) {
+        this.log(
+          'You have no context file configured. Run "asyncapi config context init" to initialize it.'
+        );
+        return;
+      }
+      {
+        throw e;
       }
     }
   }
