@@ -31,7 +31,7 @@ You can also store your custom `.asyncapi-cli` file in your project with custom 
 Field Name | Type | Description
 ---|:---:|---
 current | `string` | An optional string value representing one of context names used as default in CLI.
-store | [Store Object](#storeObject) | Map of filesystem paths to target AsyncAPI documents.
+store | [Store Object](#storeObject) | **REQUIRED**. Map of filesystem paths to target AsyncAPI documents.
 
 #### <a name="storeObject"></a>Store Object
 
