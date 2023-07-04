@@ -133,9 +133,6 @@ describe('config:context, negative scenario', () => {
     testHelper.deleteDummyContextFile();
   });
 
-  // Make sure your context file has structure as described in section `Context
-  // file's structure` of `./docs/context.md` if you are having `Context file
-  // has wrong format` error.
   describe('config:context:add', () => {
     testHelper.deleteDummyContextFile();
     testHelper.createDummyContextFileWrong('');

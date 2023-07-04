@@ -8,7 +8,7 @@ export const NO_CONTEXTS_SAVED = `These are your options to specify in the CLI w
 const MISSING_CURRENT_CONTEXT = 'No context is set as current, please set a current context.';
 const CONTEXT_NOT_FOUND = (contextName: string) => `Context "${contextName}" does not exist.`;
 const CONTEXT_ALREADY_EXISTS = (contextName: string, contextFileName: string) => `Context with name "${contextName}" already exists in context file "${contextFileName}".`;
-const CONTEXT_WRONG_FORMAT = (contextFileName: string) => `Context file "${contextFileName}" has wrong format.`;
+const CONTEXT_WRONG_FORMAT = (contextFileName: string) => `Context file "${contextFileName}" has wrong format. Make sure your context file follows the structure described in section "Context File structure" at https://www.asyncapi.com/docs/tools/cli/context#context-file-structure`;
 const CONTEXT_WRITE_ERROR = (contextFileName: string) => `Error writing context file "${contextFileName}".`;
 
 class ContextError extends Error {
