@@ -75,6 +75,18 @@ describe('config:context, positive scenario', () => {
         done();
       });
   });
+  
+  describe('config:context:edit', () => {
+    test
+      .stderr()
+      .stdout()
+      .command(['config:context:edit', 'test', './test/specification2.yml'])
+      .it('should edit existing context "test"', (ctx, done) => {
+        expect(ctx.stdout).toContain('Edited context "test".');
+        expect(ctx.stderr).toEqual('');
+        done();
+      });
+  });
 
   describe('config:context:use', () => {
     test
@@ -215,7 +227,7 @@ describe('config:context, negative scenario', () => {
       .stdout()
       .command(['config:context:list'])
       .it(
-        'should throw error on absence of context file.',
+        'should output info message (to stdout, NOT stderr) about absence of context file.',
         (ctx, done) => {
           expect(ctx.stdout).toContain('You have no context configured. Run "asyncapi config context" to see all available options.');
           expect(ctx.stderr).toEqual('');
