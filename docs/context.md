@@ -28,14 +28,14 @@ If your use case is that you work with multiple repositories, you might want to 
 
 ##### Using CLI's `init` command:
 
-`asyncapi config context init [CONTEXT-FILE-PATH] [CONTEXT-NAME] [SPEC-FILE-PATH]`
+`asyncapi config context init [CONTEXT-FILE-PATH]`
 
 Where `[CONTEXT-FILE-PATH]` instructs CLI what directory should the context file be created in:
-  - current directory: `asyncapi config context init . [CONTEXT-NAME] [SPEC-FILE-PATH]`
-  - root of current repository: `asyncapi config context init ./ [CONTEXT-NAME] [SPEC-FILE-PATH]`
-  - user's home directory: `asyncapi config context init ~ [CONTEXT-NAME] [SPEC-FILE-PATH]`
+  - current directory: `asyncapi config context init . (default)`
+  - root of current repository: `asyncapi config context init ./`
+  - user's home directory: `asyncapi config context init ~`
 
-The only mandatory switch is `[CONTEXT-FILE-PATH]`, additional switches can be omitted. In case of `asyncapi config context init .|./|~` the [minimal empty context file](#minimalEmptyContextFile) will be created in predefined location.
+If `[CONTEXT-FILE-PATH]` is omitted, the context file is created in current directory.
 
 ### Context File structure
 

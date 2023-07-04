@@ -15,10 +15,6 @@ import {
 
 const { readFile, writeFile } = fs;
 
-export const EMPTY_CONTEXT_FILE = {
-  store: {},
-};
-
 const DEFAULT_CONTEXT_FILENAME = '.asyncapi-cli';
 const DEFAULT_CONTEXT_FILE_LOCATION = os.homedir();
 export const DEFAULT_CONTEXT_FILE_PATH = path.resolve(
@@ -78,9 +74,12 @@ export async function initContext(
   contextName: string,
   specFilePath: string
 ) {
-  let fileContent: IContextFile = EMPTY_CONTEXT_FILE;
+  let fileContent: IContextFile = {
+    store: {},
+  };
   let contextWritePath = '';
 
+  // prettier-ignore
   switch (contextFilePath) {
   /* eslint-disable indent */
     case '.':
@@ -96,6 +95,7 @@ export async function initContext(
       contextWritePath = os.homedir() + path.sep + CONTEXT_FILENAME;
       break;
     default:
+      contextWritePath = process.cwd() + path.sep + CONTEXT_FILENAME;
   }
 
   if (contextName && specFilePath) {
