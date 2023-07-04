@@ -115,11 +115,12 @@ export async function addContext(contextName: string, pathToFile: string) {
 export async function editContext(contextName: string, pathToFile: string) {
   let fileContent: IContextFile;
 
-  try {
-    fileContent = await loadContextFile();
-  } catch (e) {
-    throw e;
-  }
+  // The expression is not wrapped in a `try...catch` block and is allowed to
+  // throw automatically because it is assumed that `loadContextFile()` works
+  // with a 100%-existing valid file in this case, thus if it threw anyway -
+  // some REAL error happened and user should know about it.
+  fileContent = await loadContextFile();
+
   fileContent.store[String(contextName)] = pathToFile;
   await saveContextFile(fileContent);
 }
