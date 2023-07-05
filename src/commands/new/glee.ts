@@ -20,7 +20,7 @@ export default class NewGlee extends Command {
     const projectName = flags.name;
 
     const PROJECT_DIRECTORY = join(process.cwd(), projectName);
-    const GLEE_TEMPLATES_DIRECTORY = resolve(__dirname, '../../../create-glee-app/templates/default');
+    const GLEE_TEMPLATES_DIRECTORY = resolve(__dirname, '../../../assets/examples/create-glee-app/templates/default');
 
     try {
       await fPromises.mkdir(PROJECT_DIRECTORY);
