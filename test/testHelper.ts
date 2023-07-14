@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync, unlinkSync, rmSync, mkdirSync } from 'fs';
+import { existsSync, writeFileSync, unlinkSync, rmdirSync, mkdirSync } from 'fs';
 import * as path from 'path';
 import { IContextFile, DEFAULT_CONTEXT_FILE_PATH } from '../src/models/Context';
 import SpecificationFile from '../src/models/SpecificationFile';
@@ -28,10 +28,10 @@ export default class ContextTestingHelper {
   createDummyContextFile(): void {
     writeFileSync(DEFAULT_CONTEXT_FILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8' });
   }
-  
+
   deleteDummyContextFile(): void {
     unlinkSync(DEFAULT_CONTEXT_FILE_PATH);
-  } 
+  }
 
   unsetCurrentContext(): void {
     delete this._context.current;
@@ -71,9 +71,9 @@ export default class ContextTestingHelper {
   createDummyProjectDirectory(): void {
     mkdirSync(PROJECT_DIRECTORY_PATH);
   }
-  
+
   deleteDummyProjectDirectory(): void {
-    rmSync(PROJECT_DIRECTORY_PATH, {recursive: true});
+    rmdirSync(PROJECT_DIRECTORY_PATH);
   }
 }
 
