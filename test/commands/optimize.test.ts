@@ -6,7 +6,7 @@ import {Optimizations, Outputs} from '../../src/commands/optimize';
 
 const testHelper = new TestHelper();
 const optimizedFilePath = './test/specification.yml';
-const unoptimizedFile = './test/dummyspec/unoprimizedSpec.yml';
+const unoptimizedFile = './test/dummyspec/unoptimizedSpec.yml';
 const invalidFile = './test/specification-invalid.yml';
 
 describe('optimize', () => {
