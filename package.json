@@ -115,6 +115,11 @@
       "generate": {
         "description": "Generate models and template"
       }
+    },
+    "hooks": {
+      "command_not_found": [
+        "./lib/hooks/command_not_found/help-command-handler"
+      ]
     }
   },
   "publishConfig": {
