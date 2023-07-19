@@ -2,14 +2,21 @@
 /* eslint-disable sonarjs/no-identical-functions */
 import path from 'path';
 import { test } from '@oclif/test';
+import { createMockServer, stopMockServer } from '../../testHelper';
 const generalOptions = ['generate:models'];
 const outputDir = './test/commands/generate/models';
 
 describe('models', () => {
+  beforeAll(() => {
+    createMockServer();
+  });
+  afterAll(() => {
+    stopMockServer();
+  });
   test
     .stderr()
     .stdout()
-    .command([...generalOptions, 'typescript', 'http://bit.ly/asyncapi'])
+    .command([...generalOptions, 'typescript', 'http://localhost:8080/dummySpec.yml'])
     .it('works with remote AsyncAPI files', (ctx, done) => {
       expect(ctx.stderr).toEqual('');
       expect(ctx.stdout).toMatchSnapshot();
@@ -366,10 +373,10 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'typescript', 'http://bit.ly/asyncapi', '--log-diagnostics'])
+      .command([...generalOptions, 'typescript', 'http://localhost:8080/dummySpec.yml', '--log-diagnostics'])
       .it('works with remote AsyncAPI files', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
-        expect(ctx.stdout).toMatch('URL http://bit.ly/asyncapi is valid but has (itself and/or referenced documents) governance issues.');
+        expect(ctx.stdout).toMatch('URL http://localhost:8080/dummySpec.yml is valid but has (itself and/or referenced documents) governance issues.');
         done();
       });
   });

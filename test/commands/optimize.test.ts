@@ -1,13 +1,12 @@
 import path from 'path';
 import { test } from '@oclif/test';
-import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
-import TestHelper from '../testHelper';
+import TestHelper, { createMockServer, stopMockServer } from '../testHelper';
 import inquirer from 'inquirer';
 import {Optimizations, Outputs} from '../../src/commands/optimize';
 
 const testHelper = new TestHelper();
 const optimizedFilePath = './test/specification.yml';
-const unoptimizedFile = './test/dummyspec/unoprimizedSpec.yml';
+const unoptimizedFile = './test/dummyspec/unoptimizedSpec.yml';
 const invalidFile = './test/specification-invalid.yml';
 
 describe('optimize', () => {
@@ -18,6 +17,14 @@ describe('optimize', () => {
 
     afterEach(() => {
       testHelper.deleteDummyContextFile();
+    });
+
+    beforeAll(() => {
+      createMockServer();
+    });
+
+    afterAll(() => {
+      stopMockServer();
     });
 
     test
@@ -43,9 +50,9 @@ describe('optimize', () => {
     test
       .stderr()
       .stdout()
-      .command(['optimize', 'https://bit.ly/asyncapi'])
+      .command(['optimize', 'http://localhost:8080/dummySpec.yml'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).toContain('No optimization has been applied since https://bit.ly/asyncapi looks optimized!');
+        expect(ctx.stdout).toContain('No optimization has been applied since http://localhost:8080/dummySpec.yml looks optimized!');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -96,7 +103,7 @@ describe('optimize', () => {
         }
       }
     });
-    
+
     test
       .stderr()
       .stdout()
