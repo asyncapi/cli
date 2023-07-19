@@ -206,6 +206,16 @@
       "contributions": [
         "infra"
       ]
+    },
+    {
+      "login": "chinma-yyy",
+      "name": "Chinmay Shewale",
+      "avatar_url": "https://avatars.githubusercontent.com/u/112387862?v=4",
+      "profile": "https://www.chinmayyy.tech",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
@@ -214,5 +224,6 @@
   "repoType": "github",
   "repoHost": "https://github.com",
   "skipCi": false,
-  "commitConvention": "angular"
+  "commitConvention": "angular",
+  "commitType": "docs"
 }
