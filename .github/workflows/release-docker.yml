@@ -1,8 +1,10 @@
 name: Release Docker Image
 on:
-  release:
-    types:
-      - published
+  workflow_call:
+    inputs:
+      release:
+        required: true
+        type: string
 
 jobs:
 
@@ -13,7 +15,7 @@ jobs:
       - name: Get version without v character
         id: version
         run: |
-          VERSION=${{github.event.release.tag_name}}
+          VERSION=${{ inputs.release }}
           VERSION_WITHOUT_V=${VERSION:1}
           echo "value=${VERSION_WITHOUT_V}" >> $GITHUB_OUTPUT
 
