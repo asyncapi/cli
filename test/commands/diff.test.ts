@@ -2,6 +2,7 @@
 import { test } from '@oclif/test';
 
 const asyncapiv3 = './test/specification-v3.yml';
+const asyncapiv2 = './test/specification.yml';
 const noChangesJson = '"{\\n  \\"changes\\": []\\n}\\n"';
 const breakingChangesJson = '"[\\n  {\\n    \\"action\\": \\"edit\\",\\n    \\"path\\": \\"/servers/mosquitto/protocol\\",\\n    \\"before\\": \\"mqtt\\",\\n    \\"after\\": \\"http\\",\\n    \\"type\\": \\"breaking\\"\\n  },\\n  {\\n    \\"action\\": \\"edit\\",\\n    \\"path\\": \\"/servers/mosquitto/url\\",\\n    \\"before\\": \\"mqtt://test.mosquitto.org\\",\\n    \\"after\\": \\"http://test.mosquitto.org\\",\\n    \\"type\\": \\"breaking\\"\\n  }\\n]\\n"';
 const nonBreakingChangesJson = '"[\\n  {\\n    \\"action\\": \\"add\\",\\n    \\"path\\": \\"/channels/user~1signedup\\",\\n    \\"after\\": {\\n      \\"subscribe\\": {\\n        \\"message\\": {\\n          \\"payload\\": {\\n            \\"type\\": \\"object\\",\\n            \\"properties\\": {\\n              \\"displayName\\": {\\n                \\"type\\": \\"string\\",\\n                \\"description\\": \\"Name of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-2>\\"\\n              },\\n              \\"email\\": {\\n                \\"type\\": \\"string\\",\\n                \\"format\\": \\"email\\",\\n                \\"description\\": \\"Email of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-3>\\"\\n              }\\n            },\\n            \\"x-parser-schema-id\\": \\"<anonymous-schema-1>\\"\\n          },\\n          \\"x-parser-message-name\\": \\"UserSignedUp\\",\\n          \\"x-parser-original-schema-format\\": \\"application/vnd.aai.asyncapi;version=2.1.0\\",\\n          \\"schemaFormat\\": \\"application/vnd.aai.asyncapi;version=2.1.0\\",\\n          \\"x-parser-original-payload\\": {\\n            \\"type\\": \\"object\\",\\n            \\"properties\\": {\\n              \\"displayName\\": {\\n                \\"type\\": \\"string\\",\\n                \\"description\\": \\"Name of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-2>\\"\\n              },\\n              \\"email\\": {\\n                \\"type\\": \\"string\\",\\n                \\"format\\": \\"email\\",\\n                \\"description\\": \\"Email of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-3>\\"\\n              }\\n            },\\n            \\"x-parser-schema-id\\": \\"<anonymous-schema-1>\\"\\n          },\\n          \\"x-parser-message-parsed\\": true\\n        }\\n      }\\n    },\\n    \\"type\\": \\"non-breaking\\"\\n  },\\n  {\\n    \\"action\\": \\"edit\\",\\n    \\"path\\": \\"/info/title\\",\\n    \\"before\\": \\"Streetlights API\\",\\n    \\"after\\": \\"Streetlights API V2\\",\\n    \\"type\\": \\"non-breaking\\"\\n  },\\n  {\\n    \\"action\\": \\"add\\",\\n    \\"path\\": \\"/components\\",\\n    \\"after\\": {\\n      \\"messages\\": {\\n        \\"UserSignedUp\\": {\\n          \\"payload\\": {\\n            \\"type\\": \\"object\\",\\n            \\"properties\\": {\\n              \\"displayName\\": {\\n                \\"type\\": \\"string\\",\\n                \\"description\\": \\"Name of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-2>\\"\\n              },\\n              \\"email\\": {\\n                \\"type\\": \\"string\\",\\n                \\"format\\": \\"email\\",\\n                \\"description\\": \\"Email of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-3>\\"\\n              }\\n            },\\n            \\"x-parser-schema-id\\": \\"<anonymous-schema-1>\\"\\n          },\\n          \\"x-parser-message-name\\": \\"UserSignedUp\\",\\n          \\"x-parser-original-schema-format\\": \\"application/vnd.aai.asyncapi;version=2.1.0\\",\\n          \\"schemaFormat\\": \\"application/vnd.aai.asyncapi;version=2.1.0\\",\\n          \\"x-parser-original-payload\\": {\\n            \\"type\\": \\"object\\",\\n            \\"properties\\": {\\n              \\"displayName\\": {\\n                \\"type\\": \\"string\\",\\n                \\"description\\": \\"Name of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-2>\\"\\n              },\\n              \\"email\\": {\\n                \\"type\\": \\"string\\",\\n                \\"format\\": \\"email\\",\\n                \\"description\\": \\"Email of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-3>\\"\\n              }\\n            },\\n            \\"x-parser-schema-id\\": \\"<anonymous-schema-1>\\"\\n          },\\n          \\"x-parser-message-parsed\\": true\\n        }\\n      }\\n    },\\n    \\"type\\": \\"non-breaking\\"\\n  }\\n]\\n"';
@@ -21,9 +22,18 @@ describe('diff', () => {
     test
       .stderr()
       .stdout()
-      .command(['diff', asyncapiv3, asyncapiv3])
-      .it('give error', (ctx, done) => {
-        expect(ctx.stderr).toEqual('Error: Diff command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/diff/issues/154\n');
+      .command(['diff', asyncapiv3, asyncapiv2])
+      .it('give error when first document', (ctx, done) => {
+        expect(ctx.stderr).toEqual('Error: Diff command does not support AsyncAPI v3 yet which was your first document, please checkout https://github.com/asyncapi/diff/issues/154\n');
+        expect(ctx.stdout).toEqual('');
+        done();
+      });
+    test
+      .stderr()
+      .stdout()
+      .command(['diff', asyncapiv2, asyncapiv3])
+      .it('give error when second document', (ctx, done) => {
+        expect(ctx.stderr).toEqual('Error: Diff command does not support AsyncAPI v3 yet which was your second document, please checkout https://github.com/asyncapi/diff/issues/154\n');
         expect(ctx.stdout).toEqual('');
         done();
       });
