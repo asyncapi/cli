@@ -88,7 +88,7 @@ export default class Diff extends Command {
       firstDocument = await load(firstDocumentPath);
 
       if (firstDocument.isAsyncAPI3()) {
-        return this.error('Diff command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/diff/issues/154');
+        this.error('Diff command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/diff/issues/154');
       }
 
       enableWatch(watchMode, {

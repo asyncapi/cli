@@ -17,11 +17,12 @@ describe('optimize', () => {
       .stdout()
       .command(['optimize', asyncapiv3])
       .it('give error', (ctx, done) => {
-        expect(ctx.stderr).toEqual('Error: Optimize command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/optimizer/issues/168');
-        expect(ctx.stdout).toEqual(' ');
+        expect(ctx.stderr).toEqual('Error: Optimize command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/optimizer/issues/168\n');
+        expect(ctx.stdout).toEqual('');
         done();
       });
   });
+
   describe('no optimization needed', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();

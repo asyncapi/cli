@@ -51,7 +51,7 @@ export default class Optimize extends Command {
     try {
       specFile = await load(filePath);
     } catch (err) {
-      return this.error(
+      this.error(
         new ValidationError({
           type: 'invalid-file',
           filepath: filePath,
@@ -60,11 +60,22 @@ export default class Optimize extends Command {
     }
 
     if (specFile.isAsyncAPI3()) {
-      return this.error('Optimize command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/optimizer/issues/168');
+      this.error('Optimize command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/optimizer/issues/168');
     }
 
-    const optimizer: Optimizer = new Optimizer(specFile.text());
-    const report: Report = await optimizer.getReport();
+    let optimizer: Optimizer;
+    let report: Report;
+    try {
+      optimizer = new Optimizer(specFile.text());
+      report = await optimizer.getReport();
+    } catch (err) {
+      this.error(
+        new ValidationError({
+          type: 'invalid-file',
+          filepath: filePath,
+        })
+      );
+    }
     this.isInteractive = !flags['no-tty'];
     this.optimizations = flags.optimization as Optimizations[];
     this.outputMethod = flags.output as Outputs;

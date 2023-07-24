@@ -8,6 +8,7 @@ const generalOptions = [
   './test/specification.yml',
   '@asyncapi/minimaltemplate',
 ];
+const asyncapiv3 = './test/specification-v3.yml';
 
 function cleanup(filepath: string) {
   rimraf.sync(filepath);
@@ -28,6 +29,20 @@ describe('template', () => {
       done();
     });
 
+  describe('should handle AsyncAPI v3 document correctly', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'generate:fromTemplate',
+        asyncapiv3,
+        '@asyncapi/minimaltemplate'])
+      .it('give error', (ctx, done) => {
+        expect(ctx.stderr).toEqual('Error: @asyncapi/minimaltemplate template does not support AsyncAPI v3 documents, please checkout some link\n');
+        expect(ctx.stdout).toEqual('');
+        done();
+      });
+  });
   describe('git clash', () => {
     const pathToOutput = './test/docs/2';
     beforeAll(() => {
