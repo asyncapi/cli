@@ -95,7 +95,7 @@ describe('convert', () => {
         }
       }
     });
-    
+
     test
       .stderr()
       .stdout()
@@ -170,4 +170,4 @@ describe('convert', () => {
         done();
       });
   });
-}); 
+});

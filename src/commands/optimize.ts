@@ -32,7 +32,7 @@ export default class Optimize extends Command {
     'asyncapi optimize ./asyncapi.yaml --optimization=remove-components,reuse-components,move-to-components --no-tty',
     'asyncapi optimize ./asyncapi.yaml --optimization=remove-components,reuse-components,move-to-components --output=terminal --no-tty',
   ];
-  
+
   static flags = {
     help: Flags.help({ char: 'h' }),
     optimization: Flags.string({char: 'p', default: Object.values(Optimizations), options: Object.values(Optimizations), multiple: true, description: 'select the type of optimizations that you want to apply.'}),
@@ -48,24 +48,27 @@ export default class Optimize extends Command {
     const { args, flags } = await this.parse(Optimize); //NOSONAR
     const filePath = args['spec-file'];
     let specFile: Specification;
-    let optimizer: Optimizer;
-    let report: Report;
     try {
       specFile = await load(filePath);
-      optimizer = new Optimizer(specFile.text());
-      report = await optimizer.getReport();
     } catch (err) {
-      this.error(
+      return this.error(
         new ValidationError({
           type: 'invalid-file',
           filepath: filePath,
         })
       );
     }
+
+    if (specFile.isAsyncAPI3()) {
+      return this.error('Optimize command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/optimizer/issues/168');
+    }
+
+    const optimizer: Optimizer = new Optimizer(specFile.text());
+    const report: Report = await optimizer.getReport();
     this.isInteractive = !flags['no-tty'];
     this.optimizations = flags.optimization as Optimizations[];
     this.outputMethod = flags.output as Outputs;
-    
+
     if (!(report.moveToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length)) {
       this.log(`No optimization has been applied since ${specFile.getFilePath() ?? specFile.getFileURL()} looks optimized!`);
       return;
@@ -76,13 +79,13 @@ export default class Optimize extends Command {
       await this.interactiveRun(report);
     }
 
-    try {  
+    try {
       const optimizedDocument = optimizer.getOptimizedDocument({rules: {
         moveToComponents: this.optimizations.includes(Optimizations.MOVE_TO_COMPONETS),
         removeComponents: this.optimizations.includes(Optimizations.REMOVE_COMPONENTS),
         reuseComponents: this.optimizations.includes(Optimizations.REUSE_COMPONENTS)
       }, output: Output.YAML});
-      
+
       const specPath = specFile.getFilePath();
       let newPath = '';
       if (specPath) {
@@ -149,7 +152,7 @@ export default class Optimize extends Command {
       this.showOptimizations(report.reuseComponents);
       choices.push({name: 'reuse components', value: Optimizations.REUSE_COMPONENTS});
     }
-    const optimizationRes = await inquirer.prompt([{ 
+    const optimizationRes = await inquirer.prompt([{
       name: 'optimization',
       message: 'select the type of optimization that you want to apply:',
       type: 'checkbox',
@@ -158,7 +161,7 @@ export default class Optimize extends Command {
     }]);
 
     this.optimizations = optimizationRes.optimization;
-    
+
     const outputRes = await inquirer.prompt([{
       name: 'output',
       message: 'where do you want to save the result:',

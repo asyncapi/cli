@@ -28,10 +28,10 @@ export default class ContextTestingHelper {
   createDummyContextFile(): void {
     writeFileSync(DEFAULT_CONTEXT_FILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8' });
   }
-  
+
   deleteDummyContextFile(): void {
     unlinkSync(DEFAULT_CONTEXT_FILE_PATH);
-  } 
+  }
 
   unsetCurrentContext(): void {
     delete this._context.current;
@@ -71,7 +71,7 @@ export default class ContextTestingHelper {
   createDummyProjectDirectory(): void {
     mkdirSync(PROJECT_DIRECTORY_PATH);
   }
-  
+
   deleteDummyProjectDirectory(): void {
     rmSync(PROJECT_DIRECTORY_PATH, {recursive: true});
   }

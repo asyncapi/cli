@@ -142,6 +142,9 @@ export default class Models extends Command {
     const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, output } = flags;
     const { language, file } = args;
     const inputFile = (await load(file)) || (await load());
+    if (inputFile.isAsyncAPI3()) {
+      return this.error('Generate Models command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/modelina/issues/1376');
+    }
     const { document, diagnostics ,status } = await parse(this, inputFile, flags);
     if (!document || status === 'invalid') {
       const severityErrors = diagnostics.filter((obj) => obj.severity === 0);

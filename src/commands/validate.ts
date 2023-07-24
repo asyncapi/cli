@@ -28,7 +28,7 @@ export default class Validate extends Command {
     if (watchMode) {
       specWatcher({ spec: specFile, handler: this, handlerName: 'validate' });
     }
-    
+
     await validate(this, specFile, flags);
   }
 }

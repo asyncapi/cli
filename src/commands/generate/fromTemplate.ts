@@ -106,7 +106,7 @@ export default class Template extends Command {
       genOption.resolve = {resolve: this.getMapBaseUrlToFolderResolver(parsedFlags.mapBaseUrlToFolder)};
     }
 
-    await this.generate(asyncapi, template, output, options, genOption);    
+    await this.generate(asyncapi, template, output, options, genOption);
     if (watchTemplate) {
       const watcherHandler = this.watcherHandler(asyncapi, template, output, options, genOption);
       await this.runWatchMode(asyncapi, template, output, watcherHandler);
