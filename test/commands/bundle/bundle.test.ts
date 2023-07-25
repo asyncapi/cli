@@ -34,10 +34,10 @@ describe('bundle', () => {
     .it('should successfully bundle specification into json file', (ctx, done) => {
       expect(ctx.stdout).toContain(
         'Check out your shiny new bundled files at ./test/commands/bundle/final.json'
-      )
-      fileCleanup('./test/commands/bundle/final.json')
-      done()
-    })
+      );
+      fileCleanup('./test/commands/bundle/final.json');
+      done();
+    });
 
   test
     .stderr()
