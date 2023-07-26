@@ -26,6 +26,20 @@ describe('bundle', () => {
     });
 
   test
+    .stdout()
+    .command([
+      'bundle', './test/commands/bundle/first-asyncapi.yaml',
+      '--output=./test/commands/bundle/final.json'
+    ])
+    .it('should successfully bundle specification into json file', (ctx, done) => {
+      expect(ctx.stdout).toContain(
+        'Check out your shiny new bundled files at ./test/commands/bundle/final.json'
+      );
+      fileCleanup('./test/commands/bundle/final.json');
+      done();
+    });
+
+  test
     .stderr()
     .command([
       'bundle', './test/commands/bundle/asyncapi.yml'
