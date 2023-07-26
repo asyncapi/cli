@@ -67,7 +67,7 @@ export default class Bundle extends Command {
       }
 
       if (format === '.json') {
-        await writeFile(path.resolve(process.cwd(), output), document.json(), {
+        await writeFile(path.resolve(process.cwd(), output), document.string(), {
           encoding: 'utf-8',
         });
       }
