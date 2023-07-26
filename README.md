@@ -81,6 +81,9 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/meetagrawal09"><img src="https://avatars.githubusercontent.com/u/73902874?v=4?s=100" width="100px;" alt="Meet Agrawal"/><br /><sub><b>Meet Agrawal</b></sub></a><br /><a href="#infra-meetagrawal09" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://www.chinmayyy.tech"><img src="https://avatars.githubusercontent.com/u/112387862?v=4?s=100" width="100px;" alt="Chinmay Shewale"/><br /><sub><b>Chinmay Shewale</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=chinma-yyy" title="Code">💻</a> <a href="https://github.com/asyncapi/cli/commits?author=chinma-yyy" title="Tests">⚠️</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mhmohona"><img src="https://avatars.githubusercontent.com/u/14244685?v=4?s=100" width="100px;" alt="Mahfuza Humayra Mohona"/><br /><sub><b>Mahfuza Humayra Mohona</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=mhmohona" title="Documentation">📖</a></td>
+    </tr>
   </tbody>
 </table>
 
