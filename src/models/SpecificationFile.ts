@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { URL } from 'url';
 import fetch from 'node-fetch';
-
+import yaml from 'js-yaml';
 import { loadContext } from './Context';
 import { ErrorLoadingSpec } from '../errors/specification-file';
 import { MissingContextFileError } from '../errors/context-error';
@@ -31,6 +31,19 @@ export class Specification {
     } else if (options.fileURL) {
       this.fileURL = options.fileURL;
       this.kind = 'url';
+    }
+  }
+
+  isAsyncAPI3() {
+    const jsObj = this.toJson();
+    return jsObj.asyncapi === '3.0.0';
+  }
+
+  toJson(): Record<string, any> {
+    try {
+      return yaml.load(this.spec, {json: true}) as Record<string, any>;
+    } catch (e) {
+      return JSON.parse(this.spec);
     }
   }
 
@@ -137,7 +150,7 @@ export async function load(filePathOrContextName?: string, loadType?: LoadType):
     if (e instanceof MissingContextFileError) {
       throw new ErrorLoadingSpec();
     }
-    
+
     throw e;
   }
 }

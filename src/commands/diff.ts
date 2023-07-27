@@ -86,6 +86,11 @@ export default class Diff extends Command {
 
     try {
       firstDocument = await load(firstDocumentPath);
+
+      if (firstDocument.isAsyncAPI3()) {
+        this.error('Diff command does not support AsyncAPI v3 yet which was your first document, please checkout https://github.com/asyncapi/diff/issues/154');
+      }
+
       enableWatch(watchMode, {
         spec: firstDocument,
         handler: this,
@@ -107,6 +112,11 @@ export default class Diff extends Command {
 
     try {
       secondDocument = await load(secondDocumentPath);
+
+      if (secondDocument.isAsyncAPI3()) {
+        this.error('Diff command does not support AsyncAPI v3 yet which was your second document, please checkout https://github.com/asyncapi/diff/issues/154');
+      }
+
       enableWatch(watchMode, {
         spec: secondDocument,
         handler: this,
@@ -265,8 +275,7 @@ function throwOnBreakingChange(diffOutput: AsyncAPIDiff, outputFormat: string) {
   const breakingChanges = diffOutput.breaking();
   if (
     (outputFormat === 'json' && breakingChanges.length !== 0) ||
-    ((outputFormat === 'yaml' || outputFormat === 'yml') && breakingChanges !== '[]\n') ||
-    (outputFormat === 'md' && breakingChanges.length !== 0)
+    ((outputFormat === 'yaml' || outputFormat === 'yml') && breakingChanges !== '[]\n')
   ) {
     throw new DiffBreakingChangeError();
   }
