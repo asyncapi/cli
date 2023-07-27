@@ -4,6 +4,7 @@ import path from 'path';
 import { fileCleanup } from '../../testHelper';
 
 const spec = fs.readFileSync('./test/commands/bundle/final-asyncapi.yaml', {encoding: 'utf-8'});
+const asyncapiv3 = './test/specification-v3.yml';
 
 function validateGeneratedSpec(filePath, spec) {
   const generatedSPec = fs.readFileSync(path.resolve(filePath), { encoding: 'utf-8' });
@@ -11,6 +12,20 @@ function validateGeneratedSpec(filePath, spec) {
 }
 
 describe('bundle', () => {
+  describe('should handle AsyncAPI v3 document correctly', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'bundle',
+        asyncapiv3,
+        '--output=./test/commands/bundle/final.yaml'])
+      .it('give error', (ctx, done) => {
+        expect(ctx.stderr).toEqual('Error: One of the files you tried to bundle is AsyncAPI v3 format, the bundle command does not support it yet, please checkout https://github.com/asyncapi/bundler/issues/133\n');
+        expect(ctx.stdout).toEqual('');
+        done();
+      });
+  });
   test
     .stdout()
     .command([

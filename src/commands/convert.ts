@@ -47,7 +47,7 @@ export default class Convert extends Command {
           this.log(`URL ${specFile.getFileURL()} successfully converted!`);
         }
       }
-      
+
       if (typeof convertedFile === 'object') {
         convertedFileFormatted = JSON.stringify(convertedFile, null, 4);
       } else {
