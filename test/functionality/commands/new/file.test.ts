@@ -1,5 +1,5 @@
 import { test } from '@oclif/test';
-import TestHelper from '../../testHelper';
+import TestHelper from '../../../helpers';
 
 const testHelper = new TestHelper();
 

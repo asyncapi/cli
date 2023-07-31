@@ -1,7 +1,7 @@
 import { existsSync, writeFileSync, unlinkSync, rmSync, mkdirSync , promises as fs } from 'fs';
 import * as path from 'path';
-import { IContextFile, DEFAULT_CONTEXT_FILE_PATH } from '../src/models/Context';
-import SpecificationFile from '../src/models/SpecificationFile';
+import { IContextFile, DEFAULT_CONTEXT_FILE_PATH } from '../../src/models/Context';
+import SpecificationFile from '../../src/models/SpecificationFile';
 import http from 'http';
 
 const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'specification.yaml');
@@ -124,4 +124,3 @@ function getContentType(filePath:string):string {
     return 'application/octet-stream';
   }
 }
-

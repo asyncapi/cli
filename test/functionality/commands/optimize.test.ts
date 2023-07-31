@@ -1,13 +1,13 @@
 import path from 'path';
 import { test } from '@oclif/test';
-import TestHelper, { createMockServer, stopMockServer } from '../testHelper';
+import TestHelper, { createMockServer, stopMockServer } from '../../helpers';
 import inquirer from 'inquirer';
-import {Optimizations, Outputs} from '../../src/commands/optimize';
+import {Optimizations, Outputs} from '../../../src/commands/optimize';
 
 const testHelper = new TestHelper();
-const optimizedFilePath = './test/specification.yml';
-const unoptimizedFile = './test/dummyspec/unoptimizedSpec.yml';
-const invalidFile = './test/specification-invalid.yml';
+const optimizedFilePath = './test/functionality/specification.yml';
+const unoptimizedFile = './test/functionality/dummyspec/unoptimizedSpec.yml';
+const invalidFile = './test/functionality/specification-invalid.yml';
 
 describe('optimize', () => {
   describe('no optimization needed', () => {
@@ -40,7 +40,7 @@ describe('optimize', () => {
     test
       .stderr()
       .stdout()
-      .command(['optimize', './test/not-found.yml'])
+      .command(['optimize', './test/functionality/not-found.yml'])
       .it('should throw error if file path is wrong', (ctx, done) => {
         expect(ctx.stdout).toEqual('');
         expect(ctx.stderr).toContain('ValidationError');

@@ -5,7 +5,7 @@ import rimraf from 'rimraf';
 
 const generalOptions = [
   'generate:fromTemplate',
-  './test/specification.yml',
+  './test/functionality/specification.yml',
   '@asyncapi/minimaltemplate',
 ];
 

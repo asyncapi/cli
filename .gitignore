@@ -13,7 +13,7 @@
 !assets/examples/default-example.yaml
 !assets/examples/tutorial.yml
 node_modules
-/test/commands/generate/models/
+/test/functionality/commands/generate/models/
 asyncapi.json
 asyncapi.yml
 test/minimaltemplate/__transpiled
@@ -21,3 +21,7 @@ test/minimaltemplate/__transpiled
 
 
 spec-examples.zip
+
+# Coverage for testing
+
+coverage

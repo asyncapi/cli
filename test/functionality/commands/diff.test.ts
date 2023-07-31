@@ -20,7 +20,7 @@ describe('diff', () => {
     test
       .stderr()
       .stdout()
-      .command(['diff', './test/specification.yml', './test/specification.yml', '--format=json'])
+      .command(['diff', './test/functionality/specification.yml', './test/functionality/specification.yml', '--format=json'])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(noChangesJson);
         expect(ctx.stderr).toEqual('');
@@ -32,7 +32,7 @@ describe('diff', () => {
     test
       .stderr()
       .stdout()
-      .command(['diff', './test/specification.yml', './test/specification.yml'])
+      .command(['diff', './test/functionality/specification.yml', './test/functionality/specification.yml'])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(noChangesYaml);
         expect(ctx.stderr).toEqual('');
@@ -46,8 +46,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/asyncapi_v1.yml',
-        './test/fixtures/asyncapi_v2.yml',
+        './test/functionality/fixtures/asyncapi_v1.yml',
+        './test/functionality/fixtures/asyncapi_v2.yml',
         '--type=all',
         '--format=json',
         '--no-error',
@@ -65,8 +65,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/asyncapi_v1.yml',
-        './test/fixtures/asyncapi_v2.yml',
+        './test/functionality/fixtures/asyncapi_v1.yml',
+        './test/functionality/fixtures/asyncapi_v2.yml',
         '--type=breaking',
         '--format=json',
         '--no-error',
@@ -84,8 +84,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/asyncapi_v1.yml',
-        './test/fixtures/asyncapi_v2.yml',
+        './test/functionality/fixtures/asyncapi_v1.yml',
+        './test/functionality/fixtures/asyncapi_v2.yml',
         '--type=non-breaking',
         '--format=json',
         '--no-error',
@@ -103,8 +103,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/asyncapi_v1.yml',
-        './test/fixtures/asyncapi_v2.yml',
+        './test/functionality/fixtures/asyncapi_v1.yml',
+        './test/functionality/fixtures/asyncapi_v2.yml',
         '--type=unclassified',
         '--format=json',
         '--no-error',
@@ -122,8 +122,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/asyncapi_v1.yml',
-        './test/fixtures/asyncapi_v2.yml',
+        './test/functionality/fixtures/asyncapi_v1.yml',
+        './test/functionality/fixtures/asyncapi_v2.yml',
         '--format=json',
         '--no-error',
       ])
@@ -140,8 +140,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/asyncapi_v1.yml',
-        './test/fixtures/asyncapi_v2.yml',
+        './test/functionality/fixtures/asyncapi_v1.yml',
+        './test/functionality/fixtures/asyncapi_v2.yml',
         '--type=all',
         '--no-error',
       ])
@@ -158,8 +158,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/asyncapi_v1.yml',
-        './test/fixtures/asyncapi_v2.yml',
+        './test/functionality/fixtures/asyncapi_v1.yml',
+        './test/functionality/fixtures/asyncapi_v2.yml',
       ])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(commonYamlOutput);
@@ -174,8 +174,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/asyncapi_v1.yml',
-        './test/fixtures/asyncapi_v2.yml',
+        './test/functionality/fixtures/asyncapi_v1.yml',
+        './test/functionality/fixtures/asyncapi_v2.yml',
         '--format=md',
         '--markdownSubtype=json',
         '--type=all',
@@ -194,8 +194,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/asyncapi_v1.yml',
-        './test/fixtures/asyncapi_v2.yml',
+        './test/functionality/fixtures/asyncapi_v1.yml',
+        './test/functionality/fixtures/asyncapi_v2.yml',
         '--format=md',
         '--markdownSubtype=yaml',
         '--type=all',
@@ -214,8 +214,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/asyncapi_v1.yml',
-        './test/fixtures/asyncapi_v2.yml',
+        './test/functionality/fixtures/asyncapi_v1.yml',
+        './test/functionality/fixtures/asyncapi_v2.yml',
         '--format=json',
         '--markdownSubtype=yaml',
       ])
@@ -232,10 +232,10 @@ describe('diff', () => {
     test
       .stderr()
       .stdout()
-      .command(['diff', './test/specification.yml', './test/specification.yml', '--format=json', '--log-diagnostics'])
+      .command(['diff', './test/functionality/specification.yml', './test/functionality/specification.yml', '--format=json', '--log-diagnostics'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stdout).toMatch(
-          'File ./test/specification.yml is valid but has (itself and/or referenced documents) governance issues.'
+          'File ./test/functionality/specification.yml is valid but has (itself and/or referenced documents) governance issues.'
         );
         expect(ctx.stderr).toEqual('');
         done();
@@ -250,9 +250,9 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/asyncapi_v1.yml',
-        './test/fixtures/asyncapi_v2.yml',
-        '--overrides=./test/fixtures/overrides.json',
+        './test/functionality/fixtures/asyncapi_v1.yml',
+        './test/functionality/fixtures/asyncapi_v2.yml',
+        '--overrides=./test/functionality/fixtures/overrides.json',
         '--format=json',
         '--no-error',
       ])
@@ -269,8 +269,8 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/asyncapi_v1.yml',
-        './test/fixtures/asyncapi_v2.yml',
+        './test/functionality/fixtures/asyncapi_v1.yml',
+        './test/functionality/fixtures/asyncapi_v2.yml',
         '--overrides=./overrides-wrong.json',
         '--format=json',
       ])
@@ -289,9 +289,9 @@ describe('diff', () => {
       .stdout()
       .command([
         'diff',
-        './test/fixtures/asyncapi_v1.yml',
-        './test/fixtures/asyncapi_v2.yml',
-        '--overrides=./test/fixtures/invalid-overrides.json',
+        './test/functionality/fixtures/asyncapi_v1.yml',
+        './test/functionality/fixtures/asyncapi_v2.yml',
+        '--overrides=./test/functionality/fixtures/invalid-overrides.json',
       ])
       .it((ctx, done) => {
         expect(ctx.stdout).toEqual('');

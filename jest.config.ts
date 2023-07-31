@@ -2,7 +2,8 @@ import type { Config } from '@jest/types';
 
 const config: Config.InitialOptions = {
   coverageReporters: [
-    'text'
+    'text',
+    'html'
   ],
   transform: {
     '^.+\\.(t|j)sx?$': '@swc/jest',
