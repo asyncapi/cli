@@ -41,7 +41,7 @@ describe('bundle', () => {
       'bundle', './test/functionality/commands/bundle/first-asyncapi.yaml', '--reference-into-components', '--output=./test/functionality/commands/bundle/final.yaml'
     ])
     .it('should be able to refence messages into components', (ctx, done) => {
-      expect(ctx.stdout).toContain('Check out your shiny new bundled files at test/functionality/commands/bundle/final.yaml\n');
+      expect(ctx.stdout).toContain('Check out your shiny new bundled files at ./test/functionality/commands/bundle/final.yaml\n');
       fileCleanup('./test/functionality/commands/bundle/final.yaml');
       done();
     });

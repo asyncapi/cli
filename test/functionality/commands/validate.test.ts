@@ -30,7 +30,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/functionality/specification.yml'])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).toMatch('File ./test/functionality/specification.yml is valid but has (itself and/or referenced documents) governance issues.\n\ntest/specification.yml');
+        expect(ctx.stdout).toMatch('File ./test/functionality/specification.yml is valid but has (itself and/or referenced documents) governance issues.\n\ntest/functionality/specification.yml');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -181,7 +181,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/functionality/specification.yml', '--log-diagnostics'])
       .it('works with --log-diagnostics', (ctx, done) => {
-        expect(ctx.stdout).toMatch('File ./test/functionality/specification.yml is valid but has (itself and/or referenced documents) governance issues.\n\ntest/specification.yml');
+        expect(ctx.stdout).toMatch('File ./test/functionality/specification.yml is valid but has (itself and/or referenced documents) governance issues.\n\ntest/functionality/specification.yml');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -241,7 +241,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/functionality/specification.yml', '--fail-severity=warn'])
       .it('works with --fail-severity', (ctx, done) => {
-        expect(ctx.stderr).toMatch('File ./test/functionality/specification.yml and/or referenced documents have governance issues.\n\ntest/specification.yml');
+        expect(ctx.stderr).toMatch('File ./test/functionality/specification.yml and/or referenced documents have governance issues.\n\ntest/functionality/specification.yml');
         done();
       });
   });

@@ -128,7 +128,7 @@ describe('template', () => {
       .stdout()
       .command([
         'generate:fromTemplate',
-        './test/specification.yml',
+        './test/functionality/specification.yml',
         './test/minimaltemplate',
         '--install',
         '--force-write',
@@ -146,11 +146,11 @@ describe('template', () => {
       .stdout()
       .command([
         'generate:fromTemplate',
-        './test/dummyspec/apiwithref.json',
+        './test/functionality/dummyspec/apiwithref.json',
         '@asyncapi/minimaltemplate',
         '--output=./test/docs/8',
         '--force-write',
-        '--map-base-url=https://schema.example.com/crm/:./test/dummyspec',
+        '--map-base-url=https://schema.example.com/crm/:./test/functionality/dummyspec',
       ])
       .it(
         'should resolve reference and generate from template',

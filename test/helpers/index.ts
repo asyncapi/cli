@@ -5,7 +5,7 @@ import SpecificationFile from '../../src/models/SpecificationFile';
 import http from 'http';
 
 const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'specification.yaml');
-const SERVER_DIRECTORY= path.join(__dirname, 'dummyspec');
+const SERVER_DIRECTORY= path.join(__dirname, '../functionality/dummyspec');
 export const PROJECT_DIRECTORY_PATH = path.join(process.cwd(), 'test-project');
 
 let server: http.Server;
@@ -13,9 +13,9 @@ let server: http.Server;
 export default class ContextTestingHelper {
   private _context: IContextFile;
   constructor() {
-    const homeSpecFile = new SpecificationFile(path.resolve(__dirname, 'specification.yml'));
+    const homeSpecFile = new SpecificationFile(path.resolve(__dirname, '../functionality/specification.yml'));
 
-    const codeSpecFile = new SpecificationFile(path.resolve(__dirname, 'specification.yml'));
+    const codeSpecFile = new SpecificationFile(path.resolve(__dirname, '../functionality/specification.yml'));
     this._context = {
       current: 'home',
       store: {
