@@ -43,7 +43,7 @@
     "ws": "^8.2.3"
   },
   "devDependencies": {
-    "@asyncapi/minimaltemplate": "./test/minimaltemplate",
+    "@asyncapi/minimaltemplate": "./test/fixtures/minimaltemplate",
     "@babel/core": "^7.19.3",
     "@jest/types": "^29.1.0",
     "@oclif/test": "^2",

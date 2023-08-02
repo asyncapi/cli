@@ -1,14 +1,14 @@
 import path from 'path';
 import { test } from '@oclif/test';
-import TestHelper, { createMockServer, stopMockServer } from '../../helpers';
+import TestHelper, { createMockServer, stopMockServer } from '../helpers';
 import inquirer from 'inquirer';
-import {Optimizations, Outputs} from '../../../src/commands/optimize';
+import {Optimizations, Outputs} from '../../src/commands/optimize';
 
 const testHelper = new TestHelper();
-const optimizedFilePath = './test/functionality/specification.yml';
-const unoptimizedFile = './test/functionality/dummyspec/unoptimizedSpec.yml';
-const invalidFile = './test/functionality/specification-invalid.yml';
-const asyncapiv3 = './test/functionality/specification-v3.yml';
+const optimizedFilePath = './test/fixtures/specification.yml';
+const unoptimizedFile = './test/fixtures/dummyspec/unoptimizedSpec.yml';
+const invalidFile = './test/fixtures/specification-invalid.yml';
+const asyncapiv3 = './test/fixtures/specification-v3.yml';
 
 describe('optimize', () => {
   describe('should handle AsyncAPI v3 document correctly', () => {
@@ -53,7 +53,7 @@ describe('optimize', () => {
     test
       .stderr()
       .stdout()
-      .command(['optimize', './test/functionality/not-found.yml'])
+      .command(['optimize', './test/fixtures/not-found.yml'])
       .it('should throw error if file path is wrong', (ctx, done) => {
         expect(ctx.stdout).toEqual('');
         expect(ctx.stderr).toContain('ValidationError');
@@ -86,7 +86,7 @@ describe('optimize', () => {
       .stdout()
       .command(['optimize'])
       .it('converts from current context', (ctx, done) => {
-        expect(ctx.stdout).toContain(`No optimization has been applied since ${path.resolve(__dirname, '../specification.yml')} looks optimized!`);
+        expect(ctx.stdout).toContain(`No optimization has been applied since ${path.resolve(__dirname, '../fixtures/specification.yml')} looks optimized!`);
         expect(ctx.stderr).toEqual('');
         done();
       });

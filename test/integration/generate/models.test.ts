@@ -2,11 +2,11 @@
 /* eslint-disable sonarjs/no-identical-functions */
 import path from 'path';
 import { test } from '@oclif/test';
-import { createMockServer, stopMockServer } from '../../../helpers';
+import { createMockServer, stopMockServer } from '../../helpers';
 import { rmdirSync } from 'fs';
 const generalOptions = ['generate:models'];
-const outputDir = './test/functionality/commands/generate/models';
-const asyncapiv3 = './test/functionality/specification-v3.yml';
+const outputDir = './test/fixtures/generate/models';
+const asyncapiv3 = './test/fixtures/specification-v3.yml';
 
 describe('models', () => {
   beforeAll(() => {
@@ -41,7 +41,7 @@ describe('models', () => {
   test
     .stderr()
     .stdout()
-    .command([...generalOptions, 'random', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './random')}`])
+    .command([...generalOptions, 'random', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './random')}`])
     .it('fails when it dont know the language', (ctx, done) => {
       expect(ctx.stderr).toEqual('Error: Expected random to be one of: typescript, csharp, golang, java, javascript, dart, python, rust, kotlin, php, cplusplus\nSee more help with --help\n');
       expect(ctx.stdout).toEqual('');
@@ -50,7 +50,7 @@ describe('models', () => {
   test
     .stderr()
     .stdout()
-    .command([...generalOptions, 'typescript', './test/functionality/specification.yml'])
+    .command([...generalOptions, 'typescript', './test/fixtures/specification.yml'])
     .it('works when generating in memory', (ctx, done) => {
       expect(ctx.stderr).toEqual('');
       expect(ctx.stdout).toMatchSnapshot();
@@ -61,7 +61,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'typescript', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './ts')}`])
+      .command([...generalOptions, 'typescript', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './ts')}`])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -72,7 +72,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'typescript', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './ts')}`, '--tsJsonBinPack'])
+      .command([...generalOptions, 'typescript', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './ts')}`, '--tsJsonBinPack'])
       .it('works when tsJsonBinPack is set', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -83,7 +83,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'typescript', './test/functionality/specification.yml', '--tsMarshalling'])
+      .command([...generalOptions, 'typescript', './test/fixtures/specification.yml', '--tsMarshalling'])
       .it('works when tsMarshalling is set', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -94,7 +94,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'typescript', './test/functionality/specification.yml', '--tsIncludeComments'])
+      .command([...generalOptions, 'typescript', './test/fixtures/specification.yml', '--tsIncludeComments'])
       .it('works when tsIncludeComments is set', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toMatchSnapshot();
@@ -103,7 +103,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions,'typescript', './test/functionality/specification.yml', '--tsIncludeComments'])
+      .command([...generalOptions,'typescript', './test/fixtures/specification.yml', '--tsIncludeComments'])
       .it('works when tsExampleInstance is set', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -117,7 +117,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'javascript', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './js')}`])
+      .command([...generalOptions, 'javascript', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './js')}`])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stdout).toContain(
           'Successfully generated the following models: '
@@ -131,7 +131,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'python', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './python')}`])
+      .command([...generalOptions, 'python', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './python')}`])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stdout).toContain(
           'Successfully generated the following models: '
@@ -145,7 +145,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'rust', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './rust')}`])
+      .command([...generalOptions, 'rust', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './rust')}`])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stdout).toContain(
           'Successfully generated the following models: '
@@ -159,7 +159,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'csharp', './test/functionality/specification.yml', `-o=${path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\''])
+      .command([...generalOptions, 'csharp', './test/fixtures/specification.yml', `-o=${path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\''])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -170,7 +170,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'csharp', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`])
+      .command([...generalOptions, 'csharp', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`])
       .it('fails when no namespace provided', (ctx, done) => {
         expect(ctx.stderr).toEqual('Error: In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.\n');
         expect(ctx.stdout).toEqual('');
@@ -179,7 +179,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'csharp', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpAutoImplement'])
+      .command([...generalOptions, 'csharp', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpAutoImplement'])
       .it('works when auto implement properties flag is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -190,7 +190,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'csharp', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpNewtonsoft'])
+      .command([...generalOptions, 'csharp', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpNewtonsoft'])
       .it('works when newtonsoft flag is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -201,7 +201,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'csharp', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpHashcode'])
+      .command([...generalOptions, 'csharp', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpHashcode'])
       .it('works when hash code flag is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -213,7 +213,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'csharp', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpEqual'])
+      .command([...generalOptions, 'csharp', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpEqual'])
       .it('works when equal flag is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -225,7 +225,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'csharp', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpSystemJson'])
+      .command([...generalOptions, 'csharp', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpSystemJson'])
       .it('works when system json flag is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -237,7 +237,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'csharp', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpArrayType=List'])
+      .command([...generalOptions, 'csharp', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './csharp')}`, '--namespace=\'asyncapi.models\'', '--csharpArrayType=List'])
       .it('works when array type is provided', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -251,7 +251,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'cplusplus', './test/functionality/specification.yml', `-o=${path.resolve(outputDir, './cplusplus')}`, '--namespace=\'AsyncapiModels\''])
+      .command([...generalOptions, 'cplusplus', './test/fixtures/specification.yml', `-o=${path.resolve(outputDir, './cplusplus')}`, '--namespace=\'AsyncapiModels\''])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -262,7 +262,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'cplusplus', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './cplusplus')}`])
+      .command([...generalOptions, 'cplusplus', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './cplusplus')}`])
       .it('fails when no namespace provided', (ctx, done) => {
         expect(ctx.stderr).toEqual('Error: In order to generate models to C++, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.\n');
         expect(ctx.stdout).toEqual('');
@@ -274,7 +274,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'java', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './java')}`, '--packageName', 'test.pkg'])
+      .command([...generalOptions, 'java', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './java')}`, '--packageName', 'test.pkg'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -285,7 +285,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'java', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './java')}`])
+      .command([...generalOptions, 'java', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './java')}`])
       .it('fails when no package defined', (ctx, done) => {
         expect(ctx.stderr).toEqual('Error: In order to generate models to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
         expect(ctx.stdout).toEqual('');
@@ -297,7 +297,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'golang', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './go')}`, '--packageName', 'asyncapi.models'])
+      .command([...generalOptions, 'golang', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './go')}`, '--packageName', 'asyncapi.models'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -308,7 +308,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'golang', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './go')}`])
+      .command([...generalOptions, 'golang', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './go')}`])
       .it('fails when no package defined', (ctx, done) => {
         expect(ctx.stderr).toEqual('Error: In order to generate models to Go, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
         expect(ctx.stdout).toEqual('');
@@ -320,7 +320,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'kotlin', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './kotlin')}`, '--packageName', 'asyncapi.models'])
+      .command([...generalOptions, 'kotlin', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './kotlin')}`, '--packageName', 'asyncapi.models'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -331,7 +331,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'kotlin', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './kotlin')}`])
+      .command([...generalOptions, 'kotlin', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './kotlin')}`])
       .it('fails when no package defined', (ctx, done) => {
         expect(ctx.stderr).toEqual('Error: In order to generate models to Kotlin, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
         expect(ctx.stdout).toEqual('');
@@ -343,7 +343,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'dart', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './dart')}`, '--packageName', 'asyncapi.models'])
+      .command([...generalOptions, 'dart', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './dart')}`, '--packageName', 'asyncapi.models'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -354,7 +354,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'dart', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './dart')}`])
+      .command([...generalOptions, 'dart', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './dart')}`])
       .it('fails when no package defined', (ctx, done) => {
         expect(ctx.stderr).toEqual('Error: In order to generate models to Dart, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
         expect(ctx.stdout).toEqual('');
@@ -366,7 +366,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'php', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './php')}`, '--namespace=\'asyncapi.models\''])
+      .command([...generalOptions, 'php', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './php')}`, '--namespace=\'asyncapi.models\''])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stderr).toEqual('');
         expect(ctx.stdout).toContain(
@@ -377,7 +377,7 @@ describe('models', () => {
     test
       .stderr()
       .stdout()
-      .command([...generalOptions, 'php', './test/functionality/specification.yml', `-o=${ path.resolve(outputDir, './php')}`])
+      .command([...generalOptions, 'php', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './php')}`])
       .it('fails when no namespace defined', (ctx, done) => {
         expect(ctx.stderr).toEqual('Error: In order to generate models to PHP, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.\n');
         expect(ctx.stdout).toEqual('');
