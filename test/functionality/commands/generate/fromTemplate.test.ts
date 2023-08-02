@@ -8,7 +8,7 @@ const generalOptions = [
   './test/functionality/specification.yml',
   '@asyncapi/minimaltemplate',
 ];
-const asyncapiv3 = './test/specification-v3.yml';
+const asyncapiv3 = './test/functionality/specification-v3.yml';
 
 function cleanup(filepath: string) {
   rimraf.sync(filepath);

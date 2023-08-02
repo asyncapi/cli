@@ -4,6 +4,7 @@ import path from 'path';
 import { fileCleanup } from '../../../helpers';
 
 const spec = fs.readFileSync('./test/functionality/commands/bundle/final-asyncapi.yaml', {encoding: 'utf-8'});
+const asyncapiv3 = './test/functionality/specification-v3.yml';
 
 function validateGeneratedSpec(filePath, spec) {
   const generatedSPec = fs.readFileSync(path.resolve(filePath), { encoding: 'utf-8' });
@@ -11,6 +12,21 @@ function validateGeneratedSpec(filePath, spec) {
 }
 
 describe('bundle', () => {
+  describe('should handle AsyncAPI v3 document correctly', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'bundle',
+        asyncapiv3,
+        '--output=./test/functionality/commands/bundle/final.yaml'])
+      .it('give error', (ctx, done) => {
+        expect(ctx.stderr).toEqual('Error: One of the files you tried to bundle is AsyncAPI v3 format, the bundle command does not support it yet, please checkout https://github.com/asyncapi/bundler/issues/133\n');
+        expect(ctx.stdout).toEqual('');
+        done();
+      });
+  });
+
   test
     .stdout()
     .command([
@@ -22,6 +38,20 @@ describe('bundle', () => {
         'Check out your shiny new bundled files at ./test/functionality/commands/bundle/final.yaml'
       );
       fileCleanup('./test/functionality/commands/bundle/final.yaml');
+      done();
+    });
+
+  test
+    .stdout()
+    .command([
+      'bundle', './test/functionality/commands/bundle/first-asyncapi.yaml',
+      '--output=./test/functionality/commands/bundle/final.json'
+    ])
+    .it('should successfully bundle specification into json file', (ctx, done) => {
+      expect(ctx.stdout).toContain(
+        'Check out your shiny new bundled files at ./test/functionality/commands/bundle/final.json'
+      );
+      fileCleanup('./test/functionality/commands/bundle/final.json');
       done();
     });
 
