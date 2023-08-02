@@ -5,6 +5,7 @@ import { test } from '@oclif/test';
 import { createMockServer, stopMockServer } from '../../../helpers';
 const generalOptions = ['generate:models'];
 const outputDir = './test/functionality/commands/generate/models';
+const asyncapiv3 = './test/functionality/specification-v3.yml';
 
 describe('models', () => {
   beforeAll(() => {
@@ -12,6 +13,18 @@ describe('models', () => {
   });
   afterAll(() => {
     stopMockServer();
+  });
+  describe('should handle AsyncAPI v3 document correctly', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([
+        ...generalOptions, 'typescript', asyncapiv3])
+      .it('give error', (ctx, done) => {
+        expect(ctx.stderr).toEqual('Error: Generate Models command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/modelina/issues/1376\n');
+        expect(ctx.stdout).toEqual('');
+        done();
+      });
   });
   test
     .stderr()

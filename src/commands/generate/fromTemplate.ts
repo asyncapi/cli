@@ -30,6 +30,32 @@ interface ParsedFlags {
   mapBaseUrlToFolder: IMapBaseUrlToFlag
 }
 
+const templatesNotSupportingV3: Record<string, string> = {
+  '@asyncapi/minimaltemplate': 'some link', // For testing purpose
+  '@asyncapi/html-template': 'https://github.com/asyncapi/html-template/issues/430',
+  '@asyncapi/dotnet-nats-template': 'https://github.com/asyncapi/dotnet-nats-template/issues/384',
+  '@asyncapi/ts-nats-template': 'https://github.com/asyncapi/ts-nats-template/issues/545',
+  '@asyncapi/python-paho-template': 'https://github.com/asyncapi/python-paho-template/issues/189',
+  '@asyncapi/nodejs-ws-template': 'https://github.com/asyncapi/nodejs-ws-template/issues/294',
+  '@asyncapi/java-spring-cloud-stream-template': 'https://github.com/asyncapi/java-spring-cloud-stream-template/issues/336',
+  '@asyncapi/go-watermill-template': 'https://github.com/asyncapi/go-watermill-template/issues/243',
+  '@asyncapi/java-spring-template': 'https://github.com/asyncapi/java-spring-template/issues/308',
+  '@asyncapi/markdown-template': 'https://github.com/asyncapi/markdown-template/issues/341',
+  '@asyncapi/nodejs-template': 'https://github.com/asyncapi/nodejs-template/issues/215',
+  '@asyncapi/java-template': 'https://github.com/asyncapi/java-template/issues/118',
+  '@asyncapi/php-template': 'https://github.com/asyncapi/php-template/issues/191'
+};
+
+/**
+ * Verify that a given template support v3, if not, return the link to the issue that needs to be solved.
+ */
+function verifyTemplateSupportForV3(template: string) {
+  if (templatesNotSupportingV3[`${template}`] !== undefined) {
+    return templatesNotSupportingV3[`${template}`];
+  }
+  return undefined;
+}
+
 export default class Template extends Command {
   static description = 'Generates whatever you want using templates compatible with AsyncAPI Generator.';
 
@@ -99,6 +125,7 @@ export default class Template extends Command {
       mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
       disabledHooks: parsedFlags.disableHooks,
     };
+    const asyncapiInput = (await load(asyncapi)) || (await load());
 
     const watchTemplate = flags['watch'];
     const genOption: any = {};
@@ -106,7 +133,13 @@ export default class Template extends Command {
       genOption.resolve = {resolve: this.getMapBaseUrlToFolderResolver(parsedFlags.mapBaseUrlToFolder)};
     }
 
-    await this.generate(asyncapi, template, output, options, genOption);    
+    if (asyncapiInput.isAsyncAPI3()) {
+      const v3IssueLink = verifyTemplateSupportForV3(template);
+      if (v3IssueLink !== undefined) {
+        this.error(`${template} template does not support AsyncAPI v3 documents, please checkout ${v3IssueLink}`);
+      }
+    }
+    await this.generate(asyncapi, template, output, options, genOption);
     if (watchTemplate) {
       const watcherHandler = this.watcherHandler(asyncapi, template, output, options, genOption);
       await this.runWatchMode(asyncapi, template, output, watcherHandler);
