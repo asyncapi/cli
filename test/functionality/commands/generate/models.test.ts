@@ -3,6 +3,7 @@
 import path from 'path';
 import { test } from '@oclif/test';
 import { createMockServer, stopMockServer } from '../../../helpers';
+import { rmdirSync } from 'fs';
 const generalOptions = ['generate:models'];
 const outputDir = './test/functionality/commands/generate/models';
 const asyncapiv3 = './test/functionality/specification-v3.yml';
@@ -13,6 +14,7 @@ describe('models', () => {
   });
   afterAll(() => {
     stopMockServer();
+    rmdirSync(outputDir, {recursive: true});
   });
   describe('should handle AsyncAPI v3 document correctly', () => {
     test
