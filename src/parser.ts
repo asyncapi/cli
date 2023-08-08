@@ -1,14 +1,14 @@
-import { Flags } from '@oclif/core';
-import { Parser, convertToOldAPI } from '@asyncapi/parser/cjs';
 import { AvroSchemaParser } from '@asyncapi/avro-schema-parser';
 import { OpenAPISchemaParser } from '@asyncapi/openapi-schema-parser';
+import { Parser, convertToOldAPI } from '@asyncapi/parser/cjs';
 import { RamlDTSchemaParser } from '@asyncapi/raml-dt-schema-parser';
-import { getDiagnosticSeverity } from '@stoplight/spectral-core';
-import { html, json, junit, stylish, teamcity, text, pretty } from '@stoplight/spectral-cli/dist/formatters';
+import { Flags } from '@oclif/core';
 import { OutputFormat } from '@stoplight/spectral-cli/dist/services/config';
+import { getDiagnosticSeverity } from '@stoplight/spectral-core';
+import { html, json, junit, pretty, stylish, teamcity, text } from '@stoplight/spectral-formatters/dist';
 
-import type Command from './base';
 import type { Diagnostic } from '@asyncapi/parser/cjs';
+import type Command from './base';
 import type { Specification } from './models/SpecificationFile';
 
 export type SeveritytKind = 'error' | 'warn' | 'info' | 'hint';
