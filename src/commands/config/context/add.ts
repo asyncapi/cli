@@ -10,6 +10,12 @@ export default class ContextAdd extends Command {
   static description = 'Add a context to the store';
   static flags = {
     help: Flags.help({ char: 'h' }),
+    debug: Flags.boolean({
+      char: 'd',
+      description: 'Print any errors that arise',
+      default: false,
+      required: false,
+    })
   };
 
   static args = [
@@ -22,9 +28,10 @@ export default class ContextAdd extends Command {
   ];
 
   async run() {
-    const { args } = await this.parse(ContextAdd);
+    const { args, flags } = await this.parse(ContextAdd);
     const contextName = args['context-name'];
     const specFilePath = args['spec-file-path'];
+    const debugFlag = flags['debug'];
 
     try {
       await addContext(contextName, specFilePath);
@@ -32,6 +39,10 @@ export default class ContextAdd extends Command {
         `Added context "${contextName}".\n\nYou can set it as your current context: asyncapi config context use ${contextName}\nYou can use this context when needed by passing ${contextName} as a parameter: asyncapi validate ${contextName}`
       );
     } catch (e) {
+      if(debugFlag){
+        this.log(`---DEBUGGING INFO---\n\n`,e,`\n\n---END DEBUGGING INFO---\n`);
+      }
+
       if (
         e instanceof (MissingContextFileError || ContextFileWrongFormatError)
       ) {
