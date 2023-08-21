@@ -1,5 +1,5 @@
 import {Flags} from '@oclif/core';
-import { promises as fPromises } from 'fs';
+import { promises as fPromises, readFileSync } from 'fs';
 import Command from '../../base';
 import * as inquirer from 'inquirer';
 import { start as startStudio, DEFAULT_PORT } from '../../models/Studio';
@@ -9,18 +9,42 @@ const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
 const DEFAULT_ASYNCAPI_TEMPLATE = 'default-example.yaml';
 
+interface IExample{
+  name: string,
+  value: string,
+}
+
+function loadExampleFile (): IExample[] {
+  const exampleFiles = readFileSync(resolve(__dirname, '../../../assets/examples/examples.json'), { encoding: 'utf8' });
+  return JSON.parse(exampleFiles);
+}
+
+function getExamplesFlagDescription (): string {
+  const examples = loadExampleFile();
+  let description = 'name of the example to use. Available examples are:';
+  for (const example of examples) {
+    description += `\n\t - ${example.value}`;
+  }
+  return description;
+}
+
 export default class NewFile extends Command {
   static description = 'Creates a new asyncapi file';
 
   static flags = {
     help: Flags.help({ char: 'h' }),
     'file-name': Flags.string({ char: 'n', description: 'name of the file' }),
-    example: Flags.string({ char: 'e', description: 'name of the example to use' }),
+    example: Flags.string({ char: 'e', description: getExamplesFlagDescription() }),
     studio: Flags.boolean({ char: 's', description: 'open in Studio' }),
     port: Flags.integer({ char: 'p', description: 'port in which to start Studio' }),
     'no-tty': Flags.boolean({ description: 'do not use an interactive terminal' }),
   };
   
+  static examples = [
+    'asyncapi new\t - start creation of a file in interactive mode',
+    'asyncapi new --file-name=my-asyncapi.yml --example=default-example.yml --no-tty\t - create a new file with a specific name, using one of the examples and without interactive mode'
+  ];
+
   async run() {
     const { flags } = await this.parse(NewFile); // NOSONAR
     const isTTY = process.stdout.isTTY;
