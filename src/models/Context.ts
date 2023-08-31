@@ -329,6 +329,7 @@ async function getContextFilePath(): Promise<string | null> {
       // legitimate context file, then it is considered a legitimate context
       // file indeed.
       const fileContent = JSON.parse(
+        //we do not use await readFile because getContextFilePath cannot be called inside async function
         readFileSync(currentPathString, {encoding: 'utf8'})
       );
       if (
