@@ -1,4 +1,4 @@
-import { promises as fs, existsSync, lstatSync } from 'fs';
+import { readFileSync, promises as fs, existsSync, lstatSync } from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
@@ -318,7 +318,7 @@ async function getContextFilePath(): Promise<string | null> {
 
   for (let i = currentPath.length; i >= 0; i--) {
     const currentPathString = currentPath[0]
-      ? currentPath.join(path.sep) + path.sep + CONTEXT_FILENAME
+      ? currentPath.join(path.sep) + CONTEXT_FILENAME
       : os.homedir() + path.sep + CONTEXT_FILENAME;
 
     // This `try...catch` is a part of `for` loop and is used only to swallow
@@ -329,9 +329,7 @@ async function getContextFilePath(): Promise<string | null> {
       // legitimate context file, then it is considered a legitimate context
       // file indeed.
       const fileContent = JSON.parse(
-        await readFile(currentPathString, {
-          encoding: 'utf8',
-        })
+        readFileSync(currentPathString, {encoding: 'utf8'})
       );
       if (
         fileContent &&
