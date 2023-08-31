@@ -318,7 +318,7 @@ async function getContextFilePath(): Promise<string | null> {
 
   for (let i = currentPath.length; i >= 0; i--) {
     const currentPathString = currentPath[0]
-      ? currentPath.join(path.sep) + CONTEXT_FILENAME
+      ? currentPath.join(path.sep) + path.sep + CONTEXT_FILENAME
       : os.homedir() + path.sep + CONTEXT_FILENAME;
 
     // This `try...catch` is a part of `for` loop and is used only to swallow
