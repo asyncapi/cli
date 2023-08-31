@@ -70,7 +70,7 @@ describe('validate', () => {
     test
       .stderr()
       .stdout()
-      .command(['validate', './test/fixtures/valid-specification.yml'])
+      .command(['validate', './test/fixtures/valid-specification-latest.yml'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stdout).toMatch('File ./test/fixtures/valid-specification.yml is valid! File ./test/fixtures/valid-specification.yml and referenced documents don\'t have governance issues.');
         expect(ctx.stderr).toEqual('');
@@ -221,7 +221,7 @@ describe('validate', () => {
     test
       .stderr()
       .stdout()
-      .command(['validate', './test/fixtures/valid-specification.yml', '--diagnostics-format=text'])
+      .command(['validate', './test/fixtures/valid-specification-latest.yml', '--diagnostics-format=text'])
       .it('works with --diagnostics-format flag (without governance issues)', (ctx, done) => {
         expect(ctx.stdout).toMatch('File ./test/fixtures/valid-specification.yml is valid! File ./test/fixtures/valid-specification.yml and referenced documents don\'t have governance issues.');
         expect(ctx.stderr).toEqual('');
