@@ -127,7 +127,7 @@
   },
   "repository": "asyncapi/cli",
   "scripts": {
-    "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && tsc && echo \"Build Completed\"",
+    "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && tsc && oclif manifest && echo \"Build Completed\"",
     "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
     "dev": "tsc --watch",
     "docker:build": "docker build -t asyncapi/cli:latest .",
@@ -143,8 +143,7 @@
     "pack:tarballs": "oclif pack tarballs -t linux-x64 && npm run pack:rename",
     "pack:windows": "oclif pack win && npm run pack:rename",
     "pack:rename": "node scripts/releasePackagesRename.js",
-    "postpack": "rimraf oclif.manifest.json",
-    "prepublishOnly": "npm run build && oclif manifest",
+    "prepublishOnly": "npm run build",
     "pretest:coverage": "npm run build",
     "release": "semantic-release",
     "pretest": "npm run build",
