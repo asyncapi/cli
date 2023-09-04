@@ -1,33 +1,37 @@
 import { Flags } from '@oclif/core';
 import Command from '../../../base';
-import { removeContext, CONTEXT_FILE_PATH } from '../../../models/Context';
+import { editContext, CONTEXT_FILE_PATH } from '../../../models/Context';
 import {
   MissingContextFileError,
   ContextFileWrongFormatError,
   ContextFileEmptyError,
 } from '../../../errors/context-error';
 
-export default class ContextRemove extends Command {
-  static description = 'Delete a context from the store';
+export default class ContextEdit extends Command {
+  static description = 'Edit a context in the store';
   static flags = {
     help: Flags.help({ char: 'h' }),
   };
 
   static args = [
+    { name: 'context-name', description: 'context name', required: true },
     {
-      name: 'context-name',
-      description: 'Name of the context to delete',
+      name: 'new-spec-file-path',
+      description: 'new file path of the spec file',
       required: true,
     },
   ];
 
   async run() {
-    const { args } = await this.parse(ContextRemove);
+    const { args } = await this.parse(ContextEdit);
     const contextName = args['context-name'];
+    const newSpecFilePath = args['new-spec-file-path'];
 
     try {
-      await removeContext(contextName);
-      this.log(`${contextName} successfully deleted`);
+      await editContext(contextName, newSpecFilePath);
+      this.log(
+        `Edited context "${contextName}".\n\nYou can set it as your current context: asyncapi config context use ${contextName}\nYou can use this context when needed by passing ${contextName} as a parameter: asyncapi validate ${contextName}`
+      );
     } catch (e) {
       if (
         e instanceof (MissingContextFileError || ContextFileWrongFormatError)

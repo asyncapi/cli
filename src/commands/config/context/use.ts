@@ -1,22 +1,48 @@
-import {Flags} from '@oclif/core';
+import { Flags } from '@oclif/core';
 import Command from '../../../base';
-import { setCurrentContext } from '../../../models/Context';
+import { setCurrentContext, CONTEXT_FILE_PATH } from '../../../models/Context';
+import {
+  MissingContextFileError,
+  ContextFileWrongFormatError,
+  ContextFileEmptyError,
+} from '../../../errors/context-error';
 
 export default class ContextUse extends Command {
   static description = 'Set a context as current';
-
   static flags = {
-    help: Flags.help({ char: 'h' })
+    help: Flags.help({ char: 'h' }),
   };
 
   static args = [
-    { name: 'context-name', description: 'name of the saved context', required: true }
+    {
+      name: 'context-name',
+      description: 'name of the saved context',
+      required: true,
+    },
   ];
 
   async run() {
     const { args } = await this.parse(ContextUse);
     const contextName = args['context-name'];
-    await setCurrentContext(contextName);
-    this.log(`${contextName} is set as current`);
+
+    try {
+      await setCurrentContext(contextName);
+      this.log(`${contextName} is set as current`);
+    } catch (e) {
+      if (
+        e instanceof (MissingContextFileError || ContextFileWrongFormatError)
+      ) {
+        this.log(
+          'You have no context file configured. Run "asyncapi config context init" to initialize it.'
+        );
+        return;
+      } else if (e instanceof ContextFileEmptyError) {
+        this.log(`Context file "${CONTEXT_FILE_PATH}" is empty.`);
+        return;
+      }
+      {
+        throw e;
+      }
+    }
   }
 }

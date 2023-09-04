@@ -104,7 +104,7 @@ describe('validate', () => {
       .command(['validate', 'non-existing-context'])
       .it('throws error if context name is not saved', (ctx, done) => {
         expect(ctx.stdout).toEqual('');
-        expect(ctx.stderr).toEqual('ContextError: Context "non-existing-context" does not exists.\n');
+        expect(ctx.stderr).toEqual('ContextError: Context "non-existing-context" does not exist.\n');
         done();
       });
   });

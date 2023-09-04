@@ -20,6 +20,7 @@ test/fixtures/minimaltemplate/__transpiled
 .vscode
 
 
+oclif.manifest.json
 spec-examples.zip
 
 # Coverage for testing

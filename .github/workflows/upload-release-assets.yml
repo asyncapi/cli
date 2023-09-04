@@ -42,10 +42,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Check package-lock version
+        uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master
+        id: lockversion
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: "${{ steps.lockversion.outputs.version }}"
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
       - name: Get version from package.json
@@ -70,7 +73,7 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
       - if: failure() # Only, on failure, send a message on the 94_bot-failing-ci slack channel
         name: Report workflow run status to Slack
-        uses: 8398a7/action-slack@v3
+        uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 #using https://github.com/8398a7/action-slack/releases/tag/v3.15.1
         with:
           status: ${{ job.status }}
           fields: repo,action,workflow

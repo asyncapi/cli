@@ -1,6 +1,6 @@
 import { existsSync, writeFileSync, unlinkSync, rmSync, mkdirSync , promises as fs } from 'fs';
 import * as path from 'path';
-import { IContextFile, DEFAULT_CONTEXT_FILE_PATH } from '../../src/models/Context';
+import { IContextFile, CONTEXT_FILE_PATH } from '../../src/models/Context';
 import SpecificationFile from '../../src/models/SpecificationFile';
 import http from 'http';
 
@@ -30,11 +30,17 @@ export default class ContextTestingHelper {
   }
 
   createDummyContextFile(): void {
-    writeFileSync(DEFAULT_CONTEXT_FILE_PATH, JSON.stringify(this._context), { encoding: 'utf-8' });
+    writeFileSync(CONTEXT_FILE_PATH, JSON.stringify(this._context), { encoding: 'utf8' });
+  }
+
+  createDummyContextFileWrong(data: string): void {
+    writeFileSync(CONTEXT_FILE_PATH, JSON.stringify(data));
   }
 
   deleteDummyContextFile(): void {
-    unlinkSync(DEFAULT_CONTEXT_FILE_PATH);
+    if (existsSync(CONTEXT_FILE_PATH)) {
+      rmSync(CONTEXT_FILE_PATH);
+    }
   }
 
   unsetCurrentContext(): void {
@@ -77,12 +83,12 @@ export default class ContextTestingHelper {
   }
 
   deleteDummyProjectDirectory(): void {
-    rmSync(PROJECT_DIRECTORY_PATH, {recursive: true});
+    rmSync(PROJECT_DIRECTORY_PATH, { recursive: true, force: true });
   }
 }
 
 export function fileCleanup(filepath: string) {
-  unlinkSync(filepath);
+  rmSync(filepath);
 }
 
 export function createMockServer (port = 8080) {
