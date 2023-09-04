@@ -23,13 +23,15 @@ jobs:
         with:
           # A PR will be sent to github.com/Homebrew/homebrew-core to update AsyncAPI CLI formula:
           formula-name: asyncapi
+          # https://github.com/mislav/bump-homebrew-formula-action/issues/58
+          formula-path: Formula/a/asyncapi.rb
           tag-name: ${{ steps.extractver.outputs.version }}
           download-url: https://registry.npmjs.org/@asyncapi/cli/-/cli-${{ steps.extractver.outputs.version }}.tgz #we need to point to npm not github as there is a dist that is not on github
         env:
           COMMITTER_TOKEN: ${{ secrets.GH_TOKEN_BOT_EVE }}
       - if: failure() # Only, on failure, send a message on the 94_bot-failing-ci slack channel
         name: Report workflow run status to Slack
-        uses: 8398a7/action-slack@v3
+        uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 #using https://github.com/8398a7/action-slack/releases/tag/v3.15.1
         with:
           status: ${{ job.status }}
           fields: repo,action,workflow
