@@ -1,4 +1,4 @@
-import { promises as fs, existsSync, lstatSync } from 'fs';
+import { readFileSync, promises as fs, existsSync, lstatSync } from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
@@ -329,9 +329,8 @@ async function getContextFilePath(): Promise<string | null> {
       // legitimate context file, then it is considered a legitimate context
       // file indeed.
       const fileContent = JSON.parse(
-        await readFile(currentPathString, {
-          encoding: 'utf8',
-        })
+        //we do not use await readFile because getContextFilePath cannot be called inside async function
+        readFileSync(currentPathString, {encoding: 'utf8'})
       );
       if (
         fileContent &&
