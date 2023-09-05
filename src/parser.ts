@@ -5,7 +5,7 @@ import { RamlDTSchemaParser } from '@asyncapi/raml-dt-schema-parser';
 import { Flags } from '@oclif/core';
 import { OutputFormat } from '@stoplight/spectral-cli/dist/services/config';
 import { getDiagnosticSeverity } from '@stoplight/spectral-core';
-import { html, json, junit, pretty, stylish, teamcity, text } from '@stoplight/spectral-formatters/dist';
+import { html, json, junit, pretty, stylish, teamcity, text } from '@stoplight/spectral-formatters';
 
 import type { Diagnostic } from '@asyncapi/parser/cjs';
 import type Command from './base';
