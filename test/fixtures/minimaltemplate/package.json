@@ -9,7 +9,7 @@
         "description": "Custom version to be used"
       },
       "mode": {
-        "description": "developement or production"
+        "description": "development or production"
       }
     }
   },

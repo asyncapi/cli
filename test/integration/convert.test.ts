@@ -1,12 +1,12 @@
 import path from 'path';
 import { test } from '@oclif/test';
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
-import TestHelper, { createMockServer, stopMockServer } from '../testHelper';
+import TestHelper, { createMockServer, stopMockServer } from '../helpers';
 import fs from 'fs-extra';
 
 const testHelper = new TestHelper();
-const filePath = './test/specification.yml';
-const JSONFilePath = './test/specification.json';
+const filePath = './test/fixtures/specification.yml';
+const JSONFilePath = './test/fixtures/specification.json';
 
 describe('convert', () => {
   describe('with file paths', () => {
@@ -31,7 +31,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert', filePath])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).toContain('File ./test/specification.yml successfully converted!\n');
+        expect(ctx.stdout).toContain('File ./test/fixtures/specification.yml successfully converted!\n');
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -39,10 +39,10 @@ describe('convert', () => {
     test
       .stderr()
       .stdout()
-      .command(['convert', './test/not-found.yml'])
+      .command(['convert', './test/fixtures/not-found.yml'])
       .it('should throw error if file path is wrong', (ctx, done) => {
         expect(ctx.stdout).toEqual('');
-        expect(ctx.stderr).toEqual('error loading AsyncAPI document from file: ./test/not-found.yml file does not exist.\n');
+        expect(ctx.stderr).toEqual('error loading AsyncAPI document from file: ./test/fixtures/not-found.yml file does not exist.\n');
         done();
       });
 
@@ -72,7 +72,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert'])
       .it('converts from current context', (ctx, done) => {
-        expect(ctx.stdout).toContain(`File ${path.resolve(__dirname, '../specification.yml')} successfully converted!\n`);
+        expect(ctx.stdout).toContain(`File ${path.resolve(__dirname, '../fixtures/specification.yml')} successfully converted!\n`);
         expect(ctx.stderr).toEqual('');
         done();
       });
@@ -156,24 +156,24 @@ describe('convert', () => {
     test
       .stderr()
       .stdout()
-      .command(['convert', filePath, '-o=./test/specification_output.yml'])
+      .command(['convert', filePath, '-o=./test/fixtures/specification_output.yml'])
       .it('works when .yml file is passed', (ctx, done) => {
         expect(ctx.stdout).toEqual(`File ${filePath} successfully converted!\n`);
-        expect(fs.existsSync('./test/specification_output.yml')).toBe(true);
+        expect(fs.existsSync('./test/fixtures/specification_output.yml')).toBe(true);
         expect(ctx.stderr).toEqual('');
-        fs.unlinkSync('./test/specification_output.yml');
+        fs.unlinkSync('./test/fixtures/specification_output.yml');
         done();
       });
 
     test
       .stderr()
       .stdout()
-      .command(['convert', JSONFilePath, '-o=./test/specification_output.json'])
+      .command(['convert', JSONFilePath, '-o=./test/fixtures/specification_output.json'])
       .it('works when .json file is passed', (ctx, done) => {
         expect(ctx.stdout).toEqual(`File ${JSONFilePath} successfully converted!\n`);
-        expect(fs.existsSync('./test/specification_output.json')).toBe(true);
+        expect(fs.existsSync('./test/fixtures/specification_output.json')).toBe(true);
         expect(ctx.stderr).toEqual('');
-        fs.unlinkSync('./test/specification_output.json');
+        fs.unlinkSync('./test/fixtures/specification_output.json');
         done();
       });
   });

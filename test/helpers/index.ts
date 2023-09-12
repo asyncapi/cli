@@ -1,11 +1,11 @@
 import { existsSync, writeFileSync, unlinkSync, rmSync, mkdirSync , promises as fs } from 'fs';
 import * as path from 'path';
-import { IContextFile, CONTEXT_FILE_PATH } from '../src/models/Context';
-import SpecificationFile from '../src/models/SpecificationFile';
+import { IContextFile, CONTEXT_FILE_PATH } from '../../src/models/Context';
+import SpecificationFile from '../../src/models/SpecificationFile';
 import http from 'http';
 
 const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'specification.yaml');
-const SERVER_DIRECTORY= path.join(__dirname, 'dummyspec');
+const SERVER_DIRECTORY= path.join(__dirname, '../fixtures/dummyspec');
 export const PROJECT_DIRECTORY_PATH = path.join(process.cwd(), 'test-project');
 
 let server: http.Server;
@@ -13,9 +13,9 @@ let server: http.Server;
 export default class ContextTestingHelper {
   private _context: IContextFile;
   constructor() {
-    const homeSpecFile = new SpecificationFile(path.resolve(__dirname, 'specification.yml'));
+    const homeSpecFile = new SpecificationFile(path.resolve(__dirname, '../fixtures/specification.yml'));
 
-    const codeSpecFile = new SpecificationFile(path.resolve(__dirname, 'specification.yml'));
+    const codeSpecFile = new SpecificationFile(path.resolve(__dirname, '../fixtures/specification.yml'));
     this._context = {
       current: 'home',
       store: {

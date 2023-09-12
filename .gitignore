@@ -13,10 +13,16 @@
 !assets/examples/default-example.yaml
 !assets/examples/tutorial.yml
 node_modules
-/test/commands/generate/models/
+/test/integration/generate/models/
 asyncapi.json
 asyncapi.yml
-test/minimaltemplate/__transpiled
+test/fixtures/minimaltemplate/__transpiled
 .vscode
+
+
 oclif.manifest.json
 spec-examples.zip
+
+# Coverage for testing
+
+coverage
