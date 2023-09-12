@@ -141,7 +141,7 @@ export default class NewFile extends Command {
 
     const fileNameHasFileExtension = fileName.includes('.');
 
-    let fileNameToWriteToDisk=`${fileName}.yaml`;
+    let fileNameToWriteToDisk;
     
     if(fileName.includes(".")==false){
      
