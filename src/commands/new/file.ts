@@ -151,7 +151,7 @@ export default class NewFile extends Command {
 
       const extension=fileName.split(".")[1];
 
-      if(extension==="yml"||extension==="yaml"){
+      if(extension==="yml"||extension==="yaml"||extension=="json"){
 
         fileNameToWriteToDisk=fileName
       }
