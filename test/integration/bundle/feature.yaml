@@ -7,5 +7,5 @@ channels:
   user/loggedOut:
     subcribe:
       message:
-        $ref: 'test/commands/bundle/messages.yaml#/messages/UserLoggedOut'
+        $ref: 'test/integration/bundle/messages.yaml#/messages/UserLoggedOut'
 

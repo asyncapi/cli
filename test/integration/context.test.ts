@@ -1,7 +1,7 @@
 import path from 'path';
 import { test } from '@oclif/test';
 
-import TestHelper from '../testHelper';
+import TestHelper from '../helpers';
 import { CONTEXT_FILE_PATH } from '../../src/models/Context';
 
 const testHelper = new TestHelper();
@@ -47,8 +47,8 @@ describe('config:context, positive scenario', () => {
           expect(ctx.stdout).toEqual(
             `home: ${path.resolve(
               __dirname,
-              '../specification.yml'
-            )}\ncode: ${path.resolve(__dirname, '../specification.yml')}\n`
+              '../fixtures/specification.yml'
+            )}\ncode: ${path.resolve(__dirname, '../fixtures/specification.yml')}\n`
           );
           expect(ctx.stderr).toEqual('');
           done();
@@ -60,7 +60,7 @@ describe('config:context, positive scenario', () => {
     test
       .stderr()
       .stdout()
-      .command(['config:context:add', 'test', './test/specification.yml'])
+      .command(['config:context:add', 'test', './test/integration/specification.yml'])
       .it('should add new context called "test"', (ctx, done) => {
         expect(ctx.stdout).toEqual(
           'Added context "test".\n\nYou can set it as your current context: asyncapi config context use test\nYou can use this context when needed by passing test as a parameter: asyncapi validate test\n'

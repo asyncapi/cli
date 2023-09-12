@@ -7,4 +7,4 @@ channels:
   user/signedup:
     subscribe:
       message:
-        $ref: "./test/commands/bundle/messages.yaml#/messages/UserSignedUp"
+        $ref: "./test/integration/bundle/messages.yaml#/messages/UserSignedUp"
