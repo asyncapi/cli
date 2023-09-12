@@ -6,7 +6,6 @@ import { Flags } from '@oclif/core';
 import { ProtoBuffSchemaParser } from '@asyncapi/protobuf-schema-parser';
 import { getDiagnosticSeverity } from '@stoplight/spectral-core';
 import { OutputFormat } from '@stoplight/spectral-cli/dist/services/config';
-import { getDiagnosticSeverity } from '@stoplight/spectral-core';
 import { html, json, junit, pretty, stylish, teamcity, text } from '@stoplight/spectral-formatters';
 
 import type { Diagnostic } from '@asyncapi/parser/cjs';
