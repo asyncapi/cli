@@ -3,5 +3,5 @@ dist
 lib
 /test/commands/generate/models/
 test/helpers
-/test/minimaltemplate
+/test/fixtures/minimaltemplate
 create-glee-app

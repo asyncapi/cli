@@ -3,6 +3,8 @@ import { OpenAPISchemaParser } from '@asyncapi/openapi-schema-parser';
 import { Parser, convertToOldAPI } from '@asyncapi/parser/cjs';
 import { RamlDTSchemaParser } from '@asyncapi/raml-dt-schema-parser';
 import { Flags } from '@oclif/core';
+import { ProtoBuffSchemaParser } from '@asyncapi/protobuf-schema-parser';
+import { getDiagnosticSeverity } from '@stoplight/spectral-core';
 import { OutputFormat } from '@stoplight/spectral-cli/dist/services/config';
 import { getDiagnosticSeverity } from '@stoplight/spectral-core';
 import { html, json, junit, pretty, stylish, teamcity, text } from '@stoplight/spectral-formatters';
@@ -26,6 +28,7 @@ const parser = new Parser({
 parser.registerSchemaParser(AvroSchemaParser());
 parser.registerSchemaParser(OpenAPISchemaParser());
 parser.registerSchemaParser(RamlDTSchemaParser());
+parser.registerSchemaParser(ProtoBuffSchemaParser());
 
 export interface ValidationFlagsOptions {
   logDiagnostics?: boolean;

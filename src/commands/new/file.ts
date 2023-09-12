@@ -138,8 +138,21 @@ export default class NewFile extends Command {
   async createAsyncapiFile(fileName:string, selectedTemplate:string) {
     const asyncApiFile = await readFile(resolve(__dirname, '../../../assets/examples/', selectedTemplate), { encoding: 'utf8' });
 
-    const fileNameHasFileExtension = fileName.includes('.');
-    const fileNameToWriteToDisk = fileNameHasFileExtension ? fileName : `${fileName}.yaml`;
+    let fileNameToWriteToDisk;
+    
+    if (!fileName.includes('.')) {
+      fileNameToWriteToDisk=`${fileName}.yaml`;
+    } else {
+      const extension=fileName.split('.')[1];
+
+      if (extension==='yml'||extension==='yaml'||extension==='json') {
+        fileNameToWriteToDisk=fileName;
+      } else {
+        console.log('CLI Support only yml, yaml and json extension for file');
+
+        return;
+      }
+    }
 
     try {
       const content = await readFile(fileNameToWriteToDisk, { encoding: 'utf8' });

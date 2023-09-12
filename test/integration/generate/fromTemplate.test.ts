@@ -5,10 +5,10 @@ import rimraf from 'rimraf';
 
 const generalOptions = [
   'generate:fromTemplate',
-  './test/specification.yml',
+  './test/fixtures/specification.yml',
   '@asyncapi/minimaltemplate',
 ];
-const asyncapiv3 = './test/specification-v3.yml';
+const asyncapiv3 = './test/fixtures/specification-v3.yml';
 
 function cleanup(filepath: string) {
   rimraf.sync(filepath);
@@ -110,7 +110,7 @@ describe('template', () => {
       .it('should print debug logs', (ctx, done) => {
         expect(ctx.stdout).toContain(
           `Template sources taken from ${path.resolve(
-            './test/minimaltemplate'
+            './test/fixtures/minimaltemplate'
           )}.`
         );
         cleanup('./test/docs/5');
@@ -143,8 +143,8 @@ describe('template', () => {
       .stdout()
       .command([
         'generate:fromTemplate',
-        './test/specification.yml',
-        './test/minimaltemplate',
+        './test/fixtures/specification.yml',
+        './test/fixtures/minimaltemplate',
         '--install',
         '--force-write',
         '--output=./test/docs/7'
@@ -161,11 +161,11 @@ describe('template', () => {
       .stdout()
       .command([
         'generate:fromTemplate',
-        './test/dummyspec/apiwithref.json',
+        './test/fixtures/dummyspec/apiwithref.json',
         '@asyncapi/minimaltemplate',
         '--output=./test/docs/8',
         '--force-write',
-        '--map-base-url=https://schema.example.com/crm/:./test/dummyspec',
+        '--map-base-url=https://schema.example.com/crm/:./test/fixtures/dummyspec',
       ])
       .it(
         'should resolve reference and generate from template',

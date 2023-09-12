@@ -83,6 +83,7 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mhmohona"><img src="https://avatars.githubusercontent.com/u/14244685?v=4?s=100" width="100px;" alt="Mahfuza Humayra Mohona"/><br /><sub><b>Mahfuza Humayra Mohona</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=mhmohona" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/GreenRover"><img src="https://avatars.githubusercontent.com/u/512850?v=4?s=100" width="100px;" alt="Heiko Henning"/><br /><sub><b>Heiko Henning</b></sub></a><br /><a href="https://github.com/asyncapi/cli/commits?author=GreenRover" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

@@ -1,8 +1,8 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import { test } from '@oclif/test';
 
-const asyncapiv3 = './test/specification-v3.yml';
-const asyncapiv2 = './test/specification.yml';
+const asyncapiv3 = './test/fixtures/specification-v3.yml';
+const asyncapiv2 = './test/fixtures/specification.yml';
 const noChangesJson = '"{\\n  \\"changes\\": []\\n}\\n"';
 const breakingChangesJson = '"[\\n  {\\n    \\"action\\": \\"edit\\",\\n    \\"path\\": \\"/servers/mosquitto/protocol\\",\\n    \\"before\\": \\"mqtt\\",\\n    \\"after\\": \\"http\\",\\n    \\"type\\": \\"breaking\\"\\n  },\\n  {\\n    \\"action\\": \\"edit\\",\\n    \\"path\\": \\"/servers/mosquitto/url\\",\\n    \\"before\\": \\"mqtt://test.mosquitto.org\\",\\n    \\"after\\": \\"http://test.mosquitto.org\\",\\n    \\"type\\": \\"breaking\\"\\n  }\\n]\\n"';
 const nonBreakingChangesJson = '"[\\n  {\\n    \\"action\\": \\"add\\",\\n    \\"path\\": \\"/channels/user~1signedup\\",\\n    \\"after\\": {\\n      \\"subscribe\\": {\\n        \\"message\\": {\\n          \\"payload\\": {\\n            \\"type\\": \\"object\\",\\n            \\"properties\\": {\\n              \\"displayName\\": {\\n                \\"type\\": \\"string\\",\\n                \\"description\\": \\"Name of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-2>\\"\\n              },\\n              \\"email\\": {\\n                \\"type\\": \\"string\\",\\n                \\"format\\": \\"email\\",\\n                \\"description\\": \\"Email of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-3>\\"\\n              }\\n            },\\n            \\"x-parser-schema-id\\": \\"<anonymous-schema-1>\\"\\n          },\\n          \\"x-parser-message-name\\": \\"UserSignedUp\\",\\n          \\"x-parser-original-schema-format\\": \\"application/vnd.aai.asyncapi;version=2.1.0\\",\\n          \\"schemaFormat\\": \\"application/vnd.aai.asyncapi;version=2.1.0\\",\\n          \\"x-parser-original-payload\\": {\\n            \\"type\\": \\"object\\",\\n            \\"properties\\": {\\n              \\"displayName\\": {\\n                \\"type\\": \\"string\\",\\n                \\"description\\": \\"Name of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-2>\\"\\n              },\\n              \\"email\\": {\\n                \\"type\\": \\"string\\",\\n                \\"format\\": \\"email\\",\\n                \\"description\\": \\"Email of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-3>\\"\\n              }\\n            },\\n            \\"x-parser-schema-id\\": \\"<anonymous-schema-1>\\"\\n          },\\n          \\"x-parser-message-parsed\\": true\\n        }\\n      }\\n    },\\n    \\"type\\": \\"non-breaking\\"\\n  },\\n  {\\n    \\"action\\": \\"edit\\",\\n    \\"path\\": \\"/info/title\\",\\n    \\"before\\": \\"Streetlights API\\",\\n    \\"after\\": \\"Streetlights API V2\\",\\n    \\"type\\": \\"non-breaking\\"\\n  },\\n  {\\n    \\"action\\": \\"add\\",\\n    \\"path\\": \\"/components\\",\\n    \\"after\\": {\\n      \\"messages\\": {\\n        \\"UserSignedUp\\": {\\n          \\"payload\\": {\\n            \\"type\\": \\"object\\",\\n            \\"properties\\": {\\n              \\"displayName\\": {\\n                \\"type\\": \\"string\\",\\n                \\"description\\": \\"Name of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-2>\\"\\n              },\\n              \\"email\\": {\\n                \\"type\\": \\"string\\",\\n                \\"format\\": \\"email\\",\\n                \\"description\\": \\"Email of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-3>\\"\\n              }\\n            },\\n            \\"x-parser-schema-id\\": \\"<anonymous-schema-1>\\"\\n          },\\n          \\"x-parser-message-name\\": \\"UserSignedUp\\",\\n          \\"x-parser-original-schema-format\\": \\"application/vnd.aai.asyncapi;version=2.1.0\\",\\n          \\"schemaFormat\\": \\"application/vnd.aai.asyncapi;version=2.1.0\\",\\n          \\"x-parser-original-payload\\": {\\n            \\"type\\": \\"object\\",\\n            \\"properties\\": {\\n              \\"displayName\\": {\\n                \\"type\\": \\"string\\",\\n                \\"description\\": \\"Name of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-2>\\"\\n              },\\n              \\"email\\": {\\n                \\"type\\": \\"string\\",\\n                \\"format\\": \\"email\\",\\n                \\"description\\": \\"Email of the user\\",\\n                \\"x-parser-schema-id\\": \\"<anonymous-schema-3>\\"\\n              }\\n            },\\n            \\"x-parser-schema-id\\": \\"<anonymous-schema-1>\\"\\n          },\\n          \\"x-parser-message-parsed\\": true\\n        }\\n      }\\n    },\\n    \\"type\\": \\"non-breaking\\"\\n  }\\n]\\n"';
@@ -42,7 +42,7 @@ describe('diff', () => {
     test
       .stderr()
       .stdout()
-      .command(['diff', './test/specification.yml', './test/specification.yml', '--format=json'])
+      .command(['diff', './test/fixtures/specification.yml', './test/fixtures/specification.yml', '--format=json'])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(noChangesJson);
         expect(ctx.stderr).toEqual('');
@@ -54,7 +54,7 @@ describe('diff', () => {
     test
       .stderr()
       .stdout()
-      .command(['diff', './test/specification.yml', './test/specification.yml'])
+      .command(['diff', './test/fixtures/specification.yml', './test/fixtures/specification.yml'])
       .it('works when file path is passed', (ctx, done) => {
         expect(JSON.stringify(ctx.stdout)).toEqual(noChangesYaml);
         expect(ctx.stderr).toEqual('');
@@ -254,10 +254,10 @@ describe('diff', () => {
     test
       .stderr()
       .stdout()
-      .command(['diff', './test/specification.yml', './test/specification.yml', '--format=json', '--log-diagnostics'])
+      .command(['diff', './test/fixtures/specification.yml', './test/fixtures/specification.yml', '--format=json', '--log-diagnostics'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stdout).toMatch(
-          'File ./test/specification.yml is valid but has (itself and/or referenced documents) governance issues.'
+          'File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.'
         );
         expect(ctx.stderr).toEqual('');
         done();
