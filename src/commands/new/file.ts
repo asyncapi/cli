@@ -157,7 +157,7 @@ export default class NewFile extends Command {
       }
       else{
 
-        console.log("Please use either yml and yaml extension file")
+        console.log("CLI Support only yml, yaml and json extension for file")
 
         return ;
 
