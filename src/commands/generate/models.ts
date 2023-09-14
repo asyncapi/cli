@@ -1,5 +1,6 @@
 import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, CSHARP_NEWTONSOFT_SERIALIZER_PRESET, CSHARP_COMMON_PRESET, CSHARP_JSON_SERIALIZER_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET, PhpFileGenerator, CplusplusFileGenerator } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
+import { ConvertDocumentParserAPIVersion } from '@smoya/multi-parser';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
 import { formatOutput, parse, validationFlags } from '../../parser';
@@ -161,6 +162,11 @@ export default class Models extends Command {
       this.log(`Input is not a correct AsyncAPI document so it cannot be processed.${formatOutput(severityErrors,'stylish','error')}`);
       return;
     }
+    
+    // Modelina, atm, is not using @asyncapi/parser@v3.x but @asyncapi/parser@v2.x, so it still uses Parser-API v1.0.0. 
+    // This call converts the parsed document object using @asyncapi/parser@v3.x (Parser-API v2.0.0) to a document compatible with the Parser-API version in use in @asyncapi/parser@v2.x  (v1.0.0)
+    // This is needed until https://github.com/asyncapi/modelina/issues/1493 gets fixed.
+    const convertedDoc = ConvertDocumentParserAPIVersion(document.json(), '1.0.0');
 
     Logger.setLogger({
       info: (message) => {
@@ -314,7 +320,7 @@ export default class Models extends Command {
 
     if (output) {
       const models = await fileGenerator.generateToFiles(
-        document as any,
+        convertedDoc as any,
         output,
         { ...fileOptions, } as any);
       const generatedModels = models.map((model) => { return model.modelName; });
@@ -323,7 +329,7 @@ export default class Models extends Command {
     }
 
     const models = await fileGenerator.generateCompleteModels(
-      document as any,
+      convertedDoc as any,
       { ...fileOptions } as any);
     const generatedModels = models.map((model) => {
       return `
