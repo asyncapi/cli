@@ -35,19 +35,19 @@ export class ErrorLoadingSpec extends Error {
     if (from === 'file') {
       this.name = 'error loading AsyncAPI document from file';
       this.message = `${param} file does not exist.`;
-    } else
-      if (from === 'url') {
-        this.name = 'error loading AsyncAPI document from url';
-        this.message = `Failed to download ${param}.`;
-      } else
-        if (from === 'context') {
-          this.name = 'error loading AsyncAPI document from context';
-          this.message = `${param} context name does not exist.`;
-        } else
-          if (from === 'invalid file') {
-            this.name = 'Invalid AsyncAPI file type';
-            this.message = 'cli only supports yml ,yaml ,json extension';
-          }
+    } 
+    if (from === 'url') {
+      this.name = 'error loading AsyncAPI document from url';
+      this.message = `Failed to download ${param}.`;
+    } 
+    if (from === 'context') {
+      this.name = 'error loading AsyncAPI document from context';
+      this.message = `${param} context name does not exist.`;
+    } 
+    if (from === 'invalid file') {
+      this.name = 'Invalid AsyncAPI file type';
+      this.message = 'cli only supports yml ,yaml ,json extension';
+    }
 
     if (!from) {
       this.name = 'error locating AsyncAPI document';

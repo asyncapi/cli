@@ -182,6 +182,10 @@ export async function isURL(urlpath: string): Promise<boolean> {
 
 export async function fileExists(name: string): Promise<boolean> {
   try {
+    if ((await lstat(name)).isFile()) {
+      return true;
+    }
+    
     const extension = name.split('.')[1];
     
     const allowedExtenstion=['yml','yaml','json'];
@@ -189,10 +193,7 @@ export async function fileExists(name: string): Promise<boolean> {
     if (!allowedExtenstion.includes(extension)) {
       throw new ErrorLoadingSpec('invalid file',name);
     }
-
-    if ((await lstat(name)).isFile()) {
-      return true;
-    }
+   
     throw new ErrorLoadingSpec('file', name);
   } catch (e) {
     throw new ErrorLoadingSpec('file', name);
