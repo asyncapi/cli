@@ -185,6 +185,15 @@ export async function fileExists(name: string): Promise<boolean> {
     if ((await lstat(name)).isFile()) {
       return true;
     }
+    
+    const extension = name.split('.')[1];
+    
+    const allowedExtenstion=['yml','yaml','json'];
+
+    if (!allowedExtenstion.includes(extension)) {
+      throw new ErrorLoadingSpec('invalid file',name);
+    }
+   
     throw new ErrorLoadingSpec('file', name);
   } catch (e) {
     throw new ErrorLoadingSpec('file', name);
