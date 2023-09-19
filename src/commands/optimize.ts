@@ -99,12 +99,10 @@ export default class Optimize extends Command {
 
       const specPath = specFile.getFilePath();
       let newPath = '';
-      let originalPath = '';
-
+      
       if (specPath) {
         const pos = specPath.lastIndexOf('.');
         newPath = `${specPath.substring(0,pos) }_optimized.${ specPath.substring(pos+1)}`;
-
       } else {
         newPath = 'optimized-asyncapi.yaml';
       }
