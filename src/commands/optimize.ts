@@ -99,9 +99,12 @@ export default class Optimize extends Command {
 
       const specPath = specFile.getFilePath();
       let newPath = '';
+      let originalPath = '';
+
       if (specPath) {
         const pos = specPath.lastIndexOf('.');
         newPath = `${specPath.substring(0,pos) }_optimized.${ specPath.substring(pos+1)}`;
+
       } else {
         newPath = 'optimized-asyncapi.yaml';
       }
@@ -113,7 +116,8 @@ export default class Optimize extends Command {
         this.log(`Created file ${newPath}...`);
       } else if (this.outputMethod === Outputs.OVERWRITE) {
         await writeFile(specPath ?? 'asyncapi.yaml', optimizedDocument, { encoding: 'utf8' });
-        this.log(`Created file ${newPath}...`);
+
+        this.log(`Updated file ${specPath}...`);
       }
     } catch (error) {
       throw new ValidationError({
