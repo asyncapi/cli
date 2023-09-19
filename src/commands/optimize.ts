@@ -113,7 +113,7 @@ export default class Optimize extends Command {
         this.log(`Created file ${newPath}...`);
       } else if (this.outputMethod === Outputs.OVERWRITE) {
         await writeFile(specPath ?? 'asyncapi.yaml', optimizedDocument, { encoding: 'utf8' });
-        this.log(`Created file ${newPath}...`);
+        this.log(`Created file ${specPath ?? 'asyncapi.yaml'}...`);
       }
     } catch (error) {
       throw new ValidationError({
