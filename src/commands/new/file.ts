@@ -162,11 +162,10 @@ export default class NewFile extends Command {
       }
     } catch (e:any) {
       if (e.code === 'EACCES') {
-        console.error('Permission denied to read the file. You do not have the necessary permissions.');
-      } else {
-        await writeFile(fileNameToWriteToDisk, asyncApiFile, { encoding: 'utf8' });
-        console.log(`Created file ${fileNameToWriteToDisk}...`);
+        this.error('Permission denied to read the file. You do not have the necessary permissions.');
       }
     }
+    await writeFile(fileNameToWriteToDisk, asyncApiFile, { encoding: 'utf8' });
+    console.log(`Created file ${fileNameToWriteToDisk}...`);
   }
 }
