@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/asyncapi/glee-hello-world#readme",
   "dependencies": {
-    "@asyncapi/glee": "^0.26.3"
+    "@asyncapi/glee": "^0.26.5"
   },
   "devDependencies": {
     "@types/node": "^20.5.9"

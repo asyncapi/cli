@@ -12,7 +12,7 @@ import type { ConvertVersion } from '@asyncapi/converter';
 // @ts-ignore
 import specs from '@asyncapi/specs';
 
-const latestVersion = Object.keys(specs).pop() as string;
+const latestVersion = Object.keys(specs.schemas).pop() as string;
 
 export default class Convert extends Command {
   static description = 'Convert asyncapi documents older to newer versions';

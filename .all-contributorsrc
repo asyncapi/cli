@@ -225,6 +225,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "GreenRover",
+      "name": "Heiko Henning",
+      "avatar_url": "https://avatars.githubusercontent.com/u/512850?v=4",
+      "profile": "https://github.com/GreenRover",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
