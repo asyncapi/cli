@@ -71,7 +71,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/fixtures/valid-specification-latest.yml'])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.match(/File .\/test\/fixtures\/valid-specification.yml is valid! File .\/test\/fixtures\/valid-specification.yml and referenced documents don't have governance issues./);
+        expect(ctx.stdout).to.include('File ./test/fixtures/valid-specification-latest.yml is valid! File ./test/fixtures/valid-specification-latest.yml and referenced documents don\'t have governance issues.');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -220,7 +220,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/fixtures/valid-specification-latest.yml', '--diagnostics-format=text'])
       .it('works with --diagnostics-format flag (without governance issues)', (ctx, done) => {
-        expect(ctx.stdout).to.match(new RegExp('File ./test/fixtures/valid-specification.yml is valid! File ./test/fixtures/valid-specification.yml and referenced documents don\'t have governance issues.'));
+        expect(ctx.stdout).to.include('\nFile ./test/fixtures/valid-specification-latest.yml is valid! File ./test/fixtures/valid-specification-latest.yml and referenced documents don\'t have governance issues.');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -240,7 +240,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/fixtures/specification.yml', '--fail-severity=warn'])
       .it('works with --fail-severity', (ctx, done) => {
-        expect(ctx.stderr).to.match(new RegExp('File ./test/fixtures/specification.yml and\\/or referenced documents have governance issues.\\n\\ntest\\/fixtures\\/specification.yml'));
+        expect(ctx.stderr).to.include('\nFile ./test/fixtures/specification.yml and/or referenced documents have governance issues.\n\ntest/fixtures/specification.yml');
         done();
       });
   });
