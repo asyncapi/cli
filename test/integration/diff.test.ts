@@ -1,5 +1,5 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import { test } from '@oclif/test';
+import { expect, test } from '@oclif/test';
 
 const asyncapiv3 = './test/fixtures/specification-v3.yml';
 const asyncapiv2 = './test/fixtures/specification.yml';
@@ -24,8 +24,8 @@ describe('diff', () => {
       .stdout()
       .command(['diff', asyncapiv3, asyncapiv2])
       .it('give error when first document', (ctx, done) => {
-        expect(ctx.stderr).toEqual('Error: Diff command does not support AsyncAPI v3 yet which was your first document, please checkout https://github.com/asyncapi/diff/issues/154\n');
-        expect(ctx.stdout).toEqual('');
+        expect(ctx.stderr).to.equal('Error: Diff command does not support AsyncAPI v3 yet which was your first document, please checkout https://github.com/asyncapi/diff/issues/154\n');
+        expect(ctx.stdout).to.equal('');
         done();
       });
     test
@@ -33,8 +33,8 @@ describe('diff', () => {
       .stdout()
       .command(['diff', asyncapiv2, asyncapiv3])
       .it('give error when second document', (ctx, done) => {
-        expect(ctx.stderr).toEqual('Error: Diff command does not support AsyncAPI v3 yet which was your second document, please checkout https://github.com/asyncapi/diff/issues/154\n');
-        expect(ctx.stdout).toEqual('');
+        expect(ctx.stderr).to.equal('Error: Diff command does not support AsyncAPI v3 yet which was your second document, please checkout https://github.com/asyncapi/diff/issues/154\n');
+        expect(ctx.stdout).to.equal('');
         done();
       });
   });
@@ -44,8 +44,8 @@ describe('diff', () => {
       .stdout()
       .command(['diff', './test/fixtures/specification.yml', './test/fixtures/specification.yml', '--format=json'])
       .it('works when file path is passed', (ctx, done) => {
-        expect(JSON.stringify(ctx.stdout)).toEqual(noChangesJson);
-        expect(ctx.stderr).toEqual('');
+        expect(JSON.stringify(ctx.stdout)).to.equal(noChangesJson);
+        expect(ctx.stderr).to.equal('');
         done();
       });
   });
@@ -56,8 +56,8 @@ describe('diff', () => {
       .stdout()
       .command(['diff', './test/fixtures/specification.yml', './test/fixtures/specification.yml'])
       .it('works when file path is passed', (ctx, done) => {
-        expect(JSON.stringify(ctx.stdout)).toEqual(noChangesYaml);
-        expect(ctx.stderr).toEqual('');
+        expect(JSON.stringify(ctx.stdout)).to.equal(noChangesYaml);
+        expect(ctx.stderr).to.equal('');
         done();
       });
   });
@@ -75,8 +75,8 @@ describe('diff', () => {
         '--no-error',
       ])
       .it('works when file path is passed', (ctx, done) => {
-        expect(JSON.stringify(ctx.stdout)).toEqual(`"${commonJsonOutput}"`);
-        expect(ctx.stderr).toEqual('');
+        expect(JSON.stringify(ctx.stdout)).to.equal(`"${commonJsonOutput}"`);
+        expect(ctx.stderr).to.equal('');
         done();
       });
   });
@@ -94,8 +94,8 @@ describe('diff', () => {
         '--no-error',
       ])
       .it('works when file path is passed', (ctx, done) => {
-        expect(JSON.stringify(ctx.stdout)).toEqual(breakingChangesJson);
-        expect(ctx.stderr).toEqual('');
+        expect(JSON.stringify(ctx.stdout)).to.equal(breakingChangesJson);
+        expect(ctx.stderr).to.equal('');
         done();
       });
   });
@@ -113,8 +113,8 @@ describe('diff', () => {
         '--no-error',
       ])
       .it('works when file path is passed', (ctx, done) => {
-        expect(JSON.stringify(ctx.stdout)).toEqual(nonBreakingChangesJson);
-        expect(ctx.stderr).toEqual('');
+        expect(JSON.stringify(ctx.stdout)).to.equal(nonBreakingChangesJson);
+        expect(ctx.stderr).to.equal('');
         done();
       });
   });
@@ -132,8 +132,8 @@ describe('diff', () => {
         '--no-error',
       ])
       .it('works when file path is passed', (ctx, done) => {
-        expect(JSON.stringify(ctx.stdout)).toEqual(unclassifiedChangesJson);
-        expect(ctx.stderr).toEqual('');
+        expect(JSON.stringify(ctx.stdout)).to.equal(unclassifiedChangesJson);
+        expect(ctx.stderr).to.equal('');
         done();
       });
   });
@@ -150,8 +150,8 @@ describe('diff', () => {
         '--no-error',
       ])
       .it('works when file path is passed', (ctx, done) => {
-        expect(JSON.stringify(ctx.stdout)).toEqual(`"${commonJsonOutput}"`);
-        expect(ctx.stderr).toEqual('');
+        expect(JSON.stringify(ctx.stdout)).to.equal(`"${commonJsonOutput}"`);
+        expect(ctx.stderr).to.equal('');
         done();
       });
   });
@@ -168,8 +168,8 @@ describe('diff', () => {
         '--no-error',
       ])
       .it('works when file path is passed', (ctx, done) => {
-        expect(JSON.stringify(ctx.stdout)).toEqual(commonYamlOutput);
-        expect(ctx.stderr).toEqual('');
+        expect(JSON.stringify(ctx.stdout)).to.equal(commonYamlOutput);
+        expect(ctx.stderr).to.equal('');
         done();
       });
   });
@@ -184,8 +184,8 @@ describe('diff', () => {
         './test/fixtures/asyncapi_v2.yml',
       ])
       .it('works when file path is passed', (ctx, done) => {
-        expect(JSON.stringify(ctx.stdout)).toEqual(commonYamlOutput);
-        expect(ctx.stderr).toEqual('DiffBreakingChangeError: Breaking changes detected\n');
+        expect(JSON.stringify(ctx.stdout)).to.equal(commonYamlOutput);
+        expect(ctx.stderr).to.equal('DiffBreakingChangeError: Breaking changes detected\n');
         done();
       });
   });
@@ -204,8 +204,8 @@ describe('diff', () => {
         '--no-error',
       ])
       .it('works when file path is passed', (ctx, done) => {
-        expect(JSON.stringify(ctx.stdout)).toEqual(markdownJsonOutput);
-        expect(ctx.stderr).toEqual('');
+        expect(JSON.stringify(ctx.stdout)).to.equal(markdownJsonOutput);
+        expect(ctx.stderr).to.equal('');
         done();
       });
   });
@@ -224,8 +224,8 @@ describe('diff', () => {
         '--no-error',
       ])
       .it('works when file path is passed', (ctx, done) => {
-        expect(JSON.stringify(ctx.stdout)).toEqual(markdownYamlOutput);
-        expect(ctx.stderr).toEqual('');
+        expect(JSON.stringify(ctx.stdout)).to.equal(markdownYamlOutput);
+        expect(ctx.stderr).to.equal('');
         done();
       });
   });
@@ -242,10 +242,10 @@ describe('diff', () => {
         '--markdownSubtype=yaml',
       ])
       .it('works when file path is passed', (ctx, done) => {
-        expect(JSON.stringify(ctx.stdout)).toEqual(
+        expect(JSON.stringify(ctx.stdout)).to.equal(
           `"Warning: The given markdownSubtype flag will not work with the given format.\\nProvided flag markdownSubtype: yaml\\n${commonJsonOutput}"`
         );
-        expect(ctx.stderr).toEqual('DiffBreakingChangeError: Breaking changes detected\n');
+        expect(ctx.stderr).to.equal('DiffBreakingChangeError: Breaking changes detected\n');
         done();
       });
   });
@@ -256,10 +256,8 @@ describe('diff', () => {
       .stdout()
       .command(['diff', './test/fixtures/specification.yml', './test/fixtures/specification.yml', '--format=json', '--log-diagnostics'])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).toMatch(
-          'File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.'
-        );
-        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).to.match(/File .\/test\/fixtures\/specification.yml is valid but has \(itself and\/or referenced documents\) governance issues./);
+        expect(ctx.stderr).to.equal('');
         done();
       });
   });
@@ -279,8 +277,8 @@ describe('diff', () => {
         '--no-error',
       ])
       .it((ctx, done) => {
-        expect(JSON.stringify(ctx.stdout)).toEqual(customJsonOutput);
-        expect(ctx.stderr).toEqual('');
+        expect(JSON.stringify(ctx.stdout)).to.equal(customJsonOutput);
+        expect(ctx.stderr).to.equal('');
         done();
       });
   });
@@ -297,8 +295,8 @@ describe('diff', () => {
         '--format=json',
       ])
       .it((ctx, done) => {
-        expect(ctx.stdout).toEqual('');
-        expect(ctx.stderr).toEqual(
+        expect(ctx.stdout).to.equal('');
+        expect(ctx.stderr).to.equal(
           'DiffOverrideFileError: Override file not found\n'
         );
         done();
@@ -316,8 +314,8 @@ describe('diff', () => {
         '--overrides=./test/fixtures/invalid-overrides.json',
       ])
       .it((ctx, done) => {
-        expect(ctx.stdout).toEqual('');
-        expect(ctx.stderr).toEqual(
+        expect(ctx.stdout).to.equal('');
+        expect(ctx.stderr).to.equal(
           'DiffOverrideJSONError: Provided override file is not a valid JSON file\n'
         );
         done();

@@ -2,6 +2,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { test } from '@oclif/test';
 import rimraf from 'rimraf';
+import { expect } from '@oclif/test';
+import { it } from 'mocha';
 
 const generalOptions = [
   'generate:fromTemplate',
@@ -15,14 +17,14 @@ function cleanup(filepath: string) {
 }
 
 describe('template', () => {
-  afterAll(() => {
+  after(() => {
     cleanup('./test/docs');
   });
   test
     .stdout()
     .command([...generalOptions, '--output=./test/docs/1', '--force-write'])
     .it('should generate minimal tempalte', (ctx, done) => {
-      expect(ctx.stdout).toContain(
+      expect(ctx.stdout).to.contain(
         'Check out your shiny new generated files at ./test/docs/1.\n\n'
       );
       cleanup('./test/docs/1');
@@ -38,14 +40,14 @@ describe('template', () => {
         asyncapiv3,
         '@asyncapi/minimaltemplate'])
       .it('give error', (ctx, done) => {
-        expect(ctx.stderr).toEqual('Error: @asyncapi/minimaltemplate template does not support AsyncAPI v3 documents, please checkout some link\n');
-        expect(ctx.stdout).toEqual('');
+        expect(ctx.stderr).to.equal('Error: @asyncapi/minimaltemplate template does not support AsyncAPI v3 documents, please checkout some link\n');
+        expect(ctx.stdout).to.equal('');
         done();
       });
   });
   describe('git clash', () => {
     const pathToOutput = './test/docs/2';
-    beforeAll(() => {
+    before(() => {
       fs.mkdirSync(pathToOutput, { recursive: true });
       // Write a random file to trigger that dir has unstaged changes.
       fs.writeFileSync(path.join(pathToOutput, 'random.md'), '');
@@ -56,7 +58,7 @@ describe('template', () => {
       .it(
         'should throw error if output folder is in a git repository',
         (ctx, done) => {
-          expect(ctx.stderr).toContain(
+          expect(ctx.stderr).to.contain(
             'Error: "./test/docs/2" is in a git repository with unstaged changes.'
           );
           cleanup('./test/docs/2');
@@ -74,7 +76,7 @@ describe('template', () => {
       '--force-write',
     ])
     .it('should pass custom param in the template', (ctx, done) => {
-      expect(ctx.stdout).toContain(
+      expect(ctx.stdout).to.contain(
         'Check out your shiny new generated files at ./test/docs/3.\n\n'
       );
       cleanup('./test/docs/3');
@@ -92,7 +94,7 @@ describe('template', () => {
       ])
       .it('should not create asyncapi.yaml file', async (_, done) => {
         const exits = fs.existsSync(path.resolve('./docs/asyncapi.yaml'));
-        expect(exits).toBeFalsy();
+        expect(!!exits).to.equal(false);
         cleanup('./test/docs/4');
         done();
       });
@@ -108,7 +110,7 @@ describe('template', () => {
         '--debug',
       ])
       .it('should print debug logs', (ctx, done) => {
-        expect(ctx.stdout).toContain(
+        expect(ctx.stdout).to.contain(
           `Template sources taken from ${path.resolve(
             './test/fixtures/minimaltemplate'
           )}.`
@@ -128,7 +130,7 @@ describe('template', () => {
         '--no-overwrite=./test/docs/asyncapi.md',
       ])
       .it('should skip the filepath and generate normally', (ctx, done) => {
-        expect(ctx.stdout).toContain(
+        expect(ctx.stdout).to.contain(
           'Check out your shiny new generated files at ./test/docs/6.\n\n'
         );
         cleanup('./test/docs/6');
@@ -136,9 +138,7 @@ describe('template', () => {
       });
   });
 
-  describe('install', () => {
-    jest.setTimeout(100000);
-
+  it('should install template', () => {
     test
       .stdout()
       .command([
@@ -150,11 +150,11 @@ describe('template', () => {
         '--output=./test/docs/7'
       ])
       .it('should install template', (ctx, done) => {
-        expect(ctx.stdout).toContain('Template installation started because you passed --install flag.');
+        expect(ctx.stdout).to.contain('Template installation started because you passed --install flag.');
         cleanup('./test/docs/7');
         done();
       });
-  });
+  }).timeout(1000000);
 
   describe('map-base-url', () => {
     test
@@ -170,7 +170,7 @@ describe('template', () => {
       .it(
         'should resolve reference and generate from template',
         (ctx, done) => {
-          expect(ctx.stdout).toContain(
+          expect(ctx.stdout).to.contain(
             'Check out your shiny new generated files at ./test/docs/8.\n\n'
           );
           cleanup('./test/docs/8');
