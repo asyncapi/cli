@@ -3,6 +3,7 @@ import { test } from '@oclif/test';
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
 import TestHelper, { createMockServer, stopMockServer } from '../helpers';
 import fs from 'fs-extra';
+import { expect } from '@oclif/test';
 
 const testHelper = new TestHelper();
 const filePath = './test/fixtures/specification.yml';
@@ -18,11 +19,11 @@ describe('convert', () => {
       testHelper.deleteDummyContextFile();
     });
 
-    beforeAll(() => {
+    before(() => {
       createMockServer();
     });
 
-    afterAll(() => {
+    after(() => {
       stopMockServer();
     });
 
@@ -31,8 +32,8 @@ describe('convert', () => {
       .stdout()
       .command(['convert', filePath])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).toContain('File ./test/fixtures/specification.yml successfully converted!\n');
-        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).to.contain('File ./test/fixtures/specification.yml successfully converted!\n');
+        expect(ctx.stderr).to.equal('');
         done();
       });
 
@@ -41,8 +42,8 @@ describe('convert', () => {
       .stdout()
       .command(['convert', './test/fixtures/not-found.yml'])
       .it('should throw error if file path is wrong', (ctx, done) => {
-        expect(ctx.stdout).toEqual('');
-        expect(ctx.stderr).toEqual('error loading AsyncAPI document from file: ./test/fixtures/not-found.yml file does not exist.\n');
+        expect(ctx.stdout).to.equal('');
+        expect(ctx.stderr).to.equal('error loading AsyncAPI document from file: ./test/fixtures/not-found.yml file does not exist.\n');
         done();
       });
 
@@ -51,8 +52,8 @@ describe('convert', () => {
       .stdout()
       .command(['convert', 'http://localhost:8080/dummySpec.yml'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).toContain('URL http://localhost:8080/dummySpec.yml successfully converted!\n');
-        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).to.contain('URL http://localhost:8080/dummySpec.yml successfully converted!\n');
+        expect(ctx.stderr).to.equal('');
         done();
       });
   });
@@ -72,8 +73,8 @@ describe('convert', () => {
       .stdout()
       .command(['convert'])
       .it('converts from current context', (ctx, done) => {
-        expect(ctx.stdout).toContain(`File ${path.resolve(__dirname, '../fixtures/specification.yml')} successfully converted!\n`);
-        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).to.contain(`File ${path.resolve(__dirname, '../fixtures/specification.yml')} successfully converted!\n`);
+        expect(ctx.stderr).to.equal('');
         done();
       });
 
@@ -86,8 +87,8 @@ describe('convert', () => {
       })
       .command(['convert'])
       .it('throws error message if no current context', (ctx, done) => {
-        expect(ctx.stdout).toEqual('');
-        expect(ctx.stderr).toEqual('ContextError: No context is set as current, please set a current context.\n');
+        expect(ctx.stdout).to.equal('');
+        expect(ctx.stderr).to.equal('ContextError: No context is set as current, please set a current context.\n');
         done();
       });
   });
@@ -96,7 +97,7 @@ describe('convert', () => {
     beforeEach(() => {
       try {
         testHelper.deleteDummyContextFile();
-      } catch (e) {
+      } catch (e: any) {
         if (e.code !== 'ENOENT') {
           throw e;
         }
@@ -108,8 +109,8 @@ describe('convert', () => {
       .stdout()
       .command(['convert'])
       .it('throws error message if no context file exists', (ctx, done) => {
-        expect(ctx.stdout).toEqual('');
-        expect(ctx.stderr).toEqual(`error locating AsyncAPI document: ${NO_CONTEXTS_SAVED}\n`);
+        expect(ctx.stdout).to.equal('');
+        expect(ctx.stderr).to.equal(`error locating AsyncAPI document: ${NO_CONTEXTS_SAVED}\n`);
         done();
       });
   });
@@ -128,8 +129,8 @@ describe('convert', () => {
       .stdout()
       .command(['convert', filePath, '-t=2.3.0'])
       .it('works when supported target-version is passed', (ctx, done) => {
-        expect(ctx.stdout).toContain('asyncapi: 2.3.0');
-        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).to.contain('asyncapi: 2.3.0');
+        expect(ctx.stderr).to.equal('');
         done();
       });
 
@@ -138,8 +139,8 @@ describe('convert', () => {
       .stdout()
       .command(['convert', filePath, '-t=2.95.0'])
       .it('should throw error if non-supported target-version is passed', (ctx, done) => {
-        expect(ctx.stdout).toEqual('');
-        expect(ctx.stderr).toContain('Error: Cannot convert');
+        expect(ctx.stdout).to.equal('');
+        expect(ctx.stderr).to.contain('Error: Cannot convert');
         done();
       });
   });
@@ -158,9 +159,9 @@ describe('convert', () => {
       .stdout()
       .command(['convert', filePath, '-o=./test/fixtures/specification_output.yml'])
       .it('works when .yml file is passed', (ctx, done) => {
-        expect(ctx.stdout).toEqual(`File ${filePath} successfully converted!\n`);
-        expect(fs.existsSync('./test/fixtures/specification_output.yml')).toBe(true);
-        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).to.equal(`File ${filePath} successfully converted!\n`);
+        expect(fs.existsSync('./test/fixtures/specification_output.yml')).to.equal(true);
+        expect(ctx.stderr).to.equal('');
         fs.unlinkSync('./test/fixtures/specification_output.yml');
         done();
       });
@@ -170,9 +171,9 @@ describe('convert', () => {
       .stdout()
       .command(['convert', JSONFilePath, '-o=./test/fixtures/specification_output.json'])
       .it('works when .json file is passed', (ctx, done) => {
-        expect(ctx.stdout).toEqual(`File ${JSONFilePath} successfully converted!\n`);
-        expect(fs.existsSync('./test/fixtures/specification_output.json')).toBe(true);
-        expect(ctx.stderr).toEqual('');
+        expect(ctx.stdout).to.equal(`File ${JSONFilePath} successfully converted!\n`);
+        expect(fs.existsSync('./test/fixtures/specification_output.json')).to.equal(true);
+        expect(ctx.stderr).to.equal('');
         fs.unlinkSync('./test/fixtures/specification_output.json');
         done();
       });
