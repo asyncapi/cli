@@ -41,7 +41,7 @@ export default class ContextList extends Command {
         );
         return;
       }
-        throw e;
+      throw e;
     }
   }
 }
