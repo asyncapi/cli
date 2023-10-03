@@ -44,9 +44,7 @@ export default class ContextEdit extends Command {
         this.log(`Context file "${CONTEXT_FILE_PATH}" is empty.`);
         return;
       }
-      {
         throw e;
-      }
     }
   }
 }

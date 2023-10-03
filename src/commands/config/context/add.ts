@@ -54,9 +54,7 @@ export default class ContextAdd extends Command {
         );
         return;
       }
-      {
         throw e;
-      }
     }
   }
 }
