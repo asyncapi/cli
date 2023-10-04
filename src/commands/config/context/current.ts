@@ -39,9 +39,7 @@ export default class ContextCurrent extends Command {
         );
         return;
       }
-      {
-        throw e;
-      }
+      throw e;
     }
 
     if (fileContent) {
