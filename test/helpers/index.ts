@@ -1,8 +1,9 @@
-import { existsSync, writeFileSync, unlinkSync, rmSync, mkdirSync , promises as fs } from 'fs';
+import { existsSync, writeFileSync, unlinkSync,rmdirSync, mkdirSync , promises as fs } from 'fs';
 import * as path from 'path';
 import { IContextFile, CONTEXT_FILE_PATH } from '../../src/models/Context';
 import SpecificationFile from '../../src/models/SpecificationFile';
 import http from 'http';
+import rimraf from 'rimraf';
 
 const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'specification.yaml');
 const SERVER_DIRECTORY= path.join(__dirname, '../fixtures/dummyspec');
@@ -39,7 +40,7 @@ export default class ContextTestingHelper {
 
   deleteDummyContextFile(): void {
     if (existsSync(CONTEXT_FILE_PATH)) {
-      rmSync(CONTEXT_FILE_PATH);
+      unlinkSync(CONTEXT_FILE_PATH);
     }
   }
 
@@ -83,12 +84,12 @@ export default class ContextTestingHelper {
   }
 
   deleteDummyProjectDirectory(): void {
-    rmSync(PROJECT_DIRECTORY_PATH, { recursive: true, force: true });
+    rimraf.sync(PROJECT_DIRECTORY_PATH);
   }
 }
 
 export function fileCleanup(filepath: string) {
-  rmSync(filepath);
+  unlinkSync(filepath);
 }
 
 export function createMockServer (port = 8080) {
@@ -99,7 +100,7 @@ export function createMockServer (port = 8080) {
         const content = await fs.readFile(filePath, {encoding: 'utf8'});
         res.writeHead(200, {'Content-Type': getContentType(filePath)});
         res.end(content);
-      } catch (error) {
+      } catch (error: any) {
         if (error.code === 'ENOENT') {
           res.writeHead(404);
           res.end('404 NOT FOUND');
