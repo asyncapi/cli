@@ -31,6 +31,21 @@ describe('template', () => {
       done();
     });
 
+  describe('should handle AsyncAPI v3 document correctly', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'generate:fromTemplate',
+        asyncapiv3,
+        '@asyncapi/minimaltemplate'])
+      .it('give error on disabled template', (ctx, done) => {
+        expect(ctx.stderr).to.equal('Error: @asyncapi/minimaltemplate template does not support AsyncAPI v3 documents, please checkout some link\n');
+        expect(ctx.stdout).to.equal('');
+        done();
+      });
+  }).timeout(200000);
+
   describe('git clash', () => {
     const pathToOutput = './test/docs/2';
     before(() => {

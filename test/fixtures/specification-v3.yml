@@ -234,6 +234,9 @@ components:
           availableScopes:
             'write:pets': modify pets in your account
             'read:pets': read your pets
+    openIdConnect:
+      type: openIdConnect
+      openIdConnectUrl: openIdConnectUrl
     unusedFlows:
       type: oauth2
       flows:
