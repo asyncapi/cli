@@ -54,7 +54,7 @@ describe('template', () => {
       asyncapiv3,
       '@asyncapi/markdown-template', '--output=./test/docs/v3/markdown-template', '--force-write'])
     .it('should be able to use AsyncAPI v3 with markdown', (ctx, done) => {
-      expect(ctx.stdout).toContain(
+      expect(ctx.stdout).to.contain(
         'Check out your shiny new generated files at ./test/docs/v3/markdown-template.\n\n'
       );
       cleanup('./test/docs/v3/markdown-template');
@@ -69,7 +69,7 @@ describe('template', () => {
       asyncapiv3,
       '@asyncapi/html-template', '--output=./test/docs/v3/html-template', '--force-write'])
     .it('should be able to use AsyncAPI v3 with markdown', (ctx, done) => {
-      expect(ctx.stdout).toContain(
+      expect(ctx.stdout).to.contain(
         'Check out your shiny new generated files at ./test/docs/v3/html-template.\n\n'
       );
       cleanup('./test/docs/v3/html-template');
