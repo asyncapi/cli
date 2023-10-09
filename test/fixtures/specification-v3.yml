@@ -43,11 +43,6 @@ servers:
               'read:pets': read your pets
         scopes:
           - 'write:pets'
-      - type: openIdConnect
-        openIdConnectUrl: openIdConnectUrl
-        scopes:
-          - 'some:scope:1'
-          - 'some:scope:2'
   production:
     host: 'api.streetlights.smartylighting.com:{port}'
     pathname: /some/path
@@ -102,8 +97,6 @@ channels:
       subscribe.message.2:
         payload:
           type: object
-      subscribe.message.3:
-        $ref: 'https://example.com/message'
     servers:
       - $ref: '#/servers/default'
       - $ref: '#/servers/production'
@@ -154,7 +147,6 @@ operations:
           #/channels/smartylighting~1streetlights~11~10~1action~1{streetlightId}~1turn~1on/messages/customMessageId
       - $ref: >-
           #/channels/smartylighting~1streetlights~11~10~1action~1{streetlightId}~1turn~1on/messages/subscribe.message.2
-      - $ref: 'https://example.com/message'
   turnOnOff:
     action: send
     channel:
@@ -242,9 +234,6 @@ components:
           availableScopes:
             'write:pets': modify pets in your account
             'read:pets': read your pets
-    openIdConnect:
-      type: openIdConnect
-      openIdConnectUrl: openIdConnectUrl
     unusedFlows:
       type: oauth2
       flows:

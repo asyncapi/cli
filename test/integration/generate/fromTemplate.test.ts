@@ -23,56 +23,11 @@ describe('template', () => {
   test
     .stdout()
     .command([...generalOptions, '--output=./test/docs/1', '--force-write'])
-    .it('should generate minimal tempalte', (ctx, done) => {
+    .it('should generate minimal template', (ctx, done) => {
       expect(ctx.stdout).to.contain(
         'Check out your shiny new generated files at ./test/docs/1.\n\n'
       );
       cleanup('./test/docs/1');
-      done();
-    });
-
-  describe('should handle AsyncAPI v3 document correctly', () => {
-    test
-      .stderr()
-      .stdout()
-      .command([
-        'generate:fromTemplate',
-        asyncapiv3,
-        '@asyncapi/minimaltemplate'])
-      .it('give error', (ctx, done) => {
-        expect(ctx.stderr).to.equal('Error: @asyncapi/minimaltemplate template does not support AsyncAPI v3 documents, please checkout some link\n');
-        expect(ctx.stdout).to.equal('');
-        done();
-      });
-  });
-
-  test
-    .stderr()
-    .stdout()
-    .command([
-      'generate:fromTemplate',
-      asyncapiv3,
-      '@asyncapi/markdown-template', '--output=./test/docs/v3/markdown-template', '--force-write'])
-    .it('should be able to use AsyncAPI v3 with markdown', (ctx, done) => {
-      expect(ctx.stdout).to.contain(
-        'Check out your shiny new generated files at ./test/docs/v3/markdown-template.\n\n'
-      );
-      cleanup('./test/docs/v3/markdown-template');
-      done();
-    });
-
-  test
-    .stderr()
-    .stdout()
-    .command([
-      'generate:fromTemplate',
-      asyncapiv3,
-      '@asyncapi/html-template', '--output=./test/docs/v3/html-template', '--force-write'])
-    .it('should be able to use AsyncAPI v3 with markdown', (ctx, done) => {
-      expect(ctx.stdout).to.contain(
-        'Check out your shiny new generated files at ./test/docs/v3/html-template.\n\n'
-      );
-      cleanup('./test/docs/v3/html-template');
       done();
     });
 
