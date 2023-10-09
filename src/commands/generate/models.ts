@@ -164,9 +164,9 @@ export default class Models extends Command {
     }
     
     // Modelina, atm, is not using @asyncapi/parser@v3.x but @asyncapi/parser@v2.x, so it still uses Parser-API v1.0.0. 
-    // This call converts the parsed document object using @asyncapi/parser@v3.x (Parser-API v2.0.0) to a document compatible with the Parser-API version in use in @asyncapi/parser@v2.x  (v1.0.0)
+    // This call converts the parsed document object using @asyncapi/parser@v3.x (Parser-API v2) to a document compatible with the Parser-API version in use in @asyncapi/parser@v2.x  (v1)
     // This is needed until https://github.com/asyncapi/modelina/issues/1493 gets fixed.
-    const convertedDoc = ConvertDocumentParserAPIVersion(document.json(), '1.0.0');
+    const convertedDoc = ConvertDocumentParserAPIVersion(document.json(), 1);
 
     Logger.setLogger({
       info: (message) => {
