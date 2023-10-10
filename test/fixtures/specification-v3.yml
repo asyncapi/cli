@@ -43,6 +43,11 @@ servers:
               'read:pets': read your pets
         scopes:
           - 'write:pets'
+      - type: openIdConnect
+        openIdConnectUrl: https://example.com/api
+        scopes:
+          - 'some:scope:1'
+          - 'some:scope:2'
   production:
     host: 'api.streetlights.smartylighting.com:{port}'
     pathname: /some/path
@@ -235,8 +240,10 @@ components:
             'write:pets': modify pets in your account
             'read:pets': read your pets
     openIdConnect:
-      type: openIdConnect
-      openIdConnectUrl: openIdConnectUrl
+      openIdConnectUrl: https://example.com/api
+      scopes:
+        - 'some:scope:1'
+        - 'some:scope:2'
     unusedFlows:
       type: oauth2
       flows:
