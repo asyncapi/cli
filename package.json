@@ -103,9 +103,9 @@
   "oclif": {
     "commands": "./lib/commands",
     "bin": "asyncapi",
-    "plugins": [
-      "@oclif/plugin-not-found"
-    ],
+    "plugins": [],
+    "hooks": {
+      "command_not_found": ["./lib/hooks/command_not_found/myhook"]    },
     "macos": {
       "identifier": "com.asyncapi.cli"
     },
@@ -151,7 +151,9 @@
     "release": "semantic-release",
     "test": "npm run test:unit",
     "test:unit": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/**/*.test.ts\"",
-    "get-version": "echo $npm_package_version"
+    "get-version": "echo $npm_package_version",
+    "createhook": "oclif generate hook myhook --event=command_not_found",
+    "createhookinit": "oclif generate hook inithook --event=init"
   },
   "types": "lib/index.d.ts"
 }
