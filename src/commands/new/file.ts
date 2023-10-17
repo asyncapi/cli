@@ -160,10 +160,11 @@ export default class NewFile extends Command {
         console.log(`File ${fileNameToWriteToDisk} already exists. Ignoring...`);
         return;
       }
-    } catch (e) {
-      // File does not exist. Proceed creating it...
+    } catch (e:any) {
+      if (e.code === 'EACCES') {
+        this.error('Permission denied to read the file. You do not have the necessary permissions.');
+      }
     }
-    
     await writeFile(fileNameToWriteToDisk, asyncApiFile, { encoding: 'utf8' });
     console.log(`Created file ${fileNameToWriteToDisk}...`);
   }
