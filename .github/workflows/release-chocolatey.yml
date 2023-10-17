@@ -26,5 +26,5 @@ jobs:
         run: |
           cd ./deploy/chocolatey
           choco pack ./asyncapi-cli.nuspec
-          choco apikey add --source 'https://push.chocolatey.org/'" --key ${{ secrets.CHOCOLATEY_API_KEY }}
-          choco push ./asyncapi-cli.nupkg --source 'https://push.chocolatey.org/'
+          choco apikey add --source "'https://push.chocolatey.org/'" --key ${{ secrets.CHOCOLATEY_API_KEY }}
+          choco push ./asyncapi.${{ github.event.inputs.version }}.nupkg --source "'https://push.chocolatey.org/'"

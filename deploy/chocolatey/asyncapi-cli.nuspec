@@ -2,7 +2,7 @@
 <!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
-    <id>asyncapi-cli</id>
+    <id>asyncapi</id>
     <version>{{version}}</version>
     <packageSourceUrl>https://github.com/asyncapi/cli/releases</packageSourceUrl>
     <owners>AsyncAPI, shurtugal</owners>
@@ -10,9 +10,9 @@
     <!-- == SOFTWARE SPECIFIC SECTION == -->
     <!-- This section is about the software itself -->
     <title>asyncapi-cli</title>
-    <authors>AsyncAPI</authors>
+    <authors>AsyncAPI, shurtugal</authors>
     <projectUrl>https://www.asyncapi.com/</projectUrl>
-    <iconUrl>https://avatars.githubusercontent.com/u/16401334?s=200&v=4</iconUrl>
+    <iconUrl>https://avatars.githubusercontent.com/u/16401334?s=200</iconUrl>
     <copyright>2023 AsyncAPI</copyright>
     <licenseUrl>https://github.com/asyncapi/cli/blob/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
