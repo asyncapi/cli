@@ -14,13 +14,13 @@ const hook: Hook.CommandNotFound = async function (opts) {
     help.showHelp(['--help']);
     return;
   }
-  const hiddenCommandIds = new Set(opts.config.commands.filter((c) => {c.hidden;}).map((c) => c.id));
+  const hiddenCommandIds = new Set(opts.config.commands.filter((c) => c.hidden).map((c) => c.id));
   const commandIDs = [...opts.config.commandIDs, ...opts.config.commands.flatMap((c) => c.aliases)].filter(
     (c) => !hiddenCommandIds.has(c),
   );
-  //here we get the command ids and hidden command ids. 
 
   if (commandIDs.length === 0) {return;}
+
   // now we we return if the command id are not there.
 
   let binHelp = `${opts.config.bin} help`;
