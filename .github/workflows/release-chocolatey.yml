@@ -16,10 +16,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Set Version
+        id: release_version
+        run: |
+          if ( "${{ github.event_name }}" -eq "workflow_dispatch" ) {
+            $version = "${{ github.event.inputs.version }}"
+          }
+          else {
+            $version = "${{ github.event.release.tag_name }}" -replace "^v", ""
+          }
+          echo "Setting version to $version"
+          echo "::set-output name=version::$version"
+
       - name: Make nuspec from the template
         run: |
           cd ./deploy/chocolatey
-          pwsh -File ./replace.ps1 -version ${{ github.event.inputs.version }}
+          pwsh -File ./replace.ps1 -version ${{ steps.release_version.outputs.version }}
         
       
       - name: Run Chocolatey Pack
@@ -27,4 +39,4 @@ jobs:
           cd ./deploy/chocolatey
           choco pack ./asyncapi-cli.nuspec
           choco apikey add --source "'https://push.chocolatey.org/'" --key ${{ secrets.CHOCOLATEY_API_KEY }}
-          choco push ./asyncapi.${{ github.event.inputs.version }}.nupkg --source "'https://push.chocolatey.org/'"
+          choco push ./asyncapi.${{ steps.release_version.outputs.version }}.nupkg --source "'https://push.chocolatey.org/'"
