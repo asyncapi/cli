@@ -1,0 +1,33 @@
+{
+  "name": "glee-hello-world",
+  "version": "0.1.0",
+  "description": "Hello world app to improve Glee onboarding ",
+  "type": "module",
+  "engines": {
+    "node": ">=14.15.1"
+  },
+  "scripts": {
+    "dev": "glee dev",
+    "start": "glee start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asyncapi/glee-hello-world.git"
+  },
+  "keywords": [
+    "glee"
+  ],
+  "author": "Fran Mendez",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/asyncapi/glee-hello-world/issues"
+  },
+  "homepage": "https://github.com/asyncapi/glee-hello-world#readme",
+  "dependencies": {
+    "@asyncapi/glee": "^0.28.0"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.3",
+    "@types/node": "^20.5.9"
+  }
+}
