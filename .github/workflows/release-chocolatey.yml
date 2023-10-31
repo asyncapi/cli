@@ -1,12 +1,15 @@
 name: Release Chocolatey Package
 on:
-  release:
-    types: [published]
+  # We cannot run chocolatey release continusly every time we release something as sometimes we release a couple of times a day and overload chocolatey pipelines
+  # More details https://github.com/asyncapi/cli/issues/503
+  schedule:
+    - cron: '0 23 * * *' # Run every day at 23:00 UTC
+  # Since now release depends on schedule, might be that there is a situation we cannot wait for schedule and trigger release manually
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release'
-        required: true
+        description: 'Version to release (optional)'
+        required: false
   
 jobs:
   release:
@@ -18,11 +21,11 @@ jobs:
       - name: Set Version
         id: release_version
         run: |
-          if ( "${{ github.event_name }}" -eq "workflow_dispatch" ) {
+          if ( "${{ github.event_name }}" -eq "workflow_dispatch" && "${{ github.event.inputs.version }}" -ne "" ) {
             $version = "${{ github.event.inputs.version }}"
           }
           else {
-            $version = "${{ github.event.release.tag_name }}" -replace "^v", ""
+            $version = (npm run get-version --silent)
           }
           echo "Setting version to $version"
           echo "::set-output name=version::$version"
