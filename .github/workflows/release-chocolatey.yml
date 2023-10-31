@@ -15,7 +15,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
       - name: Set Version
         id: release_version
         run: |
@@ -27,16 +26,22 @@ jobs:
           }
           echo "Setting version to $version"
           echo "::set-output name=version::$version"
-
       - name: Make nuspec from the template
         run: |
-          cd ./deploy/chocolatey
+          cd ./.github/workflows/deploy/chocolatey
           pwsh -File ./replace.ps1 -version ${{ steps.release_version.outputs.version }}
-        
-      
       - name: Run Chocolatey Pack
         run: |
-          cd ./deploy/chocolatey
+          cd ./.github/workflows/deploy/chocolatey
           choco pack ./asyncapi-cli.nuspec
           choco apikey add --source "'https://push.chocolatey.org/'" --key ${{ secrets.CHOCOLATEY_API_KEY }}
-          choco push ./asyncapi.${{ steps.release_version.outputs.version }}.nupkg --source "'https://push.chocolatey.org/'"
+          choco push ./asyncapi.${{ steps.release_version.outputs.version }}.nupkg --source "'https://push.chocolatey.org/'"  
+      - if: failure() # Only, on failure, send a message on the 94_bot-failing-ci slack channel
+        name: Report workflow run status to Slack
+        uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 #using https://github.com/8398a7/action-slack/releases/tag/v3.15.1
+        with:
+          status: ${{ job.status }}
+          fields: repo,action,workflow
+          text: 'AsyncAPI CLI release to Chocolatey failed'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_CI_FAIL_NOTIFY }}
