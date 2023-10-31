@@ -11,6 +11,8 @@ import { watchFlag } from '../../flags';
 import { isLocalTemplate, Watcher } from '../../utils/generator';
 import { ValidationError } from '../../errors/validation-error';
 import { GeneratorError } from '../../errors/generator-error';
+import { MetadataFromDocument } from '@smoya/asyncapi-adoption-metrics';
+import { Parser } from '@asyncapi/parser';
 
 import type { Example } from '@oclif/core/lib/interfaces';
 
@@ -107,6 +109,8 @@ export default class Template extends Command {
     { name: 'template', description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true }
   ];
 
+  parser = new Parser();
+
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
 
@@ -137,10 +141,26 @@ export default class Template extends Command {
         this.error(`${template} template does not support AsyncAPI v3 documents, please checkout ${v3IssueLink}`);
       }
     }
-    await this.generate(asyncapi, template, output, options, genOption);
+    const result = await this.generate(asyncapi, template, output, options, genOption);
     if (watchTemplate) {
       const watcherHandler = this.watcherHandler(asyncapi, template, output, options, genOption);
       await this.runWatchMode(asyncapi, template, output, watcherHandler);
+    }
+
+    try {
+      // Metrics recording.
+      const {document} = await this.parser.parse(asyncapiInput.text());
+      if (document !== undefined && result) {
+        const metadata = MetadataFromDocument(document);
+        metadata['success'] = true;
+        metadata['template'] = template;
+        await this.recorder.recordActionExecution('generate_fromTemplate', metadata);
+        await this.recorder.flush();
+      }
+    } catch (e: any) {
+      if (e instanceof Error) {
+        this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
+      }
     }
   }
 

@@ -7,6 +7,9 @@ import * as inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
 import { Example } from '@oclif/core/lib/interfaces';
+import { MetadataFromDocument } from '@smoya/asyncapi-adoption-metrics';
+import { Parser } from '@asyncapi/parser';
+
 const { writeFile } = promises;
 
 export enum Optimizations {
@@ -43,6 +46,8 @@ export default class Optimize extends Command {
   static args = [
     { name: 'spec-file', description: 'spec path, url, or context-name', required: false },
   ];
+
+  parser = new Parser();
 
   async run() {
     const { args, flags } = await this.parse(Optimize); //NOSONAR
@@ -123,7 +128,25 @@ export default class Optimize extends Command {
         err: error
       });
     }
+
+    try {
+      // Metrics recording.
+      const {document} = await this.parser.parse(specFile.text());
+      const optimizedDoc = optimizer.getOptimizedDocument();
+      if (document !== undefined && optimizedDoc) {
+        const metadata = MetadataFromDocument(document);
+        metadata['success'] = true;
+        metadata['optimizations'] = this.optimizations;
+        await this.recorder.recordActionExecution('optimize', metadata);
+        await this.recorder.flush();
+      }
+    } catch (e: any) {
+      if (e instanceof Error) {
+        this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
+      }
+    }
   }
+
   private showOptimizations(elements: ReportElement[] | undefined) {
     if (!elements) {
       return;

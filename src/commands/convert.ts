@@ -80,7 +80,7 @@ export default class Convert extends Command {
       if (document !== undefined && convertedFileFormatted) {
         const metadata = MetadataFromDocument(document);
         metadata['success'] = true;
-        metadata['from_version'] = metadata['_asyncapi_version'];
+        metadata['from_version'] = document.version();
         metadata['to_version'] = flags['target-version'];
         console.log(metadata);
         await this.recorder.recordActionExecution('convert', metadata);

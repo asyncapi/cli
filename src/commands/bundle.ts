@@ -5,6 +5,8 @@ import bundle from '@asyncapi/bundler';
 import { promises } from 'fs';
 import path from 'path';
 import { Specification, load } from '../models/SpecificationFile';
+import { MetadataFromDocument } from '@smoya/asyncapi-adoption-metrics';
+import { Parser } from '@asyncapi/parser';
 
 const { writeFile } = promises;
 
@@ -25,6 +27,8 @@ export default class Bundle extends Command {
     'reference-into-components': Flags.boolean({ char: 'r', description: 'Bundle the message $refs into components object.' }),
     base: Flags.string({ char: 'b', description: 'Path to the file which will act as a base. This is required when some properties are to needed to be overwritten.' }),
   };
+
+  parser = new Parser();
 
   async run() {
     const { argv, flags } = await this.parse(Bundle);
@@ -72,6 +76,24 @@ export default class Bundle extends Command {
         });
       }
       this.log(`Check out your shiny new bundled files at ${output}`);
+    }
+
+    const result = await load(output);
+
+    try {
+      // Metrics recording.
+      const {document} = await this.parser.parse(result.text());
+      if (document !== undefined) {
+        const metadata = MetadataFromDocument(document);
+        metadata['success'] = true;
+        metadata['files'] = AsyncAPIFiles.length;
+        await this.recorder.recordActionExecution('bundle', metadata);
+        await this.recorder.flush();
+      }
+    } catch (e: any) {
+      if (e instanceof Error) {
+        this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
+      }
     }
   }
 
