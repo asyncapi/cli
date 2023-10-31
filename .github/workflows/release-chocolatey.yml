@@ -21,14 +21,14 @@ jobs:
       - name: Set Version
         id: release_version
         run: |
-          if ( "${{ github.event_name }}" -eq "workflow_dispatch" && "${{ github.event.inputs.version }}" -ne "" ) {
+          if ( "${{ github.event_name }}" -eq "workflow_dispatch" -and "${{ github.event.inputs.version }}" -ne "" ) {
             $version = "${{ github.event.inputs.version }}"
           }
           else {
-            $version = (npm run get-version --silent)
+            $version = $(npm pkg get version)
           }
           echo "Setting version to $version"
-          echo "::set-output name=version::$version"
+          echo "version=$version" >> $env:GITHUB_OUTPUT
       - name: Make nuspec from the template
         run: |
           cd ./.github/workflows/deploy/chocolatey
