@@ -33,6 +33,11 @@ export interface ValidationFlagsOptions {
   logDiagnostics?: boolean;
 }
 
+export enum ValidationStatus {
+  Invalid = "invalid",
+  Valid = "valid",
+}
+
 export function validationFlags({ logDiagnostics = true }: ValidationFlagsOptions = {}) {
   return {
     'log-diagnostics': Flags.boolean({
@@ -74,7 +79,7 @@ function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: S
   const logDiagnostics = options['log-diagnostics'];
   const failSeverity = options['fail-severity'] ?? 'error';
   const diagnosticsFormat = options['diagnostics-format'] ?? 'stylish';
-  
+
   const sourceString = specFile.toSourceString();
   if (diagnostics.length) {
     if (hasFailSeverity(diagnostics, failSeverity)) {
@@ -82,7 +87,7 @@ function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: S
         command.logToStderr(`\n${sourceString} and/or referenced documents have governance issues.`);
         command.logToStderr(formatOutput(diagnostics, diagnosticsFormat, failSeverity));
       }
-      return 'invalid';
+      return ValidationStatus.Invalid;
     }
 
     if (logDiagnostics) {
@@ -93,7 +98,7 @@ function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: S
     command.log(`\n${sourceString} is valid! ${sourceString} and referenced documents don't have governance issues.`);
   }
 
-  return 'valid';
+  return ValidationStatus.Valid;
 }
 
 export function formatOutput(diagnostics: Diagnostic[], format: `${OutputFormat}`, failSeverity: SeveritytKind) {

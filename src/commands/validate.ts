@@ -1,7 +1,7 @@
 import { Flags } from '@oclif/core';
 
 import Command from '../base';
-import { validate, validationFlags } from '../parser';
+import { ValidationStatus, validate, validationFlags } from '../parser';
 import { load } from '../models/SpecificationFile';
 import { specWatcher } from '../globals';
 import { watchFlag } from '../flags';
@@ -23,14 +23,14 @@ export default class Validate extends Command {
     const { args, flags } = await this.parse(Validate); //NOSONAR
     const filePath = args['spec-file'];
     const watchMode = flags.watch;
-    
+
     const specFile = await load(filePath);
     if (watchMode) {
       specWatcher({ spec: specFile, handler: this, handlerName: 'validate' });
     }
 
     await validate(this, specFile, flags);
-    if(await validate(this, specFile, flags) == 'invalid') {
+    if(await validate(this, specFile, flags) == ValidationStatus.Invalid) {
       this.exit(1);
     }
     this.exit(0);
