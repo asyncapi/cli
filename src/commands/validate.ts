@@ -23,12 +23,16 @@ export default class Validate extends Command {
     const { args, flags } = await this.parse(Validate); //NOSONAR
     const filePath = args['spec-file'];
     const watchMode = flags.watch;
-
+    
     const specFile = await load(filePath);
     if (watchMode) {
       specWatcher({ spec: specFile, handler: this, handlerName: 'validate' });
     }
 
     await validate(this, specFile, flags);
+    if(await validate(this, specFile, flags) == 'invalid') {
+      this.exit(1);
+    }
+    this.exit(0);
   }
 }

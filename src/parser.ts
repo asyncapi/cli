@@ -74,7 +74,7 @@ function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: S
   const logDiagnostics = options['log-diagnostics'];
   const failSeverity = options['fail-severity'] ?? 'error';
   const diagnosticsFormat = options['diagnostics-format'] ?? 'stylish';
-
+  
   const sourceString = specFile.toSourceString();
   if (diagnostics.length) {
     if (hasFailSeverity(diagnostics, failSeverity)) {
