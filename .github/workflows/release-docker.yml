@@ -47,9 +47,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha
 
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
       - uses: meeDamian/sync-readme@v1.0.6
         with:
           user: ${{ secrets.DOCKER_USERNAME }}
