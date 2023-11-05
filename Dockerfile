@@ -1,6 +1,6 @@
-ARG ASYNCAPI_CLI_VERSION=0.59.1
-
 FROM node:16-alpine
+
+ARG ASYNCAPI_CLI_VERSION=0.59.1
 
 # Create a non-root user
 RUN addgroup -S myuser && adduser -S myuser -G myuser
