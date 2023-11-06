@@ -6,6 +6,8 @@ import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
 import { SpecificationFileNotFound } from '../errors/specification-file';
 import { convert } from '@asyncapi/converter';
+import { MetadataFromDocument } from '@smoya/asyncapi-adoption-metrics';
+import { Parser } from '@asyncapi/parser';
 
 import type { ConvertVersion } from '@asyncapi/converter';
 
@@ -26,6 +28,8 @@ export default class Convert extends Command {
   static args = [
     { name: 'spec-file', description: 'spec path, url, or context-name', required: false },
   ];
+
+  parser = new Parser();
 
   async run() {
     const { args, flags } = await this.parse(Convert);
@@ -67,6 +71,24 @@ export default class Convert extends Command {
         }));
       } else {
         this.error(err as Error);
+      }
+    }
+
+    try {
+      // Metrics recording.
+      const {document} = await this.parser.parse(specFile.text());
+      if (document !== undefined && convertedFileFormatted) {
+        const metadata = MetadataFromDocument(document);
+        metadata['success'] = true;
+        metadata['from_version'] = metadata['_asyncapi_version'];
+        metadata['to_version'] = flags['target-version'];
+        console.log(metadata);
+        await this.recorder.recordActionExecution('convert', metadata);
+        await this.recorder.flush();
+      }
+    } catch (e: any) {
+      if (e instanceof Error) {
+        this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
       }
     }
   }
