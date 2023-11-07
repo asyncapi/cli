@@ -47,6 +47,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha
 
+      - name:  Sync README.md and Description to Docker Hub
+        uses: actions/checkout@v4.1.1
+
       - uses: meeDamian/sync-readme@v1.0.6
         with:
           user: ${{ secrets.DOCKER_USERNAME }}
