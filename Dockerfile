@@ -18,7 +18,7 @@ RUN apk --update add git chromium && \
     rm /var/cache/apk/*
 
 # Installing latest released npm package
-RUN npm install --ignore-scripts -g @asyncapi/cli@$ASYNCAPI_CLI_VERSION
+RUN npm install --ignore-scripts -g @asyncapi/cli@"$ASYNCAPI_CLI_VERSION"
 
 # Switch to the non-root user
 USER myuser
