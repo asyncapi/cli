@@ -7,7 +7,7 @@ export const closest = (target: string, possibilities: string[]): string =>
   possibilities
     .map((id) => ({distance: levenshtein.get(target, id, {useCollator: true}), id}))
     .sort((a, b) => a.distance - b.distance)[0]?.id ?? '';
-  console.log("command not found hook is running")
+
 const hook: Hook.CommandNotFound = async function (opts) {
   if (opts.id === '--help') {
     const help = new Help(this.config);
