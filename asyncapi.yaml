@@ -1,0 +1,34 @@
+asyncapi: 3.0.0
+info:
+  title: 'Hello, Glee!'
+  version: 0.1.0
+servers:
+  websockets:
+    host: 'localhost:3000'
+    protocol: ws
+channels:
+  check:
+    address: check
+    messages:
+      atHello:
+        $ref: '#/components/messages/hello'
+      goodBye:
+        $ref: '#/components/messages/hello'
+operations:
+  atHello:
+    action: receive
+    channel:
+      $ref: '#/channels/check'
+    messages:
+      - $ref: '#/components/messages/hello'
+  goodBye:
+    action: send
+    channel:
+      $ref: '#/channels/check'
+    messages:
+      - $ref: '#/components/messages/hello'
+components:
+  messages:
+    hello:
+      payload:
+        type: string
