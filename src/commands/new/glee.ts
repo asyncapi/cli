@@ -6,21 +6,23 @@ import fs from 'fs-extra';
 
 export default class NewGlee extends Command {
   static description = 'Creates a new Glee project';
-  
+
   protected commandName = 'glee';
 
   static flags = {
     help: Flags.help({ char: 'h' }),
     name: Flags.string({ char: 'n', description: 'name of the project', default: 'project' }),
+    template: Flags.string({ char: 't', description: 'name of the template', default: 'default' }),
   };
 
   async run() {
     const { flags } = await this.parse(NewGlee); // NOSONAR
 
     const projectName = flags.name;
+    const templateName = flags.template;
 
     const PROJECT_DIRECTORY = join(process.cwd(), projectName);
-    const GLEE_TEMPLATES_DIRECTORY = resolve(__dirname, '../../../assets/create-glee-app/templates/default');
+    const GLEE_TEMPLATES_DIRECTORY = resolve(__dirname, '../../../assets/create-glee-app/templates/', templateName);
 
     try {
       await fPromises.mkdir(PROJECT_DIRECTORY);
@@ -39,7 +41,7 @@ export default class NewGlee extends Command {
         this.error(`Unable to create the project. Please check the following message for further info about the error:\n\n${err}`);
       }
     }
-    
+
     try {
       await fs.copy(GLEE_TEMPLATES_DIRECTORY, PROJECT_DIRECTORY);
       await fPromises.rename(`${PROJECT_DIRECTORY}/env`, `${PROJECT_DIRECTORY}/.env`);
