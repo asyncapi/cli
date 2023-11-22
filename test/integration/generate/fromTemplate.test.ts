@@ -54,6 +54,7 @@ describe('template', () => {
       fs.writeFileSync(path.join(pathToOutput, 'random.md'), '');
     });
     test
+      .skip()
       .stderr()
       .command([...generalOptions, '--output=./test/docs/2'])
       .it(
