@@ -31,6 +31,9 @@ export default class Bundle extends Command {
   parser = new Parser();
 
   async run() {
+    // Metrics recording when command is invoked
+    await this.recordActionInvoked('bundle');
+
     const { argv, flags } = await this.parse(Bundle);
     const output = flags.output;
     let baseFile;

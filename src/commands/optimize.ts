@@ -50,6 +50,9 @@ export default class Optimize extends Command {
   parser = new Parser();
 
   async run() {
+    // Metrics recording when command is invoked
+    await this.recordActionInvoked('optimize');
+
     const { args, flags } = await this.parse(Optimize); //NOSONAR
     const filePath = args['spec-file'];
     let specFile: Specification;
