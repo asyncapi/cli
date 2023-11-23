@@ -154,7 +154,7 @@ export default class Template extends Command {
         const metadata = MetadataFromDocument(document);
         metadata['success'] = true;
         metadata['template'] = template;
-        await this.recorder.recordActionExecution('generate_fromTemplate', metadata);
+        await this.recorder.recordActionExecuted('generate_fromTemplate', metadata);
         await this.recorder.flush();
       }
     } catch (e: any) {

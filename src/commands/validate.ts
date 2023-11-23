@@ -42,7 +42,7 @@ export default class Validate extends Command {
         const metadata = MetadataFromDocument(document);
         metadata['success'] = true;
         metadata['validation_result'] = result;
-        await this.recorder.recordActionExecution('validate', metadata);
+        await this.recorder.recordActionExecuted('validate', metadata);
         await this.recorder.flush();
       }
     } catch (e: any) {

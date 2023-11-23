@@ -104,7 +104,7 @@ export default class Optimize extends Command {
 
       const specPath = specFile.getFilePath();
       let newPath = '';
-      
+
       if (specPath) {
         const pos = specPath.lastIndexOf('.');
         newPath = `${specPath.substring(0,pos) }_optimized.${ specPath.substring(pos+1)}`;
@@ -137,7 +137,7 @@ export default class Optimize extends Command {
         const metadata = MetadataFromDocument(document);
         metadata['success'] = true;
         metadata['optimizations'] = this.optimizations;
-        await this.recorder.recordActionExecution('optimize', metadata);
+        await this.recorder.recordActionExecuted('optimize', metadata);
         await this.recorder.flush();
       }
     } catch (e: any) {

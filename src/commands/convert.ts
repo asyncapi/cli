@@ -82,8 +82,7 @@ export default class Convert extends Command {
         metadata['success'] = true;
         metadata['from_version'] = document.version();
         metadata['to_version'] = flags['target-version'];
-        console.log(metadata);
-        await this.recorder.recordActionExecution('convert', metadata);
+        await this.recorder.recordActionExecuted('convert', metadata);
         await this.recorder.flush();
       }
     } catch (e: any) {

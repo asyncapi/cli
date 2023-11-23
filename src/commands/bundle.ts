@@ -87,7 +87,7 @@ export default class Bundle extends Command {
         const metadata = MetadataFromDocument(document);
         metadata['success'] = true;
         metadata['files'] = AsyncAPIFiles.length;
-        await this.recorder.recordActionExecution('bundle', metadata);
+        await this.recorder.recordActionExecuted('bundle', metadata);
         await this.recorder.flush();
       }
     } catch (e: any) {
