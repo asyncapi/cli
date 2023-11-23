@@ -5,8 +5,6 @@ import { validate, validationFlags } from '../parser';
 import { load } from '../models/SpecificationFile';
 import { specWatcher } from '../globals';
 import { watchFlag } from '../flags';
-import { MetadataFromDocument } from '@smoya/asyncapi-adoption-metrics';
-import { Parser } from '@asyncapi/parser';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
@@ -20,8 +18,6 @@ export default class Validate extends Command {
   static args = [
     { name: 'spec-file', description: 'spec path, url, or context-name', required: false },
   ];
-
-  parser = new Parser();
 
   async run() {
     // Metrics recording when command is invoked
@@ -38,20 +34,7 @@ export default class Validate extends Command {
 
     const result = await validate(this, specFile, flags);
 
-    try {
-      // Metrics recording.
-      const {document} = await this.parser.parse(specFile.text());
-      if (document !== undefined) {
-        const metadata = MetadataFromDocument(document);
-        metadata['success'] = true;
-        metadata['validation_result'] = result;
-        await this.recorder.recordActionExecuted('validate', metadata);
-        await this.recorder.flush();
-      }
-    } catch (e: any) {
-      if (e instanceof Error) {
-        this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
-      }
-    }
+    // Metrics recording.
+    await this.recordActionExecuted('validate', {success: true, validation_result: result}, specFile.text());
   }
 }

@@ -83,21 +83,8 @@ export default class Bundle extends Command {
 
     const result = await load(output);
 
-    try {
-      // Metrics recording.
-      const {document} = await this.parser.parse(result.text());
-      if (document !== undefined) {
-        const metadata = MetadataFromDocument(document);
-        metadata['success'] = true;
-        metadata['files'] = AsyncAPIFiles.length;
-        await this.recorder.recordActionExecuted('bundle', metadata);
-        await this.recorder.flush();
-      }
-    } catch (e: any) {
-      if (e instanceof Error) {
-        this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
-      }
-    }
+    // Metrics recording.
+    await this.recordActionExecuted(result.text(), {success: true, files: AsyncAPIFiles.length});
   }
 
   async loadFiles(filepaths: string[]): Promise<Specification[]> {
