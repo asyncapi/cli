@@ -132,22 +132,8 @@ export default class Optimize extends Command {
       });
     }
 
-    try {
-      // Metrics recording.
-      const {document} = await this.parser.parse(specFile.text());
-      const optimizedDoc = optimizer.getOptimizedDocument();
-      if (document !== undefined && optimizedDoc) {
-        const metadata = MetadataFromDocument(document);
-        metadata['success'] = true;
-        metadata['optimizations'] = this.optimizations;
-        await this.recorder.recordActionExecuted('optimize', metadata);
-        await this.recorder.flush();
-      }
-    } catch (e: any) {
-      if (e instanceof Error) {
-        this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
-      }
-    }
+    // Metrics recording.
+    await this.recordActionExecuted('optimize', {success: true, optimizations: this.optimizations}, specFile.text());
   }
 
   private showOptimizations(elements: ReportElement[] | undefined) {

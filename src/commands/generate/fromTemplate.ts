@@ -144,27 +144,14 @@ export default class Template extends Command {
         this.error(`${template} template does not support AsyncAPI v3 documents, please checkout ${v3IssueLink}`);
       }
     }
-    const result = await this.generate(asyncapi, template, output, options, genOption);
+    await this.generate(asyncapi, template, output, options, genOption);
     if (watchTemplate) {
       const watcherHandler = this.watcherHandler(asyncapi, template, output, options, genOption);
       await this.runWatchMode(asyncapi, template, output, watcherHandler);
     }
 
-    try {
-      // Metrics recording.
-      const {document} = await this.parser.parse(asyncapiInput.text());
-      if (document !== undefined && result) {
-        const metadata = MetadataFromDocument(document);
-        metadata['success'] = true;
-        metadata['template'] = template;
-        await this.recorder.recordActionExecuted('generate_fromTemplate', metadata);
-        await this.recorder.flush();
-      }
-    } catch (e: any) {
-      if (e instanceof Error) {
-        this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
-      }
-    }
+    // Metrics recording.
+    await this.recordActionExecuted('generate_from_template', {success: true, template}, asyncapiInput.text());
   }
 
   private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string): ParsedFlags {
