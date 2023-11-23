@@ -28,7 +28,7 @@ export default abstract class extends Command {
       try {
         const {document} = await this.parser.parse(rawDocument);
         if (document !== undefined) {
-          metadata = MetadataFromDocument(document);
+          metadata = MetadataFromDocument(document, metadata);
         }
       } catch (e: any) {
         if (e instanceof Error) {
@@ -36,16 +36,25 @@ export default abstract class extends Command {
         }
       }
     }
-    await this.recordActionMetric(this.recorder.recordActionExecuted, action, metadata);
+
+    const callable = async function(recorder: Recorder) {
+      await recorder.recordActionExecuted(action, metadata);
+    };
+
+    await this.recordActionMetric(callable);
   }
 
   async recordActionInvoked(action: string, metadata?: MetricMetadata) {
-    await this.recordActionMetric(this.recorder.recordActionInvoked, action, metadata);
+    const callable = async function(recorder: Recorder) {
+      await recorder.recordActionInvoked(action, metadata);
+    };
+
+    await this.recordActionMetric(callable);
   }
 
-  async recordActionMetric(recordFunc: (actionName: string, metadata?: MetricMetadata) => Promise<void>, action: string, metadata?: MetricMetadata) {
+  async recordActionMetric(recordFunc: (recorder: Recorder) => void) {
     try {
-      await recordFunc(action, metadata);
+      await recordFunc(this.recorder);
       await this.recorder.flush();
     } catch (e: any) {
       if (e instanceof Error) {
