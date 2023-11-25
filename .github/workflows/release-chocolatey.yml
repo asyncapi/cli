@@ -1,0 +1,50 @@
+name: Release Chocolatey Package
+on:
+  # We cannot run chocolatey release continusly every time we release something as sometimes we release a couple of times a day and overload chocolatey pipelines
+  # More details https://github.com/asyncapi/cli/issues/503
+  schedule:
+    - cron: '0 23 * * *' # Run every day at 23:00 UTC
+  # Since now release depends on schedule, might be that there is a situation we cannot wait for schedule and trigger release manually
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (optional)'
+        required: false
+  
+jobs:
+  release:
+    name: Publish to Chocolatey Community
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set Version
+        id: release_version
+        run: |
+          if ( "${{ github.event_name }}" -eq "workflow_dispatch" -and "${{ github.event.inputs.version }}" -ne "" ) {
+            $version = "${{ github.event.inputs.version }}"
+          }
+          else {
+            $version = $(npm pkg get version)
+          }
+          echo "Setting version to $version"
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+      - name: Make nuspec from the template
+        run: |
+          cd ./.github/workflows/deploy/chocolatey
+          pwsh -File ./replace.ps1 -version ${{ steps.release_version.outputs.version }}
+      - name: Run Chocolatey Pack
+        run: |
+          cd ./.github/workflows/deploy/chocolatey
+          choco pack ./asyncapi-cli.nuspec
+          choco apikey add --source "'https://push.chocolatey.org/'" --key ${{ secrets.CHOCOLATEY_API_KEY }}
+          choco push ./asyncapi.${{ steps.release_version.outputs.version }}.nupkg --source "'https://push.chocolatey.org/'"  
+      - if: failure() # Only, on failure, send a message on the 94_bot-failing-ci slack channel
+        name: Report workflow run status to Slack
+        uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 #using https://github.com/8398a7/action-slack/releases/tag/v3.15.1
+        with:
+          status: ${{ job.status }}
+          fields: repo,action,workflow
+          text: 'AsyncAPI CLI release to Chocolatey failed'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_CI_FAIL_NOTIFY }}
