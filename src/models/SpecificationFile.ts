@@ -64,7 +64,7 @@ export class Specification {
   }
 
   getSource() {
-    return this.getFilePath() || this.getFileURL();
+    return this.getFilePath() ?? this.getFileURL();
   }
 
   toSourceString() {

@@ -96,7 +96,6 @@ channels:
       subscribe.message.0:
         $ref: '#/components/messages/turnOnOff'
       customMessageId:
-        messageId: customMessageId
         payload:
           type: object
       subscribe.message.2:

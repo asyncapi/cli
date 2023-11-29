@@ -27,7 +27,7 @@ export type SpecWatcherParams = {
 
 export const specWatcher = (params: SpecWatcherParams) => {
   if (!params.spec.getFilePath()) { return WATCH_MESSAGES.logOnAutoDisable(params.docVersion); }
-  if (CHOKIDAR_INSTANCE_STORE.get(params.label || '_default')) { return; }
+  if (CHOKIDAR_INSTANCE_STORE.get(params.label ?? '_default')) { return; }
 
   const filePath = params.spec.getFilePath() as string;
   try {
