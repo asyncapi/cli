@@ -16,6 +16,6 @@
   "author": "Fran Mendez",
   "license": "Apache-2.0",
   "dependencies": {
-    "@asyncapi/glee": "^0.29.1"
+    "@asyncapi/glee": "^0.30.1"
   }
 }
