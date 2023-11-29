@@ -3,7 +3,6 @@ import * as path from 'path';
 import { test } from '@oclif/test';
 import rimraf from 'rimraf';
 import { expect } from '@oclif/test';
-import { it } from 'mocha';
 
 const generalOptions = [
   'generate:fromTemplate',
@@ -54,36 +53,37 @@ describe('template', () => {
       fs.writeFileSync(path.join(pathToOutput, 'random.md'), '');
     });
     test
-      .skip()
       .stderr()
-      .command([...generalOptions, '--output=./test/docs/2'])
+      .command([...generalOptions, `--output=${pathToOutput}`])
       .it(
         'should throw error if output folder is in a git repository',
         (ctx, done) => {
           expect(ctx.stderr).to.contain(
-            'Error: "./test/docs/2" is in a git repository with unstaged changes.'
+            `Error: "${pathToOutput}" is in a git repository with unstaged changes.`
           );
-          cleanup('./test/docs/2');
+          cleanup(pathToOutput);
           done();
         }
       );
   });
 
-  test
-    .stdout()
-    .command([
-      ...generalOptions,
-      '-p=version=1.0.0 mode=development',
-      '--output=./test/docs/3',
-      '--force-write',
-    ])
-    .it('should pass custom param in the template', (ctx, done) => {
-      expect(ctx.stdout).to.contain(
-        'Check out your shiny new generated files at ./test/docs/3.\n\n'
-      );
-      cleanup('./test/docs/3');
-      done();
-    });
+  describe('custom params', () => {
+    test
+      .stdout()
+      .command([
+        ...generalOptions,
+        '-p=version=1.0.0 mode=development',
+        '--output=./test/docs/3',
+        '--force-write',
+      ])
+      .it('should pass custom param in the template', (ctx, done) => {
+        expect(ctx.stdout).to.contain(
+          'Check out your shiny new generated files at ./test/docs/3.\n\n'
+        );
+        cleanup('./test/docs/3');
+        done();
+      });
+  });
 
   describe('disable-hooks', () => {
     test
@@ -140,7 +140,7 @@ describe('template', () => {
       });
   });
 
-  it('should install template', () => {
+  describe('should install template', () => {
     test
       .stdout()
       .command([
