@@ -1,0 +1,41 @@
+asyncapi: 3.0.0
+info:
+  title: Streetlights App
+  version: '1.0.0'
+  description: |
+    The Smartylighting Streetlights application allows you
+    to remotely manage the city lights.
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0'
+servers:
+  mosquitto:
+    host: test.mosquitto.org
+    protocol: mqtt
+channels:
+  lightMeasured:
+    address: 'light/measured'
+    messages:
+      lightMeasuredMessage:
+        name: LightMeasured
+        payload:
+          type: object
+          properties:
+            id:
+              type: integer
+              minimum: 0
+              description: Id of the streetlight.
+            lumens:
+              type: integer
+              minimum: 0
+              description: Light intensity measured in lumens.
+            sentAt:
+              type: string
+              format: date-time
+              description: Date and time when the message was sent.
+operations:
+  onLightMeasured:
+    action: 'receive'
+    summary: Information about environmental lighting conditions for a particular streetlight.
+    channel:
+      $ref: '#/channels/lightMeasured'
