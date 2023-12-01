@@ -2,13 +2,21 @@ This is a [Glee](https://github.com/asyncapi/glee) project bootstrapped with the
 
 ## Getting Started
 
-First, run the development server:
+First, Install Dependencies:
+
+```bash
+npm install --ignore-scripts
+```
+
+
+
+run the development server:
 
 ```bash
 npm run dev
 ```
 
-You can start editing the API by modifying `functions/onHello.js` and `asyncapi.yaml`. The server auto-updates as you edit the file.
+You can start editing the API by modifying `functions/receiveHello.js` and `asyncapi.yaml`. The server auto-updates as you edit the file.
 
 ## Learn More
 

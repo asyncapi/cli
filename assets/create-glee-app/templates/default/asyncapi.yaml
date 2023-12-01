@@ -1,23 +1,29 @@
-asyncapi: 2.6.0
+asyncapi: 3.0.0
 info:
-  title: Hello, Glee!
+  title: 'Hello, Glee!'
   version: 0.1.0
-
 servers:
   websockets:
-    url: ws://0.0.0.0:3000
+    host: '0.0.0.0:3000'
     protocol: ws
-
 channels:
   hello:
-    publish:
-      operationId: onHello
-      message:
+    address: hello
+    messages:
+      hello:
         $ref: '#/components/messages/hello'
-    subscribe:
-      message:
-        $ref: '#/components/messages/hello'
-
+operations:
+  receiveHello:
+    action: receive
+    reply:
+      channel: 
+        $ref: '#/channels/hello'
+    channel:
+      $ref: '#/channels/hello'
+  sendHello:
+    action: send
+    channel:
+      $ref: '#/channels/hello'
 components:
   messages:
     hello:
