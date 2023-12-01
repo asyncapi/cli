@@ -29,7 +29,9 @@ const fetchAsyncAPIExamplesFromExternalURL = () => {
       .on('close', () => {
         console.log('Fetched ZIP file');
         resolve();
-      }).on('error', reject);
+      }).on('error', (error) => {
+        reject(new Error(`Error in Fetching Zip File ${ error.message}`));
+      });
   });
 };
 
@@ -53,8 +55,8 @@ const unzipAsyncAPIExamples = async () => {
       }).on('close', () => {
         console.log('Unzipped all examples from zip');
         resolve();
-      }).on('error', () => {
-        reject();
+      }).on('error', (error) => {
+        reject(new Error(`Error in Unzipping from zip: ${ error.message}`));
       });
   });
 };
@@ -65,7 +67,7 @@ const buildCLIListFromExamples = async () => {
 
   const buildExampleList = examples.map(async example => {
     const examplePath = path.join(EXAMPLE_DIRECTORY, example);
-    const exampleContent = fs.readFileSync(examplePath, { encoding: 'utf-8'});
+    const exampleContent = fs.readFileSync(examplePath, { encoding: 'utf-8' });
 
     try {
       const { document } = await parser.parse(exampleContent);

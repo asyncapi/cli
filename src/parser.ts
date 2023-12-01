@@ -34,8 +34,8 @@ export interface ValidationFlagsOptions {
 }
 
 export enum ValidationStatus {
-  Invalid = "invalid",
-  Valid = "valid",
+  Invalid = 'invalid',
+  Valid = 'valid',
 }
 
 export function validationFlags({ logDiagnostics = true }: ValidationFlagsOptions = {}) {
