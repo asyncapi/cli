@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run"
@@ -15,8 +15,8 @@
     "@asyncapi/generator": "^1.15.1",
     "@asyncapi/modelina": "^2.0.2",
     "@asyncapi/openapi-schema-parser": "^3.0.5",
-    "@asyncapi/optimizer": "^0.2.3",
-    "@asyncapi/parser": "^3.0.0-next-major-spec.2",
+    "@asyncapi/optimizer": "^0.2.4",
+    "@asyncapi/parser": "^3.0.0",
     "@asyncapi/protobuf-schema-parser": "3.0.0",
     "@asyncapi/raml-dt-schema-parser": "^4.0.6",
     "@asyncapi/studio": "^0.17.3",
