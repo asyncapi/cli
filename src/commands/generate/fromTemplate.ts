@@ -319,7 +319,7 @@ export default class Template extends Command {
     const s = interactive ? spinner() : { start: () => null, stop: (string: string) => console.log(string) };
     s.start('Generation in progress. Keep calm and wait a bit');
     try {
-      await generator.generateFromString(specification.text(), genOption);
+      await generator.generateFromString(specification.text(), {...genOption, path: asyncapi});
     } catch (err: any) {
       s.stop('Generation failed');
       throw new GeneratorError(err);
