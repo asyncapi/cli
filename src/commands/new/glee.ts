@@ -5,10 +5,9 @@ import { resolve, join } from "path";
 import fs from "fs-extra";
 import { load } from "../../models/SpecificationFile";
 import { parse } from "../../parser";
-import { createTypes } from "utils/createTypes";
-import { convertToJSONSchema } from "../../utils/convertToJsonSchema";
+import { createTypes } from "../../utils/createTypes";
 import Handlebars from "handlebars";
-import fileTemplate from "./template";
+import fileTemplate from "../../utils/functionTemplate";
 
 export default class NewGlee extends Command {
   static description = "Creates a new Glee project";
@@ -35,35 +34,27 @@ export default class NewGlee extends Command {
     const { args, flags } = await this.parse(NewGlee); // NOSONAR
 
     const projectName = flags.name;
-    // console.log(flags.name , {flags} , {args})
 
     const PROJECT_DIRECTORY = join(process.cwd(), projectName);
     const GLEE_TEMPLATES_DIRECTORY = resolve(
       __dirname,
       "../../../assets/create-glee-app/templates/default",
     );
-    let operationList: Array<any> = [];
     let response: any;
-    let asyncApiFile: any;
-    const requiredList: any = [];
+    let asyncApiFile: any = "";
+    const operationList: any = [];
+    const serverList: any = [];
 
     try {
       await fPromises.mkdir(PROJECT_DIRECTORY);
       const document = await load(args.file);
-      console.log({ document }, this);
       response = await parse(this, document);
 
-      console.log(response);
-      asyncApiFile = response.document._meta.asyncapi.input;
-      console.log(response.document);
+      asyncApiFile = document.text();
 
-      operationList = Object.keys(response.document._json.operations);
-      //console.log({ operationList });
       const operationArray: Array<any> = Object.entries(
         response.document._json.operations,
       );
-
-      // const operationTypeArray: Array<any> = [];
       for (const value of operationArray) {
         const currentFunctionObject = {
           name: "",
@@ -71,11 +62,15 @@ export default class NewGlee extends Command {
         };
 
         currentFunctionObject.name = value[0];
-        const response = convertToJSONSchema(value[1].messages);
-        console.log(response);
-        currentFunctionObject.payload = response;
+        currentFunctionObject.payload = value[1].messages;
+        operationList.push(currentFunctionObject);
+      }
 
-        requiredList.push(currentFunctionObject);
+      const serverArray: Array<any> = Object.entries(
+        response.document._json.servers,
+      );
+      for (const value of serverArray) {
+        serverList.push(value[0]);
       }
     } catch (err: any) {
       switch (err.code) {
@@ -100,22 +95,40 @@ export default class NewGlee extends Command {
           );
       }
     }
-    // await createTypes();
 
     const createOperationFunction = async () => {
-      for (const value of requiredList) {
+      for (const value of operationList) {
+        if (value.name.includes(".")) {
+          let name = value.name.split(".");
+          name =
+            name[0].toLowerCase() +
+            name[1].charAt(0).toUpperCase() +
+            name[1].slice(1).toLowerCase();
+
+          value.name = name;
+        }
+        const payloadType = await createTypes(value.payload);
         const template = Handlebars.compile(fileTemplate);
         const fileContent = template({
-          payload: value.payload,
-          functionName: value.functionName,
+          payloadType: payloadType,
+          functionName: value.name,
         });
-        console.log(value.payload);
         await fPromises.writeFile(
           `${PROJECT_DIRECTORY}/functions/${value.name}.ts`,
           fileContent,
         );
       }
     };
+
+    const addServerToEnv = async () => {
+      for (const value of serverList) {
+        await fPromises.writeFile(
+          `${PROJECT_DIRECTORY}/.env`,
+          `GLEE_SERVER_NAMES=${value}`,
+        );
+      }
+    };
+
     try {
       await fs.copy(GLEE_TEMPLATES_DIRECTORY, PROJECT_DIRECTORY);
       await fPromises.rename(
@@ -139,6 +152,7 @@ export default class NewGlee extends Command {
         asyncApiFile,
       );
 
+      await addServerToEnv();
       this.log(
         `Your project "${projectName}" has been created successfully!\n\nNext steps:\n\n  cd ${projectName}\n  npm install\n  npm run dev\n\nAlso, you can already open the project in your favorite editor and start tweaking it.`,
       );
@@ -148,7 +162,4 @@ export default class NewGlee extends Command {
       );
     }
   }
-  // const parseDocument = async () =>{
-
-  // }
 }
