@@ -1,20 +1,17 @@
 import { TypeScriptGenerator } from "@asyncapi/modelina";
 
-const generator = new TypeScriptGenerator({ modelType: "interface" });
-const jsonSchemaDraft7 = {
-  type: "object",
-  properties: {
-    hello: {
-      type: "string",
+const generator = new TypeScriptGenerator({
+  modelType: "interface",
+  constraints: {
+    modelName: () => {
+      return "PayloadType";
     },
   },
-};
+});
 
-export async function createTypes(): Promise<void> {
-  console.log("the function is running.");
-  const models = await generator.generate(jsonSchemaDraft7);
+export async function createTypes(payload): Promise<any> {
+  const models = await generator.generate(payload[0].payload);
   for (const model of models) {
-    console.log(model.result);
+    return model.result;
   }
-  console.log({ models });
 }
