@@ -9,7 +9,7 @@ const generator = new TypeScriptGenerator({
   },
 });
 
-export async function createTypes(payload): Promise<any> {
+export async function createTypes(payload: any): Promise<any> {
   const models = await generator.generate(payload[0].payload);
   for (const model of models) {
     return model.result;
