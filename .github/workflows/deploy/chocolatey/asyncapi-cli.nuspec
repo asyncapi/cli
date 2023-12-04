@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>asyncapi</id>
+    <version>{{version}}</version>
+    <packageSourceUrl>https://github.com/asyncapi/cli/releases</packageSourceUrl>
+    <owners>AsyncAPI, shurtugal</owners>
+
+    <!-- == SOFTWARE SPECIFIC SECTION == -->
+    <!-- This section is about the software itself -->
+    <title>asyncapi-cli</title>
+    <authors>AsyncAPI, shurtugal</authors>
+    <projectUrl>https://www.asyncapi.com/</projectUrl>
+    <iconUrl>https://avatars.githubusercontent.com/u/16401334?s=200</iconUrl>
+    <copyright>2023 AsyncAPI</copyright>
+    <licenseUrl>https://github.com/asyncapi/cli/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/asyncapi/cli</projectSourceUrl>
+    <docsUrl>https://www.asyncapi.com/docs/tools/cli</docsUrl>
+    <bugTrackerUrl>https://github.com/asyncapi/cli/issues/new/choose</bugTrackerUrl>
+    <tags>asyncapi-cli cli nodejs api asyncapi</tags>
+    <description>CLI to work with your AsyncAPI files. You can validate them and in the future use a generator and even bootstrap a new file. Contributions are welcomed!</description>
+  </metadata>
+  <files>
+    <!-- this section controls what actually gets packaged into the Chocolatey package -->
+    <file src="tools\**" target="tools" />
+  </files>
+</package>

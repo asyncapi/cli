@@ -1,7 +1,6 @@
-import {Hook, toConfiguredId, CliUx} from '@oclif/core';
+import {Help, Hook, toConfiguredId, CliUx} from '@oclif/core';
 import chalk from 'chalk';
 import {default as levenshtein} from 'fast-levenshtein';
-import { Help } from '@oclif/core';
 
 export const closest = (target: string, possibilities: string[]): string =>
   possibilities

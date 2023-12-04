@@ -1,0 +1,21 @@
+{
+  "name": "glee-tutorial",
+  "version": "0.1.0",
+  "description": "Tutorial from the AsyncAPI website.",
+  "type": "module",
+  "engines": {
+    "node": ">=14.15.1"
+  },
+  "scripts": {
+    "dev": "glee dev",
+    "start": "glee start"
+  },
+  "keywords": [
+    "glee"
+  ],
+  "author": "Fran Mendez",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@asyncapi/glee": "^0.31.3"
+  }
+}
