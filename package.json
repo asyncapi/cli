@@ -10,7 +10,7 @@
   "dependencies": {
     "@asyncapi/avro-schema-parser": "^3.0.6",
     "@asyncapi/bundler": "^0.3.8",
-    "@asyncapi/converter": "^1.4.3",
+    "@asyncapi/converter": "^1.4.5",
     "@asyncapi/diff": "^0.4.1",
     "@asyncapi/generator": "^1.15.3",
     "@asyncapi/modelina": "^2.0.2",
