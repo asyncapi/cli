@@ -20,9 +20,6 @@ export default class Validate extends Command {
   ];
 
   async run() {
-    // Metrics recording when command is invoked
-    await this.recordActionInvoked('validate');
-
     const { args, flags } = await this.parse(Validate); //NOSONAR
     const filePath = args['spec-file'];
     const watchMode = flags.watch;

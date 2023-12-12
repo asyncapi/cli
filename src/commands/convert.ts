@@ -29,9 +29,6 @@ export default class Convert extends Command {
   ];
 
   async run() {
-    // Metrics recording when command is invoked
-    await this.recordActionInvoked('convert');
-
     const { args, flags } = await this.parse(Convert);
     const filePath = args['spec-file'];
     let specFile;

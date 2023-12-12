@@ -62,6 +62,12 @@ export default abstract class extends Command {
       }
     }
   }
+
+  async init(): Promise<void> {
+    await super.init();
+    const commandName : string = this.id || '';
+    await this.recordActionInvoked(commandName);
+  }
 }
 
 function recorderFromEnv(prefix: string): Recorder {

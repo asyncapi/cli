@@ -112,9 +112,6 @@ export default class Template extends Command {
   parser = new Parser();
 
   async run() {
-    // Metrics recording when command is invoked
-    await this.recordActionInvoked('generate_from_template');
-
     const { args, flags } = await this.parse(Template); // NOSONAR
 
     const asyncapi = args['asyncapi'];
