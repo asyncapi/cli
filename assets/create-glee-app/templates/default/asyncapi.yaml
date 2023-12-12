@@ -12,8 +12,6 @@ channels:
     messages:
       onHelloMessage:
         $ref: '#/components/messages/hello'
-      subscribeMessage:
-        $ref: '#/components/messages/hello'
 operations:
   onHello:
     action: receive
