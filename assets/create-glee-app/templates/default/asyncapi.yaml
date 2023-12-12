@@ -20,13 +20,12 @@ operations:
     channel:
       $ref: '#/channels/hello'
     messages:
-      - $ref: '#/channels/hello/messages/onHelloMessage'
-  onHelloReply:
-    action: send
-    channel:
-      $ref: '#/channels/hello'
-    messages:
-      - $ref: '#/channels/hello/messages/subscribeMessage'
+      - $ref: '#/components/messages/hello'
+    reply:
+      channel:
+        $ref: '#/channels/hello'
+      messages:
+        - $ref: '#/components/messages/hello'
 components:
   messages:
     hello:
