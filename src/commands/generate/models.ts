@@ -322,7 +322,7 @@ export default class Models extends Command {
       const models = await fileGenerator.generateToFiles(
         convertedDoc as any,
         output,
-        { ...fileOptions, } as any);
+        { ...fileOptions, });
       const generatedModels = models.map((model) => { return model.modelName; });
       this.log(`Successfully generated the following models: ${generatedModels.join(', ')}`);
       return;
@@ -330,7 +330,7 @@ export default class Models extends Command {
 
     const models = await fileGenerator.generateCompleteModels(
       convertedDoc as any,
-      { ...fileOptions } as any);
+      { ...fileOptions });
     const generatedModels = models.map((model) => {
       return `
 ## Model name: ${model.modelName}
