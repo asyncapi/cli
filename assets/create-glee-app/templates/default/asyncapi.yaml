@@ -10,20 +10,16 @@ channels:
   hello:
     address: hello
     messages:
-      onHelloMessage:
+      hello:
         $ref: '#/components/messages/hello'
 operations:
   onHello:
     action: receive
     channel:
       $ref: '#/channels/hello'
-    messages:
-      - $ref: '#/components/messages/hello'
     reply:
       channel:
         $ref: '#/channels/hello'
-      messages:
-        - $ref: '#/components/messages/hello'
 components:
   messages:
     hello:
