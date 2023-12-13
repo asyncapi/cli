@@ -52,7 +52,7 @@ export default abstract class extends Command {
     await this.recordActionMetric(callable);
   }
 
-  async recordActionMetric(recordFunc: (recorder: Recorder) => void) {
+  async recordActionMetric(recordFunc: (recorder: Recorder) => Promise<void>) {
     try {
       await recordFunc(this.recorder);
       await this.recorder.flush();
