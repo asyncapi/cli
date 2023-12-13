@@ -11,7 +11,6 @@ import { watchFlag } from '../../flags';
 import { isLocalTemplate, Watcher } from '../../utils/generator';
 import { ValidationError } from '../../errors/validation-error';
 import { GeneratorError } from '../../errors/generator-error';
-import { MetadataFromDocument } from '@smoya/asyncapi-adoption-metrics';
 import { Parser } from '@asyncapi/parser';
 
 import type { Example } from '@oclif/core/lib/interfaces';

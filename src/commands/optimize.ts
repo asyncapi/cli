@@ -7,7 +7,6 @@ import * as inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
 import { Example } from '@oclif/core/lib/interfaces';
-import { MetadataFromDocument } from '@smoya/asyncapi-adoption-metrics';
 import { Parser } from '@asyncapi/parser';
 
 const { writeFile } = promises;
