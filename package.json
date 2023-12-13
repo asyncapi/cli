@@ -14,7 +14,7 @@
     "@asyncapi/diff": "^0.4.1",
     "@asyncapi/generator": "^1.15.7",
     "@asyncapi/modelina": "^2.0.9",
-    "@asyncapi/openapi-schema-parser": "^3.0.5",
+    "@asyncapi/openapi-schema-parser": "^3.0.10",
     "@asyncapi/optimizer": "^0.2.6",
     "@asyncapi/parser": "^3.0.2",
     "@asyncapi/protobuf-schema-parser": "^3.0.5",
