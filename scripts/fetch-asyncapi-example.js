@@ -86,7 +86,7 @@ const buildCLIListFromExamples = async () => {
     }
   });
 
-  const exampleList = await Promise.all(buildExampleList);
+  const exampleList = (await Promise.all(buildExampleList)).filter(item => item!==null);
   const orderedExampleList = exampleList.sort((a, b) => a.name.localeCompare(b.name));
 
   fs.writeFileSync(path.join(EXAMPLE_DIRECTORY, 'examples.json'), JSON.stringify(orderedExampleList, null, 4));
