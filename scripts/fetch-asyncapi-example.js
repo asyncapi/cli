@@ -71,7 +71,7 @@ const buildCLIListFromExamples = async () => {
       const { document } = await parser.parse(exampleContent);
       // Failed for somereason to parse this spec file (document is undefined), ignore for now
       if (!document) {
-        return;
+        return null;
       }
 
       const title = document.info().title();
@@ -82,11 +82,11 @@ const buildCLIListFromExamples = async () => {
       };
     } catch (error) {
       // Failed for somereason to parse this spec file, ignore for now
-      console.error(error);
+      return null;
     }
   });
 
-  const exampleList = (await Promise.all(buildExampleList)).filter(item => item!==null);
+  const exampleList = (await Promise.all(buildExampleList)).filter(item => item !== null);
   const orderedExampleList = exampleList.sort((a, b) => a.name.localeCompare(b.name));
 
   fs.writeFileSync(path.join(EXAMPLE_DIRECTORY, 'examples.json'), JSON.stringify(orderedExampleList, null, 4));
