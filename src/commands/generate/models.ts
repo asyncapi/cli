@@ -1,4 +1,4 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, CSHARP_NEWTONSOFT_SERIALIZER_PRESET, CSHARP_COMMON_PRESET, CSHARP_JSON_SERIALIZER_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET, PhpFileGenerator, CplusplusFileGenerator } from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, CSHARP_NEWTONSOFT_SERIALIZER_PRESET, CSHARP_COMMON_PRESET, CSHARP_JSON_SERIALIZER_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET, PhpFileGenerator, CplusplusFileGenerator, JAVA_CONSTRAINTS_PRESET, JAVA_JACKSON_PRESET, JAVA_COMMON_PRESET, JAVA_DESCRIPTION_PRESET } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import { ConvertDocumentParserAPIVersion } from '@smoya/multi-parser';
 import Command from '../../base';
@@ -100,6 +100,24 @@ export default class Models extends Command {
       description: 'Go, Java and Kotlin specific, define the package to use for the generated models. This is required when language is `go`, `java` or `kotlin`.',
       required: false
     }),
+    /**
+     * Java specific options
+     */
+    javaIncludeComments: Flags.boolean({
+      description: 'Java specific, if enabled add comments while generating models.',
+      required: false,
+      default: false
+    }),
+    javaJackson: Flags.boolean({
+      description: 'Java specific, generate the models with Jackson serialization support',
+      required: false,
+      default: false
+    }),
+    javaConstraints: Flags.boolean({
+      description: 'Java specific, generate the models with constraints',
+      required: false,
+      default: false
+    }),
 
     /**
      * C++ and C# and PHP specific namespace to use for the generated models
@@ -150,7 +168,7 @@ export default class Models extends Command {
   /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, tsExampleInstance, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, output } = flags;
+    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, tsExampleInstance, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, javaIncludeComments, javaJackson, javaConstraints, output } = flags;
     const { language, file } = args;
     const inputFile = (await load(file)) || (await load());
     if (inputFile.isAsyncAPI3()) {
@@ -279,7 +297,26 @@ export default class Models extends Command {
       if (packageName === undefined) {
         throw new Error('In order to generate models to Java, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
       }
-      fileGenerator = new JavaFileGenerator();
+      presets.push({
+        preset: JAVA_COMMON_PRESET,
+        options
+      });
+      if (javaIncludeComments) {presets.push(JAVA_DESCRIPTION_PRESET);}
+      if (javaJackson) {
+        presets.push({
+          preset: JAVA_COMMON_PRESET,
+          options
+        },
+        JAVA_JACKSON_PRESET);
+      }
+      if (javaConstraints) {
+        presets.push({
+          preset: JAVA_COMMON_PRESET,
+          options
+        },
+        JAVA_CONSTRAINTS_PRESET);
+      }
+      fileGenerator = new JavaFileGenerator({ presets });
       fileOptions = {
         packageName
       };
