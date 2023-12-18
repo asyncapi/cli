@@ -9,7 +9,7 @@ class DiscardSink implements Sink {
 }
 
 export default abstract class extends Command {
-  recorder = recorderFromEnv('asyncapi_adoption');
+  recorder = this.recorderFromEnv('asyncapi_adoption');
   parser = new Parser();
 
   async catch(err: Error & { exitCode?: number; }): Promise<any> {
@@ -68,25 +68,27 @@ export default abstract class extends Command {
     const commandName : string = this.id || '';
     await this.recordActionInvoked(commandName);
   }
-}
 
-function recorderFromEnv(prefix: string): Recorder {
-  let sink: Sink = new DiscardSink();
-  if (process.env.ASYNCAPI_METRICS !== 'false') {
-    switch (process.env.NODE_ENV) {
-    case 'development':
-      // NODE_ENV set to `development` in bin/run
-      if (!process.env.TEST) {
-        // Do not pollute stdout when running tests
-        sink = new StdOutSink();
+  recorderFromEnv(prefix: string): Recorder {
+    let sink: Sink = new DiscardSink();
+    if (process.env.ASYNCAPI_METRICS !== 'false') {
+      switch (process.env.NODE_ENV) {
+      case 'development':
+        // NODE_ENV set to `development` in bin/run
+        if (!process.env.TEST) {
+          // Do not pollute stdout when running tests
+          sink = new StdOutSink();
+        }
+        break;
+      case 'production':
+        // NODE_ENV set to `production` in bin/run_bin, which is specified in 'bin' package.json section
+        sink = new NewRelicSink('eu01xx73a8521047150dd9414f6aedd2FFFFNRAL');
+        this.warn('AsyncAPI anonymously tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.\n\nTo disable tracking, set the "ASYNCAPI_METRICS" env variable to "false" when executing the command. For instance:\n\nASYNCAPI_METRICS=false asyncapi validate spec_file.yaml');
+        break;
       }
-      break;
-    case 'production':
-      // NODE_ENV set to `production` in bin/run_bin, which is specified in 'bin' package.json section
-      sink = new NewRelicSink('eu01xx73a8521047150dd9414f6aedd2FFFFNRAL');
-      break;
     }
+  
+    return new Recorder(prefix, sink);
   }
-
-  return new Recorder(prefix, sink);
 }
+
