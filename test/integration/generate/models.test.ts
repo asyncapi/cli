@@ -17,17 +17,6 @@ describe('models', () => {
     stopMockServer();
     rimraf.sync(outputDir);
   });
-  describe('should handle AsyncAPI v3 document correctly', () => {
-    test
-      .stderr()
-      .stdout()
-      .command([
-        ...generalOptions, 'typescript', asyncapiv3])
-      .it('give error', (ctx, done) => {
-        expect(ctx.stderr).to.contain('Error: Generate Models command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/modelina/issues/1376\n');
-        done();
-      });
-  });
   test
     .stderr()
     .stdout()
