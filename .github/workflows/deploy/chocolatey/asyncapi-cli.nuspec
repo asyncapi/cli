@@ -5,21 +5,23 @@
     <id>asyncapi</id>
     <version>{{version}}</version>
     <packageSourceUrl>https://github.com/asyncapi/cli/releases</packageSourceUrl>
-    <owners>AsyncAPI, shurtugal</owners>
+    <owners>AsyncAPI_Initiative</owners>
 
     <!-- == SOFTWARE SPECIFIC SECTION == -->
     <!-- This section is about the software itself -->
     <title>asyncapi-cli</title>
-    <authors>AsyncAPI, shurtugal</authors>
+    <authors>AsyncAPI_Initiative</authors>
     <projectUrl>https://www.asyncapi.com/</projectUrl>
     <iconUrl>https://avatars.githubusercontent.com/u/16401334?s=200</iconUrl>
-    <copyright>2023 AsyncAPI</copyright>
+    <copyright>2023 AsyncAPI Initiative</copyright>
     <licenseUrl>https://github.com/asyncapi/cli/blob/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <releaseNotes>https://github.com/asyncapi/cli/releases/v{{version}}</releaseNotes>
     <projectSourceUrl>https://github.com/asyncapi/cli</projectSourceUrl>
     <docsUrl>https://www.asyncapi.com/docs/tools/cli</docsUrl>
     <bugTrackerUrl>https://github.com/asyncapi/cli/issues/new/choose</bugTrackerUrl>
     <tags>asyncapi-cli cli nodejs api asyncapi</tags>
+    <summary>CLI to work with your AsyncAPI files. You can validate them and in the future use a generator and even bootstrap a new file. Contributions are welcomed!</summary>
     <description>CLI to work with your AsyncAPI files. You can validate them and in the future use a generator and even bootstrap a new file. Contributions are welcomed!</description>
   </metadata>
   <files>
