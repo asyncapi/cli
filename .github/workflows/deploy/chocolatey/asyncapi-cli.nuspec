@@ -4,7 +4,7 @@
   <metadata>
     <id>asyncapi</id>
     <version>{{version}}</version>
-    <packageSourceUrl>https://github.com/asyncapi/cli/releases</packageSourceUrl>
+    <packageSourceUrl>https://github.com/asyncapi/cli/releases/v{{version}}</packageSourceUrl>
     <owners>AsyncAPI_Initiative</owners>
 
     <!-- == SOFTWARE SPECIFIC SECTION == -->
