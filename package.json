@@ -13,7 +13,7 @@
     "@asyncapi/converter": "^1.4.7",
     "@asyncapi/diff": "^0.4.1",
     "@asyncapi/generator": "^1.15.9",
-    "@asyncapi/modelina": "^2.0.14",
+    "@asyncapi/modelina": "^2.1.0",
     "@asyncapi/openapi-schema-parser": "^3.0.10",
     "@asyncapi/optimizer": "^0.2.7",
     "@asyncapi/parser": "^3.0.2",
