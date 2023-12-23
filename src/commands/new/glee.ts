@@ -1,5 +1,4 @@
 import { Flags } from "@oclif/core";
-import { promises as fPromises } from "fs";
 import Command from "../../base";
 
 export default class NewGlee extends Command {
@@ -26,10 +25,12 @@ export default class NewGlee extends Command {
     const { args, flags } = await this.parse(NewGlee); // NOSONAR
     const { file } = args;
 
+    const gitrepo = "https://github.com/KhudaDad414/glee-generator-template";
     try {
       await this.config.runCommand("generate:fromTemplate", [
         file,
-        "https://github.com/KhudaDad414/glee-generator-template",
+        gitrepo,
+        `--output=${flags.name}`,
       ]);
     } catch (error) {
       console.log(error);
