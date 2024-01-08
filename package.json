@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "1.2.32",
+  "version": "1.2.33",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run"
