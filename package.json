@@ -1,17 +1,18 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "1.2.10",
+  "version": "1.2.34",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run"
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
-    "@asyncapi/avro-schema-parser": "^3.0.7",
-    "@asyncapi/bundler": "^0.3.8",
-    "@asyncapi/converter": "^1.4.5",
+    "@asyncapi/avro-schema-parser": "^3.0.9",
+    "@asyncapi/bundler": "^0.4.0",
+    "@asyncapi/converter": "^1.4.7",
     "@asyncapi/diff": "^0.4.1",
+<<<<<<< HEAD
     "@asyncapi/generator": "^1.15.3",
     "@asyncapi/modelina": "^2.0.2",
     "@asyncapi/openapi-schema-parser": "^3.0.5",
@@ -19,6 +20,15 @@
     "@asyncapi/parser": "^3.0.1",
     "@asyncapi/protobuf-schema-parser": "^3.0.4",
     "@asyncapi/raml-dt-schema-parser": "^4.0.6",
+=======
+    "@asyncapi/generator": "^1.16.0",
+    "@asyncapi/modelina": "^2.1.1",
+    "@asyncapi/openapi-schema-parser": "^3.0.10",
+    "@asyncapi/optimizer": "^0.2.7",
+    "@asyncapi/parser": "^3.0.2",
+    "@asyncapi/protobuf-schema-parser": "^3.0.6",
+    "@asyncapi/raml-dt-schema-parser": "^4.0.10",
+>>>>>>> master
     "@asyncapi/studio": "^0.17.3",
     "@oclif/core": "^1.26.2",
     "@oclif/errors": "^1.3.6",

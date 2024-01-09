@@ -1,5 +1,7 @@
 FROM node:16-alpine
 
+ARG ASYNCAPI_CLI_VERSION=0.59.1
+
 # Create a non-root user
 RUN addgroup -S myuser && adduser -S myuser -G myuser
 
@@ -16,7 +18,7 @@ RUN apk --update add git chromium && \
     rm /var/cache/apk/*
 
 # Installing latest released npm package
-RUN npm install --ignore-scripts -g @asyncapi/cli
+RUN npm install --ignore-scripts -g @asyncapi/cli@"$ASYNCAPI_CLI_VERSION"
 
 # Switch to the non-root user
 USER myuser
