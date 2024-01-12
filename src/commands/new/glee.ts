@@ -50,23 +50,22 @@ export default class NewGlee extends Command {
       this.error("You cannot use both --t and --f in the same command.");
     }
     if (file) {
-      const asyncapiInput = (await load(file)) || (await load());
-
-      const serversObject = asyncapiInput.toJson().servers;
-      const servers = Object.keys(serversObject);
-      const remoteServers = [];
-      for (const server of servers) {
-        const isRemote = await CliUx.ux.confirm(
-          `Is "${server}" a remote server`,
-        );
-        remoteServers.push({ server, isRemote });
-      }
-
-      const selectedRemoteServers = remoteServers
-        .filter(({ isRemote }) => isRemote)
-        .map(({ server }) => server);
-
       try {
+        const asyncapiInput = (await load(file)) || (await load());
+
+        const serversObject = asyncapiInput.toJson().servers;
+        const servers = Object.keys(serversObject);
+        const remoteServers = [];
+        for (const server of servers) {
+          const isRemote = await CliUx.ux.confirm(
+            `Is "${server}" a remote server`,
+          );
+          remoteServers.push({ server, isRemote });
+        }
+
+        const selectedRemoteServers = remoteServers
+          .filter(({ isRemote }) => isRemote)
+          .map(({ server }) => server);
         const asyncapiObject = asyncapiInput.toJson();
         asyncapiObject["x-remoteServers"] = selectedRemoteServers;
 
