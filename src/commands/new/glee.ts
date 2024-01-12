@@ -46,7 +46,7 @@ export default class NewGlee extends Command {
     const currentTemplateName =
       'https://github.com/KhudaDad414/glee-generator-template';
 
-    if (file && templateName && templateName != 'default') {
+    if (file && templateName && templateName !== 'default') {
       this.error('You cannot use both --t and --f in the same command.');
     }
     if (file) {
