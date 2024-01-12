@@ -6,6 +6,7 @@ import { promises } from 'fs';
 import path from 'path';
 import { Specification, load } from '../models/SpecificationFile';
 import { Parser } from '@asyncapi/parser';
+import { Document } from '@asyncapi/bundler/lib/document';
 
 const { writeFile } = promises;
 
@@ -36,6 +37,8 @@ export default class Bundle extends Command {
     const outputFormat = path.extname(argv[0]);
     const AsyncAPIFiles = await this.loadFiles(argv);
 
+    this.metricsMetadata.files = AsyncAPIFiles.length;
+
     const containsAsyncAPI3 = AsyncAPIFiles.filter((file) => {
       return file.isAsyncAPI3();
     });
@@ -53,6 +56,8 @@ export default class Bundle extends Command {
         base: baseFile
       }
     );
+    
+    await this.collectMetricsData(document);
 
     if (!output) {
       if (outputFormat === '.yaml' || outputFormat === '.yml') {
@@ -76,11 +81,17 @@ export default class Bundle extends Command {
       }
       this.log(`Check out your shiny new bundled files at ${output}`);
     }
+  }
 
-    const result = await load(output);
-
-    // Metrics recording.
-    await this.recordActionExecuted(result.text(), {success: true, files: AsyncAPIFiles.length});
+  private async collectMetricsData(document: Document) {
+    try {
+      // We collect the metadata from the final output so it contains all the files
+      this.specFile = await load(new Specification(document.string()).text());
+    } catch (e: any) {
+      if (e instanceof Error) {
+        this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
+      }
+    }
   }
 
   async loadFiles(filepaths: string[]): Promise<Specification[]> {

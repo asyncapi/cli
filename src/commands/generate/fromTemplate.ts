@@ -12,7 +12,6 @@ import { isLocalTemplate, Watcher } from '../../utils/generator';
 import { ValidationError } from '../../errors/validation-error';
 import { GeneratorError } from '../../errors/generator-error';
 import { Parser } from '@asyncapi/parser';
-
 import type { Example } from '@oclif/core/lib/interfaces';
 
 const red = (text: string) => `\x1b[31m${text}\x1b[0m`;
@@ -127,6 +126,9 @@ export default class Template extends Command {
       disabledHooks: parsedFlags.disableHooks,
     };
     const asyncapiInput = (await load(asyncapi)) || (await load());
+    
+    this.specFile = asyncapiInput;
+    this.metricsMetadata.template = template;
 
     const watchTemplate = flags['watch'];
     const genOption: any = {};
@@ -145,9 +147,6 @@ export default class Template extends Command {
       const watcherHandler = this.watcherHandler(asyncapi, template, output, options, genOption);
       await this.runWatchMode(asyncapi, template, output, watcherHandler);
     }
-
-    // Metrics recording.
-    await this.recordActionExecuted('generate_from_template', {success: true, template}, asyncapiInput.text());
   }
 
   private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string): ParsedFlags {

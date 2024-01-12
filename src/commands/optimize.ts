@@ -2,7 +2,7 @@ import { Flags } from '@oclif/core';
 import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
-import { load, Specification } from '../models/SpecificationFile';
+import { load } from '../models/SpecificationFile';
 import * as inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
@@ -14,7 +14,7 @@ const { writeFile } = promises;
 export enum Optimizations {
   REMOVE_COMPONENTS='remove-components',
   REUSE_COMPONENTS='reuse-components',
-  MOVE_TO_COMPONETS='move-to-components'
+  MOVE_TO_COMPONENTS='move-to-components'
 }
 
 export enum Outputs {
@@ -51,9 +51,9 @@ export default class Optimize extends Command {
   async run() {
     const { args, flags } = await this.parse(Optimize); //NOSONAR
     const filePath = args['spec-file'];
-    let specFile: Specification;
+
     try {
-      specFile = await load(filePath);
+      this.specFile = await load(filePath);
     } catch (err) {
       this.error(
         new ValidationError({
@@ -63,14 +63,14 @@ export default class Optimize extends Command {
       );
     }
 
-    if (specFile.isAsyncAPI3()) {
+    if (this.specFile.isAsyncAPI3()) {
       this.error('Optimize command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/optimizer/issues/168');
     }
 
     let optimizer: Optimizer;
     let report: Report;
     try {
-      optimizer = new Optimizer(specFile.text());
+      optimizer = new Optimizer(this.specFile.text());
       report = await optimizer.getReport();
     } catch (err) {
       this.error(
@@ -84,8 +84,10 @@ export default class Optimize extends Command {
     this.optimizations = flags.optimization as Optimizations[];
     this.outputMethod = flags.output as Outputs;
 
+    this.metricsMetadata.optimizations = this.optimizations;
+
     if (!(report.moveToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length)) {
-      this.log(`No optimization has been applied since ${specFile.getFilePath() ?? specFile.getFileURL()} looks optimized!`);
+      this.log(`No optimization has been applied since ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} looks optimized!`);
       return;
     }
 
@@ -96,12 +98,12 @@ export default class Optimize extends Command {
 
     try {
       const optimizedDocument = optimizer.getOptimizedDocument({rules: {
-        moveToComponents: this.optimizations.includes(Optimizations.MOVE_TO_COMPONETS),
+        moveToComponents: this.optimizations.includes(Optimizations.MOVE_TO_COMPONENTS),
         removeComponents: this.optimizations.includes(Optimizations.REMOVE_COMPONENTS),
         reuseComponents: this.optimizations.includes(Optimizations.REUSE_COMPONENTS)
       }, output: Output.YAML});
 
-      const specPath = specFile.getFilePath();
+      const specPath = this.specFile.getFilePath();
       let newPath = '';
 
       if (specPath) {
@@ -127,9 +129,6 @@ export default class Optimize extends Command {
         err: error
       });
     }
-
-    // Metrics recording.
-    await this.recordActionExecuted('optimize', {success: true, optimizations: this.optimizations}, specFile.text());
   }
 
   private showOptimizations(elements: ReportElement[] | undefined) {
@@ -159,7 +158,7 @@ export default class Optimize extends Command {
       const totalMove = report.moveToComponents?.filter((e: ReportElement) => e.action === 'move').length;
       this.log(`\n${chalk.green(totalMove)} components can be moved to the components sections.\nthe following changes will be made:`);
       this.showOptimizations(report.moveToComponents);
-      choices.push({name: 'move to components section', value: Optimizations.MOVE_TO_COMPONETS});
+      choices.push({name: 'move to components section', value: Optimizations.MOVE_TO_COMPONENTS});
     }
     if (canRemove) {
       const totalMove = report.removeComponents?.length;

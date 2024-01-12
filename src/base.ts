@@ -1,6 +1,7 @@
 import { Command } from '@oclif/core';
 import { MetadataFromDocument, MetricMetadata, NewRelicSink, Recorder, Sink, StdOutSink } from '@smoya/asyncapi-adoption-metrics';
 import { Parser } from '@asyncapi/parser';
+import { Specification } from 'models/SpecificationFile';
 
 class DiscardSink implements Sink {
   async send() {
@@ -11,6 +12,14 @@ class DiscardSink implements Sink {
 export default abstract class extends Command {
   recorder = this.recorderFromEnv('asyncapi_adoption');
   parser = new Parser();
+  metricsMetadata: MetricMetadata = {};
+  specFile: Specification | undefined;
+
+  async init(): Promise<void> {
+    await super.init();
+    const commandName : string = this.id || '';
+    await this.recordActionInvoked(commandName);
+  }
 
   async catch(err: Error & { exitCode?: number; }): Promise<any> {
     try {
@@ -36,7 +45,7 @@ export default abstract class extends Command {
         }
       }
     }
-
+    
     const callable = async function(recorder: Recorder) {
       await recorder.recordActionExecuted(action, metadata);
     };
@@ -63,10 +72,10 @@ export default abstract class extends Command {
     }
   }
 
-  async init(): Promise<void> {
-    await super.init();
-    const commandName : string = this.id || '';
-    await this.recordActionInvoked(commandName);
+  async finally(error: Error | undefined): Promise<any> {
+    await super.finally(error);
+    this.metricsMetadata['success'] = error === undefined;
+    await this.recordActionExecuted(this.id as string, this.metricsMetadata, this.specFile?.text());
   }
 
   recorderFromEnv(prefix: string): Recorder {
@@ -82,7 +91,7 @@ export default abstract class extends Command {
         break;
       case 'production':
         // NODE_ENV set to `production` in bin/run_bin, which is specified in 'bin' package.json section
-        sink = new NewRelicSink('eu01xx73a8521047150dd9414f6aedd2FFFFNRAL');
+        sink = new NewRelicSink(process.env.ASYNCAPI_METRICS_NEWRELIC_KEY || 'eu01xx73a8521047150dd9414f6aedd2FFFFNRAL');
         this.warn('AsyncAPI anonymously tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.\n\nTo disable tracking, set the "ASYNCAPI_METRICS" env variable to "false" when executing the command. For instance:\n\nASYNCAPI_METRICS=false asyncapi validate spec_file.yaml');
         break;
       }
