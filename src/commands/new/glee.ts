@@ -3,7 +3,10 @@ import { promises as fPromises } from "fs";
 import Command from "../../base";
 import { resolve, join } from "path";
 import fs from "fs-extra";
-
+import { load } from "../../models/SpecificationFile";
+import { CliUx } from "@oclif/core";
+import path from "path";
+import yaml from "js-yaml";
 export default class NewGlee extends Command {
   static description = "Creates a new Glee project";
 
@@ -18,37 +21,73 @@ export default class NewGlee extends Command {
     }),
     template: Flags.string({
       char: "t",
-      description: "template for the project",
+      description: "name of the template",
+      default: "default",
     }),
     file: Flags.string({
       char: "f",
       description: "path of the file",
-      default: "asyncapi.yaml",
     }),
   };
 
   async run() {
     const { flags } = await this.parse(NewGlee); // NOSONAR
 
-    const { name: projectName, template, file } = flags;
+    const { name: projectName, template: templateName, file } = flags;
 
     const PROJECT_DIRECTORY = join(process.cwd(), projectName);
+
     const GLEE_TEMPLATES_DIRECTORY = resolve(
       __dirname,
-      "../../../assets/create-glee-app/templates/default",
+      "../../../assets/create-glee-app/templates/",
+      templateName,
     );
 
-    console.log({ GLEE_TEMPLATES_DIRECTORY });
-    console.log({ file }, { template });
-    if (template) {
+    const currentTemplateName =
+      "https://github.com/KhudaDad414/glee-generator-template";
+
+    if (file && templateName && templateName != "default") {
+      this.error("You cannot use both --t and --f in the same command.");
+    }
+    if (file) {
+      const asyncapiInput = (await load(file)) || (await load());
+
+      const serversObject = asyncapiInput.toJson().servers;
+      const servers = Object.keys(serversObject);
+      const remoteServers = [];
+      for (const server of servers) {
+        const isRemote = await CliUx.ux.confirm(
+          `Is "${server}" a remote server`,
+        );
+        remoteServers.push({ server, isRemote });
+      }
+
+      const selectedRemoteServers = remoteServers
+        .filter(({ isRemote }) => isRemote)
+        .map(({ server }) => server);
+
       try {
+        const asyncapiObject = asyncapiInput.toJson();
+        asyncapiObject["x-remoteServers"] = selectedRemoteServers;
+
+        delete asyncapiObject.filePath;
+        delete asyncapiObject.kind;
+
+        const updatedAsyncApiContent = yaml.dump(asyncapiObject, {
+          lineWidth: -1,
+        });
+
+        const currentFileDirectory = path.join(__dirname, "../../..", file);
+
+        fs.writeFileSync(currentFileDirectory, updatedAsyncApiContent);
+
         await this.config.runCommand("generate:fromTemplate", [
           file,
-          template,
-          `--output=${flags.name}`,
+          currentTemplateName,
+          `--output=${projectName}`,
         ]);
       } catch (error) {
-        console.log(error);
+        console.log({ error });
       }
     } else {
       try {
