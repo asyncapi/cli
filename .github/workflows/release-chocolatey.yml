@@ -18,6 +18,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Set Version
         id: release_version
         run: |
@@ -27,18 +28,40 @@ jobs:
           else {
             $version = $(npm pkg get version)
           }
+
+          $version = $version.Replace("`"", "")
           echo "Setting version to $version"
           echo "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Download release
+        run: |
+          echo "Downloading release assets for version ${{ steps.release_version.outputs.version }}"
+          mkdir -p ./dist/win32
+          curl -L "https://github.com/asyncapi/cli/releases/download/v${{ steps.release_version.outputs.version }}/asyncapi.x64.exe" -o "./dist/win32/asyncapi.x64.exe"
+          curl -L "https://github.com/asyncapi/cli/releases/download/v${{ steps.release_version.outputs.version }}/asyncapi.x86.exe" -o "./dist/win32/asyncapi.x86.exe"
+
+      - name: Get Checksum of the release
+        id: release_checksum
+        run: |
+          $checksum = (Get-FileHash -Path "./dist/win32/asyncapi.x86.exe" -Algorithm SHA256).Hash
+          $checksum64 = (Get-FileHash -Path "./dist/win32/asyncapi.x64.exe" -Algorithm SHA256).Hash
+          echo "Setting checksum to $checksum"
+          echo "checksum=$checksum" >> $env:GITHUB_OUTPUT
+          echo "Setting checksum64 to $checksum64"
+          echo "checksum64=$checksum64" >> $env:GITHUB_OUTPUT
+
       - name: Make nuspec from the template
         run: |
           cd ./.github/workflows/deploy/chocolatey
-          pwsh -File ./replace.ps1 -version ${{ steps.release_version.outputs.version }}
+          pwsh -File ./replace.ps1 -version ${{ steps.release_version.outputs.version }} -checksum ${{ steps.release_checksum.outputs.checksum }} -checksum64 ${{ steps.release_checksum.outputs.checksum64 }}
+
       - name: Run Chocolatey Pack
         run: |
           cd ./.github/workflows/deploy/chocolatey
           choco pack ./asyncapi-cli.nuspec
           choco apikey add --source "'https://push.chocolatey.org/'" --key ${{ secrets.CHOCOLATEY_API_KEY }}
           choco push ./asyncapi.${{ steps.release_version.outputs.version }}.nupkg --source "'https://push.chocolatey.org/'"  
+          
       - if: failure() # Only, on failure, send a message on the 94_bot-failing-ci slack channel
         name: Report workflow run status to Slack
         uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 #using https://github.com/8398a7/action-slack/releases/tag/v3.15.1
