@@ -239,9 +239,9 @@ describe('validate', () => {
       .stderr()
       .stdout()
       .command(['validate', './test/fixtures/specification.yml', '--fail-severity=warn'])
-      .exit(1)
       .it('works with --fail-severity', (ctx, done) => {
         expect(ctx.stderr).to.include('\nFile ./test/fixtures/specification.yml and/or referenced documents have governance issues.\n\ntest/fixtures/specification.yml');
+        expect(process.exitCode).to.equal(1);
         done();
       });
   });

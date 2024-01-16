@@ -30,8 +30,8 @@ export default class Validate extends Command {
     }
 
     const validationResult = await validate(this, specFile, flags);
-    if (validationResult == 'invalid') {
-      this.exit(1);
+    if (validationResult === 'invalid') {
+      process.exitCode = 1;
     }
   }
 }
