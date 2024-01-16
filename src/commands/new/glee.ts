@@ -67,7 +67,6 @@ export default class NewGlee extends Command {
 
     const currentFileDirectory = path.join(__dirname, file);
 
-    console.log(currentFileDirectory);
     fs.writeFileSync(currentFileDirectory, updatedAsyncApiContent);
     return currentFileDirectory;
   }
