@@ -142,7 +142,8 @@ export default class NewGlee extends Command {
           this.error(`Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`);
           break;
         default:
-          this.error(`Unable to create the project. Please check the following message for further info about the error:\n\n${err}`);}
+          this.error(`Unable to create the project. Please check the following message for further info about the error:\n\n${err}`);
+        }
       }
 
       try {
