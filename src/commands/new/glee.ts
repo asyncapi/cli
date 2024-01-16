@@ -3,10 +3,10 @@ import { promises as fPromises } from 'fs';
 import Command from '../../base';
 import { resolve, join } from 'path';
 import fs from 'fs-extra';
-import { load } from '../../models/SpecificationFile';
-import { CliUx } from '@oclif/core';
+import { Specification, load } from '../../models/SpecificationFile';
 import path from 'path';
 import yaml from 'js-yaml';
+import { prompt } from 'inquirer';
 export default class NewGlee extends Command {
   static description = 'Creates a new Glee project';
 
@@ -16,20 +16,90 @@ export default class NewGlee extends Command {
     help: Flags.help({ char: 'h' }),
     name: Flags.string({
       char: 'n',
-      description: 'name of the project',
+      description: 'Name of the Project',
       default: 'project',
     }),
     template: Flags.string({
       char: 't',
-      description: 'name of the template',
+      description: 'Name of the Template',
       default: 'default',
     }),
     file: Flags.string({
       char: 'f',
-      description: 'path of the file',
+      description:
+        'The path to the AsyncAPI file for generating a Glee project.',
     }),
   };
 
+  async getFilteredServers(serversObject: any) {
+    const servers = Object.keys(serversObject);
+
+    const localServers = await prompt([
+      {
+        name: 'LOCAL_SERVERS',
+        message:
+          'Select all of the servers that you want glee to set up and run a server for (local servers):',
+        type: 'checkbox',
+        choices() {
+          return servers;
+        },
+      },
+    ]);
+
+    return servers.filter(
+      (server) => !localServers.LOCAL_SERVERS.includes(server)
+    );
+  }
+  async createTemporaryFile(
+    asyncapiInput: Specification,
+    filteredRemoteServers: string[],
+    file: any
+  ) {
+    const asyncapiObject = asyncapiInput.toJson();
+    asyncapiObject['x-remoteServers'] = filteredRemoteServers;
+
+    delete asyncapiObject.filePath;
+    delete asyncapiObject.kind;
+
+    const updatedAsyncApiContent = yaml.dump(asyncapiObject, {
+      lineWidth: -1,
+    });
+
+    const currentFileDirectory = path.join(__dirname, file);
+
+    console.log(currentFileDirectory);
+    fs.writeFileSync(currentFileDirectory, updatedAsyncApiContent);
+    return currentFileDirectory;
+  }
+  async handleGenerateProjectWithFile(
+    file: any,
+    CURRENT_GLEE_TEMPLATE: any,
+    projectName: string
+  ) {
+    try {
+      const asyncapiInput = (await load(file)) || (await load());
+
+      const serversObject = asyncapiInput.toJson().servers;
+
+      const filteredRemoteServers =
+        await this.getFilteredServers(serversObject);
+
+      const currentFileDirectory = await this.createTemporaryFile(
+        asyncapiInput,
+        filteredRemoteServers,
+        file
+      );
+
+      await this.config.runCommand('generate:fromTemplate', [
+        currentFileDirectory,
+        CURRENT_GLEE_TEMPLATE,
+        `--output=${projectName}`,
+      ]);
+      fs.unlinkSync(currentFileDirectory);
+    } catch (error) {
+      console.log({ error });
+    }
+  }
   async run() {
     const { flags } = await this.parse(NewGlee); // NOSONAR
 
@@ -43,51 +113,19 @@ export default class NewGlee extends Command {
       templateName
     );
 
-    const currentTemplateName =
+    const CURRENT_GLEE_TEMPLATE =
       'https://github.com/KhudaDad414/glee-generator-template';
 
     if (file && templateName && templateName !== 'default') {
       this.error('You cannot use both --t and --f in the same command.');
     }
+
     if (file) {
-      try {
-        const asyncapiInput = (await load(file)) || (await load());
-
-        const serversObject = asyncapiInput.toJson().servers;
-        const servers = Object.keys(serversObject);
-        const remoteServers = [];
-        for (const server of servers) {
-          const isRemote = await CliUx.ux.confirm(
-            `Is "${server}" a remote server`
-          );
-          remoteServers.push({ server, isRemote });
-        }
-
-        const selectedRemoteServers = remoteServers
-          .filter(({ isRemote }) => isRemote)
-          .map(({ server }) => server);
-        const asyncapiObject = asyncapiInput.toJson();
-        asyncapiObject['x-remoteServers'] = selectedRemoteServers;
-
-        delete asyncapiObject.filePath;
-        delete asyncapiObject.kind;
-
-        const updatedAsyncApiContent = yaml.dump(asyncapiObject, {
-          lineWidth: -1,
-        });
-
-        const currentFileDirectory = path.join(__dirname, '../../..', file);
-
-        fs.writeFileSync(currentFileDirectory, updatedAsyncApiContent);
-
-        await this.config.runCommand('generate:fromTemplate', [
-          file,
-          currentTemplateName,
-          `--output=${projectName}`,
-        ]);
-      } catch (error) {
-        console.log({ error });
-      }
+      await this.handleGenerateProjectWithFile(
+        file,
+        CURRENT_GLEE_TEMPLATE,
+        projectName
+      );
     } else {
       try {
         await fPromises.mkdir(PROJECT_DIRECTORY);
@@ -99,17 +137,13 @@ export default class NewGlee extends Command {
           );
           break;
         case 'EACCES':
-          this.error(
-            `Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`
-          );
+          this.error(`Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`);
           break;
         case 'EPERM':
-          this.error(`Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`
-          );
+          this.error(`Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`);
           break;
         default:
-          this.error(`Unable to create the project. Please check the following message for further info about the error:\n\n${err}`);
-        }
+          this.error(`Unable to create the project. Please check the following message for further info about the error:\n\n${err}`);}
       }
 
       try {
