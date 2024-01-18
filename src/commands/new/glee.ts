@@ -96,6 +96,7 @@ export default class NewGlee extends Command {
         `--output=${projectName}`,
       ]);
       fs.unlinkSync(currentFileDirectory);
+      this.log(`Success! Created ${projectName} at ${file}\n\nNext steps:\n\n  cd ${projectName}\n  npm install --ignore-scripts\n\nImplement the function in functions and auth folder and run the project with:\n  npm run dev`);
     } catch (error) {
       console.log({ error });
     }
