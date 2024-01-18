@@ -83,10 +83,11 @@ export default class NewGlee extends Command {
       const filteredRemoteServers =
         await this.getFilteredServers(serversObject);
 
+      const temporaryFileDirectory = 'asyncapi.yaml';
       const currentFileDirectory = await this.createTemporaryFile(
         asyncapiInput,
         filteredRemoteServers,
-        file
+        temporaryFileDirectory
       );
 
       await this.config.runCommand('generate:fromTemplate', [
@@ -136,13 +137,19 @@ export default class NewGlee extends Command {
           );
           break;
         case 'EACCES':
-          this.error(`Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`);
+          this.error(
+            `Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`
+          );
           break;
         case 'EPERM':
-          this.error(`Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`);
+          this.error(
+            `Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`
+          );
           break;
         default:
-          this.error(`Unable to create the project. Please check the following message for further info about the error:\n\n${err}`);
+          this.error(
+            `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`
+          );
         }
       }
 
