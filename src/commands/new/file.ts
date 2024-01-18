@@ -2,7 +2,7 @@ import {Flags} from '@oclif/core';
 import { promises as fPromises, readFileSync } from 'fs';
 import Command from '../../base';
 import * as inquirer from 'inquirer';
-import { start as startStudio, DEFAULT_PORT } from '../../models/Studio';
+import { start as startStudio, DEFAULT_PORT, startOnline } from '../../models/Studio';
 import { resolve } from 'path';
 
 const { writeFile, readFile } = fPromises;
@@ -60,7 +60,8 @@ export default class NewFile extends Command {
 
     if (flags.studio) {
       if (isTTY) {
-        startStudio(fileName, flags.port || DEFAULT_PORT);
+        startOnline(fileName, flags.port || DEFAULT_PORT);
+        //startStudio(fileName, flags.port || DEFAULT_PORT);
       } else {
         this.warn('Warning: --studio flag was passed but the terminal is not interactive. Ignoring...');
       }
@@ -132,7 +133,7 @@ export default class NewFile extends Command {
     selectedTemplate = selectedTemplate || DEFAULT_ASYNCAPI_TEMPLATE;
 
     await this.createAsyncapiFile(fileName, selectedTemplate);
-    if (openStudio) { startStudio(fileName, flags.port || DEFAULT_PORT);}
+    if (openStudio) { startOnline(fileName, flags.port || DEFAULT_PORT);}
   }
 
   async createAsyncapiFile(fileName:string, selectedTemplate:string) {

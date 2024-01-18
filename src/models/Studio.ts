@@ -6,8 +6,9 @@ import { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
 import open from 'open';
 import path from 'path';
+import fs from 'fs'
 
-const { readFile, writeFile } = fPromises;
+const { readFile, writeFile } = fPromises; 
 
 const sockets: any[] = [];
 const messageQueue: string[] = [];
@@ -18,29 +19,104 @@ function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
 }
 
+export function startOnline(filePath: string, port: number = DEFAULT_PORT): void {
+  if (!isValidFilePath(filePath)) {
+    throw new SpecificationFileNotFound(filePath)
+  }
+
+  const server = createServer((request, response) => {
+
+    if (request.url === '/fileread') {
+      var extname = path.extname(filePath);
+      var contentType = 'text/html';
+      switch (extname) {
+        case '.json':
+          contentType = 'application/json';
+          break;
+      }
+      const headers = {
+        'Access-Control-Allow-Origin': '*', /* @dev First, read about security */
+        'Access-Control-Allow-Methods': 'OPTIONS, POST, GET',
+      };
+
+      fs.readFile(filePath, (error, content) => {
+        response.writeHead(200, { 'content-Type': contentType, ...headers })
+        response.end(content, 'utf-8')
+      })
+    }
+  })
+
+  server.on('upgrade', (request, socket, head) => {
+    if (request.url === '/filesave') {
+      wsServer.handleUpgrade(request, socket, head, (sock: any) => {
+        wsServer.emit('connection', sock, request)
+      })
+    } else {
+      socket.destroy()
+    }
+  })
+
+  const wsServer = new WebSocketServer({ noServer: true })
+
+  wsServer.on('connection', (socket: any) => {
+    sockets.push(socket)
+    getFileContent(filePath).then((code: string) => {
+      messageQueue.push(JSON.stringify({
+        type: 'file:loaded',
+        code
+      }));
+      sendQueuedMessages();
+    })
+
+    socket.on('message', (event: string) => {
+      try {
+        const json: any = JSON.parse(event);
+        if (json.type === 'file:update') {
+          saveFileContent(filePath, json.code);
+        } else {
+          console.warn('Live Server: An unkown event has been received. See details:');
+          console.log(json)
+        }
+      } catch (error) {
+        console.error(`Live Server: An invalid event has been received. See details:\n${event}`)
+      }
+    })
+    wsServer.on('close', (socekt: any) => {
+      sockets.splice(sockets.findIndex(s => s === socket))
+    })
+  })
+
+  server.listen(port, () => {
+    const url = `https://studio.asyncapi.com/?url=http://localhost:${port}/fileread&url_save=http://localhost:${port}/filesave`
+    console.log(`Studio is running at ${url}`)
+    open(url)
+  })
+
+}
+
 export function start(filePath: string, port: number = DEFAULT_PORT): void {
   if (!isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
   chokidar.watch(filePath).on('all', (event, path) => {
     switch (event) {
-    case 'add':
-    case 'change':
-      getFileContent(path).then((code:string) => {
+      case 'add':
+      case 'change':
+        getFileContent(path).then((code: string) => {
+          messageQueue.push(JSON.stringify({
+            type: 'file:changed',
+            code,
+          }));
+          sendQueuedMessages();
+        });
+        break;
+      case 'unlink':
         messageQueue.push(JSON.stringify({
-          type: 'file:changed',
-          code,
+          type: 'file:deleted',
+          filePath,
         }));
         sendQueuedMessages();
-      });
-      break;
-    case 'unlink':
-      messageQueue.push(JSON.stringify({
-        type: 'file:deleted',
-        filePath,
-      }));
-      sendQueuedMessages();
-      break;
+        break;
     }
   });
 
@@ -79,7 +155,7 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
 
     socket.on('message', (event: string) => {
       try {
-        const json:any = JSON.parse(event);
+        const json: any = JSON.parse(event);
         if (json.type === 'file:update') {
           saveFileContent(filePath, json.code);
         } else {
@@ -88,10 +164,10 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
         }
       } catch (e) {
         console.error(`Live Server: An invalid event has been received. See details:\n${event}`);
-      }      
+      }
     });
   });
-  
+
   wsServer.on('close', (socket: any) => {
     sockets.splice(sockets.findIndex(s => s === socket));
   });
