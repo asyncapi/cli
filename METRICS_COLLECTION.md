@@ -21,3 +21,13 @@ We are collecting the following metrics:
 To disable tracking, set the "ASYNCAPI_METRICS" env variable to "false" when executing the command. For instance: `ASYNCAPI_METRICS=false asyncapi validate <spec-file-path>`
 
 Remember that keeping this tracking enabled will help AsyncAPI community to provide better specifications and tools in the future.
+
+
+
+
+
+Lukasz insights:
+* it is explained we collect by default
+* what we collect
+* where we collect
+* how to disable - and why we ask not to disable
