@@ -70,11 +70,38 @@ export default class NewGlee extends Command {
     fs.writeFileSync(currentFileDirectory, updatedAsyncApiContent);
     return currentFileDirectory;
   }
+  async validateFile(file: any, projectName: any, PROJECT_DIRECTORY: any) {
+    try {
+      const validExtensions = ['.yaml', '.yml', '.json'];
+      const fileExtension = path.extname(file);
+
+      if (!validExtensions.includes(fileExtension)) {
+        throw new Error(
+          'CLI Support only yml, yaml, and json extension for file'
+        );
+      }
+
+      if (
+        fs.existsSync(PROJECT_DIRECTORY) &&
+        fs.readdirSync(PROJECT_DIRECTORY).length > 0
+      ) {
+        throw new Error(
+          `Unable to create the project. We tried to use "${projectName}" as the directory of your new project but it already exists (${PROJECT_DIRECTORY}). Please specify a different name for the new project. For example, run the following command instead:\n\n  asyncapi new ${this.commandName} -f ${file} --name ${projectName}-1\n`
+        );
+      }
+    } catch (error: any) {
+      this.error(error.message);
+    }
+  }
+
   async handleGenerateProjectWithFile(
     file: any,
     CURRENT_GLEE_TEMPLATE: any,
     projectName: string
   ) {
+    const PROJECT_DIRECTORY = path.join(process.cwd(), projectName);
+    await this.validateFile(file, projectName, PROJECT_DIRECTORY);
+
     try {
       const asyncapiInput = (await load(file)) || (await load());
 
@@ -96,9 +123,26 @@ export default class NewGlee extends Command {
         `--output=${projectName}`,
       ]);
       fs.unlinkSync(currentFileDirectory);
-      this.log(`Success! Created ${projectName} at ${file}\n\nNext steps:\n\n  cd ${projectName}\n  npm install --ignore-scripts\n\nImplement the function in functions and auth folder and run the project with:\n  npm run dev`);
-    } catch (error) {
-      console.log({ error });
+      this.log(
+        `Success! Created ${projectName} at ${PROJECT_DIRECTORY}\n\nNext steps:\n\n  cd ${projectName}\n  npm install --ignore-scripts\n\nImplement the function in functions and auth folder and run the project with:\n  npm run dev`
+      );
+    } catch (err: any) {
+      switch (err.code) {
+      case 'EACCES':
+        this.error(
+          `Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`
+        );
+        break;
+      case 'EPERM':
+        this.error(
+          `Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`
+        );
+        break;
+      default:
+        this.error(
+          `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`
+        );
+      }
     }
   }
   async run() {
