@@ -2,7 +2,7 @@
 
 AsyncAPI **anonymously** tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.
 
-Even though metrics collection is enabled by default, you can always [disable tracking](/../../../../github/docs/blob/main/METRICS_COLLECTION.md#how-to-disable-tracking) if you want to.
+Even though metrics collection is enabled by default, you can always [disable tracking](#how-to-disable-tracking) if you want to.
 
 ## What we collect
 We are collecting the following metrics:
