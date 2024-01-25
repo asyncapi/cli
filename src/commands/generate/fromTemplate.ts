@@ -27,7 +27,8 @@ interface IMapBaseUrlToFlag {
 interface ParsedFlags {
   params: Record<string, string>,
   disableHooks: Record<string, string>,
-  mapBaseUrlToFolder: IMapBaseUrlToFlag
+  mapBaseUrlToFolder: IMapBaseUrlToFlag,
+  registryUrl: string
 }
 
 const templatesNotSupportingV3: Record<string, string> = {
@@ -100,6 +101,15 @@ export default class Template extends Command {
     'map-base-url': Flags.string({
       description: 'Maps all schema references from base url to local folder'
     }),
+    'registry-url': Flags.string({
+      description: 'Specifies the URL of the private registry for fetching templates and dependencies'
+    }),
+    'registry-auth': Flags.string({
+      description: 'The registry username and password encoded with base64, formatted as username:password'
+    }),
+    'registry-token': Flags.string({
+      description: 'The npm registry authentication token, that can be passed instead of base64 encoded username and password'
+    })
   };
 
   static args = [
@@ -113,7 +123,7 @@ export default class Template extends Command {
     const asyncapi = args['asyncapi'];
     const template = args['template'];
     const output = flags.output || process.cwd();
-    const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url']);
+    const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url'], flags['registry-url']);
     const options = {
       forceWrite: flags['force-write'],
       install: flags.install,
@@ -122,6 +132,9 @@ export default class Template extends Command {
       noOverwriteGlobs: flags['no-overwrite'],
       mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
       disabledHooks: parsedFlags.disableHooks,
+      registryUrl: parsedFlags.registryUrl,
+      registryAuth: flags['registry-auth'],
+      registryToken: flags['registry-token']
     };
     const asyncapiInput = (await load(asyncapi)) || (await load());
 
@@ -144,11 +157,12 @@ export default class Template extends Command {
     }
   }
 
-  private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string): ParsedFlags {
+  private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string, registryUrl?: string): ParsedFlags {
     return {
       params: this.paramParser(params),
       disableHooks: this.disableHooksParser(disableHooks),
       mapBaseUrlToFolder: this.mapBaseURLParser(mapBaseUrl),
+      registryUrl: this.registryURLParser(registryUrl),
     } as ParsedFlags;
   }
 
@@ -197,6 +211,15 @@ export default class Template extends Command {
     }
 
     return mapBaseURLToFolder;
+  }
+
+  private registryURLParser(input?: string) {
+    if (!input) { return; }
+    const isURL = /^https?:/;
+    if (!isURL.test(input.toLowerCase())) {
+      throw new Error('Invalid --registry-url flag. The param requires a valid http/https url.');
+    }
+    return input;
   }
 
   private async generate(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any) {
