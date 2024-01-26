@@ -102,6 +102,7 @@ export default class Template extends Command {
       description: 'Maps all schema references from base url to local folder'
     }),
     'registry-url': Flags.string({
+      default: 'https://registry.npmjs.org',
       description: 'Specifies the URL of the private registry for fetching templates and dependencies'
     }),
     'registry-auth': Flags.string({
