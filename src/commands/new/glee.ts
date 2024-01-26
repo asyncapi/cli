@@ -7,9 +7,12 @@ import { Specification, load } from '../../models/SpecificationFile';
 import path from 'path';
 import yaml from 'js-yaml';
 import { prompt } from 'inquirer';
+// eslint-disable-next-line
+// @ts-ignore
+import Generator from '@asyncapi/generator';
+
 export default class NewGlee extends Command {
   static description = 'Creates a new Glee project';
-
   protected commandName = 'glee';
 
   static flags = {
@@ -28,6 +31,11 @@ export default class NewGlee extends Command {
       char: 'f',
       description:
         'The path to the AsyncAPI file for generating a Glee project.',
+    }),
+    'force-write': Flags.boolean({
+      default: false,
+      description:
+        'Force writing of the generated files to given directory even if it is a git repo with unstaged files or not empty dir (defaults to false)',
     }),
   };
 
@@ -68,7 +76,7 @@ export default class NewGlee extends Command {
     const currentFileDirectory = path.join(__dirname, file);
 
     fs.writeFileSync(currentFileDirectory, updatedAsyncApiContent);
-    return currentFileDirectory;
+    return { currentFileDirectory, updatedAsyncApiContent };
   }
   async validateFile(file: any, projectName: any, PROJECT_DIRECTORY: any) {
     try {
@@ -97,7 +105,8 @@ export default class NewGlee extends Command {
   async handleGenerateProjectWithFile(
     file: any,
     CURRENT_GLEE_TEMPLATE: any,
-    projectName: string
+    projectName: string,
+    forceWrite: boolean
   ) {
     const PROJECT_DIRECTORY = path.join(process.cwd(), projectName);
     await this.validateFile(file, projectName, PROJECT_DIRECTORY);
@@ -111,44 +120,52 @@ export default class NewGlee extends Command {
         await this.getFilteredServers(serversObject);
 
       const temporaryFileDirectory = 'asyncapi.yaml';
-      const currentFileDirectory = await this.createTemporaryFile(
-        asyncapiInput,
-        filteredRemoteServers,
-        temporaryFileDirectory
-      );
+      const { currentFileDirectory, updatedAsyncApiContent } =
+        await this.createTemporaryFile(
+          asyncapiInput,
+          filteredRemoteServers,
+          temporaryFileDirectory
+        );
 
-      await this.config.runCommand('generate:fromTemplate', [
-        currentFileDirectory,
+      const generator = new Generator(
         CURRENT_GLEE_TEMPLATE,
-        `--output=${projectName}`,
-      ]);
+        PROJECT_DIRECTORY,
+        { forceWrite }
+      );
+      await generator.generateFromString(updatedAsyncApiContent);
       fs.unlinkSync(currentFileDirectory);
+
       this.log(
         `Success! Created ${projectName} at ${PROJECT_DIRECTORY}\n\nNext steps:\n\n  cd ${projectName}\n  npm install --ignore-scripts\n\nImplement the function in functions and auth folder and run the project with:\n  npm run dev`
       );
     } catch (err: any) {
       switch (err.code) {
-      case 'EACCES':
-        this.error(
-          `Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`
-        );
-        break;
-      case 'EPERM':
-        this.error(
-          `Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`
-        );
-        break;
-      default:
-        this.error(
-          `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`
-        );
+        case 'EACCES':
+          this.error(
+            `Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`
+          );
+          break;
+        case 'EPERM':
+          this.error(
+            `Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`
+          );
+          break;
+        default:
+          this.error(
+            `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`
+          );
       }
     }
   }
   async run() {
     const { flags } = await this.parse(NewGlee); // NOSONAR
 
-    const { name: projectName, template: templateName, file } = flags;
+    const {
+      name: projectName,
+      template: templateName,
+      file,
+      'force-write': forceWrite,
+    } = flags;
 
     const PROJECT_DIRECTORY = join(process.cwd(), projectName);
 
@@ -169,32 +186,33 @@ export default class NewGlee extends Command {
       await this.handleGenerateProjectWithFile(
         file,
         CURRENT_GLEE_TEMPLATE,
-        projectName
+        projectName,
+        forceWrite
       );
     } else {
       try {
         await fPromises.mkdir(PROJECT_DIRECTORY);
       } catch (err: any) {
         switch (err.code) {
-        case 'EEXIST':
-          this.error(
-            `Unable to create the project. We tried to use "${projectName}" as the directory of your new project but it already exists (${PROJECT_DIRECTORY}). Please specify a different name for the new project. For example, run the following command instead:\n\n  asyncapi new ${this.commandName} --name ${projectName}-1\n`
-          );
-          break;
-        case 'EACCES':
-          this.error(
-            `Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`
-          );
-          break;
-        case 'EPERM':
-          this.error(
-            `Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`
-          );
-          break;
-        default:
-          this.error(
-            `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`
-          );
+          case 'EEXIST':
+            this.error(
+              `Unable to create the project. We tried to use "${projectName}" as the directory of your new project but it already exists (${PROJECT_DIRECTORY}). Please specify a different name for the new project. For example, run the following command instead:\n\n  asyncapi new ${this.commandName} --name ${projectName}-1\n`
+            );
+            break;
+          case 'EACCES':
+            this.error(
+              `Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`
+            );
+            break;
+          case 'EPERM':
+            this.error(
+              `Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`
+            );
+            break;
+          default:
+            this.error(
+              `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`
+            );
         }
       }
 
