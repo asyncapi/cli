@@ -34,8 +34,10 @@ asyncapi_adoption.action.executed       COUNTER {
   }       1
 ```
 
-## Where we collect
+## Where the data is stored
 We are making use of [New Relic API](https://docs.newrelic.com/docs/apis/intro-apis/introduction-new-relic-apis/#rest-api) to send the metrics collected to _New Relic_ servers, where they are stored, and finally visualized on the AsyncAPI website.
+
+Metrics won't be collected in CI environments, or when the "CI" env variable is set up to "true".
 
 ## How to disable tracking
 To disable tracking, set the "ASYNCAPI_METRICS" env variable to "false" when executing the command. For instance: `ASYNCAPI_METRICS=false asyncapi validate <spec-file-path>`
