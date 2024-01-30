@@ -15,12 +15,12 @@ Example of the data collected by this metric when the `validate` command has bee
 asyncapi_adoption.action.invoked        COUNTER { action: 'validate' }  1
 ```
 
-- `asyncapi_adoption.action.executed`:
+- `asyncapi_adoption.action.finished`:
 This metric tracks the command executed once it has already finished, carrying the result of the execution and some metadata based on the AsyncAPI document in place.
 
-Example for `validate` command successfully executed:
+Example for `validate` command successfully executed and finished:
 ```
-asyncapi_adoption.action.executed       COUNTER {
+asyncapi_adoption.action.finished       COUNTER {
   validation_result: 'valid',
   success: true,
   asyncapi_version: '2.6.0',
