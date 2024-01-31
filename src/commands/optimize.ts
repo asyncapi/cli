@@ -84,8 +84,9 @@ export default class Optimize extends Command {
     this.optimizations = flags.optimization as Optimizations[];
     this.outputMethod = flags.output as Outputs;
 
-    this.metricsMetadata.optimizations = this.optimizations;
-
+    const optimizationsObject = {...this.optimizations};
+    this.metricsMetadata.optimizations = optimizationsObject;
+    
     if (!(report.moveToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length)) {
       this.log(`No optimization has been applied since ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} looks optimized!`);
       return;
