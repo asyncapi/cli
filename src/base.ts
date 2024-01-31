@@ -32,7 +32,7 @@ export default abstract class extends Command {
     }
   }
 
-  async recordActionExecuted(action: string, metadata: MetricMetadata = {}, rawDocument?: string) {
+  async recordActionFinished(action: string, metadata: MetricMetadata = {}, rawDocument?: string) {
     if (rawDocument !== undefined) {
       try {
         const {document} = await this.parser.parse(rawDocument);
@@ -47,7 +47,7 @@ export default abstract class extends Command {
     }
     
     const callable = async function(recorder: Recorder) {
-      await recorder.recordActionExecuted(action, metadata);
+      await recorder.recordActionFinished(action, metadata);
     };
 
     await this.recordActionMetric(callable);
@@ -75,7 +75,7 @@ export default abstract class extends Command {
   async finally(error: Error | undefined): Promise<any> {
     await super.finally(error);
     this.metricsMetadata['success'] = error === undefined;
-    await this.recordActionExecuted(this.id as string, this.metricsMetadata, this.specFile?.text());
+    await this.recordActionFinished(this.id as string, this.metricsMetadata, this.specFile?.text());
   }
 
   recorderFromEnv(prefix: string): Recorder {
