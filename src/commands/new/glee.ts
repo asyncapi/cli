@@ -1,10 +1,9 @@
 import { Flags } from '@oclif/core';
 import { promises as fPromises } from 'fs';
 import Command from '../../base';
-import { resolve, join } from 'path';
+import path, { resolve, join } from 'path';
 import fs from 'fs-extra';
 import { Specification, load } from '../../models/SpecificationFile';
-import path from 'path';
 import yaml from 'js-yaml';
 import { prompt } from 'inquirer';
 // eslint-disable-next-line
