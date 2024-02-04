@@ -16,7 +16,7 @@
     "@asyncapi/modelina": "^2.1.3",
     "@asyncapi/openapi-schema-parser": "^3.0.12",
     "@asyncapi/optimizer": "^0.2.7",
-    "@asyncapi/parser": "^3.0.4",
+    "@asyncapi/parser": "^3.0.5",
     "@asyncapi/protobuf-schema-parser": "^3.2.1",
     "@asyncapi/raml-dt-schema-parser": "^4.0.12",
     "@asyncapi/studio": "^0.20.0",
