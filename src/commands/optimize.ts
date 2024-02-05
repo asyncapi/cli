@@ -84,21 +84,12 @@ export default class Optimize extends Command {
     this.optimizations = flags.optimization as Optimizations[];
     this.outputMethod = flags.output as Outputs;
 
-    this.metricsMetadata.optimized = true;
-
-    if (report.moveToComponents?.length) {
-      this.metricsMetadata.optimization_moveToComponents = true;
-    }
-    if (report.removeComponents?.length) {
-      this.metricsMetadata.optimization_removeComponents = true;
-    }
-    if (report.reuseComponents?.length) {
-      this.metricsMetadata.optimization_reuseComponents = true;
-    }
-
-    if (!(report.moveToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length)) {
-      this.log(`No optimization has been applied since ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} looks optimized!`);
+    if (report.moveToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length) {
+      this.metricsMetadata.optimized = true;
+      await this.collectMetricsData(report);
+    } else {
       this.metricsMetadata.optimized = false;
+      this.log(`No optimization has been applied since ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} looks optimized!`);
       return;
     }
     
@@ -201,5 +192,23 @@ export default class Optimize extends Command {
       choices: [{name: 'log to terminal',value: Outputs.TERMINAL}, {name: 'create new file', value: Outputs.NEW_FILE}, {name: 'update original', value: Outputs.OVERWRITE}]
     }]);
     this.outputMethod = outputRes.output;
+  }
+
+  private async collectMetricsData(report: Report) {
+    try {
+      if (report.moveToComponents?.length) {
+        this.metricsMetadata.optimization_moveToComponents = true;
+      }
+      if (report.removeComponents?.length) {
+        this.metricsMetadata.optimization_removeComponents = true;
+      }
+      if (report.reuseComponents?.length) {
+        this.metricsMetadata.optimization_reuseComponents = true;
+      }    
+    } catch (e: any) {
+      if (e instanceof Error) {
+        this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
+      }
+    }
   }
 }
