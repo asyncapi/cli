@@ -84,10 +84,23 @@ export default class Optimize extends Command {
     this.optimizations = flags.optimization as Optimizations[];
     this.outputMethod = flags.output as Outputs;
 
-    this.metricsMetadata.optimizations = JSON.stringify(this.optimizations);
-    
     if (!(report.moveToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length)) {
       this.log(`No optimization has been applied since ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} looks optimized!`);
+      this.metricsMetadata.optimized = false;
+      return;
+    }
+  
+    if (report.moveToComponents?.length) {
+      this.metricsMetadata.optimization_moveToComponents = true;
+      this.metricsMetadata.optimized = true;
+    }
+    if (report.removeComponents?.length) {
+      this.metricsMetadata.optimization_removeComponents = true;
+      this.metricsMetadata.optimized = true;
+    }
+    if (report.reuseComponents?.length) {
+      this.metricsMetadata.optimization_reuseComponents = true;
+      this.metricsMetadata.optimized = true;
       return;
     }
 
