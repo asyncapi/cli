@@ -84,9 +84,11 @@ export default class Optimize extends Command {
     this.optimizations = flags.optimization as Optimizations[];
     this.outputMethod = flags.output as Outputs;
 
+    this.metricsMetadata.optimized = true;
+
     if (!(report.moveToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length)) {
-      this.metricsMetadata.optimized = false;
       this.log(`No optimization has been applied since ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} looks optimized!`);
+      this.metricsMetadata.optimized = false;
       return;
     }
     
@@ -102,7 +104,6 @@ export default class Optimize extends Command {
         reuseComponents: this.optimizations.includes(Optimizations.REUSE_COMPONENTS)
       }, output: Output.YAML});
 
-      this.metricsMetadata.optimized = true;
       await this.collectMetricsData(report);
 
       const specPath = this.specFile.getFilePath();
@@ -137,8 +138,6 @@ export default class Optimize extends Command {
     if (!elements) {
       return;
     }
-
-    this.metricsMetadata.optimized = true;
 
     for (let i = 0; i < elements.length; i++) {
       const element = elements[+i];
