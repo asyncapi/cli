@@ -84,10 +84,7 @@ export default class Optimize extends Command {
     this.optimizations = flags.optimization as Optimizations[];
     this.outputMethod = flags.output as Outputs;
 
-    if (report.moveToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length) {
-      this.metricsMetadata.optimized = true;
-      await this.collectMetricsData(report);
-    } else {
+    if (!(report.moveToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length)) {
       this.metricsMetadata.optimized = false;
       this.log(`No optimization has been applied since ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} looks optimized!`);
       return;
@@ -104,6 +101,9 @@ export default class Optimize extends Command {
         removeComponents: this.optimizations.includes(Optimizations.REMOVE_COMPONENTS),
         reuseComponents: this.optimizations.includes(Optimizations.REUSE_COMPONENTS)
       }, output: Output.YAML});
+
+      this.metricsMetadata.optimized = true;
+      await this.collectMetricsData(report);
 
       const specPath = this.specFile.getFilePath();
       let newPath = '';
@@ -137,14 +137,20 @@ export default class Optimize extends Command {
     if (!elements) {
       return;
     }
+
+    this.metricsMetadata.optimized = true;
+
     for (let i = 0; i < elements.length; i++) {
       const element = elements[+i];
       if (element.action==='move') {
         this.log(`${chalk.green('move')} ${element.path} to ${element.target} and reference it.`);
+        this.metricsMetadata.optimization_moveToComponents = true;
       } else if (element.action==='reuse') {
         this.log(`${chalk.green('reuse')} ${element.target} in ${element.path}.`);
+        this.metricsMetadata.optimization_reuseComponents = true;
       } else if (element.action === 'remove') {
         this.log(`${chalk.red('remove')} ${element.path}.`);
+        this.metricsMetadata.optimization_removeComponents = true;
       }
     }
 
@@ -196,6 +202,7 @@ export default class Optimize extends Command {
 
   private async collectMetricsData(report: Report) {
     try {
+      // Metrics collection when not using an interactive terminal
       if (report.moveToComponents?.length) {
         this.metricsMetadata.optimization_moveToComponents = true;
       }
