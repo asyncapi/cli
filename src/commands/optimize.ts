@@ -98,13 +98,17 @@ export default class Optimize extends Command {
     }
 
     try {
+      if (this.isInteractive) {
+        return;
+      }
+
       const optimizedDocument = optimizer.getOptimizedDocument({rules: {
         moveToComponents: this.optimizations.includes(Optimizations.MOVE_TO_COMPONENTS),
         removeComponents: this.optimizations.includes(Optimizations.REMOVE_COMPONENTS),
         reuseComponents: this.optimizations.includes(Optimizations.REUSE_COMPONENTS)
       }, output: Output.YAML});
 
-      await this.collectMetricsData(report);
+      this.collectMetricsData(report);
 
       const specPath = this.specFile.getFilePath();
       let newPath = '';
@@ -143,13 +147,10 @@ export default class Optimize extends Command {
       const element = elements[+i];
       if (element.action==='move') {
         this.log(`${chalk.green('move')} ${element.path} to ${element.target} and reference it.`);
-        this.metricsMetadata.optimization_moveToComponents = true;
       } else if (element.action==='reuse') {
         this.log(`${chalk.green('reuse')} ${element.target} in ${element.path}.`);
-        this.metricsMetadata.optimization_reuseComponents = true;
       } else if (element.action === 'remove') {
         this.log(`${chalk.red('remove')} ${element.path}.`);
-        this.metricsMetadata.optimization_removeComponents = true;
       }
     }
 
@@ -188,6 +189,26 @@ export default class Optimize extends Command {
     }]);
 
     this.optimizations = optimizationRes.optimization;
+    
+    if (!(this.optimizations?.length)) {
+      this.metricsMetadata.optimized = false;
+    }
+
+    // for (const optimizationSelected of optimizationRes.optimization) {
+    //   if (optimizationSelected.length) {
+    //     this.metricsMetadata[`optimization_${optimizationSelected}`] = true;
+    //   }
+    // }
+
+    if (this.optimizations?.includes(Optimizations.MOVE_TO_COMPONENTS)) {
+      this.metricsMetadata.optimization_moveToComponents = true;
+    }
+    if (this.optimizations?.includes(Optimizations.REMOVE_COMPONENTS)) {
+      this.metricsMetadata.optimization_removeComponents = true;
+    }
+    if (this.optimizations?.includes(Optimizations.REUSE_COMPONENTS)) {
+      this.metricsMetadata.optimization_reuseComponents = true;
+    }    
 
     const outputRes = await inquirer.prompt([{
       name: 'output',
@@ -199,18 +220,14 @@ export default class Optimize extends Command {
     this.outputMethod = outputRes.output;
   }
 
-  private async collectMetricsData(report: Report) {
+  private collectMetricsData(report: Report) {
     try {
       // Metrics collection when not using an interactive terminal
-      if (report.moveToComponents?.length) {
-        this.metricsMetadata.optimization_moveToComponents = true;
+      for (const reportOptimization in report) {
+        if (reportOptimization.length) {
+          this.metricsMetadata[`optimization_${reportOptimization}`] = true;
+        }
       }
-      if (report.removeComponents?.length) {
-        this.metricsMetadata.optimization_removeComponents = true;
-      }
-      if (report.reuseComponents?.length) {
-        this.metricsMetadata.optimization_reuseComponents = true;
-      }    
     } catch (e: any) {
       if (e instanceof Error) {
         this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
