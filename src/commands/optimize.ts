@@ -194,21 +194,12 @@ export default class Optimize extends Command {
       this.metricsMetadata.optimized = false;
     }
 
-    // for (const optimizationSelected of optimizationRes.optimization) {
-    //   if (optimizationSelected.length) {
-    //     this.metricsMetadata[`optimization_${optimizationSelected}`] = true;
-    //   }
-    // }
-
-    if (this.optimizations?.includes(Optimizations.MOVE_TO_COMPONENTS)) {
-      this.metricsMetadata.optimization_moveToComponents = true;
+    for (const optimizationSelected of optimizationRes.optimization) {
+      if (optimizationSelected.length) {
+        const toCamelCase = optimizationSelected.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m: any, chr: string) => chr.toUpperCase());
+        this.metricsMetadata[`optimization_${toCamelCase}`] = true;
+      }
     }
-    if (this.optimizations?.includes(Optimizations.REMOVE_COMPONENTS)) {
-      this.metricsMetadata.optimization_removeComponents = true;
-    }
-    if (this.optimizations?.includes(Optimizations.REUSE_COMPONENTS)) {
-      this.metricsMetadata.optimization_reuseComponents = true;
-    }    
 
     const outputRes = await inquirer.prompt([{
       name: 'output',
