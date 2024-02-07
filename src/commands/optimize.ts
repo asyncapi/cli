@@ -98,17 +98,15 @@ export default class Optimize extends Command {
     }
 
     try {
-      if (this.isInteractive) {
-        return;
-      }
-
       const optimizedDocument = optimizer.getOptimizedDocument({rules: {
         moveToComponents: this.optimizations.includes(Optimizations.MOVE_TO_COMPONENTS),
         removeComponents: this.optimizations.includes(Optimizations.REMOVE_COMPONENTS),
         reuseComponents: this.optimizations.includes(Optimizations.REUSE_COMPONENTS)
       }, output: Output.YAML});
 
-      this.collectMetricsData(report);
+      if (!this.isInteractive) {
+        this.collectMetricsData(report);
+      }
 
       const specPath = this.specFile.getFilePath();
       let newPath = '';
@@ -120,15 +118,18 @@ export default class Optimize extends Command {
         newPath = 'optimized-asyncapi.yaml';
       }
 
-      if (this.outputMethod === Outputs.TERMINAL) {
+      switch (this.outputMethod) {
+      case Outputs.TERMINAL:
         this.log(optimizedDocument);
-      } else if (this.outputMethod === Outputs.NEW_FILE) {
+        break;
+      case Outputs.NEW_FILE:
         await writeFile(newPath, optimizedDocument, { encoding: 'utf8' });
         this.log(`Created file ${newPath}...`);
-      } else if (this.outputMethod === Outputs.OVERWRITE) {
+        break;
+      case Outputs.OVERWRITE:
         await writeFile(specPath ?? 'asyncapi.yaml', optimizedDocument, { encoding: 'utf8' });
-
         this.log(`Updated file ${specPath}...`);
+        break;
       }
     } catch (error) {
       throw new ValidationError({
@@ -156,6 +157,7 @@ export default class Optimize extends Command {
 
     this.log('\n');
   }
+  
   private async interactiveRun(report: Report) {
     const canMove = report.moveToComponents?.length;
     const canRemove = report.removeComponents?.length;
@@ -193,7 +195,7 @@ export default class Optimize extends Command {
     if (!(this.optimizations?.length)) {
       this.metricsMetadata.optimized = false;
     }
-
+    // Metrics collection when using an interactive terminal
     for (const optimizationSelected of optimizationRes.optimization) {
       if (optimizationSelected.length) {
         const toCamelCase = optimizationSelected.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m: any, chr: string) => chr.toUpperCase());
