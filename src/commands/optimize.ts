@@ -25,14 +25,14 @@ export enum Outputs {
 export default class Optimize extends Command {
   static description = 'optimize asyncapi specification file';
   isInteractive = false;
-  optimizations?: Optimizations[];
+  selectedOptimizations?: Optimizations[];
   outputMethod?: Outputs;
 
   static examples: Example[] = [
     'asyncapi optimize ./asyncapi.yaml',
     'asyncapi optimize ./asyncapi.yaml --no-tty',
-    'asyncapi optimize ./asyncapi.yaml --optimization=remove-components,reuse-components,move-to-components --no-tty',
-    'asyncapi optimize ./asyncapi.yaml --optimization=remove-components,reuse-components,move-to-components --output=terminal --no-tty',
+    'asyncapi optimize ./asyncapi.yaml --optimization=remove-components --optimization=reuse-components --optimization=move-to-components --no-tty',
+    'asyncapi optimize ./asyncapi.yaml --optimization=remove-components --output=terminal --no-tty',
   ];
 
   static flags = {
@@ -81,14 +81,12 @@ export default class Optimize extends Command {
       );
     }
     this.isInteractive = !flags['no-tty'];
-    this.optimizations = flags.optimization as Optimizations[];
+    this.selectedOptimizations = flags.optimization as Optimizations[];
     this.outputMethod = flags.output as Outputs;
-
-    this.metricsMetadata.optimized = true;
+    this.metricsMetadata.optimized = false;
 
     if (!(report.moveToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length)) {
       this.log(`No optimization has been applied since ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} looks optimized!`);
-      this.metricsMetadata.optimized = false;
       return;
     }
     
@@ -99,14 +97,12 @@ export default class Optimize extends Command {
 
     try {
       const optimizedDocument = optimizer.getOptimizedDocument({rules: {
-        moveToComponents: this.optimizations.includes(Optimizations.MOVE_TO_COMPONENTS),
-        removeComponents: this.optimizations.includes(Optimizations.REMOVE_COMPONENTS),
-        reuseComponents: this.optimizations.includes(Optimizations.REUSE_COMPONENTS)
+        moveToComponents: this.selectedOptimizations.includes(Optimizations.MOVE_TO_COMPONENTS),
+        removeComponents: this.selectedOptimizations.includes(Optimizations.REMOVE_COMPONENTS),
+        reuseComponents: this.selectedOptimizations.includes(Optimizations.REUSE_COMPONENTS)
       }, output: Output.YAML});
 
-      if (!this.isInteractive) {
-        this.collectMetricsData(report);
-      }
+      this.collectMetricsData(report);
 
       const specPath = this.specFile.getFilePath();
       let newPath = '';
@@ -157,7 +153,7 @@ export default class Optimize extends Command {
 
     this.log('\n');
   }
-  
+
   private async interactiveRun(report: Report) {
     const canMove = report.moveToComponents?.length;
     const canRemove = report.removeComponents?.length;
@@ -190,19 +186,8 @@ export default class Optimize extends Command {
       choices
     }]);
 
-    this.optimizations = optimizationRes.optimization;
-    
-    if (!(this.optimizations?.length)) {
-      this.metricsMetadata.optimized = false;
-    }
-    // Metrics collection when using an interactive terminal
-    for (const optimizationSelected of optimizationRes.optimization) {
-      if (optimizationSelected.length) {
-        const toCamelCase = optimizationSelected.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m: any, chr: string) => chr.toUpperCase());
-        this.metricsMetadata[`optimization_${toCamelCase}`] = true;
-      }
-    }
-
+    this.selectedOptimizations = optimizationRes.optimization;
+        
     const outputRes = await inquirer.prompt([{
       name: 'output',
       message: 'where do you want to save the result:',
@@ -214,16 +199,11 @@ export default class Optimize extends Command {
   }
 
   private collectMetricsData(report: Report) {
-    try {
-      // Metrics collection when not using an interactive terminal
-      for (const reportOptimization in report) {
-        if (reportOptimization.length) {
-          this.metricsMetadata[`optimization_${reportOptimization}`] = true;
-        }
-      }
-    } catch (e: any) {
-      if (e instanceof Error) {
-        this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
+    for (const availableOptimization in report) {
+      const availableOptimizationKebabCase = availableOptimization.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase(); // optimization flags are kebab case
+      if (availableOptimization.length && this.selectedOptimizations?.includes(availableOptimizationKebabCase as Optimizations)) {
+        this.metricsMetadata[`optimization_${availableOptimization}`] = true;
+        this.metricsMetadata.optimized = true;
       }
     }
   }
