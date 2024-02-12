@@ -9,7 +9,7 @@ const generalOptions = [
   './test/fixtures/specification.yml',
   '@asyncapi/minimaltemplate',
 ];
-const asyncapiv3 = './test/fixtures/specification-v3.yml';
+const asyncapiv3 = './test/fixtures/asyncapi_v3.yml';
 
 function cleanup(filepath: string) {
   rimraf.sync(filepath);

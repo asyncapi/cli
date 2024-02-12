@@ -1,7 +1,7 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import { expect, test } from '@oclif/test';
 
-const asyncapiv3 = './test/fixtures/specification-v3.yml';
+const asyncapiv3 = './test/fixtures/asyncapi_v3.yml';
 const asyncapiv2 = './test/fixtures/specification.yml';
 const noChangesJson = '"{\\n  \\"changes\\": []\\n}\\n"';
 const breakingChangesJson = '"[\\n  {\\n    \\"action\\": \\"edit\\",\\n    \\"path\\": \\"/servers/mosquitto/protocol\\",\\n    \\"before\\": \\"mqtt\\",\\n    \\"after\\": \\"http\\",\\n    \\"type\\": \\"breaking\\"\\n  },\\n  {\\n    \\"action\\": \\"edit\\",\\n    \\"path\\": \\"/servers/mosquitto/url\\",\\n    \\"before\\": \\"mqtt://test.mosquitto.org\\",\\n    \\"after\\": \\"http://test.mosquitto.org\\",\\n    \\"type\\": \\"breaking\\"\\n  }\\n]\\n"';

@@ -7,7 +7,7 @@ import { createMockServer, stopMockServer } from '../../helpers';
 import rimraf from 'rimraf';
 const generalOptions = ['generate:models'];
 const outputDir = './test/fixtures/generate/models';
-const asyncapiv3 = './test/fixtures/specification-v3.yml';
+const asyncapiv3 = './test/fixtures/asyncapi_v3.yml';
 
 describe('models', () => {
   before(() => {
@@ -17,17 +17,18 @@ describe('models', () => {
     stopMockServer();
     rimraf.sync(outputDir);
   });
-  describe('should handle AsyncAPI v3 document correctly', () => {
-    test
-      .stderr()
-      .stdout()
-      .command([
-        ...generalOptions, 'typescript', asyncapiv3])
-      .it('give error', (ctx, done) => {
-        expect(ctx.stderr).to.contain('Error: Generate Models command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/modelina/issues/1376\n');
-        done();
-      });
-  });
+
+  test
+    .stderr()
+    .stdout()
+    .command([
+      ...generalOptions, 'typescript', asyncapiv3])
+    .it('should generate AsyncAPI v3 document', (ctx, done) => {
+      expect(ctx.stdout).to.contain(
+        'Successfully generated the following models: '
+      );
+      done();
+    });
   test
     .stderr()
     .stdout()
@@ -44,7 +45,7 @@ describe('models', () => {
     .stdout()
     .command([...generalOptions, 'random', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './random')}`])
     .it('fails when it dont know the language', (ctx, done) => {
-      expect(ctx.stderr).to.contain('Error: Expected random to be one of: typescript, csharp, golang, java, javascript, dart, python, rust, kotlin, php, cplusplus\nSee more help with --help\n');
+      expect(ctx.stderr).to.contain('Error: Expected random to be one of: typescript, csharp, golang, java, javascript, dart, python, rust, kotlin, php, cplusplus, scala\nSee more help with --help\n');
       done();
     });
   test
@@ -120,6 +121,27 @@ describe('models', () => {
         expect(ctx.stdout).to.contain(
           'Successfully generated the following models: '
         );
+        done();
+      });
+  });
+
+  describe('for Scala', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'scala', './test/fixtures/specification.yml', `-o=${path.resolve(outputDir, './scala')}`, '--packageName=\'asyncapi.models\''])
+      .it('works when file path is passed', (ctx, done) => {
+        expect(ctx.stdout).to.contain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions, 'scala', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './scala')}`])
+      .it('fails when no package provided', (ctx, done) => {
+        expect(ctx.stderr).to.contain('Error: In order to generate models to Scala, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.\n');
         done();
       });
   });

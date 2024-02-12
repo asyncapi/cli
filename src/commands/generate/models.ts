@@ -1,4 +1,4 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, CSHARP_NEWTONSOFT_SERIALIZER_PRESET, CSHARP_COMMON_PRESET, CSHARP_JSON_SERIALIZER_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET, PhpFileGenerator, CplusplusFileGenerator, JAVA_CONSTRAINTS_PRESET, JAVA_JACKSON_PRESET, JAVA_COMMON_PRESET, JAVA_DESCRIPTION_PRESET } from '@asyncapi/modelina';
+import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, CSHARP_NEWTONSOFT_SERIALIZER_PRESET, CSHARP_COMMON_PRESET, CSHARP_JSON_SERIALIZER_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET, PhpFileGenerator, CplusplusFileGenerator, JAVA_CONSTRAINTS_PRESET, JAVA_JACKSON_PRESET, JAVA_COMMON_PRESET, JAVA_DESCRIPTION_PRESET, ScalaFileGenerator } from '@asyncapi/modelina';
 import { Flags } from '@oclif/core';
 import { ConvertDocumentParserAPIVersion } from '@smoya/multi-parser';
 import Command from '../../base';
@@ -18,7 +18,8 @@ enum Languages {
   rust = 'rust',
   kotlin='kotlin',
   php='php',
-  cplusplus='cplusplus'
+  cplusplus='cplusplus',
+  scala='scala'
 }
 const possibleLanguageValues = Object.values(Languages).join(', ');
 
@@ -171,20 +172,12 @@ export default class Models extends Command {
     const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, tsExampleInstance, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, javaIncludeComments, javaJackson, javaConstraints, output } = flags;
     const { language, file } = args;
     const inputFile = (await load(file)) || (await load());
-    if (inputFile.isAsyncAPI3()) {
-      this.error('Generate Models command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/modelina/issues/1376');
-    }
     const { document, diagnostics ,status } = await parse(this, inputFile, flags);
     if (!document || status === 'invalid') {
       const severityErrors = diagnostics.filter((obj) => obj.severity === 0);
       this.log(`Input is not a correct AsyncAPI document so it cannot be processed.${formatOutput(severityErrors,'stylish','error')}`);
       return;
     }
-    
-    // Modelina, atm, is not using @asyncapi/parser@v3.x but @asyncapi/parser@v2.x, so it still uses Parser-API v1.0.0. 
-    // This call converts the parsed document object using @asyncapi/parser@v3.x (Parser-API v2) to a document compatible with the Parser-API version in use in @asyncapi/parser@v2.x  (v1)
-    // This is needed until https://github.com/asyncapi/modelina/issues/1493 gets fixed.
-    const convertedDoc = ConvertDocumentParserAPIVersion(document.json(), 1);
 
     Logger.setLogger({
       info: (message) => {
@@ -242,15 +235,6 @@ export default class Models extends Command {
       if (namespace === undefined) {
         throw new Error('In order to generate models to C#, we need to know which namespace they are under. Add `--namespace=NAMESPACE` to set the desired namespace.');
       }
-
-      if (csharpAutoImplement) {
-        presets.push({
-          preset: CSHARP_DEFAULT_PRESET,
-          options: {
-            autoImplementedProperties: true
-          }
-        });
-      }
       if (csharpNewtonsoft) {
         presets.push(CSHARP_NEWTONSOFT_SERIALIZER_PRESET);
       }
@@ -269,7 +253,8 @@ export default class Models extends Command {
 
       fileGenerator = new CSharpFileGenerator({
         presets,
-        collectionType: csharpArrayType as 'Array' | 'List'
+        collectionType: csharpArrayType as 'Array' | 'List',
+        autoImplementedProperties: csharpAutoImplement
       });
 
       fileOptions = {
@@ -283,6 +268,15 @@ export default class Models extends Command {
       fileGenerator = new CplusplusFileGenerator({
         namespace
       });
+      break;
+    case Languages.scala:
+      if (packageName === undefined) {
+        throw new Error('In order to generate models to Scala, we need to know which package they are under. Add `--packageName=PACKAGENAME` to set the desired package name.');
+      }
+      fileGenerator = new ScalaFileGenerator();
+      fileOptions = {
+        packageName
+      };
       break;
     case Languages.golang:
       if (packageName === undefined) {
@@ -345,7 +339,7 @@ export default class Models extends Command {
 
     if (output) {
       const models = await fileGenerator.generateToFiles(
-        convertedDoc as any,
+        document,
         output,
         { ...fileOptions, });
       const generatedModels = models.map((model) => { return model.modelName; });
@@ -354,7 +348,7 @@ export default class Models extends Command {
     }
 
     const models = await fileGenerator.generateCompleteModels(
-      convertedDoc as any,
+      document,
       { ...fileOptions });
     const generatedModels = models.map((model) => {
       return `
