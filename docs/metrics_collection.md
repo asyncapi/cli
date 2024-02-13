@@ -42,4 +42,6 @@ Metrics won't be collected in CI environments, or when the "CI" env variable is 
 ## How to disable tracking
 To disable tracking, set the "ASYNCAPI_METRICS" env variable to "false" when executing the command. For instance: `ASYNCAPI_METRICS=false asyncapi validate <spec-file-path>`
 
+Also you can set the env variable permanently so you don't need to disable tracking in every command execution: `export ASYNCAPI_METRICS="false"`
+
 Remember that keeping this tracking enabled will help AsyncAPI community to provide better specifications and tools in the future.
