@@ -2,6 +2,8 @@ import { Command } from '@oclif/core';
 import { MetadataFromDocument, MetricMetadata, NewRelicSink, Recorder, Sink, StdOutSink } from '@smoya/asyncapi-adoption-metrics';
 import { Parser } from '@asyncapi/parser';
 import { Specification } from 'models/SpecificationFile';
+import { join, resolve } from 'path';
+import { existsSync, readFileSync, writeFile } from 'fs-extra';
 
 class DiscardSink implements Sink {
   async send() {
@@ -63,8 +65,8 @@ export default abstract class extends Command {
 
   async recordActionMetric(recordFunc: (recorder: Recorder) => Promise<void>) {
     try {
-      await recordFunc(this.recorder);
-      await this.recorder.flush();
+      await recordFunc(await this.recorder);
+      await (await this.recorder).flush();
     } catch (e: any) {
       if (e instanceof Error) {
         this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
@@ -78,8 +80,18 @@ export default abstract class extends Command {
     await this.recordActionFinished(this.id as string, this.metricsMetadata, this.specFile?.text());
   }
 
-  recorderFromEnv(prefix: string): Recorder {
+  async recorderFromEnv(prefix: string): Promise<Recorder> {
     let sink: Sink = new DiscardSink();
+    const analyticsConfigFile = join(process.cwd(), '.asyncapi-analytics');
+
+    if (!existsSync(analyticsConfigFile)) {
+      await writeFile(analyticsConfigFile, JSON.stringify({ analyticsEnabled: 'true', infoMessageShown: 'false' }), { encoding: 'utf8' });
+    } else {
+      const analyticsConfigFileContent = JSON.parse(readFileSync(resolve(analyticsConfigFile), 'utf-8'));
+      if (analyticsConfigFileContent.analyticsEnabled === 'false') {
+        process.env.ASYNCAPI_METRICS = 'false';
+      }
+    }
     
     if (process.env.ASYNCAPI_METRICS !== 'false' && process.env.CI !== 'true') {
       switch (process.env.NODE_ENV) {
@@ -92,8 +104,14 @@ export default abstract class extends Command {
         break;
       case 'production':
         // NODE_ENV set to `production` in bin/run_bin, which is specified in 'bin' package.json section
-        sink = new NewRelicSink(process.env.ASYNCAPI_METRICS_NEWRELIC_KEY || 'eu01xx73a8521047150dd9414f6aedd2FFFFNRAL');
-        this.warn('AsyncAPI anonymously tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.\n\nTo disable tracking, set the "ASYNCAPI_METRICS" env variable to "false" when executing the command. For instance:\n\nASYNCAPI_METRICS=false asyncapi validate spec_file.yaml');
+        sink = new NewRelicSink(process.env.ASYNCAPI_METRICS_NEWRELIC_KEY || 'eu01xx73a8521047150dd9414f6aedd2FFFFNRAL'); 
+        const analyticsConfigFileContent = JSON.parse(readFileSync(resolve(analyticsConfigFile), 'utf-8'));
+
+        if (existsSync(analyticsConfigFile) && (analyticsConfigFileContent.infoMessageShown === 'false')) {
+          this.warn('AsyncAPI anonymously tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.\n\nTo disable tracking, please run the following command :\n  asyncapi config analytics --disable\n\nOnce disabled, if you want to enable tracking again then run:\n  asyncapi config analytics');
+          analyticsConfigFileContent.infoMessageShown = 'true';
+          await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), { encoding: 'utf8' });
+        }        
         break;
       }
     }
