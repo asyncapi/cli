@@ -14,18 +14,20 @@ export default class Analytics extends Command {
     try {
       const { flags } = await this.parse(Analytics);
       const isDisabled = flags.disable;
+      const isEnabled = flags.enable;
       const analyticsConfigFile = join(process.cwd(), '.asyncapi-analytics');
-      const analyticsConfigFileContent = JSON.parse(readFileSync(resolve(process.cwd(), '.asyncapi-analytics'), 'utf-8'));
+      const analyticsConfigFileContent = JSON.parse(readFileSync(resolve(analyticsConfigFile), 'utf-8'));
   
       if (isDisabled) {
         analyticsConfigFileContent.analyticsEnabled = 'false';
         await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), {encoding: 'utf8'});      
         this.log('Analytics disabled.');
-      } else {
+      } else if (isEnabled){
         analyticsConfigFileContent.analyticsEnabled = 'true';
         await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), {encoding: 'utf8'});
         this.log('Analytics enabled.');
       }
+      
     } catch (e: any) {
       this.error(e as Error);
     }  
