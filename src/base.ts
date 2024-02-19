@@ -108,15 +108,14 @@ export default abstract class extends Command {
         const analyticsConfigFileContent = JSON.parse(readFileSync(resolve(analyticsConfigFile), 'utf-8'));
 
         if (existsSync(analyticsConfigFile) && (analyticsConfigFileContent.infoMessageShown === 'false')) {
-          this.warn('AsyncAPI anonymously tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.\n\nTo disable tracking, please run the following command :\n  asyncapi config analytics --disable\n\nOnce disabled, if you want to enable tracking again then run:\n  asyncapi config analytics');
+          this.log('\nAsyncAPI anonymously tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.\n\nTo disable tracking, please run the following command:\n  asyncapi config analytics --disable\n\nOnce disabled, if you want to enable tracking back again then run:\n  asyncapi config analytics');
           analyticsConfigFileContent.infoMessageShown = 'true';
           await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), { encoding: 'utf8' });
         }        
         break;
       }
     }
-  
+    
     return new Recorder(prefix, sink);
   }
 }
-
