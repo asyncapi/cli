@@ -29,7 +29,10 @@ export default class Validate extends Command {
     }
 
     const result = await validate(this, this.specFile, flags);
-
     this.metricsMetadata.validation_result = result;
+    
+    if (result === 'invalid') {
+      process.exitCode = 1;
+    }
   }
 }
