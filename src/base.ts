@@ -92,12 +92,11 @@ export default abstract class extends Command {
       case 'production':
         // NODE_ENV set to `production` in bin/run_bin, which is specified in 'bin' package.json section
         sink = new NewRelicSink(process.env.ASYNCAPI_METRICS_NEWRELIC_KEY || 'eu01xx73a8521047150dd9414f6aedd2FFFFNRAL');
-        this.log('\nAsyncAPI anonymously tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.\n\nTo disable tracking, set the "ASYNCAPI_METRICS" env variable to "false" when executing the command. For instance: ASYNCAPI_METRICS=false asyncapi validate spec_file.yaml');
+        this.log('\nAsyncAPI anonymously tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.\n\nTo disable tracking, please run the following command:\n  asyncapi config analytics --disable\n\nOnce disabled, if you want to enable tracking back again then run:\n  asyncapi config analytics');
         break;
       }
     }
-  
+    
     return new Recorder(prefix, sink);
   }
 }
-

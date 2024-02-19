@@ -40,8 +40,10 @@ We are making use of [New Relic API](https://docs.newrelic.com/docs/apis/intro-a
 Metrics won't be collected in CI environments, or when the "CI" env variable is set up to "true".
 
 ## How to disable tracking
-To disable tracking, set the "ASYNCAPI_METRICS" env variable to "false" when executing the command. For instance: `ASYNCAPI_METRICS=false asyncapi validate <spec-file-path>`
+To disable tracking, please run the following command:
+`asyncapi config analytics --disable`
 
-Also you can set the env variable permanently so you don't need to disable tracking in every command execution: `export ASYNCAPI_METRICS="false"`
+Once disabled, if you want to enable tracking back again then run:
+`asyncapi config analytics`
 
 Remember that keeping this tracking enabled will help AsyncAPI community to provide better specifications and tools in the future.
