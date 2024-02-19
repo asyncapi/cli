@@ -6,6 +6,7 @@ import { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
 import open from 'open';
 import path from 'path';
+import { version as studioVersion } from '@asyncapi/studio/package.json';
 
 const { readFile, writeFile } = fPromises;
 
@@ -46,7 +47,7 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
 
   const server = createServer((request, response) => {
     //not all CLI users use npm. Some package managers put dependencies in different weird places
-    //this is why we need to first figure out where exactly is the index.html located 
+    //this is why we need to first figure out where exactly is the index.html located
     //and then strip index.html from the path to point to directory with the rest of the studio
     const indexLocation = require.resolve('@asyncapi/studio/build/index.html');
     const hostFolder = indexLocation.substring(0, indexLocation.lastIndexOf(path.sep));
@@ -88,16 +89,16 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
         }
       } catch (e) {
         console.error(`Live Server: An invalid event has been received. See details:\n${event}`);
-      }      
+      }
     });
   });
-  
+
   wsServer.on('close', (socket: any) => {
     sockets.splice(sockets.findIndex(s => s === socket));
   });
 
   server.listen(port, () => {
-    const url = `http://localhost:${port}?liveServer=${port}`;
+    const url = `http://localhost:${port}?liveServer=${port}&_sv=${studioVersion}`;
     console.log(`Studio is running at ${url}`);
     console.log(`Watching changes on file ${filePath}`);
     open(url);
