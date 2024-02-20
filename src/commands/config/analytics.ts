@@ -30,19 +30,17 @@ export default class Analytics extends Command {
         this.log('\nPlease append the "--disable" flag to the command in case you prefer to disable analytics, or use the "--enable" flag if you want to enable analytics back again.\n');
         return;
       }
-      
-      await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), { encoding: 'utf8' });      
-
+      await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), { encoding: 'utf8' });
     } catch (e: any) {
       switch (e.code) {
-        case'ENOENT':
-          this.error(`Unable to access the analytics configuration file. We tried to access the ".asyncapi-analytics" file in your current working directory ("${process.cwd()}") but the file could not be found.`);
-          break;
-        case 'EEXIST':
-          this.error(`Unable to update the analytics configuration file. We tried to update your ".asyncapi-analytics" file in the path "${analyticsConfigFile}" but the file does not exist.`);
-          break;
-        default:
-          this.error(`Unable to change your analytics configuration. Please check the following message for further info about the error:\n\n${e}`);
+      case 'ENOENT':
+        this.error(`Unable to access the analytics configuration file. We tried to access the ".asyncapi-analytics" file in your current working directory ("${process.cwd()}") but the file could not be found.`);
+        break;
+      case 'EEXIST':
+        this.error(`Unable to update the analytics configuration file. We tried to update your ".asyncapi-analytics" file in the path "${analyticsConfigFile}" but the file does not exist.`);
+        break;
+      default:
+        this.error(`Unable to change your analytics configuration. Please check the following message for further info about the error:\n\n${e}`);
       }
     }
   }  
