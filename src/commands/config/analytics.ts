@@ -14,11 +14,12 @@ export default class Analytics extends Command {
   };
 
   async run() {
+    const { flags } = await this.parse(Analytics);
+    const isDisabled = flags.disable;
+    const isEnabled = flags.enable;
+    const analyticsConfigFile = join(process.cwd(), '.asyncapi-analytics');
+
     try {
-      const { flags } = await this.parse(Analytics);
-      const isDisabled = flags.disable;
-      const isEnabled = flags.enable;
-      const analyticsConfigFile = join(process.cwd(), '.asyncapi-analytics');
       const analyticsConfigFileContent = JSON.parse(await readFile(resolve(analyticsConfigFile), { encoding: 'utf8' }));
 
       if (isDisabled) {
@@ -32,7 +33,16 @@ export default class Analytics extends Command {
       }
 
     } catch (e: any) {
-      this.error(e as Error);
-    }  
-  }
+      switch (e.code) {
+        case'ENOENT':
+          this.error(`Unable to access the analytics configuration file. We tried to access the ".asyncapi-analytics" file in your current working directory ("${process.cwd()}") but the file could not be found.`);
+          break;
+        case 'EEXIST':
+          this.error(`Unable to update the analytics configuration file. We tried to update your ".asyncapi-analytics" file in the path "${analyticsConfigFile}" but the file does not exist.`);
+          break;
+        default:
+          this.error(`Unable to change your analytics configuration. Please check the following message for further info about the error:\n\n${e}`);
+      }
+    }
+  }  
 }
