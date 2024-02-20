@@ -1,7 +1,9 @@
 import { Flags } from '@oclif/core';
-import { readFileSync, writeFile } from 'fs-extra';
 import { join, resolve } from 'path';
 import Command from '../../base';
+import { promises as fPromises } from 'fs';
+
+const { readFile, writeFile } = fPromises;
 
 export default class Analytics extends Command {
   static description = 'Enable or disable analytics for metrics collection';
@@ -17,15 +19,15 @@ export default class Analytics extends Command {
       const isDisabled = flags.disable;
       const isEnabled = flags.enable;
       const analyticsConfigFile = join(process.cwd(), '.asyncapi-analytics');
-      const analyticsConfigFileContent = JSON.parse(readFileSync(resolve(analyticsConfigFile), 'utf-8'));
+      const analyticsConfigFileContent = JSON.parse(await readFile(resolve(analyticsConfigFile), { encoding: 'utf8' }));
 
       if (isDisabled) {
         analyticsConfigFileContent.analyticsEnabled = 'false';
-        await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), {encoding: 'utf8'});      
+        await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), { encoding: 'utf8' });      
         this.log('Analytics disabled.');
       } else if (isEnabled){
         analyticsConfigFileContent.analyticsEnabled = 'true';
-        await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), {encoding: 'utf8'});
+        await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), { encoding: 'utf8' });
         this.log('Analytics enabled.');
       }
 

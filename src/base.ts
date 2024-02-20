@@ -3,7 +3,10 @@ import { MetadataFromDocument, MetricMetadata, NewRelicSink, Recorder, Sink, Std
 import { Parser } from '@asyncapi/parser';
 import { Specification } from 'models/SpecificationFile';
 import { join, resolve } from 'path';
-import { existsSync, readFileSync, writeFile } from 'fs-extra';
+import { existsSync } from 'fs-extra';
+import { promises as fPromises } from 'fs';
+
+const { readFile, writeFile } = fPromises;
 
 class DiscardSink implements Sink {
   async send() {
@@ -88,7 +91,7 @@ export default abstract class extends Command {
       await writeFile(analyticsConfigFile, JSON.stringify({ analyticsEnabled: 'true', infoMessageShown: 'false' }), { encoding: 'utf8' });
     }
 
-    const analyticsConfigFileContent = JSON.parse(readFileSync(resolve(analyticsConfigFile), 'utf-8'));
+    const analyticsConfigFileContent = JSON.parse(await readFile(resolve(analyticsConfigFile), { encoding: 'utf8' }));
 
     if (analyticsConfigFileContent.analyticsEnabled !== 'false' && process.env.CI !== 'true') {
       switch (process.env.NODE_ENV) {
