@@ -17,7 +17,7 @@
     "@asyncapi/openapi-schema-parser": "^3.0.12",
     "@asyncapi/optimizer": "^0.3.6",
     "@asyncapi/parser": "^3.0.7",
-    "@asyncapi/protobuf-schema-parser": "^3.2.1",
+    "@asyncapi/protobuf-schema-parser": "^3.2.4",
     "@asyncapi/raml-dt-schema-parser": "^4.0.14",
     "@asyncapi/studio": "^0.20.0",
     "@oclif/core": "^1.26.2",
