@@ -1,6 +1,6 @@
 import {Flags} from '@oclif/core';
 import Command from '../../base';
-import { start as startStudio } from '../../models/Studio';
+import { start as startStudio, startOnline } from '../../models/Studio';
 import { load } from '../../models/SpecificationFile';
 
 export default class StartStudio extends Command {
@@ -19,6 +19,7 @@ export default class StartStudio extends Command {
     const filePath = flags.file || (await load()).getFilePath();
     const port = flags.port;
 
-    startStudio(filePath as string, port);
+    //startStudio(filePath as string, port);
+    startOnline(filePath as string)
   }
 }
