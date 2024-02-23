@@ -7,7 +7,6 @@ import { existsSync } from 'fs-extra';
 import { promises as fPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 
-
 const { readFile, writeFile } = fPromises;
 
 class DiscardSink implements Sink {
