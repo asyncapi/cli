@@ -1,7 +1,7 @@
 import { existsSync, writeFileSync, unlinkSync,rmdirSync, mkdirSync , promises as fs } from 'fs';
 import * as path from 'path';
-import { IContextFile, CONTEXT_FILE_PATH } from '../../src/models/Context';
-import SpecificationFile from '../../src/models/SpecificationFile';
+import { IContextFile, CONTEXT_FILE_PATH } from '../../src/internal/models/Context';
+import SpecificationFile from '../../src/internal/models/SpecificationFile';
 import http from 'http';
 import rimraf from 'rimraf';
 

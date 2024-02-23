@@ -2,7 +2,7 @@ import path from 'path';
 import { test } from '@oclif/test';
 import TestHelper, { createMockServer, stopMockServer } from '../helpers';
 import inquirer from 'inquirer';
-import {Optimizations, Outputs} from '../../src/commands/optimize';
+import {Optimizations, Outputs} from '../../src/adapters/cli/commands/optimize';
 import { expect } from '@oclif/test';
 
 const testHelper = new TestHelper();
