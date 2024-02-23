@@ -5,6 +5,8 @@ import { Specification } from 'models/SpecificationFile';
 import { join, resolve } from 'path';
 import { existsSync } from 'fs-extra';
 import { promises as fPromises } from 'fs';
+import { v4 as uuidv4 } from 'uuid';
+
 
 const { readFile, writeFile } = fPromises;
 
@@ -23,7 +25,7 @@ export default abstract class extends Command {
   async init(): Promise<void> {
     await super.init();
     const commandName : string = this.id || '';
-    await this.recordActionInvoked(commandName);
+    await this.recordActionInvoked(commandName, this.metricsMetadata);
   }
 
   async catch(err: Error & { exitCode?: number; }): Promise<any> {
@@ -88,10 +90,11 @@ export default abstract class extends Command {
     const analyticsConfigFile = join(process.cwd(), '.asyncapi-analytics');
 
     if (!existsSync(analyticsConfigFile)) {
-      await writeFile(analyticsConfigFile, JSON.stringify({ analyticsEnabled: 'true', infoMessageShown: 'false' }), { encoding: 'utf8' });
+      await writeFile(analyticsConfigFile, JSON.stringify({ analyticsEnabled: 'true', infoMessageShown: 'false', userID: uuidv4()}), { encoding: 'utf8' });
     }
 
     const analyticsConfigFileContent = JSON.parse(await readFile(resolve(analyticsConfigFile), { encoding: 'utf8' }));
+    this.metricsMetadata['user'] = analyticsConfigFileContent.userID;
 
     if (analyticsConfigFileContent.analyticsEnabled !== 'false' && process.env.CI !== 'true') {
       switch (process.env.NODE_ENV) {
