@@ -6,8 +6,8 @@ import { promises as fPromises } from 'fs';
 const { readFile, writeFile } = fPromises;
 
 export default class Analytics extends Command {
-  static description = 'Enable or disable analytics for metrics collection';
-  static flags = {
+  static readonly description = 'Enable or disable analytics for metrics collection';
+  static readonly flags = {
     help: Flags.help({ char: 'h' }),
     disable: Flags.boolean({ char: 'd', description: 'disable analytics', default: false }),
     enable: Flags.boolean({ char: 'e', description: 'enable analytics', default: false }),
