@@ -98,7 +98,7 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
   });
 
   server.listen(port, () => {
-    const url = `http://localhost:${port}?liveServer=${port}&_sv=${studioVersion}`;
+    const url = `http://localhost:${port}?liveServer=${port}&studio-version=${studioVersion}`;
     console.log(`Studio is running at ${url}`);
     console.log(`Watching changes on file ${filePath}`);
     open(url);
