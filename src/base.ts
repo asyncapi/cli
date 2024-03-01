@@ -4,7 +4,7 @@ import { Parser } from '@asyncapi/parser';
 import { Specification } from 'models/SpecificationFile';
 import { join, resolve } from 'path';
 import { existsSync } from 'fs-extra';
-import { promises as fPromises, readFileSync } from 'fs';
+import { promises as fPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 
@@ -82,12 +82,12 @@ export default abstract class extends Command {
   async finally(error: Error | undefined): Promise<any> {
     await super.finally(error);
     this.metricsMetadata['success'] = error === undefined;
-    this.metricsMetadata['source'] = this.generateSHA1();
+    this.metricsMetadata['source'] = await this.generateSHA1(this.specFile?.getSource() || '');
     await this.recordActionFinished(this.id as string, this.metricsMetadata, this.specFile?.text());
   }
   
-  generateSHA1(): any {
-    const fileBuffer = readFileSync(this.specFile?.getSource() || '');
+  async generateSHA1(filePath: string): Promise<any> {
+    const fileBuffer = await readFile(filePath);
     const hashSum = crypto.createHash('sha1');
     hashSum.update(fileBuffer);
     return hashSum.digest('hex');
