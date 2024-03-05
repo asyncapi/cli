@@ -82,7 +82,7 @@ export default abstract class extends Command {
   async finally(error: Error | undefined): Promise<any> {
     await super.finally(error);
     this.metricsMetadata['success'] = error === undefined;
-    this.metricsMetadata['source'] = this.generateSHA256(this.specFile?.getSource() || '');
+    this.metricsMetadata['source'] = this.generateSHA256(this.specFile?.getSource() ?? '');
     await this.recordActionFinished(this.id as string, this.metricsMetadata, this.specFile?.text());
   }
   
