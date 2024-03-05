@@ -4,6 +4,7 @@ import Command from '../../base';
 import * as inquirer from 'inquirer';
 import { start as startStudio, DEFAULT_PORT } from '../../models/Studio';
 import { resolve } from 'path';
+import { load } from '../../models/SpecificationFile';
 
 const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
@@ -167,5 +168,7 @@ export default class NewFile extends Command {
     }
     await writeFile(fileNameToWriteToDisk, asyncApiFile, { encoding: 'utf8' });
     console.log(`Created file ${fileNameToWriteToDisk}...`);
+    this.specFile = await load(fileNameToWriteToDisk);
+    this.metricsMetadata.selected_template = selectedTemplate;
   }
 }
