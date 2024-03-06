@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "1.5.16",
+  "version": "1.6.0",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run"
@@ -35,7 +35,7 @@
     "js-yaml": "^4.1.0",
     "lodash.template": "^4.4.0",
     "node-fetch": "^2.0.0",
-    "oclif": "^3.7.3",
+    "oclif": "^4.2.0",
     "open": "^8.4.0",
     "reflect-metadata": "^0.1.13",
     "request": "^2.88.2",
