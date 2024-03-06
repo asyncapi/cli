@@ -398,6 +398,9 @@ FLAGS
   --force-write                  Force writing of the generated files to given directory even if it is a git repo with
                                  unstaged files or not empty dir (defaults to false)
   --map-base-url=<value>         Maps all schema references from base url to local folder
+  --registry-url=<value>         Specifies URL of private registry for fetching templates&dependencies
+  --registry-auth=<value>        The registry username and password encoded with base64, formatted as username:password
+  --registry-token=<value>       The npm registry authentication token
 
 DESCRIPTION
   Generates whatever you want using templates compatible with AsyncAPI Generator.
