@@ -45,6 +45,7 @@ export default abstract class extends Command {
         const {document} = await this.parser.parse(rawDocument);
         if (document !== undefined) {
           metadata = MetadataFromDocument(document, metadata);
+          metadata['source'] = this.generateSHA256(document.info().title());
         }
       } catch (e: any) {
         if (e instanceof Error) {
@@ -82,14 +83,12 @@ export default abstract class extends Command {
   async finally(error: Error | undefined): Promise<any> {
     await super.finally(error);
     this.metricsMetadata['success'] = error === undefined;
-    this.metricsMetadata['source'] = this.generateSHA256(this.specFile?.getSource() ?? '');
     await this.recordActionFinished(this.id as string, this.metricsMetadata, this.specFile?.text());
   }
   
-  async generateSHA256(filePath: string): Promise<any> {
-    const fileBuffer = await readFile(filePath);
+  generateSHA256(fileContent: string): string {
     const hashSum = crypto.createHash('sha256');
-    hashSum.update(fileBuffer);
+    hashSum.update(fileContent);
     return hashSum.digest('hex');
   }
 
