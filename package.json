@@ -35,7 +35,7 @@
     "js-yaml": "^4.1.0",
     "lodash.template": "^4.4.0",
     "node-fetch": "^2.0.0",
-    "oclif": "^3.7.3",
+    "oclif": "^3.17.2",
     "open": "^8.4.0",
     "reflect-metadata": "^0.1.13",
     "request": "^2.88.2",
