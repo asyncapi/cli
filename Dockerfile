@@ -1,6 +1,7 @@
-FROM node:16-alpine
+FROM node:20-alpine
 
-ARG ASYNCAPI_CLI_VERSION=0.59.1
+# docker build -t cli:20 .  # to build image
+# docker compose up # to launch container with running studio, note you need to add a random asyncapi.yaml to ./output folder
 
 # Create a non-root user
 RUN addgroup -S myuser && adduser -S myuser -G myuser
@@ -19,7 +20,7 @@ RUN apk --update add git chromium && \
     rm /var/cache/apk/*
 
 # Installing latest released npm package
-RUN npm install --ignore-scripts -g @asyncapi/cli@"$ASYNCAPI_CLI_VERSION"
+RUN npm install --ignore-scripts -g @asyncapi/cli
 
 # Switch to the non-root user
 USER myuser

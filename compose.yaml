@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  studio:
+    image: clitest:20
+    ports:
+      - "8081:3210"
+    volumes:
+      - ${PWD}/output:/app 
+    networks:
+      - default
+    user: root
+    command: start studio
+    
+networks:
+  default: {}
