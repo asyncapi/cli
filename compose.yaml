@@ -2,7 +2,7 @@ version: '3'
 
 services:
   studio:
-    image: clitest:20
+    image: cli:20
     ports:
       - "8081:3210"
     volumes:
