@@ -83,4 +83,18 @@ describe('bundle', () => {
       fileCleanup('./test/integration/bundle/final.yaml');
       done();
     });
+
 });
+
+describe('bundle spec v3', () => {
+  test
+    .stdout()
+    .command([
+      'bundle', './test/integration/bundle/first-asyncapiv3.yaml',
+      '--output=test/integration/bundle/final.yaml',
+    ]).it('should be able to bundle v3 spec correctly', (ctx, done) => {
+      expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n')
+      fileCleanup('./test/integration/bundle/final.yaml')
+      done()
+    })
+})
