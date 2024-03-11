@@ -8,6 +8,6 @@ export async function runApi(port: string| number) {
     new GeneratorController()
   ], port);
   await app.init();
-  app.listen();
+  return app.listen();
 }
 // runApi();

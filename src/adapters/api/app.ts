@@ -36,9 +36,8 @@ export class App {
     await this.initializeErrorHandling();
   }
   public listen() {
-    this.app.listen(this.port, () => {
+    return this.app.listen(this.port, () => {
       logger.info('=================================');
-      logger.info(`= ENV: ${this.env}`);
       logger.info(`= 🚀 AsyncAPI Server API listening on the port ${this.port}`);
       logger.info('=================================');
     });
