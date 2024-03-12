@@ -6,7 +6,6 @@ import { join, resolve } from 'path';
 import { existsSync } from 'fs-extra';
 import { promises as fPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import crypto from 'crypto';
 
 const { readFile, writeFile } = fPromises;
 
@@ -45,7 +44,6 @@ export default abstract class extends Command {
         const {document} = await this.parser.parse(rawDocument);
         if (document !== undefined) {
           metadata = MetadataFromDocument(document, metadata);
-          metadata['source'] = this.generateSHA256(document.info().title());
         }
       } catch (e: any) {
         if (e instanceof Error) {
@@ -86,12 +84,6 @@ export default abstract class extends Command {
     await this.recordActionFinished(this.id as string, this.metricsMetadata, this.specFile?.text());
   }
   
-  generateSHA256(fileContent: string): string {
-    const hashSum = crypto.createHash('sha256');
-    hashSum.update(fileContent);
-    return hashSum.digest('hex');
-  }
-
   async recorderFromEnv(prefix: string): Promise<Recorder> {
     let sink: Sink = new DiscardSink();
     const analyticsConfigFile = join(process.cwd(), '.asyncapi-analytics');
