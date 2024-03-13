@@ -74,7 +74,7 @@ export default class Diff extends Command {
     let firstDocument: Specification, secondDocument: Specification;
 
     checkAndWarnFalseFlag(outputFormat, markdownSubtype);
-    markdownSubtype = setDefaultMarkdownSubtype(outputFormat, markdownSubtype);
+    markdownSubtype = setDefaultMarkdownSubtype(outputFormat, markdownSubtype) as string;
 
     try {
       firstDocument = await load(firstDocumentPath);
