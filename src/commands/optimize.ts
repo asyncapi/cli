@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, Args } from '@oclif/core';
 import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
@@ -6,7 +6,6 @@ import { load, Specification } from '../models/SpecificationFile';
 import * as inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
-import { Example } from '@oclif/core/lib/interfaces';
 const { writeFile } = promises;
 
 export enum Optimizations {
@@ -26,7 +25,7 @@ export default class Optimize extends Command {
   optimizations?: Optimizations[];
   outputMethod?: Outputs;
 
-  static examples: Example[] = [
+  static examples = [
     'asyncapi optimize ./asyncapi.yaml',
     'asyncapi optimize ./asyncapi.yaml --no-tty',
     'asyncapi optimize ./asyncapi.yaml --optimization=remove-components,reuse-components,move-to-components --no-tty',
@@ -40,9 +39,9 @@ export default class Optimize extends Command {
     'no-tty': Flags.boolean({ description: 'do not use an interactive terminal', default: false }),
   };
 
-  static args = [
-    { name: 'spec-file', description: 'spec path, url, or context-name', required: false },
-  ];
+  static args = {
+    'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
+  };
 
   async run() {
     const { args, flags } = await this.parse(Optimize); //NOSONAR
@@ -99,7 +98,7 @@ export default class Optimize extends Command {
 
       const specPath = specFile.getFilePath();
       let newPath = '';
-      
+
       if (specPath) {
         const pos = specPath.lastIndexOf('.');
         newPath = `${specPath.substring(0,pos) }_optimized.${ specPath.substring(pos+1)}`;

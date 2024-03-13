@@ -1,9 +1,9 @@
 import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, CSHARP_NEWTONSOFT_SERIALIZER_PRESET, CSHARP_COMMON_PRESET, CSHARP_JSON_SERIALIZER_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET, PhpFileGenerator, CplusplusFileGenerator, JAVA_CONSTRAINTS_PRESET, JAVA_JACKSON_PRESET, JAVA_COMMON_PRESET, JAVA_DESCRIPTION_PRESET } from '@asyncapi/modelina';
-import { Flags } from '@oclif/core';
+import { Flags, Args } from '@oclif/core';
 import { ConvertDocumentParserAPIVersion } from '@smoya/multi-parser';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
-import { formatOutput, parse, validationFlags } from '../../parser';
+import { formatOutput, parse, validationFlags, ValidateOptions } from '../../parser';
 
 import type { AbstractGenerator, AbstractFileGenerator } from '@asyncapi/modelina';
 
@@ -24,15 +24,11 @@ const possibleLanguageValues = Object.values(Languages).join(', ');
 
 export default class Models extends Command {
   static description = 'Generates typed models';
-  static args = [
-    {
-      name: 'language',
-      description: 'The language you want the typed models generated for.',
-      options: Object.keys(Languages),
-      required: true
-    },
-    { name: 'file', description: 'Path or URL to the AsyncAPI document, or context-name', required: true },
-  ];
+
+  static args = {
+    language: Args.string({description: 'The language you want the typed models generated for.', options: Object.keys(Languages), required: true}),
+    file: Args.string({description: 'Path or URL to the AsyncAPI document, or context-name', required: true}),
+  };
 
   static flags = {
     help: Flags.help({ char: 'h' }),
@@ -174,14 +170,14 @@ export default class Models extends Command {
     if (inputFile.isAsyncAPI3()) {
       this.error('Generate Models command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/modelina/issues/1376');
     }
-    const { document, diagnostics ,status } = await parse(this, inputFile, flags);
+    const { document, diagnostics ,status } = await parse(this, inputFile, flags as ValidateOptions);
     if (!document || status === 'invalid') {
       const severityErrors = diagnostics.filter((obj) => obj.severity === 0);
       this.log(`Input is not a correct AsyncAPI document so it cannot be processed.${formatOutput(severityErrors,'stylish','error')}`);
       return;
     }
-    
-    // Modelina, atm, is not using @asyncapi/parser@v3.x but @asyncapi/parser@v2.x, so it still uses Parser-API v1.0.0. 
+
+    // Modelina, atm, is not using @asyncapi/parser@v3.x but @asyncapi/parser@v2.x, so it still uses Parser-API v1.0.0.
     // This call converts the parsed document object using @asyncapi/parser@v3.x (Parser-API v2) to a document compatible with the Parser-API version in use in @asyncapi/parser@v2.x  (v1)
     // This is needed until https://github.com/asyncapi/modelina/issues/1493 gets fixed.
     const convertedDoc = ConvertDocumentParserAPIVersion(document.json(), 1);

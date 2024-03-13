@@ -6,7 +6,7 @@ import { Flags } from '@oclif/core';
 import { ProtoBuffSchemaParser } from '@asyncapi/protobuf-schema-parser';
 import { getDiagnosticSeverity } from '@stoplight/spectral-core';
 import { OutputFormat } from '@stoplight/spectral-cli/dist/services/config';
-import { html, json, junit, pretty, stylish, teamcity, text } from '@stoplight/spectral-formatters';
+import { html, json, junit, pretty, stylish, teamcity, text, FormatterOptions } from '@stoplight/spectral-formatters';
 
 import type { Diagnostic } from '@asyncapi/parser/cjs';
 import type Command from './base';
@@ -40,20 +40,20 @@ export function validationFlags({ logDiagnostics = true }: ValidationFlagsOption
       default: logDiagnostics,
       allowNo: true,
     }),
-    'diagnostics-format': Flags.enum({
+    'diagnostics-format': Flags.custom({
       description: 'format to use for validation diagnostics',
       options: Object.values(OutputFormat),
       default: OutputFormat.STYLISH,
-    }),
-    'fail-severity': Flags.enum<SeveritytKind>({
+    })(),
+    'fail-severity': Flags.custom<SeveritytKind>({
       description: 'diagnostics of this level or above will trigger a failure exit code',
       options: ['error', 'warn', 'info', 'hint'],
       default: 'error',
-    }),
+    })(),
   };
 }
 
-interface ValidateOptions {
+export interface ValidateOptions {
   'log-diagnostics'?: boolean;
   'diagnostics-format'?: `${OutputFormat}`;
   'fail-severity'?: SeveritytKind;
@@ -97,7 +97,7 @@ function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: S
 }
 
 export function formatOutput(diagnostics: Diagnostic[], format: `${OutputFormat}`, failSeverity: SeveritytKind) {
-  const options = { failSeverity: getDiagnosticSeverity(failSeverity) };
+  const options = { failSeverity: getDiagnosticSeverity(failSeverity) } as FormatterOptions;
   switch (format) {
   case 'stylish': return stylish(diagnostics, options);
   case 'json': return json(diagnostics, options);

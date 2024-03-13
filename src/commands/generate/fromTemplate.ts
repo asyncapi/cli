@@ -1,4 +1,4 @@
-import { Flags, CliUx } from '@oclif/core';
+import { Flags, ux, Args } from '@oclif/core';
 import Command from '../../base';
 // eslint-disable-next-line
 // @ts-ignore
@@ -11,8 +11,6 @@ import { watchFlag } from '../../flags';
 import { isLocalTemplate, Watcher } from '../../utils/generator';
 import { ValidationError } from '../../errors/validation-error';
 import { GeneratorError } from '../../errors/generator-error';
-
-import type { Example } from '@oclif/core/lib/interfaces';
 
 const red = (text: string) => `\x1b[31m${text}\x1b[0m`;
 const magenta = (text: string) => `\x1b[35m${text}\x1b[0m`;
@@ -57,7 +55,7 @@ function verifyTemplateSupportForV3(template: string) {
 export default class Template extends Command {
   static description = 'Generates whatever you want using templates compatible with AsyncAPI Generator.';
 
-  static examples: Example[] = [
+  static examples = [
     'asyncapi generate fromTemplate asyncapi.yaml @asyncapi/html-template --param version=1.0.0 singleFile=true --output ./docs --force-write'
   ];
 
@@ -102,10 +100,10 @@ export default class Template extends Command {
     }),
   };
 
-  static args = [
-    { name: 'asyncapi', description: '- Local path, url or context-name pointing to AsyncAPI file', required: true },
-    { name: 'template', description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true }
-  ];
+  static args = {
+    asyncapi: Args.string({description: '- Local path, url or context-name pointing to AsyncAPI file', required: true}),
+    template: Args.string({description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true}),
+  };
 
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
@@ -214,12 +212,12 @@ export default class Template extends Command {
     }
     const generator = new AsyncAPIGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
 
-    CliUx.ux.action.start('Generation in progress. Keep calm and wait a bit');
+    ux.action.start('Generation in progress. Keep calm and wait a bit');
     try {
       await generator.generateFromString(specification.text(), genOption);
-      CliUx.ux.action.stop();
+      ux.action.stop();
     } catch (err: any) {
-      CliUx.ux.action.stop('done\n');
+      ux.action.stop('done\n');
       throw new GeneratorError(err);
     }
     console.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);

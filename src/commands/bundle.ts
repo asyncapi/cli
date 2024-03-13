@@ -1,5 +1,4 @@
 import { Flags } from '@oclif/core';
-import { Example } from '@oclif/core/lib/interfaces';
 import Command from '../base';
 import bundle from '@asyncapi/bundler';
 import { promises } from 'fs';
@@ -12,7 +11,7 @@ export default class Bundle extends Command {
   static description = 'bundle one or multiple asyncapi documents and their references together.';
   static strict = false;
 
-  static examples: Example[] = [
+  static examples = [
     'asyncapi bundle ./asyncapi.yaml > final-asyncapi.yaml',
     'asyncapi bundle ./asyncapi.yaml --output final-asyncapi.yaml',
     'asyncapi bundle ./asyncapi.yaml ./features.yaml --reference-into-components',
@@ -30,8 +29,8 @@ export default class Bundle extends Command {
     const { argv, flags } = await this.parse(Bundle);
     const output = flags.output;
     let baseFile;
-    const outputFormat = path.extname(argv[0]);
-    const AsyncAPIFiles = await this.loadFiles(argv);
+    const outputFormat = path.extname(argv[0] as string);
+    const AsyncAPIFiles = await this.loadFiles(argv as string[]);
 
     const containsAsyncAPI3 = AsyncAPIFiles.filter((file) => {
       return file.isAsyncAPI3();
