@@ -1,4 +1,4 @@
-import {Help, Hook, toConfiguredId, CliUx} from '@oclif/core';
+import {Help, Hook, toConfiguredId, ux} from '@oclif/core';
 import chalk from 'chalk';
 import {default as levenshtein} from 'fast-levenshtein';
 
@@ -30,7 +30,7 @@ const hook: Hook.CommandNotFound = async function (opts) {
     binHelp = `${binHelp} ${idSplit[0]}`;
   }
 
-  //if there is a topic in the opts we just upgrade the our commnad like 
+  //if there is a topic in the opts we just upgrade the our commnad like
 
   // alter the suggestion in the help scenario so that help is the first command
   // otherwise the user will be presented 'did you mean 'help'?' instead of 'did you mean "help <command>"?'
@@ -45,7 +45,7 @@ const hook: Hook.CommandNotFound = async function (opts) {
   let response = '';
   try {
     if (opts.id === 'help') {readableSuggestion = '--help';}
-    response = await CliUx.ux.prompt(`Did you mean ${chalk.blueBright(readableSuggestion)}? [y/n]`, {timeout: 10_000});
+    response = await ux.prompt(`Did you mean ${chalk.blueBright(readableSuggestion)}? [y/n]`, {timeout: 10_000});
   } catch (error) {
     this.log('');
     this.debug(error);

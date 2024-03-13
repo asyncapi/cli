@@ -46,20 +46,20 @@ export function validationFlags({ logDiagnostics = true }: ValidationFlagsOption
       default: logDiagnostics,
       allowNo: true,
     }),
-    'diagnostics-format': Flags.enum({
+    'diagnostics-format': Flags.custom({
       description: 'format to use for validation diagnostics',
       options: Object.values(OutputFormat),
       default: OutputFormat.STYLISH,
-    }),
-    'fail-severity': Flags.enum<SeverityKind>({
+    })(),
+    'fail-severity': Flags.custom<SeverityKind>({
       description: 'diagnostics of this level or above will trigger a failure exit code',
       options: ['error', 'warn', 'info', 'hint'],
       default: 'error',
-    }),
+    })(),
   };
 }
 
-interface ValidateOptions {
+export interface ValidateOptions {
   'log-diagnostics'?: boolean;
   'diagnostics-format'?: `${OutputFormat}`;
   'fail-severity'?: SeverityKind;
