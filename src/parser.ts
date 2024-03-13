@@ -46,14 +46,14 @@ export function validationFlags({ logDiagnostics = true }: ValidationFlagsOption
       default: logDiagnostics,
       allowNo: true,
     }),
-    'diagnostics-format': Flags.custom({
+    'diagnostics-format': Flags.option({
       description: 'format to use for validation diagnostics',
       options: Object.values(OutputFormat),
       default: OutputFormat.STYLISH,
     })(),
-    'fail-severity': Flags.custom<SeverityKind>({
+    'fail-severity': Flags.option({
       description: 'diagnostics of this level or above will trigger a failure exit code',
-      options: ['error', 'warn', 'info', 'hint'],
+      options: ['error', 'warn', 'info', 'hint'] as const,
       default: 'error',
     })(),
   };
