@@ -14,6 +14,6 @@
     }
   },
   "dependencies": {
-    "@asyncapi/generator-react-sdk": "^1.0.8"
+    "@asyncapi/generator-react-sdk": "^1.0.12"
   }
 }
