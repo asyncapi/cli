@@ -7,3 +7,10 @@ export const watchFlag = (description?: string) => {
     description: description ?? 'Enable watch mode',
   });
 };
+
+export const helpFlag = () => {
+  return {
+    help: Flags.help({ char: 'h' })
+  };
+};
+

@@ -1,10 +1,10 @@
-import { Flags } from '@oclif/core';
 import { Example } from '@oclif/core/lib/interfaces';
-import Command from '../base';
+import Command from '../core/base';
 import bundle from '@asyncapi/bundler';
 import { promises } from 'fs';
 import path from 'path';
-import { Specification, load } from '../../../internal/models/SpecificationFile';
+import { Specification, load } from '../core/models/SpecificationFile';
+import { bundleFlags } from '../core/flags/bundle.flags';
 
 const { writeFile } = promises;
 
@@ -19,13 +19,7 @@ export default class Bundle extends Command {
     'asyncapi bundle ./asyncapi.yaml ./features.yaml --base ./asyncapi.yaml --reference-into-components'
   ];
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    output: Flags.string({ char: 'o', description: 'The output file name. Omitting this flag the result will be printed in the console.' }),
-    'reference-into-components': Flags.boolean({ char: 'r', description: 'Bundle the message $refs into components object.' }),
-    base: Flags.string({ char: 'b', description: 'Path to the file which will act as a base. This is required when some properties are to needed to be overwritten.' }),
-  };
-
+  static flags = bundleFlags();
   async run() {
     const { argv, flags } = await this.parse(Bundle);
     const output = flags.output;

@@ -6,7 +6,7 @@ import cors from 'cors';
 // @ts-ignore
 import helmet from 'helmet';
 import { problemMiddleware } from './middlewares/problem.middleware';
-import { logger } from '../../utils/logger';
+import { logger } from '../../../utils/logger';
 import { API_VERSION,
   CORS_ORIGIN,
   CORS_CREDENTIALS,

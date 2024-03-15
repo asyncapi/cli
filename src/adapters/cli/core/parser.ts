@@ -10,7 +10,7 @@ import { html, json, junit, pretty, stylish, teamcity, text } from '@stoplight/s
 
 import type { Diagnostic } from '@asyncapi/parser/cjs';
 import type Command from './base';
-import type { Specification } from '../../internal/models/SpecificationFile';
+import type { Specification } from './models/SpecificationFile';
 
 export type SeveritytKind = 'error' | 'warn' | 'info' | 'hint';
 

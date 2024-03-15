@@ -4,8 +4,8 @@ import { URL } from 'url';
 import fetch from 'node-fetch';
 import yaml from 'js-yaml';
 import { loadContext } from './Context';
-import { ErrorLoadingSpec } from '../../errors/specification-file';
-import { MissingContextFileError } from '../../errors/context-error';
+import { ErrorLoadingSpec } from '../../../../errors/specification-file';
+import { MissingContextFileError } from '../../../../errors/context-error';
 
 const { readFile, lstat } = fs;
 const allowedFileNames: string[] = [

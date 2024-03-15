@@ -1,8 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import AsyncAPIGenerator from '@asyncapi/generator';
-import { IGenerator } from '../ports/generator.interface';
-import { GeneratorError } from '../errors/generator-error';
+import { IGenerator } from '../../ports/generator.interface';
+import { GeneratorError } from '../../errors/generator-error';
 import path from 'path';
 import os from 'os';
 

@@ -1,8 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { Controller } from '../interfaces';
-import { ArchiverService } from '../../../internal/archiver.service';
-import { GeneratorService } from '../../../internal/generator.service';
-import { ProblemException } from '../exceptions/problem.exception';
+import { Controller } from '../core/interfaces';
+import { ArchiverService } from '../../../core/services/archiver.service';
+import { GeneratorService } from '../../../core/services/generator.service';
+import { ProblemException } from '../core/exceptions/problem.exception';
 // import { ProblemException } from '../exceptions/problem.exception';
 
 export class GeneratorController implements Controller {

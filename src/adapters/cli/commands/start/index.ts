@@ -1,4 +1,4 @@
-import Command from '../../base';
+import Command from '../../core/base';
 import { Help } from '@oclif/core';
 
 export default class Start extends Command {

@@ -1,14 +1,13 @@
-import {Flags} from '@oclif/core';
-import Command from '../../base';
+import Command from '../../core/base';
 import { runApi } from '../../../../api';
+import { apiFlags } from '../../core/flags/start/api.flags';
+
+const defaultPort = 3001;
 
 export default class StartApi extends Command {
   static description = 'starts a new local instance of AsyncAPI';
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    port: Flags.integer({ char: 'p', description: 'port in which to start API', default: 3001 }),
-  };
+  static flags = apiFlags(defaultPort);
 
   static args = [];
 

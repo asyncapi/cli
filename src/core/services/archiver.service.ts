@@ -1,7 +1,7 @@
 import archiver, { Archiver } from 'archiver';
 import { Response } from 'express';
 
-import { createTempDirectory, removeTempDirectory } from '../utils/temp-dir';
+import { createTempDirectory, removeTempDirectory } from '../../utils/temp-dir';
 
 /**
  * Service wrapping the `archiver` module:

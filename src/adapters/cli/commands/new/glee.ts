@@ -1,43 +1,20 @@
-import { Flags } from '@oclif/core';
 import { promises as fPromises } from 'fs';
-import Command from '../../base';
+import Command from '../../core/base';
 import path, { resolve, join } from 'path';
 import fs from 'fs-extra';
-import { Specification, load } from '../../../../internal/models/SpecificationFile';
+import { Specification, load } from '../../core/models/SpecificationFile';
 import yaml from 'js-yaml';
 import { prompt } from 'inquirer';
 // eslint-disable-next-line
 // @ts-ignore
 import Generator from '@asyncapi/generator';
+import { gleeFlags } from '../../core/flags/new/glee.flags';
 
 export default class NewGlee extends Command {
   static description = 'Creates a new Glee project';
   protected commandName = 'glee';
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    name: Flags.string({
-      char: 'n',
-      description: 'Name of the Project',
-      default: 'project',
-    }),
-    template: Flags.string({
-      char: 't',
-      description: 'Name of the Template',
-      default: 'default',
-    }),
-    file: Flags.string({
-      char: 'f',
-      description:
-        'The path to the AsyncAPI file for generating a Glee project.',
-    }),
-    'force-write': Flags.boolean({
-      default: false,
-      description:
-        'Force writing of the generated files to given directory even if it is a git repo with unstaged files or not empty dir (defaults to false)',
-    }),
-  };
-
+  static flags = gleeFlags();
   async getFilteredServers(serversObject: any) {
     console.log({ serversObject });
     const servers = Object.keys(serversObject);

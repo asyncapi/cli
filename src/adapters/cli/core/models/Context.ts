@@ -10,7 +10,7 @@ import {
   ContextAlreadyExistsError,
   ContextFileEmptyError,
   ContextFileWriteError,
-} from '../../errors/context-error';
+} from '../../../../errors/context-error';
 
 const { readFile, writeFile } = fs;
 

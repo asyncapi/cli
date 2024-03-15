@@ -1,12 +1,10 @@
-import { Flags } from '@oclif/core';
-import Command from '../../../base';
-import { initContext } from '../../../../../internal/models/Context';
+import Command from '../../../core/base';
+import { initContext } from '../../../core/models/Context';
+import { helpFlag } from '../../../core/flags/global.flags';
 
 export default class ContextInit extends Command {
   static description = 'Initialize context';
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-  };
+  static flags = helpFlag();
 
   static contextFilePathMessage = `Specify directory in which context file should be created:
     - current directory          : asyncapi config context init . (default)

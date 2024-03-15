@@ -1,17 +1,17 @@
-import { Flags, CliUx } from '@oclif/core';
-import Command from '../../base';
+import { CliUx } from '@oclif/core';
+import Command from '../../core/base';
 // eslint-disable-next-line
 // @ts-ignore
 import path from 'path';
 import fs from 'fs';
-import { load, Specification } from '../../../../internal/models/SpecificationFile';
-import { watchFlag } from '../../flags';
+import { load, Specification } from '../../core/models/SpecificationFile';
 import { isLocalTemplate, Watcher } from '../../../../utils/generator';
 import { ValidationError } from '../../../../errors/validation-error';
 import { GeneratorError } from '../../../../errors/generator-error';
 
 import type { Example } from '@oclif/core/lib/interfaces';
-import { GeneratorService } from '../../../../internal/generator.service';
+import { GeneratorService } from '../../../../core/services/generator.service';
+import { fromTemplateFlags } from '../../core/flags/generate/fromTemplate.flags';
 
 const red = (text: string) => `\x1b[31m${text}\x1b[0m`;
 const magenta = (text: string) => `\x1b[35m${text}\x1b[0m`;
@@ -62,46 +62,7 @@ export default class Template extends Command {
 
   static generatorService = new GeneratorService();
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    'disable-hook': Flags.string({
-      char: 'd',
-      description: 'Disable a specific hook type or hooks from a given hook type',
-      multiple: true
-    }),
-    install: Flags.boolean({
-      char: 'i',
-      default: false,
-      description: 'Installs the template and its dependencies (defaults to false)'
-    }),
-    debug: Flags.boolean({
-      description: 'Enable more specific errors in the console'
-    }),
-    'no-overwrite': Flags.string({
-      char: 'n',
-      multiple: true,
-      description: 'Glob or path of the file(s) to skip when regenerating'
-    }),
-    output: Flags.string({
-      char: 'o',
-      description: 'Directory where to put the generated files (defaults to current directory)',
-    }),
-    'force-write': Flags.boolean({
-      default: false,
-      description: 'Force writing of the generated files to given directory even if it is a git repo with unstaged files or not empty dir (defaults to false)'
-    }),
-    watch: watchFlag(
-      'Watches the template directory and the AsyncAPI document, and re-generate the files when changes occur. Ignores the output directory.'
-    ),
-    param: Flags.string({
-      char: 'p',
-      description: 'Additional param to pass to templates',
-      multiple: true
-    }),
-    'map-base-url': Flags.string({
-      description: 'Maps all schema references from base url to local folder'
-    }),
-  };
+  static flags = fromTemplateFlags();
 
   static args = [
     { name: 'asyncapi', description: '- Local path, url or context-name pointing to AsyncAPI file', required: true },

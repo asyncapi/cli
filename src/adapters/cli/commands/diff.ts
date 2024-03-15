@@ -1,11 +1,10 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import { Flags } from '@oclif/core';
 import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
 import { promises as fs } from 'fs';
 import chalk from 'chalk';
-import { load, Specification } from '../../../internal/models/SpecificationFile';
-import Command from '../base';
+import { load, Specification } from '../core/models/SpecificationFile';
+import Command from '../core/base';
 import { ValidationError } from '../../../errors/validation-error';
 import { SpecificationFileNotFound } from '../../../errors/specification-file';
 import {
@@ -13,46 +12,18 @@ import {
   DiffOverrideFileError,
   DiffOverrideJSONError,
 } from '../../../errors/diff-error';
-import { specWatcher } from '../globals';
-import { watchFlag } from '../flags';
-import { validationFlags, parse, convertToOldAPI } from '../parser';
+import { specWatcher } from '../core/globals';
+import { parse, convertToOldAPI } from '../core/parser';
 
-import type { SpecWatcherParams } from '../globals';
+import type { SpecWatcherParams } from '../core/globals';
+import { diffFlags } from '../core/flags/diff.flags';
 
 const { readFile } = fs;
 
 export default class Diff extends Command {
   static description = 'Find diff between two asyncapi files';
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    format: Flags.string({
-      char: 'f',
-      description: 'format of the output',
-      default: 'yaml',
-      options: ['json', 'yaml', 'yml', 'md'],
-    }),
-    type: Flags.string({
-      char: 't',
-      description: 'type of the output',
-      default: 'all',
-      options: ['breaking', 'non-breaking', 'unclassified', 'all'],
-    }),
-    markdownSubtype: Flags.string({
-      description: 'the format of changes made to AsyncAPI document. It works only when diff is generated using md type. For example, when you specify subtype as json, then diff information in markdown is dumped as json structure.',
-      default: undefined,
-      options: ['json', 'yaml', 'yml']
-    }),
-    overrides: Flags.string({
-      char: 'o',
-      description: 'path to JSON file containing the override properties',
-    }),
-    'no-error': Flags.boolean({
-      description: 'don\'t show error on breaking changes',
-    }),
-    watch: watchFlag(),
-    ...validationFlags({ logDiagnostics: false }),
-  };
+  static flags = diffFlags();
 
   static args = [
     {

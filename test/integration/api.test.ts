@@ -1,7 +1,7 @@
 // api.test.js
 import { expect, test } from '@oclif/test';
 import supertest from 'supertest';
-import { App } from '../../src/adapters/api/app';
+import { App } from '../../src/adapters/api/core/app';
 import { PingController } from '../../src/adapters/api/controllers/ping.controller';
 import { GeneratorController } from '../../src/adapters/api/controllers/generator.controller';
 

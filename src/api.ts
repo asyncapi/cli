@@ -1,4 +1,4 @@
-import { App } from './adapters/api/app';
+import { App } from './adapters/api/core/app';
 import { PingController } from './adapters/api/controllers/ping.controller';
 import { GeneratorController } from './adapters/api/controllers/generator.controller';
 

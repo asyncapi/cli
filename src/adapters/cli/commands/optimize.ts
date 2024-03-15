@@ -1,25 +1,14 @@
-import { Flags } from '@oclif/core';
 import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
-import Command from '../base';
+import Command from '../core/base';
 import { ValidationError } from '../../../errors/validation-error';
-import { load, Specification } from '../../../internal/models/SpecificationFile';
+import { load, Specification } from '../core/models/SpecificationFile';
 import * as inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
 import { Example } from '@oclif/core/lib/interfaces';
+import { optimizeFlags, Optimizations, Outputs } from '../core/flags/optimize.flags';
 const { writeFile } = promises;
 
-export enum Optimizations {
-  REMOVE_COMPONENTS='remove-components',
-  REUSE_COMPONENTS='reuse-components',
-  MOVE_TO_COMPONETS='move-to-components'
-}
-
-export enum Outputs {
-  TERMINAL='terminal',
-  NEW_FILE='new-file',
-  OVERWRITE='overwrite'
-}
 export default class Optimize extends Command {
   static description = 'optimize asyncapi specification file';
   isInteractive = false;
@@ -33,12 +22,7 @@ export default class Optimize extends Command {
     'asyncapi optimize ./asyncapi.yaml --optimization=remove-components,reuse-components,move-to-components --output=terminal --no-tty',
   ];
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    optimization: Flags.string({char: 'p', default: Object.values(Optimizations), options: Object.values(Optimizations), multiple: true, description: 'select the type of optimizations that you want to apply.'}),
-    output: Flags.string({char: 'o', default: Outputs.TERMINAL, options: Object.values(Outputs), description: 'select where you want the output.'}),
-    'no-tty': Flags.boolean({ description: 'do not use an interactive terminal', default: false }),
-  };
+  static flags = optimizeFlags();
 
   static args = [
     { name: 'spec-file', description: 'spec path, url, or context-name', required: false },

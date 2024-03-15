@@ -1,17 +1,15 @@
-import { Flags } from '@oclif/core';
-import Command from '../../../base';
-import { editContext, CONTEXT_FILE_PATH } from '../../../../../internal/models/Context';
+import Command from '../../../core/base';
+import { editContext, CONTEXT_FILE_PATH } from '../../../core/models/Context';
 import {
   MissingContextFileError,
   ContextFileWrongFormatError,
   ContextFileEmptyError,
 } from '../../../../../errors/context-error';
+import { helpFlag } from '../../../core/flags/global.flags';
 
 export default class ContextEdit extends Command {
   static description = 'Edit a context in the store';
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-  };
+  static flags = helpFlag();
 
   static args = [
     { name: 'context-name', description: 'context name', required: true },

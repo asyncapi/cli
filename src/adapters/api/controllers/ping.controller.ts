@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { Controller } from '../interfaces';
+import { Controller } from '../core/interfaces';
 // import { ProblemException } from '../exceptions/problem.exception';
 
 export class PingController implements Controller {
