@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
 # docker build -t cli:20 .  # to build image
-# docker compose up # to launch container with running studio, note you need to add a random asyncapi.yaml to ./output folder
+# docker compose --file ./test/manual/docker-compose.yaml up # to launch container with running studio, note you need to add a random asyncapi.yaml to ./output folder
 
 # Create a non-root user
 RUN addgroup -S myuser && adduser -S myuser -G myuser
