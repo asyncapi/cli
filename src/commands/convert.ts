@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { promises as fPromises } from 'fs';
-import { Flags } from '@oclif/core';
+import { Flags, Args } from '@oclif/core';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
@@ -23,9 +23,9 @@ export default class Convert extends Command {
     'target-version': Flags.string({ char: 't', description: 'asyncapi version to convert to', default: latestVersion })
   };
 
-  static args = [
-    { name: 'spec-file', description: 'spec path, url, or context-name', required: false },
-  ];
+  static args = {
+    'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
+  };
 
   async run() {
     const { args, flags } = await this.parse(Convert);
