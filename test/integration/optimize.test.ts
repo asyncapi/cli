@@ -9,7 +9,7 @@ const testHelper = new TestHelper();
 const optimizedFilePath = './test/fixtures/specification.yml';
 const unoptimizedFile = './test/fixtures/dummyspec/unoptimizedSpec.yml';
 const invalidFile = './test/fixtures/specification-invalid.yml';
-const asyncapiv3 = './test/fixtures/specification-v3.yml';
+const asyncapiv3 = './test/fixtures/asyncapi_v3.yml';
 
 describe('optimize', () => {
   describe('should handle AsyncAPI v3 document correctly', () => {
