@@ -1,0 +1,22 @@
+import { Flags } from '@oclif/core';
+
+export enum Optimizations {
+  REMOVE_COMPONENTS='remove-components',
+  REUSE_COMPONENTS='reuse-components',
+  MOVE_TO_COMPONETS='move-to-components'
+}
+
+export enum Outputs {
+  TERMINAL='terminal',
+  NEW_FILE='new-file',
+  OVERWRITE='overwrite'
+}
+
+export const optimizeFlags = () => {
+  return {
+    help: Flags.help({ char: 'h' }),
+    optimization: Flags.string({char: 'p', default: Object.values(Optimizations), options: Object.values(Optimizations), multiple: true, description: 'select the type of optimizations that you want to apply.'}),
+    output: Flags.string({char: 'o', default: Outputs.TERMINAL, options: Object.values(Outputs), description: 'select where you want the output.'}),
+    'no-tty': Flags.boolean({ description: 'do not use an interactive terminal', default: false }),
+  };
+};
