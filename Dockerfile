@@ -1,5 +1,8 @@
 FROM node:20-alpine
 
+# Use below ARG in manual build of image to set version. Github workflow overrides in publication to Dockerhub 
+ARG ASYNCAPI_CLI_VERSION=0.0.0 
+
 # docker build -t cli:20 .  # to build image
 # docker compose --file ./test/manual/docker-compose.yaml up # to launch container with running studio, note you need to add a random asyncapi.yaml to ./output folder
 
