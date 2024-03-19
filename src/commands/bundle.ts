@@ -36,15 +36,8 @@ export default class Bundle extends Command {
     let baseFile;
     const outputFormat = path.extname(argv[0]);
     const AsyncAPIFiles = await this.loadFiles(argv);
-
+    
     this.metricsMetadata.files = AsyncAPIFiles.length;
-
-    const containsAsyncAPI3 = AsyncAPIFiles.filter((file) => {
-      return file.isAsyncAPI3();
-    });
-    if (containsAsyncAPI3.length > 0) {
-      this.error('One of the files you tried to bundle is AsyncAPI v3 format, the bundle command does not support it yet, please checkout https://github.com/asyncapi/bundler/issues/133');
-    }
 
     if (flags.base) {baseFile = (await load(flags.base)).text();}
 
