@@ -29,6 +29,9 @@ export default class Validate extends Command {
       specWatcher({ spec: specFile, handler: this, handlerName: 'validate' });
     }
 
-    await validate(this, specFile, flags);
+    const validationResult = await validate(this, specFile, flags);
+    if (validationResult === 'invalid') {
+      process.exitCode = 1;
+    }
   }
 }
