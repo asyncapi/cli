@@ -221,7 +221,7 @@ export default class Template extends Command {
 
     CliUx.ux.action.start('Generation in progress. Keep calm and wait a bit');
     try {
-      await generator.generateFromString(specification.text(), genOption);
+      await generator.generateFromString(specification.text(), {...genOption, path: asyncapi});
       CliUx.ux.action.stop();
     } catch (err: any) {
       CliUx.ux.action.stop('done\n');
