@@ -2,17 +2,19 @@ import { Flags } from '@oclif/core';
 import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
-import { load, Specification } from '../models/SpecificationFile';
+import { load } from '../models/SpecificationFile';
 import * as inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
 import { Example } from '@oclif/core/lib/interfaces';
+import { Parser } from '@asyncapi/parser';
+
 const { writeFile } = promises;
 
 export enum Optimizations {
   REMOVE_COMPONENTS='remove-components',
   REUSE_COMPONENTS='reuse-components',
-  MOVE_TO_COMPONETS='move-to-components'
+  MOVE_TO_COMPONENTS='move-to-components'
 }
 
 export enum Outputs {
@@ -23,14 +25,14 @@ export enum Outputs {
 export default class Optimize extends Command {
   static description = 'optimize asyncapi specification file';
   isInteractive = false;
-  optimizations?: Optimizations[];
+  selectedOptimizations?: Optimizations[];
   outputMethod?: Outputs;
 
   static examples: Example[] = [
     'asyncapi optimize ./asyncapi.yaml',
     'asyncapi optimize ./asyncapi.yaml --no-tty',
-    'asyncapi optimize ./asyncapi.yaml --optimization=remove-components,reuse-components,move-to-components --no-tty',
-    'asyncapi optimize ./asyncapi.yaml --optimization=remove-components,reuse-components,move-to-components --output=terminal --no-tty',
+    'asyncapi optimize ./asyncapi.yaml --optimization=remove-components --optimization=reuse-components --optimization=move-to-components --no-tty',
+    'asyncapi optimize ./asyncapi.yaml --optimization=remove-components --output=terminal --no-tty',
   ];
 
   static flags = {
@@ -44,12 +46,14 @@ export default class Optimize extends Command {
     { name: 'spec-file', description: 'spec path, url, or context-name', required: false },
   ];
 
+  parser = new Parser();
+
   async run() {
     const { args, flags } = await this.parse(Optimize); //NOSONAR
     const filePath = args['spec-file'];
-    let specFile: Specification;
+
     try {
-      specFile = await load(filePath);
+      this.specFile = await load(filePath);
     } catch (err) {
       this.error(
         new ValidationError({
@@ -59,14 +63,14 @@ export default class Optimize extends Command {
       );
     }
 
-    if (specFile.isAsyncAPI3()) {
+    if (this.specFile.isAsyncAPI3()) {
       this.error('Optimize command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/optimizer/issues/168');
     }
 
     let optimizer: Optimizer;
     let report: Report;
     try {
-      optimizer = new Optimizer(specFile.text());
+      optimizer = new Optimizer(this.specFile.text());
       report = await optimizer.getReport();
     } catch (err) {
       this.error(
@@ -77,14 +81,15 @@ export default class Optimize extends Command {
       );
     }
     this.isInteractive = !flags['no-tty'];
-    this.optimizations = flags.optimization as Optimizations[];
+    this.selectedOptimizations = flags.optimization as Optimizations[];
     this.outputMethod = flags.output as Outputs;
+    this.metricsMetadata.optimized = false;
 
     if (!(report.moveToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length)) {
-      this.log(`No optimization has been applied since ${specFile.getFilePath() ?? specFile.getFileURL()} looks optimized!`);
+      this.log(`No optimization has been applied since ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} looks optimized!`);
       return;
     }
-
+    
     const isTTY = process.stdout.isTTY;
     if (this.isInteractive && isTTY) {
       await this.interactiveRun(report);
@@ -92,14 +97,16 @@ export default class Optimize extends Command {
 
     try {
       const optimizedDocument = optimizer.getOptimizedDocument({rules: {
-        moveToComponents: this.optimizations.includes(Optimizations.MOVE_TO_COMPONETS),
-        removeComponents: this.optimizations.includes(Optimizations.REMOVE_COMPONENTS),
-        reuseComponents: this.optimizations.includes(Optimizations.REUSE_COMPONENTS)
+        moveToComponents: this.selectedOptimizations.includes(Optimizations.MOVE_TO_COMPONENTS),
+        removeComponents: this.selectedOptimizations.includes(Optimizations.REMOVE_COMPONENTS),
+        reuseComponents: this.selectedOptimizations.includes(Optimizations.REUSE_COMPONENTS)
       }, output: Output.YAML});
 
-      const specPath = specFile.getFilePath();
+      this.collectMetricsData(report);
+
+      const specPath = this.specFile.getFilePath();
       let newPath = '';
-      
+
       if (specPath) {
         const pos = specPath.lastIndexOf('.');
         newPath = `${specPath.substring(0,pos) }_optimized.${ specPath.substring(pos+1)}`;
@@ -107,15 +114,18 @@ export default class Optimize extends Command {
         newPath = 'optimized-asyncapi.yaml';
       }
 
-      if (this.outputMethod === Outputs.TERMINAL) {
+      switch (this.outputMethod) {
+      case Outputs.TERMINAL:
         this.log(optimizedDocument);
-      } else if (this.outputMethod === Outputs.NEW_FILE) {
+        break;
+      case Outputs.NEW_FILE:
         await writeFile(newPath, optimizedDocument, { encoding: 'utf8' });
         this.log(`Created file ${newPath}...`);
-      } else if (this.outputMethod === Outputs.OVERWRITE) {
+        break;
+      case Outputs.OVERWRITE:
         await writeFile(specPath ?? 'asyncapi.yaml', optimizedDocument, { encoding: 'utf8' });
-
         this.log(`Updated file ${specPath}...`);
+        break;
       }
     } catch (error) {
       throw new ValidationError({
@@ -124,10 +134,12 @@ export default class Optimize extends Command {
       });
     }
   }
+
   private showOptimizations(elements: ReportElement[] | undefined) {
     if (!elements) {
       return;
     }
+
     for (let i = 0; i < elements.length; i++) {
       const element = elements[+i];
       if (element.action==='move') {
@@ -141,6 +153,7 @@ export default class Optimize extends Command {
 
     this.log('\n');
   }
+
   private async interactiveRun(report: Report) {
     const canMove = report.moveToComponents?.length;
     const canRemove = report.removeComponents?.length;
@@ -151,7 +164,7 @@ export default class Optimize extends Command {
       const totalMove = report.moveToComponents?.filter((e: ReportElement) => e.action === 'move').length;
       this.log(`\n${chalk.green(totalMove)} components can be moved to the components sections.\nthe following changes will be made:`);
       this.showOptimizations(report.moveToComponents);
-      choices.push({name: 'move to components section', value: Optimizations.MOVE_TO_COMPONETS});
+      choices.push({name: 'move to components section', value: Optimizations.MOVE_TO_COMPONENTS});
     }
     if (canRemove) {
       const totalMove = report.removeComponents?.length;
@@ -173,8 +186,8 @@ export default class Optimize extends Command {
       choices
     }]);
 
-    this.optimizations = optimizationRes.optimization;
-
+    this.selectedOptimizations = optimizationRes.optimization;
+        
     const outputRes = await inquirer.prompt([{
       name: 'output',
       message: 'where do you want to save the result:',
@@ -183,5 +196,15 @@ export default class Optimize extends Command {
       choices: [{name: 'log to terminal',value: Outputs.TERMINAL}, {name: 'create new file', value: Outputs.NEW_FILE}, {name: 'update original', value: Outputs.OVERWRITE}]
     }]);
     this.outputMethod = outputRes.output;
+  }
+
+  private collectMetricsData(report: Report) {
+    for (const availableOptimization in report) {
+      const availableOptimizationKebabCase = availableOptimization.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase(); // optimization flags are kebab case
+      if (availableOptimization.length && this.selectedOptimizations?.includes(availableOptimizationKebabCase as Optimizations)) {
+        this.metricsMetadata[`optimization_${availableOptimization}`] = true;
+        this.metricsMetadata.optimized = true;
+      }
+    }
   }
 }
