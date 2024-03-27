@@ -6,7 +6,7 @@ on:
       - 'master'
     paths:
       - 'docs/*.md'
-
+  workflow_dispatch:
 jobs:
   Make-PR:
     name: Make PR on website repository with updated latest CLI documentation
