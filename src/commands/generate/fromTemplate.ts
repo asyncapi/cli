@@ -125,8 +125,8 @@ export default class Template extends Command {
       mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
       disabledHooks: parsedFlags.disableHooks,
     };
-
     const asyncapiInput = (await load(this,asyncapi)) || (await load(this));
+    
     this.specFile = asyncapiInput;
     this.metricsMetadata.template = template;
 

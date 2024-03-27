@@ -170,7 +170,7 @@ export default class Models extends Command {
     const { args, flags } = await this.parse(Models);
     const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, tsExampleInstance, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, javaIncludeComments, javaJackson, javaConstraints, output } = flags;
     const { language, file } = args;
-    const inputFile = (await load(file)) || (await load());
+    const inputFile = (await load(this,file)) || (await load(this));
     if (inputFile.isAsyncAPI3()) {
       this.error('Generate Models command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/modelina/issues/1376');
     }
