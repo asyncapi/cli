@@ -82,10 +82,8 @@ export default abstract class extends Command {
 
   setSource() {
     if (this.specFilePath) {
-      console.log(this.specFilePath);
       const stats = statSync(this.specFilePath);
-      const creationDate = stats.birthtimeMs;
-      this.metricsMetadata['file_creation_timestamp'] = creationDate;
+      this.metricsMetadata['file_creation_timestamp'] = stats.birthtimeMs;
     }
   }
   async finally(error: Error | undefined): Promise<any> {
