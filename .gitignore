@@ -26,3 +26,4 @@ spec-examples.zip
 # Coverage for testing
 
 coverage
+.asyncapi-analytics
