@@ -14,7 +14,7 @@ import { GeneratorError } from '../../errors/generator-error';
 import { Parser } from '@asyncapi/parser';
 import type { Example } from '@oclif/core/lib/interfaces';
 import { intro, isCancel, spinner, text } from '@clack/prompts';
-import {inverse, yellow, magenta, green, red} from 'picocolors';
+import { inverse, yellow, magenta, green, red } from 'picocolors';
 
 interface IMapBaseUrlToFlag {
   url: string,
@@ -110,9 +110,8 @@ export default class Template extends Command {
     const { args, flags } = await this.parse(Template); // NOSONAR
 
     intro(inverse('AsyncAPI Generator'));
-
+    intro(inverse('AsyncAPI Generator'));
     const { asyncapi, template, output } = await this.parseArgs(args, flags.output);
-
     const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url']);
     const options = {
       forceWrite: flags['force-write'],
