@@ -113,7 +113,7 @@ export default class NewGlee extends Command {
 
     try {
       console.log(file);
-      const asyncapiInput = (await load(file)) || (await load());
+      const asyncapiInput = (await load(this,file)) || (await load(this));
       console.log(asyncapiInput);
 
       const serversObject = asyncapiInput.toJson()?.servers;

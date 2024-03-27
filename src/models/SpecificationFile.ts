@@ -6,6 +6,7 @@ import yaml from 'js-yaml';
 import { loadContext } from './Context';
 import { ErrorLoadingSpec } from '../errors/specification-file';
 import { MissingContextFileError } from '../errors/context-error';
+import type Command from 'base';
 
 const { readFile, lstat } = fs;
 const allowedFileNames: string[] = [
@@ -121,7 +122,7 @@ interface LoadType {
 }
 
 /* eslint-disable sonarjs/cognitive-complexity */
-export async function load(filePathOrContextName?: string, loadType?: LoadType): Promise<Specification> { // NOSONAR
+export async function load(command?: Command, filePathOrContextName?: string, loadType?: LoadType): Promise<Specification> { // NOSONAR
   if (filePathOrContextName) {
     if (loadType?.file) { return Specification.fromFile(filePathOrContextName); }
     if (loadType?.context) { return loadFromContext(filePathOrContextName); }
@@ -136,6 +137,7 @@ export async function load(filePathOrContextName?: string, loadType?: LoadType):
       return Specification.fromURL(filePathOrContextName);
     }
     await fileExists(filePathOrContextName);
+    if (command) {command.specFilePath = filePathOrContextName;}
     return Specification.fromFile(filePathOrContextName);
   }
 

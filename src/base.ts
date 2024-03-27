@@ -3,7 +3,7 @@ import { MetadataFromDocument, MetricMetadata, NewRelicSink, Recorder, Sink, Std
 import { Parser } from '@asyncapi/parser';
 import { Specification } from 'models/SpecificationFile';
 import { join, resolve } from 'path';
-import { existsSync } from 'fs-extra';
+import { existsSync, statSync } from 'fs-extra';
 import { promises as fPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -20,6 +20,7 @@ export default abstract class extends Command {
   parser = new Parser();
   metricsMetadata: MetricMetadata = {};
   specFile: Specification | undefined;
+  specFilePath: string | undefined;
 
   async init(): Promise<void> {
     await super.init();
@@ -69,6 +70,7 @@ export default abstract class extends Command {
 
   async recordActionMetric(recordFunc: (recorder: Recorder) => Promise<void>) {
     try {
+      this.setSource();
       await recordFunc(await this.recorder);
       await (await this.recorder).flush();
     } catch (e: any) {
@@ -78,6 +80,12 @@ export default abstract class extends Command {
     }
   }
 
+  setSource() {
+    if (this.specFilePath) {
+      const stats = statSync(this.specFilePath);
+      this.metricsMetadata['file_creation_timestamp'] = stats.birthtimeMs;
+    }
+  }
   async finally(error: Error | undefined): Promise<any> {
     await super.finally(error);
     this.metricsMetadata['success'] = error === undefined;
