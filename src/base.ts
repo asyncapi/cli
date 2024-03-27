@@ -84,10 +84,8 @@ export default abstract class extends Command {
     if (this.specFilePath) {
       console.log(this.specFilePath);
       const stats = statSync(this.specFilePath);
-      console.log(stats);
-      const creationDate = stats.birthtime.toISOString();
-      console.log(creationDate);
-      this.metricsMetadata['file_creation_time'] = creationDate;
+      const creationDate = stats.birthtimeMs;
+      this.metricsMetadata['file_creation_timestamp'] = creationDate;
     }
   }
   async finally(error: Error | undefined): Promise<any> {
