@@ -110,7 +110,6 @@ export default class Template extends Command {
     const { args, flags } = await this.parse(Template); // NOSONAR
 
     intro(inverse('AsyncAPI Generator'));
-    intro(inverse('AsyncAPI Generator'));
     const { asyncapi, template, output } = await this.parseArgs(args, flags.output);
     const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url']);
     const options = {
