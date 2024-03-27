@@ -11,7 +11,7 @@ import { watchFlag } from '../../flags';
 import { isLocalTemplate, Watcher } from '../../utils/generator';
 import { ValidationError } from '../../errors/validation-error';
 import { GeneratorError } from '../../errors/generator-error';
-
+import { Parser } from '@asyncapi/parser';
 import type { Example } from '@oclif/core/lib/interfaces';
 import { intro, isCancel, spinner, text } from '@clack/prompts';
 import {inverse, yellow, magenta, green, red} from 'picocolors';
@@ -104,6 +104,8 @@ export default class Template extends Command {
     { name: 'template', description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template' },
   ];
 
+  parser = new Parser();
+
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
 
@@ -122,6 +124,9 @@ export default class Template extends Command {
       disabledHooks: parsedFlags.disableHooks,
     };
     const asyncapiInput = (await load(asyncapi)) || (await load());
+    
+    this.specFile = asyncapiInput;
+    this.metricsMetadata.template = template;
 
     const watchTemplate = flags['watch'];
     const genOption: any = {};

@@ -6,7 +6,6 @@ import { ValidationError } from '../errors/validation-error';
 import { load } from '../models/SpecificationFile';
 import { SpecificationFileNotFound } from '../errors/specification-file';
 import { convert } from '@asyncapi/converter';
-
 import type { ConvertVersion } from '@asyncapi/converter';
 
 // @ts-ignore
@@ -30,21 +29,21 @@ export default class Convert extends Command {
   async run() {
     const { args, flags } = await this.parse(Convert);
     const filePath = args['spec-file'];
-    let specFile;
     let convertedFile;
     let convertedFileFormatted;
 
     try {
       // LOAD FILE
-      specFile = await load(filePath);
+      this.specFile = await load(filePath);
+      this.metricsMetadata.to_version = flags['target-version'];
 
       // CONVERSION
-      convertedFile = convert(specFile.text(), flags['target-version'] as ConvertVersion);
+      convertedFile = convert(this.specFile.text(), flags['target-version'] as ConvertVersion);
       if (convertedFile) {
-        if (specFile.getFilePath()) {
-          this.log(`File ${specFile.getFilePath()} successfully converted!`);
-        } else if (specFile.getFileURL()) {
-          this.log(`URL ${specFile.getFileURL()} successfully converted!`);
+        if (this.specFile.getFilePath()) {
+          this.log(`File ${this.specFile.getFilePath()} successfully converted!`);
+        } else if (this.specFile.getFileURL()) {
+          this.log(`URL ${this.specFile.getFileURL()} successfully converted!`);
         }
       }
 
