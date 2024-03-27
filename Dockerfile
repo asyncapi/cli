@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
-# Use below ARG in manual build of image to set version. Github workflow overrides in publication to Dockerhub 
-ARG ASYNCAPI_CLI_VERSION=0.0.0 
+# Set ARG to explicit value to build chosen version. Default is "latest"
+ARG ASYNCAPI_CLI_VERSION=   
 
 # Create a non-root user
 RUN addgroup -S myuser && adduser -S myuser -G myuser
@@ -20,7 +20,7 @@ RUN apk --update add git chromium && \
     rm /var/cache/apk/*
 
 # Installing latest released npm package
-RUN npm install --ignore-scripts -g @asyncapi/cli
+RUN npm install --ignore-scripts -g @asyncapi/cli@"$ASYNCAPI_CLI_VERSION"
 
 # Switch to the non-root user
 USER myuser
