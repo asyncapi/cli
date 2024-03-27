@@ -186,7 +186,7 @@ export default class Template extends Command {
         validate(value: string) {
           if (!value) {
             return 'The output directory is required';
-          } else if (!(typeof value === 'string')) {
+          } else if (typeof value !== 'string') {
             return 'The output directory must be a string';
           }
         }
