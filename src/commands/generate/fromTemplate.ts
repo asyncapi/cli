@@ -1,4 +1,4 @@
-import { Flags, CliUx } from '@oclif/core';
+import { Flags } from '@oclif/core';
 import Command from '../../base';
 // eslint-disable-next-line
 // @ts-ignore
@@ -13,11 +13,8 @@ import { ValidationError } from '../../errors/validation-error';
 import { GeneratorError } from '../../errors/generator-error';
 
 import type { Example } from '@oclif/core/lib/interfaces';
-
-const red = (text: string) => `\x1b[31m${text}\x1b[0m`;
-const magenta = (text: string) => `\x1b[35m${text}\x1b[0m`;
-const yellow = (text: string) => `\x1b[33m${text}\x1b[0m`;
-const green = (text: string) => `\x1b[32m${text}\x1b[0m`;
+import { intro, isCancel, spinner, text } from '@clack/prompts';
+import {inverse, yellow, magenta, green, red} from 'picocolors';
 
 interface IMapBaseUrlToFlag {
   url: string,
@@ -103,16 +100,17 @@ export default class Template extends Command {
   };
 
   static args = [
-    { name: 'asyncapi', description: '- Local path, url or context-name pointing to AsyncAPI file', required: true },
-    { name: 'template', description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true }
+    { name: 'asyncapi', description: '- Local path, url or context-name pointing to AsyncAPI file' },
+    { name: 'template', description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template' },
   ];
 
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
 
-    const asyncapi = args['asyncapi'];
-    const template = args['template'];
-    const output = flags.output || process.cwd();
+    intro(inverse('AsyncAPI Generator'));
+
+    const { asyncapi, template, output } = await this.parseArgs(args, flags.output);
+
     const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url']);
     const options = {
       forceWrite: flags['force-write'],
@@ -142,6 +140,59 @@ export default class Template extends Command {
       const watcherHandler = this.watcherHandler(asyncapi, template, output, options, genOption);
       await this.runWatchMode(asyncapi, template, output, watcherHandler);
     }
+  }
+
+  private async parseArgs(args: Record<string, any>, output?: string): Promise<{ asyncapi: string; template: string; output: string; }> {
+    let asyncapi = args['asyncapi'];
+    let template = args['template'];
+    const cancellationMessage = 'Operation cancelled';
+
+    if (!asyncapi) {
+      asyncapi = await text({
+        message: 'Please provide the path to the AsyncAPI document',
+        placeholder: 'asyncapi.yaml',
+        defaultValue: 'asyncapi.yaml',
+        validate(value: string) {
+          if (!value) {
+            return 'The path to the AsyncAPI document is required';
+          } else if (!fs.existsSync(value)) {
+            return 'The file does not exist';
+          }
+        }
+      });
+    }
+
+    if (isCancel(asyncapi)) { 
+      this.error(cancellationMessage, { exit: 1 });
+    }
+
+    if (!template) {
+      template = await text({
+        message: 'Please provide the name of the generator template',
+        placeholder: '@asyncapi/html-template',
+        defaultValue: '@asyncapi/html-template',
+      });
+    }
+
+    if (!output) {
+      output = await text({
+        message: 'Please provide the output directory',
+        placeholder: './docs',
+        validate(value: string) {
+          if (!value) {
+            return 'The output directory is required';
+          } else if (!(typeof value === 'string')) {
+            return 'The output directory must be a string';
+          }
+        }
+      }) as string;
+    }
+
+    if (isCancel(output) || isCancel(template)) {
+      this.error(cancellationMessage, { exit: 1 });
+    }
+
+    return { asyncapi, template, output };
   }
 
   private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string): ParsedFlags {
@@ -213,16 +264,15 @@ export default class Template extends Command {
       );
     }
     const generator = new AsyncAPIGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
-
-    CliUx.ux.action.start('Generation in progress. Keep calm and wait a bit');
+    const s = spinner();
+    s.start('Generation in progress. Keep calm and wait a bit');
     try {
       await generator.generateFromString(specification.text(), genOption);
-      CliUx.ux.action.stop();
     } catch (err: any) {
-      CliUx.ux.action.stop('done\n');
+      s.stop('Generation failed');
       throw new GeneratorError(err);
     }
-    console.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
+    s.stop(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
   }
 
   private async runWatchMode(asyncapi: string | undefined, template: string, output: string, watchHandler: ReturnType<typeof this.watcherHandler>) {
