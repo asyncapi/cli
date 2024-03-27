@@ -3,7 +3,7 @@ import { MetadataFromDocument, MetricMetadata, NewRelicSink, Recorder, Sink, Std
 import { Parser } from '@asyncapi/parser';
 import { Specification } from 'models/SpecificationFile';
 import { join, resolve } from 'path';
-import { existsSync } from 'fs-extra';
+import { existsSync, statSync } from 'fs-extra';
 import { promises as fPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -20,6 +20,7 @@ export default abstract class extends Command {
   parser = new Parser();
   metricsMetadata: MetricMetadata = {};
   specFile: Specification | undefined;
+  specFilePath: string | undefined;
 
   async init(): Promise<void> {
     await super.init();
@@ -69,6 +70,7 @@ export default abstract class extends Command {
 
   async recordActionMetric(recordFunc: (recorder: Recorder) => Promise<void>) {
     try {
+      this.setSource();
       await recordFunc(await this.recorder);
       await (await this.recorder).flush();
     } catch (e: any) {
@@ -78,6 +80,16 @@ export default abstract class extends Command {
     }
   }
 
+  setSource() {
+    if (this.specFilePath) {
+      console.log(this.specFilePath);
+      const stats = statSync(this.specFilePath);
+      console.log(stats);
+      const creationDate = stats.birthtime.toISOString();
+      console.log(creationDate);
+      this.metricsMetadata['file_creation_time'] = creationDate;
+    }
+  }
   async finally(error: Error | undefined): Promise<any> {
     await super.finally(error);
     this.metricsMetadata['success'] = error === undefined;
@@ -106,7 +118,7 @@ export default abstract class extends Command {
         break;
       case 'production':
         // NODE_ENV set to `production` in bin/run_bin, which is specified in 'bin' package.json section
-        sink = new NewRelicSink(process.env.ASYNCAPI_METRICS_NEWRELIC_KEY || 'eu01xx73a8521047150dd9414f6aedd2FFFFNRAL');
+        sink = new NewRelicSink(process.env.ASYNCAPI_METRICS_NEWRELIC_KEY || 'eu01xx1dbea6bbf5f6b546cef26c042bFFFFNRAL');
 
         if (analyticsConfigFileContent.infoMessageShown === 'false') {
           this.log('\nAsyncAPI anonymously tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.\n\nTo disable tracking, please run the following command:\n  asyncapi config analytics --disable\n\nOnce disabled, if you want to enable tracking back again then run:\n  asyncapi config analytics --enable');

@@ -168,7 +168,7 @@ export default class NewFile extends Command {
     }
     await writeFile(fileNameToWriteToDisk, asyncApiFile, { encoding: 'utf8' });
     console.log(`Created file ${fileNameToWriteToDisk}...`);
-    this.specFile = await load(fileNameToWriteToDisk);
+    this.specFile = await load(this,fileNameToWriteToDisk);
     this.metricsMetadata.selected_template = selectedTemplate;
   }
 }
