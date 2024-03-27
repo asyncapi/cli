@@ -4,7 +4,7 @@
   "version": "1.7.3",
   "author": "@asyncapi",
   "bin": {
-    "asyncapi": "./bin/run"
+    "asyncapi": "./bin/run_bin"
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
@@ -23,7 +23,8 @@
     "@oclif/core": "^1.26.2",
     "@oclif/errors": "^1.3.6",
     "@oclif/plugin-not-found": "^2.3.22",
-    "@smoya/multi-parser": "^4.0.0",
+    "@smoya/asyncapi-adoption-metrics": "^2.4.4",
+    "@smoya/multi-parser": "^5.0.4",
     "@stoplight/spectral-cli": "6.9.0",
     "ajv": "^8.12.0",
     "chalk": "^4.1.0",
@@ -42,6 +43,7 @@
     "serve-handler": "^6.1.3",
     "strip-ansi": "^6.0.0",
     "unzipper": "^0.10.11",
+    "uuid": "^9.0.1",
     "wrap-ansi": "^9.0.0",
     "ws": "^8.2.3"
   },
@@ -61,6 +63,7 @@
     "@types/node-fetch": "^2.5.12",
     "@types/rimraf": "^3.0.2",
     "@types/serve-handler": "^6.1.1",
+    "@types/uuid": "^9.0.8",
     "@types/wrap-ansi": "^8.0.1",
     "@types/ws": "^8.2.0",
     "@typescript-eslint/eslint-plugin": "^5.38.1",

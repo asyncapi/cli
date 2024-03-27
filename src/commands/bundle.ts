@@ -5,6 +5,8 @@ import bundle from '@asyncapi/bundler';
 import { promises } from 'fs';
 import path from 'path';
 import { Specification, load } from '../models/SpecificationFile';
+import { Parser } from '@asyncapi/parser';
+import { Document } from '@asyncapi/bundler/lib/document';
 
 const { writeFile } = promises;
 
@@ -26,14 +28,18 @@ export default class Bundle extends Command {
     base: Flags.string({ char: 'b', description: 'Path to the file which will act as a base. This is required when some properties are to needed to be overwritten.' }),
   };
 
+  parser = new Parser();
+
   async run() {
     const { argv, flags } = await this.parse(Bundle);
     const output = flags.output;
     let baseFile;
     const outputFormat = path.extname(argv[0]);
     const AsyncAPIFiles = await this.loadFiles(argv);
+    
+    this.metricsMetadata.files = AsyncAPIFiles.length;
 
-    if (flags.base) {baseFile = (await load(flags.base)).text();}
+    if (flags.base) {baseFile = (await load(this,flags.base)).text();}
 
     const fileContents = AsyncAPIFiles.map((file) => file.text());
 
@@ -43,6 +49,8 @@ export default class Bundle extends Command {
         base: baseFile
       }
     );
+    
+    await this.collectMetricsData(document);
 
     if (!output) {
       if (outputFormat === '.yaml' || outputFormat === '.yml') {
@@ -68,10 +76,21 @@ export default class Bundle extends Command {
     }
   }
 
+  private async collectMetricsData(document: Document) {
+    try {
+      // We collect the metadata from the final output so it contains all the files
+      this.specFile = new Specification(document.string());
+    } catch (e: any) {
+      if (e instanceof Error) {
+        this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
+      }
+    }
+  }
+
   async loadFiles(filepaths: string[]): Promise<Specification[]> {
     const files = [];
     for (const filepath of filepaths) {
-      const file = await load(filepath);
+      const file = await load(this,filepath);
       files.push(file);
     }
     return files;

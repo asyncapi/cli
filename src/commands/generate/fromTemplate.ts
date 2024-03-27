@@ -11,7 +11,7 @@ import { watchFlag } from '../../flags';
 import { isLocalTemplate, Watcher } from '../../utils/generator';
 import { ValidationError } from '../../errors/validation-error';
 import { GeneratorError } from '../../errors/generator-error';
-
+import { Parser } from '@asyncapi/parser';
 import type { Example } from '@oclif/core/lib/interfaces';
 
 const red = (text: string) => `\x1b[31m${text}\x1b[0m`;
@@ -107,6 +107,8 @@ export default class Template extends Command {
     { name: 'template', description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true }
   ];
 
+  parser = new Parser();
+
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
 
@@ -123,7 +125,9 @@ export default class Template extends Command {
       mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
       disabledHooks: parsedFlags.disableHooks,
     };
-    const asyncapiInput = (await load(asyncapi)) || (await load());
+    const asyncapiInput = (await load(this,asyncapi)) || (await load(this));
+    this.specFile = asyncapiInput;
+    this.metricsMetadata.template = template;
 
     const watchTemplate = flags['watch'];
     const genOption: any = {};
@@ -202,7 +206,7 @@ export default class Template extends Command {
   private async generate(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any) {
     let specification: Specification;
     try {
-      specification = await load(asyncapi);
+      specification = await load(this,asyncapi);
     } catch (err: any) {
       return this.error(
         new ValidationError({
@@ -226,7 +230,7 @@ export default class Template extends Command {
   }
 
   private async runWatchMode(asyncapi: string | undefined, template: string, output: string, watchHandler: ReturnType<typeof this.watcherHandler>) {
-    const specification = await load(asyncapi);
+    const specification = await load(this,asyncapi);
 
     const watchDir = path.resolve(template);
     const outputPath = path.resolve(watchDir, output);
