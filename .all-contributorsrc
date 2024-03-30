@@ -304,10 +304,10 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/13396189?v=4",
       "profile": "https://github.com/jonaslagoni",
       "contributions": [
-          "code",
-          "ideas",
-          "review",
-          "test"
+        "code",
+        "ideas",
+        "review",
+        "test"
       ]
     },
     {
@@ -323,8 +323,17 @@
     {
       "login": "smoya",
       "name": "Sergio Moya ",
-      "avatar_url" : "https://avatars.githubusercontent.com/u/1083296?v=4",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1083296?v=4",
       "profile": "https://github.com/smoya",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Vishal2002",
+      "name": "Vishal Sharma",
+      "avatar_url": "https://avatars.githubusercontent.com/u/35897449?v=4",
+      "profile": "https://github.com/Vishal2002",
       "contributions": [
         "code"
       ]
