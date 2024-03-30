@@ -302,20 +302,8 @@ export default class Models extends Command {
         options
       });
       if (javaIncludeComments) {presets.push(JAVA_DESCRIPTION_PRESET);}
-      if (javaJackson) {
-        presets.push({
-          preset: JAVA_COMMON_PRESET,
-          options
-        },
-        JAVA_JACKSON_PRESET);
-      }
-      if (javaConstraints) {
-        presets.push({
-          preset: JAVA_COMMON_PRESET,
-          options
-        },
-        JAVA_CONSTRAINTS_PRESET);
-      }
+      if (javaJackson) {presets.push(JAVA_JACKSON_PRESET);}
+      if (javaConstraints) {presets.push(JAVA_CONSTRAINTS_PRESET);}
       fileGenerator = new JavaFileGenerator({ presets });
       fileOptions = {
         packageName
