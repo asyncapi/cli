@@ -374,6 +374,7 @@ export default class Models extends Command {
 
   private async parseArgs(args: Record<string, any>, output?: string) {
     let { language, file } = args;
+    let askForOutput = false;
     const operationCancelled = 'Operation cancelled by the user.';
     if (!language) {
       language = await select({
@@ -382,6 +383,8 @@ export default class Models extends Command {
           ({ value: key, label: key, hint: Languages[key as keyof typeof Languages] })
         ),
       });
+
+      askForOutput = true;
     }
 
     if (isCancel(language)) {
@@ -395,6 +398,8 @@ export default class Models extends Command {
         defaultValue: 'asyncapi.yaml',
         placeholder: 'asyncapi.yaml',
       });
+
+      askForOutput = true;
     }
 
     if (isCancel(file)) {
@@ -402,7 +407,7 @@ export default class Models extends Command {
       this.exit();
     }
 
-    if (!output) {
+    if (!output && askForOutput) {
       output = await text({
         message: 'Enter the output directory or stdout to write the models to',
         defaultValue: 'stdout',
@@ -415,6 +420,6 @@ export default class Models extends Command {
       this.exit();
     }
       
-    return { language, file, output };
+    return { language, file, output: output || 'stdout' };
   }
 }
