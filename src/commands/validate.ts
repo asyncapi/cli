@@ -1,5 +1,4 @@
 import { Flags } from '@oclif/core';
-
 import Command from '../base';
 import { validate, validationFlags } from '../parser';
 import { load } from '../models/SpecificationFile';
@@ -24,11 +23,16 @@ export default class Validate extends Command {
     const filePath = args['spec-file'];
     const watchMode = flags.watch;
 
-    const specFile = await load(filePath);
+    this.specFile = await load(filePath);
     if (watchMode) {
-      specWatcher({ spec: specFile, handler: this, handlerName: 'validate' });
+      specWatcher({ spec: this.specFile, handler: this, handlerName: 'validate' });
     }
 
-    await validate(this, specFile, flags);
+    const result = await validate(this, this.specFile, flags);
+    this.metricsMetadata.validation_result = result;
+    
+    if (result === 'invalid') {
+      process.exitCode = 1;
+    }
   }
 }

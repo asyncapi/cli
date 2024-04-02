@@ -81,12 +81,11 @@ const buildCLIListFromExamples = async () => {
         value: example
       };
     } catch (error) {
-      // Failed for somereason to parse this spec file, ignore for now
       console.error(error);
     }
   });
 
-  const exampleList = await Promise.all(buildExampleList);
+  const exampleList = (await Promise.all(buildExampleList)).filter(item => !!item);
   const orderedExampleList = exampleList.sort((a, b) => a.name.localeCompare(b.name));
 
   fs.writeFileSync(path.join(EXAMPLE_DIRECTORY, 'examples.json'), JSON.stringify(orderedExampleList, null, 4));
