@@ -8,16 +8,13 @@ servers:
     protocol: ws
 channels:
   hello:
-    address: hello
+    address: /hello
     messages:
       hello:
         $ref: '#/components/messages/hello'
 operations:
-  receiveHello:
+  onHello:
     action: receive
-    reply:
-      channel: 
-        $ref: '#/channels/hello'
     channel:
       $ref: '#/channels/hello'
   sendHello:
