@@ -53,7 +53,7 @@ export default class Optimize extends Command {
     const filePath = args['spec-file'];
 
     try {
-      this.specFile = await load(this,filePath);
+      this.specFile = await load(filePath);
     } catch (err) {
       this.error(
         new ValidationError({

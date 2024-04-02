@@ -20,7 +20,6 @@ export default abstract class extends Command {
   parser = new Parser();
   metricsMetadata: MetricMetadata = {};
   specFile: Specification | undefined;
-  specFilePath: string | undefined;
 
   async init(): Promise<void> {
     await super.init();
@@ -81,10 +80,10 @@ export default abstract class extends Command {
   }
 
   setSource() {
-    if (this.specFilePath) {
-      const stats = statSync(this.specFilePath);
-      this.metricsMetadata['file_creation_timestamp'] = stats.birthtimeMs;
-    }
+    const specFilePath = this.specFile?.getFilePath();
+    if (!specFilePath) { return; }
+    const stats = statSync(specFilePath);
+    this.metricsMetadata['file_creation_timestamp'] = stats.birthtimeMs;
   }
   async finally(error: Error | undefined): Promise<any> {
     await super.finally(error);

@@ -34,7 +34,7 @@ export default class Convert extends Command {
 
     try {
       // LOAD FILE
-      this.specFile = await load(this,filePath);
+      this.specFile = await load(filePath);
       this.metricsMetadata.to_version = flags['target-version'];
 
       // CONVERSION

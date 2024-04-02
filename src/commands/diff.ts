@@ -85,7 +85,7 @@ export default class Diff extends Command {
     markdownSubtype = setDefaultMarkdownSubtype(outputFormat, markdownSubtype);
 
     try {
-      firstDocument = await load(this,firstDocumentPath);
+      firstDocument = await load(firstDocumentPath);
 
       if (firstDocument.isAsyncAPI3()) {
         this.error('Diff command does not support AsyncAPI v3 yet which was your first document, please checkout https://github.com/asyncapi/diff/issues/154');
@@ -111,7 +111,7 @@ export default class Diff extends Command {
     }
 
     try {
-      secondDocument = await load(this,secondDocumentPath);
+      secondDocument = await load(secondDocumentPath);
 
       if (secondDocument.isAsyncAPI3()) {
         this.error('Diff command does not support AsyncAPI v3 yet which was your second document, please checkout https://github.com/asyncapi/diff/issues/154');

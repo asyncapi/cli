@@ -39,7 +39,7 @@ export default class Bundle extends Command {
     
     this.metricsMetadata.files = AsyncAPIFiles.length;
 
-    if (flags.base) {baseFile = (await load(this,flags.base)).text();}
+    if (flags.base) {baseFile = (await load(flags.base)).text();}
 
     const fileContents = AsyncAPIFiles.map((file) => file.text());
 
@@ -90,7 +90,7 @@ export default class Bundle extends Command {
   async loadFiles(filepaths: string[]): Promise<Specification[]> {
     const files = [];
     for (const filepath of filepaths) {
-      const file = await load(this,filepath);
+      const file = await load(filepath);
       files.push(file);
     }
     return files;

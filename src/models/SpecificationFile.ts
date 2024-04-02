@@ -122,7 +122,7 @@ interface LoadType {
 }
 
 /* eslint-disable sonarjs/cognitive-complexity */
-export async function load(command?: Command, filePathOrContextName?: string, loadType?: LoadType): Promise<Specification> { // NOSONAR
+export async function load(filePathOrContextName?: string, loadType?: LoadType): Promise<Specification> { // NOSONAR
   if (filePathOrContextName) {
     if (loadType?.file) { return Specification.fromFile(filePathOrContextName); }
     if (loadType?.context) { return loadFromContext(filePathOrContextName); }
@@ -137,7 +137,6 @@ export async function load(command?: Command, filePathOrContextName?: string, lo
       return Specification.fromURL(filePathOrContextName);
     }
     await fileExists(filePathOrContextName);
-    if (command) {command.specFilePath = filePathOrContextName;}
     return Specification.fromFile(filePathOrContextName);
   }
 

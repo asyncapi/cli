@@ -125,7 +125,7 @@ export default class Template extends Command {
       mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
       disabledHooks: parsedFlags.disableHooks,
     };
-    const asyncapiInput = (await load(this,asyncapi)) || (await load(this));
+    const asyncapiInput = (await load(asyncapi)) || (await load());
     
     this.specFile = asyncapiInput;
     this.metricsMetadata.template = template;
@@ -207,7 +207,7 @@ export default class Template extends Command {
   private async generate(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any) {
     let specification: Specification;
     try {
-      specification = await load(this,asyncapi);
+      specification = await load(asyncapi);
     } catch (err: any) {
       return this.error(
         new ValidationError({
@@ -231,7 +231,7 @@ export default class Template extends Command {
   }
 
   private async runWatchMode(asyncapi: string | undefined, template: string, output: string, watchHandler: ReturnType<typeof this.watcherHandler>) {
-    const specification = await load(this,asyncapi);
+    const specification = await load(asyncapi);
 
     const watchDir = path.resolve(template);
     const outputPath = path.resolve(watchDir, output);
