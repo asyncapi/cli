@@ -59,7 +59,10 @@ jobs:
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
         id: first-installation
-        run: npm ci
+        run: |
+          npm cache clean --force
+          rm -rf C:\npm\cache\_cacache\tmp
+          npm ci
       - if: steps.packagejson.outputs.exists == 'true'
         name: Test
         run: npm test --if-present

@@ -56,7 +56,10 @@ jobs:
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
         id: first-installation
-        run: npm ci
+        run: |
+          npm cache clean --force
+          rm -rf C:\npm\cache\_cacache\tmp
+          npm ci
       - if: steps.packagejson.outputs.exists == 'true'
         name: Run test
         run: npm test --if-present
@@ -97,7 +100,10 @@ jobs:
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
         id: first-installation
-        run: npm ci
+        run: |
+          npm cache clean --force
+          rm -rf C:\npm\cache\_cacache\tmp
+          npm ci
       - if: steps.packagejson.outputs.exists == 'true'
         name: Add plugin for conventional commits for semantic-release
         run: npm install --save-dev conventional-changelog-conventionalcommits@5.0.0
