@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-2019]
     steps:
       - if: >
           !github.event.pull_request.draft && !(
@@ -59,10 +59,7 @@ jobs:
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
         shell: bash
-        run: |
-          rm -rf C:\npm\cache\_cacache\tmp
-          npm cache clean --force
-          npm ci
+        run: npm ci
       - if: steps.packagejson.outputs.exists == 'true'
         name: Test
         run: npm test --if-present
