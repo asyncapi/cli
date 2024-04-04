@@ -1,11 +1,11 @@
 import { expect, test } from '@oclif/test';
-import TestHelper from '../../helpers';
+import TestHelper, { fileCleanup } from '../../helpers';
 
 const testHelper = new TestHelper();
 
 describe('config:analytics', () => {
   afterEach(() => {
-    testHelper.deleteAnalyticsConfigFile();
+    fileCleanup('.asyncapi-analytics');
   });
 
   describe('with disable flag', () => {
