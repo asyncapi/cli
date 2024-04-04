@@ -60,8 +60,8 @@ jobs:
         name: Install dependencies
         shell: bash
         run: |
-          npm cache clean --force
           rm -rf C:\npm\cache\_cacache\tmp
+          npm cache clean --force
           npm ci
       - if: steps.packagejson.outputs.exists == 'true'
         name: Test
