@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-2019]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - if: >
           !github.event.pull_request.draft && !(
@@ -39,6 +39,7 @@ jobs:
         run: |
           git config --global core.autocrlf false
           git config --global core.eol lf
+        shell: bash
       - if: steps.should_run.outputs.shouldrun == 'true' 
         name: Checkout repository
         uses: actions/checkout@v4
