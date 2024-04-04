@@ -55,7 +55,7 @@ jobs:
           node-version: "${{ steps.lockversion.outputs.version }}"
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
-        id: first-installation
+        shell: bash
         run: |
           npm cache clean --force
           rm -rf C:\npm\cache\_cacache\tmp
@@ -99,7 +99,7 @@ jobs:
           node-version: "${{ steps.lockversion.outputs.version }}"
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
-        id: first-installation
+        shell: bash
         run: |
           npm cache clean --force
           rm -rf C:\npm\cache\_cacache\tmp
