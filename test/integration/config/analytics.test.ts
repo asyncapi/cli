@@ -1,7 +1,5 @@
 import { expect, test } from '@oclif/test';
-import TestHelper, { fileCleanup } from '../../helpers';
-
-const testHelper = new TestHelper();
+import { fileCleanup } from '../../helpers';
 
 describe('config:analytics', () => {
   afterEach(() => {
