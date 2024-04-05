@@ -64,18 +64,14 @@ export default class ContextTestingHelper {
   }
 
   deleteSpecFileAtWorkingDir(): void {
-    if (existsSync(ASYNCAPI_FILE_PATH)) {
       unlinkSync(ASYNCAPI_FILE_PATH);
-    }
   }
 
   newCommandHelper() {
     return {
       deleteSpecFile: () => {
         const specificationFilePath = path.resolve(process.cwd(), 'specification.yaml');
-        if (existsSync(specificationFilePath)) {
-          unlinkSync(specificationFilePath);
-        }
+        unlinkSync(specificationFilePath);
       }
     };
   }
