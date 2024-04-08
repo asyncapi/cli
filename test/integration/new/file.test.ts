@@ -7,7 +7,7 @@ const testHelper = new TestHelper();
 describe('new', () => {
   before(() => {
     try {
-      testHelper.newCommandHelper().deleteSpecFile();
+      testHelper.deleteSpecFileAtWorkingDir();
     } catch (e: any) {
       if (e.code !== 'ENOENT') {
         throw e;
@@ -17,7 +17,7 @@ describe('new', () => {
 
   describe('create new file', () => {
     afterEach(() => {
-      testHelper.newCommandHelper().deleteSpecFile();
+      testHelper.deleteSpecFileAtWorkingDir();
     });
     
     test
@@ -53,7 +53,7 @@ describe('new', () => {
     });
 
     afterEach(() => {
-      testHelper.newCommandHelper().deleteSpecFile();
+      testHelper.deleteSpecFileAtWorkingDir();
     });
 
     test
