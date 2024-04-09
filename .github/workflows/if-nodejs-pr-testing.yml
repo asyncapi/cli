@@ -42,7 +42,7 @@ jobs:
         shell: bash
       - if: steps.should_run.outputs.shouldrun == 'true' 
         name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - if: steps.should_run.outputs.shouldrun == 'true' 
         name: Check if Node.js project and has package.json
         id: packagejson
@@ -54,9 +54,14 @@ jobs:
         id: lockversion
       - if: steps.packagejson.outputs.exists == 'true'
         name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "${{ steps.lockversion.outputs.version }}"
+      - if: steps.lockversion.outputs.version == '18'
+        name: Install npm cli 8
+        shell: bash
+        #npm cli 10 is buggy because of some cache issues
+        run: npm install -g npm@8.19.4
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
         shell: bash
