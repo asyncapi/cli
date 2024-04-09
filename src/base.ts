@@ -3,11 +3,11 @@ import { MetadataFromDocument, MetricMetadata, NewRelicSink, Recorder, Sink, Std
 import { Parser } from '@asyncapi/parser';
 import { Specification } from 'models/SpecificationFile';
 import { join, resolve } from 'path';
-import { existsSync, statSync } from 'fs-extra';
+import { existsSync } from 'fs-extra';
 import { promises as fPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 
-const { readFile, writeFile } = fPromises;
+const { readFile, writeFile, stat } = fPromises;
 
 class DiscardSink implements Sink {
   async send() {
@@ -69,7 +69,7 @@ export default abstract class extends Command {
 
   async recordActionMetric(recordFunc: (recorder: Recorder) => Promise<void>) {
     try {
-      this.setSource();
+      await this.setSource();
       await recordFunc(await this.recorder);
       await (await this.recorder).flush();
     } catch (e: any) {
@@ -79,11 +79,15 @@ export default abstract class extends Command {
     }
   }
 
-  setSource() {
+  async setSource() {
     const specFilePath = this.specFile?.getFilePath();
     if (!specFilePath) { return; }
-    const stats = statSync(specFilePath);
-    this.metricsMetadata['file_creation_timestamp'] = stats.birthtimeMs;
+    try {
+      const stats = await stat(specFilePath);
+      this.metricsMetadata['file_creation_timestamp'] = stats.birthtimeMs;
+    } catch (e: any) {
+      // do nothing.
+    }
   }
   async finally(error: Error | undefined): Promise<any> {
     await super.finally(error);
