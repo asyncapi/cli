@@ -73,7 +73,7 @@ jobs:
         #linting should run just one and not on all possible operating systems
         name: Run linter
         run: npm run lint --if-present
-      - if: steps.packagejson.outputs.exists == 'true' && matrix.os == 'ubuntu-latest'
-        #checking assets generation is only needed on system that is later used in the bump workflow - so ubuntu
+      - if: steps.packagejson.outputs.exists == 'true'
         name: Run release assets generation to make sure PR does not break it
+        shell: bash
         run: npm run generate:assets --if-present
