@@ -58,9 +58,9 @@ jobs:
         with:
           node-version: "${{ steps.lockversion.outputs.version }}"
       - if: steps.lockversion.outputs.version == '18' && matrix.os == 'windows-latest'
+        #npm cli 10 is buggy because of some cache issue
         name: Install npm cli 8
         shell: bash
-        #npm cli 10 is buggy because of some cache issues
         run: npm install -g npm@8.19.4
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
@@ -69,9 +69,11 @@ jobs:
       - if: steps.packagejson.outputs.exists == 'true'
         name: Test
         run: npm test --if-present
-      - if: steps.packagejson.outputs.exists == 'true'
+      - if: steps.packagejson.outputs.exists == 'true' && matrix.os == 'ubuntu-latest'
+        #linting should run just one and not on all possible operating systems
         name: Run linter
         run: npm run lint --if-present
-      - if: steps.packagejson.outputs.exists == 'true'
+      - if: steps.packagejson.outputs.exists == 'true' && matrix.os == 'ubuntu-latest'
+        #checking assets generation is only needed on system that is later used in the bump workflow - so ubuntu
         name: Run release assets generation to make sure PR does not break it
         run: npm run generate:assets --if-present
