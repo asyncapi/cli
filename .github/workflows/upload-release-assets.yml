@@ -41,16 +41,14 @@ jobs:
             extension: x64.pkg
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Check package-lock version
         uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master
         id: lockversion
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "${{ steps.lockversion.outputs.version }}"
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
       - name: Get version from package.json
         uses: actions/github-script@v6
         id: extractver
@@ -59,11 +57,18 @@ jobs:
             const packageJson = require('./package.json');
             const packageJsonVersion = packageJson.version;
             core.setOutput('version', packageJsonVersion);
+      - if: steps.lockversion.outputs.version == '18' && matrix.os == 'windows-latest'
+        #npm cli 10 is buggy because of some cache issue
+        name: Install npm cli 8
+        shell: bash
+        run: npm install -g npm@8.19.4
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Build project
+        shell: bash
         run: npm run prepublishOnly
       - name: Assets generation
+        shell: bash
         run: npm run ${{ matrix.npm_script }}
       - name: Update release
         uses: softprops/action-gh-release@v1
