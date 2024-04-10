@@ -67,17 +67,6 @@ jobs:
         shell: bash
         run: npm ci
       - if: steps.packagejson.outputs.exists == 'true'
-        name: Verify and conditionally clean npm cache
-        shell: bash
-        run: |
-          set +e
-          npm cache verify
-          VERIFY_EXIT_CODE=$?
-          set -e
-          if [ $VERIFY_EXIT_CODE -ne 0 ]; then
-            npm cache clean --force
-          fi
-      - if: steps.packagejson.outputs.exists == 'true'
         name: Test
         run: npm test --if-present
       - if: steps.packagejson.outputs.exists == 'true' && matrix.os == 'ubuntu-latest'
