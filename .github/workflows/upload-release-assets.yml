@@ -41,12 +41,12 @@ jobs:
             extension: x64.pkg
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Check package-lock version
         uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master
         id: lockversion
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "${{ steps.lockversion.outputs.version }}"
       - name: Get version from package.json
@@ -65,8 +65,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build project
+        shell: bash
         run: npm run prepublishOnly
       - name: Assets generation
+        shell: bash
         run: npm run ${{ matrix.npm_script }}
       - name: Update release
         uses: softprops/action-gh-release@v1
