@@ -22,7 +22,10 @@ async function checkAndRenameFile(generatedPath, newPath) {
 }
 
 async function createDirectory(directoryPath) {
-  await mkdir(directoryPath);
+  const exists = await fileExists(directoryPath);
+  if (!exists) {
+    await mkdir(directoryPath);
+  }
 }
 
 async function renameDeb({version, name, sha}) {
