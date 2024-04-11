@@ -1,10 +1,10 @@
 /* eslint-disable no-warning-comments */
 /* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable sonarjs/no-identical-functions */
-import path from 'path';
 import { expect, test } from '@oclif/test';
-import { createMockServer, stopMockServer } from '../../helpers';
+import path from 'path';
 import rimraf from 'rimraf';
+import { createMockServer, stopMockServer } from '../../helpers';
 const generalOptions = ['generate:models'];
 const outputDir = './test/fixtures/generate/models';
 const asyncapiv3 = './test/fixtures/specification-v3.yml';
@@ -104,6 +104,16 @@ describe('models', () => {
       .stdout()
       .command([...generalOptions,'typescript', './test/fixtures/specification.yml', '--tsIncludeComments'])
       .it('works when tsExampleInstance is set', (ctx, done) => {
+        expect(ctx.stdout).to.contain(
+          'Successfully generated the following models: '
+        );
+        done();
+      });
+    test
+      .stderr()
+      .stdout()
+      .command([...generalOptions,'typescript', './test/fixtures/specification.yml', '--tsRawPropertyNames'])
+      .it('works when tsRawPropertyNames is set', (ctx, done) => {
         expect(ctx.stdout).to.contain(
           'Successfully generated the following models: '
         );
