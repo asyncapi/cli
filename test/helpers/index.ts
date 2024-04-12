@@ -8,7 +8,6 @@ import rimraf from 'rimraf';
 const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'specification.yaml');
 const SERVER_DIRECTORY= path.join(__dirname, '../fixtures/dummyspec');
 export const PROJECT_DIRECTORY_PATH = path.join(process.cwd(), 'test-project');
-export const ANALYTICS_CONFIG_FILE_PATH = path.resolve(process.cwd(), '.asyncapi-analytics');
 
 let server: http.Server;
 
@@ -86,10 +85,6 @@ export default class ContextTestingHelper {
 
   deleteDummyProjectDirectory(): void {
     rimraf.sync(PROJECT_DIRECTORY_PATH);
-  }
-
-  deleteAnalyticsConfigFile(): void {
-    unlinkSync(ANALYTICS_CONFIG_FILE_PATH);
   }
 }
 
