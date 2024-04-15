@@ -1,6 +1,6 @@
 import { Flags } from '@oclif/core';
 import Command from '../base';
-import { validate, validationFlags } from '../parser';
+import { validate, validationFlags, ValidationStatus } from '../parser';
 import { load } from '../models/SpecificationFile';
 import { specWatcher } from '../globals';
 import { watchFlag } from '../flags';
@@ -31,7 +31,7 @@ export default class Validate extends Command {
     const result = await validate(this, this.specFile, flags);
     this.metricsMetadata.validation_result = result;
     
-    if (result === 'invalid') {
+    if (result === ValidationStatus.INVALID) {
       process.exitCode = 1;
     }
   }

@@ -12,7 +12,7 @@ import type { Diagnostic } from '@asyncapi/parser/cjs';
 import type Command from './base';
 import type { Specification } from './models/SpecificationFile';
 
-export type SeveritytKind = 'error' | 'warn' | 'info' | 'hint';
+export type SeverityKind = 'error' | 'warn' | 'info' | 'hint';
 
 export { convertToOldAPI };
 
@@ -33,6 +33,11 @@ export interface ValidationFlagsOptions {
   logDiagnostics?: boolean;
 }
 
+export enum ValidationStatus {
+  INVALID = 'invalid',
+  VALID = 'valid',
+}
+
 export function validationFlags({ logDiagnostics = true }: ValidationFlagsOptions = {}) {
   return {
     'log-diagnostics': Flags.boolean({
@@ -45,7 +50,7 @@ export function validationFlags({ logDiagnostics = true }: ValidationFlagsOption
       options: Object.values(OutputFormat),
       default: OutputFormat.STYLISH,
     }),
-    'fail-severity': Flags.enum<SeveritytKind>({
+    'fail-severity': Flags.enum<SeverityKind>({
       description: 'diagnostics of this level or above will trigger a failure exit code',
       options: ['error', 'warn', 'info', 'hint'],
       default: 'error',
@@ -56,7 +61,7 @@ export function validationFlags({ logDiagnostics = true }: ValidationFlagsOption
 interface ValidateOptions {
   'log-diagnostics'?: boolean;
   'diagnostics-format'?: `${OutputFormat}`;
-  'fail-severity'?: SeveritytKind;
+  'fail-severity'?: SeverityKind;
 }
 
 export async function validate(command: Command, specFile: Specification, options: ValidateOptions = {}) {
@@ -82,7 +87,7 @@ function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: S
         command.logToStderr(`\n${sourceString} and/or referenced documents have governance issues.`);
         command.logToStderr(formatOutput(diagnostics, diagnosticsFormat, failSeverity));
       }
-      return 'invalid';
+      return ValidationStatus.INVALID;
     }
 
     if (logDiagnostics) {
@@ -93,10 +98,10 @@ function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: S
     command.log(`\n${sourceString} is valid! ${sourceString} and referenced documents don't have governance issues.`);
   }
 
-  return 'valid';
+  return ValidationStatus.VALID;
 }
 
-export function formatOutput(diagnostics: Diagnostic[], format: `${OutputFormat}`, failSeverity: SeveritytKind) {
+export function formatOutput(diagnostics: Diagnostic[], format: `${OutputFormat}`, failSeverity: SeverityKind) {
   const options = { failSeverity: getDiagnosticSeverity(failSeverity) };
   switch (format) {
   case 'stylish': return stylish(diagnostics, options);
@@ -110,7 +115,7 @@ export function formatOutput(diagnostics: Diagnostic[], format: `${OutputFormat}
   }
 }
 
-function hasFailSeverity(diagnostics: Diagnostic[], failSeverity: SeveritytKind) {
+function hasFailSeverity(diagnostics: Diagnostic[], failSeverity: SeverityKind) {
   const diagnosticSeverity = getDiagnosticSeverity(failSeverity);
   return diagnostics.some(diagnostic => diagnostic.severity <= diagnosticSeverity);
 }
