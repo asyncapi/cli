@@ -23,7 +23,7 @@
     "@oclif/core": "^1.26.2",
     "@oclif/errors": "^1.3.6",
     "@oclif/plugin-not-found": "^2.3.22",
-    "@smoya/asyncapi-adoption-metrics": "^2.4.4",
+    "@smoya/asyncapi-adoption-metrics": "^2.4.5",
     "@smoya/multi-parser": "^5.0.6",
     "@stoplight/spectral-cli": "6.9.0",
     "ajv": "^8.12.0",
