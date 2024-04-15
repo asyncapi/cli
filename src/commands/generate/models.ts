@@ -38,6 +38,11 @@ export default class Models extends Command {
 
   static flags = {
     help: Flags.help({ char: 'h' }),
+    'no-interactive': Flags.boolean({
+      description: 'Disable interactive mode and run with the provided flags.',
+      required: false,
+      default: false,
+    }),
     output: Flags.string({
       char: 'o',
       description: 'The output directory where the models should be written to. Omitting this flag will write the models to `stdout`.',
@@ -169,11 +174,20 @@ export default class Models extends Command {
 
   /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
-    intro(inverse('AsyncAPI Generate Models'));
-
     const { args, flags } = await this.parse(Models);
+
     const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, tsExampleInstance, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, javaIncludeComments, javaJackson, javaConstraints } = flags;
-    const { language, file, output } = await this.parseArgs(args, flags.output);
+    let { language, file, output } = args;
+    const interactive = !flags['no-interactive'];
+
+    if (!interactive) {
+      intro(inverse('AsyncAPI Generate Models'));
+
+      const parsedArgs = await this.parseArgs(args, output);
+      language = parsedArgs.language;
+      file = parsedArgs.file;
+      output = parsedArgs.output;
+    }
 
     const inputFile = (await load(file)) || (await load());
     if (inputFile.isAsyncAPI3()) {

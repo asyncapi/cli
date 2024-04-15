@@ -65,6 +65,11 @@ export default class Template extends Command {
       description: 'Disable a specific hook type or hooks from a given hook type',
       multiple: true
     }),
+    'no-interactive': Flags.boolean({
+      description: 'Disable interactive mode and run with the provided flags.',
+      required: false,
+      default: false,
+    }),
     install: Flags.boolean({
       char: 'i',
       default: false,
@@ -108,9 +113,18 @@ export default class Template extends Command {
 
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
+    const interactive = !flags['no-interactive'];
 
-    intro(inverse('AsyncAPI Generator'));
-    const { asyncapi, template, output } = await this.parseArgs(args, flags.output);
+    let { asyncapi, template, output } = args;
+    if (interactive) {
+      intro(inverse('AsyncAPI Generator'));
+
+      const parsedArgs = await this.parseArgs(args, output);
+      asyncapi = parsedArgs.asyncapi;
+      template = parsedArgs.template;
+      output = parsedArgs.output;
+    }
+
     const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url']);
     const options = {
       forceWrite: flags['force-write'],
@@ -138,9 +152,9 @@ export default class Template extends Command {
         this.error(`${template} template does not support AsyncAPI v3 documents, please checkout ${v3IssueLink}`);
       }
     }
-    await this.generate(asyncapi, template, output, options, genOption);
+    await this.generate(asyncapi, template, output, options, genOption, interactive);
     if (watchTemplate) {
-      const watcherHandler = this.watcherHandler(asyncapi, template, output, options, genOption);
+      const watcherHandler = this.watcherHandler(asyncapi, template, output, options, genOption, interactive);
       await this.runWatchMode(asyncapi, template, output, watcherHandler);
     }
   }
@@ -253,7 +267,7 @@ export default class Template extends Command {
     return mapBaseURLToFolder;
   }
 
-  private async generate(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any) {
+  private async generate(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any, interactive = true) {
     let specification: Specification;
     try {
       specification = await load(asyncapi);
@@ -267,7 +281,7 @@ export default class Template extends Command {
       );
     }
     const generator = new AsyncAPIGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
-    const s = spinner();
+    const s = interactive ? spinner() : { start: () => null, stop: () => null};
     s.start('Generation in progress. Keep calm and wait a bit');
     try {
       await generator.generateFromString(specification.text(), genOption);
@@ -318,7 +332,7 @@ export default class Template extends Command {
     });
   }
 
-  private watcherHandler(asyncapi: string, template: string, output: string, options: Record<string, any>, genOption: any): (changedFiles: Record<string, any>) => Promise<void> {
+  private watcherHandler(asyncapi: string, template: string, output: string, options: Record<string, any>, genOption: any, interactive: boolean): (changedFiles: Record<string, any>) => Promise<void> {
     return async (changedFiles: Record<string, any>): Promise<void> => {
       console.clear();
       console.log('[WATCHER] Change detected');
@@ -340,7 +354,7 @@ export default class Template extends Command {
         this.log(`\t${magenta(value.path)} was ${eventText}`);
       }
       try {
-        await this.generate(asyncapi, template, output, options, genOption);
+        await this.generate(asyncapi, template, output, options, genOption, interactive);
       } catch (err: any) {
         throw new GeneratorError(err);
       }

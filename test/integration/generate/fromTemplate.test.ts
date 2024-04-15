@@ -4,10 +4,13 @@ import { test } from '@oclif/test';
 import rimraf from 'rimraf';
 import { expect } from '@oclif/test';
 
+const nonInteractive = '--no-interactive';
+
 const generalOptions = [
   'generate:fromTemplate',
   './test/fixtures/specification.yml',
   '@asyncapi/minimaltemplate',
+  nonInteractive,
 ];
 const asyncapiv3 = './test/fixtures/specification-v3.yml';
 
@@ -38,11 +41,11 @@ describe('template', () => {
         'generate:fromTemplate',
         asyncapiv3,
         '@asyncapi/minimaltemplate',
-        '--output=./test/docs/error',
+        nonInteractive,
       ])
       .it('give error on disabled template', (ctx, done) => {
         expect(ctx.stderr).to.equal('Error: @asyncapi/minimaltemplate template does not support AsyncAPI v3 documents, please checkout some link\n');
-        expect(ctx.stdout).to.equal('┌  AsyncAPI Generator\n');
+        expect(ctx.stdout).to.equal('');
         done();
       });
   }).timeout(200000);
