@@ -115,7 +115,8 @@ export default class Template extends Command {
     const { args, flags } = await this.parse(Template); // NOSONAR
     const interactive = !flags['no-interactive'];
 
-    let { asyncapi, template, output } = args;
+    let { asyncapi, template } = args;
+    let output = flags.output as string;
     if (interactive) {
       intro(inverse('AsyncAPI Generator'));
 
@@ -281,7 +282,7 @@ export default class Template extends Command {
       );
     }
     const generator = new AsyncAPIGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
-    const s = interactive ? spinner() : { start: () => null, stop: () => null};
+    const s = interactive ? spinner() : { start: () => null, stop: (string: string) => console.log(string) };
     s.start('Generation in progress. Keep calm and wait a bit');
     try {
       await generator.generateFromString(specification.text(), genOption);

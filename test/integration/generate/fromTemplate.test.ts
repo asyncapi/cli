@@ -10,7 +10,6 @@ const generalOptions = [
   'generate:fromTemplate',
   './test/fixtures/specification.yml',
   '@asyncapi/minimaltemplate',
-  nonInteractive,
 ];
 const asyncapiv3 = './test/fixtures/specification-v3.yml';
 
@@ -24,8 +23,9 @@ describe('template', () => {
   });
   test
     .stdout()
-    .command([...generalOptions, '--output=./test/docs/1', '--force-write'])
+    .command([...generalOptions, '--output=./test/docs/1', '--force-write', '--no-interactive'])
     .it('should generate minimal template', (ctx, done) => {
+      console.log(ctx.stdout);
       expect(ctx.stdout).to.contain(
         'Check out your shiny new generated files at ./test/docs/1.\n\n'
       );
@@ -59,7 +59,7 @@ describe('template', () => {
     });
     test
       .stderr()
-      .command([...generalOptions, `--output=${pathToOutput}`])
+      .command([...generalOptions, `--output=${pathToOutput}`, nonInteractive])
       .it(
         'should throw error if output folder is in a git repository',
         (ctx, done) => {
@@ -80,6 +80,7 @@ describe('template', () => {
         '-p=version=1.0.0 mode=development',
         '--output=./test/docs/3',
         '--force-write',
+        nonInteractive
       ])
       .it('should pass custom param in the template', (ctx, done) => {
         expect(ctx.stdout).to.contain(
@@ -98,6 +99,7 @@ describe('template', () => {
         '--output=./test/docs/4',
         '--force-write',
         '-d=generate:after',
+        nonInteractive
       ])
       .it('should not create asyncapi.yaml file', async (_, done) => {
         const exits = fs.existsSync(path.resolve('./docs/asyncapi.yaml'));
@@ -115,6 +117,7 @@ describe('template', () => {
         '--output=./test/docs/5',
         '--force-write',
         '--debug',
+        nonInteractive
       ])
       .it('should print debug logs', (ctx, done) => {
         expect(ctx.stdout).to.contain(
@@ -135,6 +138,7 @@ describe('template', () => {
         '--output=./test/docs/6',
         '--force-write',
         '--no-overwrite=./test/docs/asyncapi.md',
+        nonInteractive
       ])
       .it('should skip the filepath and generate normally', (ctx, done) => {
         expect(ctx.stdout).to.contain(

@@ -177,7 +177,8 @@ export default class Models extends Command {
     const { args, flags } = await this.parse(Models);
 
     const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, tsExampleInstance, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, javaIncludeComments, javaJackson, javaConstraints } = flags;
-    let { language, file, output } = args;
+    let { language, file } = args;
+    let output = flags.output || 'stdout';
     const interactive = !flags['no-interactive'];
 
     if (!interactive) {
