@@ -86,7 +86,7 @@ export default abstract class extends Command {
       const stats = await stat(specFilePath);
       this.metricsMetadata['file_creation_timestamp'] = stats.birthtimeMs;
     } catch (e: any) {
-      // Do nothing. Since if there is an error with the file, we are already collecting the error in the finally method of this class.
+      // If there's an error with the file, we don't handle it here because it's expected to be handled and reported in the 'finally' method of the command.
     }
   }
   async finally(error: Error | undefined): Promise<any> {
