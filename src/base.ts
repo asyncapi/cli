@@ -88,7 +88,6 @@ export default abstract class extends Command {
   async recorderFromEnv(prefix: string): Promise<Recorder> {
     let sink: Sink = new DiscardSink();
     const analyticsConfigFile = join(homedir(), '.asyncapi-analytics');
-    // console.log(analyticsConfigFile);
 
     if (!existsSync(analyticsConfigFile)) {
       await writeFile(analyticsConfigFile, JSON.stringify({ analyticsEnabled: 'true', infoMessageShown: 'false', userID: uuidv4()}), { encoding: 'utf8' });
@@ -111,7 +110,7 @@ export default abstract class extends Command {
         sink = new NewRelicSink(process.env.ASYNCAPI_METRICS_NEWRELIC_KEY || 'eu01xx73a8521047150dd9414f6aedd2FFFFNRAL');
 
         if (analyticsConfigFileContent.infoMessageShown === 'false') {
-          this.log('\nAsyncAPI anonymously tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.\n\nTo disable tracking, please run the following command:\n  asyncapi config analytics --disable\n\nOnce disabled, if you want to enable tracking back again then run:\n  asyncapi config analytics --enable');
+          this.log('\nAsyncAPI anonymously tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.\n\nTo disable tracking, please run the following command:\n  asyncapi config analytics --disable\n\nOnce disabled, if you want to enable tracking back again then run:\n  asyncapi config analytics --enable\n');
           analyticsConfigFileContent.infoMessageShown = 'true';
           await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), { encoding: 'utf8' });
         }        
