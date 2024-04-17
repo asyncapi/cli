@@ -6,6 +6,7 @@ import { join, resolve } from 'path';
 import { existsSync } from 'fs-extra';
 import { promises as fPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
+import { homedir } from 'os';
 
 const { readFile, writeFile } = fPromises;
 
@@ -86,7 +87,8 @@ export default abstract class extends Command {
   
   async recorderFromEnv(prefix: string): Promise<Recorder> {
     let sink: Sink = new DiscardSink();
-    const analyticsConfigFile = join(process.cwd(), '.asyncapi-analytics');
+    const analyticsConfigFile = join(homedir(), '.asyncapi-analytics');
+    // console.log(analyticsConfigFile);
 
     if (!existsSync(analyticsConfigFile)) {
       await writeFile(analyticsConfigFile, JSON.stringify({ analyticsEnabled: 'true', infoMessageShown: 'false', userID: uuidv4()}), { encoding: 'utf8' });
