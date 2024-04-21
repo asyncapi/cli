@@ -28,6 +28,10 @@ spec-examples.zip
 coverage
 .asyncapi-analytics
 
+# Analytics
+
+.asyncapi-analytics
+
 # Glee
 assets/create-glee-app/templates/default/.glee
 assets/create-glee-app/templates/tutorial/.glee
