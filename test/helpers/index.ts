@@ -1,4 +1,4 @@
-import { existsSync, writeFileSync, unlinkSync,rmdirSync, mkdirSync , promises as fs } from 'fs';
+import { existsSync, writeFileSync, unlinkSync,rmdirSync, mkdirSync, promises as fs } from 'fs';
 import * as path from 'path';
 import { IContextFile, CONTEXT_FILE_PATH } from '../../src/models/Context';
 import SpecificationFile from '../../src/models/SpecificationFile';
@@ -57,26 +57,11 @@ export default class ContextTestingHelper {
   }
 
   createSpecFileAtWorkingDir(): void {
-    if (!existsSync(ASYNCAPI_FILE_PATH)) {
-      writeFileSync(ASYNCAPI_FILE_PATH, '');
-    }
+    writeFileSync(ASYNCAPI_FILE_PATH, '');
   }
 
   deleteSpecFileAtWorkingDir(): void {
-    if (existsSync(ASYNCAPI_FILE_PATH)) {
-      unlinkSync(ASYNCAPI_FILE_PATH);
-    }
-  }
-
-  newCommandHelper() {
-    return {
-      deleteSpecFile: () => {
-        const specificationFilePath = path.resolve(process.cwd(), 'specification.yaml');
-        if (existsSync(specificationFilePath)) {
-          unlinkSync(specificationFilePath);
-        }
-      }
-    };
+    unlinkSync(ASYNCAPI_FILE_PATH);
   }
 
   createDummyProjectDirectory(): void {

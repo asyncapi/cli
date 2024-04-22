@@ -2,12 +2,26 @@ This is a [Glee](https://github.com/asyncapi/glee) project bootstrapped with the
 
 ## Getting Started
 
-First, run the development server:
+1) Install Dependencies:
+
+```bash
+npm install --ignore-scripts
+```
+
+
+
+2) run the development server:
 
 ```bash
 npm run dev
 ```
 
+3) send some text to the websocket server at `ws://0.0.0.0:3000/hello`
+
+```bash
+websocat ws://0.0.0.0:3000/hello
+Hi!
+```
 You can start editing the API by modifying `functions/onHello.js` and `asyncapi.yaml`. The server auto-updates as you edit the file.
 
 ## Learn More
