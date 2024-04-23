@@ -12,6 +12,8 @@ export default class Analytics extends Command {
     help: Flags.help({ char: 'h' }),
     disable: Flags.boolean({ char: 'd', description: 'disable analytics', default: false }),
     enable: Flags.boolean({ char: 'e', description: 'enable analytics', default: false }),
+    status: Flags.boolean({ char: 's', description: 'show analytics current status' }),
+
   };
 
   async run() {
@@ -27,11 +29,15 @@ export default class Analytics extends Command {
       } else if (flags.enable) {
         analyticsConfigFileContent.analyticsEnabled = 'true';
         this.log('Analytics enabled.');
-      } else {
+      } else if (!flags.status) {
         this.log('\nPlease append the "--disable" flag to the command in case you prefer to disable analytics, or use the "--enable" flag if you want to enable analytics back again.\n');
         return;
       }
       await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), { encoding: 'utf8' });
+
+      if (flags.status) {
+        this.log(analyticsConfigFileContent.analyticsEnabled);
+      }
     } catch (e: any) {
       switch (e.code) {
       case 'ENOENT':
