@@ -12,23 +12,26 @@ channels:
   test:
     address: '/test'
     messages:
-      testMessage:
+      message:
         $ref: '#/components/messages/TestMessage'
 operations:
   UserSignedUp:
     action: send
     channel:
       $ref: '#/channels/userSignedup'
-    messages:
-      - $ref: './test/integration/bundle/messages.yaml#/messages/UserSignedUp'
   TestOpp:
     action: send
     channel:
       $ref: '#/channels/test'
-    messages:
-      - $ref: '#/components/messages/TestMessage'
 components:
   messages:
     TestMessage:
       payload:
-        type: string
+        type: object
+        properties:
+          foo:
+            type: string
+          extObjRef:
+            oneOf:
+              - $ref: './test/integration/bundle/messages.yaml#/messages/UserSignedUp'
+              - $ref: './test/integration/bundle/messages.yaml#/messages/UserLoggedOut'

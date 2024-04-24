@@ -4,6 +4,7 @@ import path from 'path';
 import { fileCleanup } from '../../helpers';
 
 const spec = fs.readFileSync('./test/integration/bundle/final-asyncapi.yaml', {encoding: 'utf-8'});
+const specv3 = fs.readFileSync('./test/integration/bundle/final-asyncapiv3.yaml', {encoding: 'utf-8'});
 
 function validateGeneratedSpec(filePath: string, spec: string) {
   const generatedSPec = fs.readFileSync(path.resolve(filePath), { encoding: 'utf-8' });
@@ -67,7 +68,7 @@ describe('bundle', () => {
     ])
     .it('should be able to bundle multiple specs along with custom reference', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-      expect(validateGeneratedSpec('test/integration/bundle/final.yaml', spec));
+      expect(validateGeneratedSpec('test/integration/bundle/final.yaml', spec)).to.be.true;
       fileCleanup('./test/integration/bundle/final.yaml');
       done();
     });
@@ -79,7 +80,7 @@ describe('bundle', () => {
     ])
     .it('should be able to bundle correctly with overwriting base file', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-      expect(validateGeneratedSpec('test/integration/bundle/final-asyncapi.yaml', spec));
+      expect(validateGeneratedSpec('test/integration/bundle/final-asyncapi.yaml', spec)).to.be.true;
       fileCleanup('./test/integration/bundle/final.yaml');
       done();
     });
@@ -93,6 +94,7 @@ describe('bundle spec v3', () => {
       '--output=test/integration/bundle/final.yaml',
     ]).it('should be able to bundle v3 spec correctly', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
+      expect(validateGeneratedSpec('test/integration/bundle/final.yaml', specv3)).to.be.true
       fileCleanup('./test/integration/bundle/final.yaml');
       done();
     });
