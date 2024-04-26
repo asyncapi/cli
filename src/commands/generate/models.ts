@@ -5,6 +5,9 @@ import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
 import { formatOutput, parse, validationFlags } from '../../parser';
 
+import { select, text, spinner, isCancel, cancel, intro } from '@clack/prompts';
+import { green, inverse } from 'picocolors';
+
 import type { AbstractGenerator, AbstractFileGenerator } from '@asyncapi/modelina';
 
 enum Languages {
@@ -29,13 +32,17 @@ export default class Models extends Command {
       name: 'language',
       description: 'The language you want the typed models generated for.',
       options: Object.keys(Languages),
-      required: true
     },
-    { name: 'file', description: 'Path or URL to the AsyncAPI document, or context-name', required: true },
+    { name: 'file', description: 'Path or URL to the AsyncAPI document, or context-name' },
   ];
 
   static flags = {
     help: Flags.help({ char: 'h' }),
+    'no-interactive': Flags.boolean({
+      description: 'Disable interactive mode and run with the provided flags.',
+      required: false,
+      default: false,
+    }),
     output: Flags.string({
       char: 'o',
       description: 'The output directory where the models should be written to. Omitting this flag will write the models to `stdout`.',
@@ -168,8 +175,21 @@ export default class Models extends Command {
   /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
     const { args, flags } = await this.parse(Models);
-    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, tsExampleInstance, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, javaIncludeComments, javaJackson, javaConstraints, output } = flags;
-    const { language, file } = args;
+
+    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, tsExampleInstance, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, javaIncludeComments, javaJackson, javaConstraints } = flags;
+    let { language, file } = args;
+    let output = flags.output || 'stdout';
+    const interactive = !flags['no-interactive'];
+
+    if (!interactive) {
+      intro(inverse('AsyncAPI Generate Models'));
+
+      const parsedArgs = await this.parseArgs(args, output);
+      language = parsedArgs.language;
+      file = parsedArgs.file;
+      output = parsedArgs.output;
+    }
+
     const inputFile = (await load(file)) || (await load());
     if (inputFile.isAsyncAPI3()) {
       this.error('Generate Models command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/modelina/issues/1376');
@@ -343,13 +363,15 @@ export default class Models extends Command {
       throw new Error(`Could not determine generator for language ${language}, are you using one of the following values ${possibleLanguageValues}?`);
     }
 
-    if (output) {
+    const s = spinner();
+    s.start('Generating models...');
+    if (output !== 'stdout') {
       const models = await fileGenerator.generateToFiles(
         convertedDoc as any,
         output,
         { ...fileOptions, });
       const generatedModels = models.map((model) => { return model.modelName; });
-      this.log(`Successfully generated the following models: ${generatedModels.join(', ')}`);
+      s.stop(green(`Successfully generated the following models: ${generatedModels.join(', ')}`));
       return;
     }
 
@@ -358,10 +380,61 @@ export default class Models extends Command {
       { ...fileOptions });
     const generatedModels = models.map((model) => {
       return `
-## Model name: ${model.modelName}
-${model.result}
-`;
+        ## Model name: ${model.modelName}
+        ${model.result}
+      `;
     });
-    this.log(`Successfully generated the following models: ${generatedModels.join('\n')}`);
+    s.stop(green(`Successfully generated the following models: ${generatedModels.join('\n')}`));
+  }
+
+  private async parseArgs(args: Record<string, any>, output?: string) {
+    let { language, file } = args;
+    let askForOutput = false;
+    const operationCancelled = 'Operation cancelled by the user.';
+    if (!language) {
+      language = await select({
+        message: 'Select the language you want to generate models for',
+        options: Object.keys(Languages).map((key) => 
+          ({ value: key, label: key, hint: Languages[key as keyof typeof Languages] })
+        ),
+      });
+
+      askForOutput = true;
+    }
+
+    if (isCancel(language)) {
+      cancel(operationCancelled);
+      this.exit();
+    }
+
+    if (!file) {
+      file = await text({
+        message: 'Enter the path or URL to the AsyncAPI document',
+        defaultValue: 'asyncapi.yaml',
+        placeholder: 'asyncapi.yaml',
+      });
+
+      askForOutput = true;
+    }
+
+    if (isCancel(file)) {
+      cancel(operationCancelled);
+      this.exit();
+    }
+
+    if (!output && askForOutput) {
+      output = await text({
+        message: 'Enter the output directory or stdout to write the models to',
+        defaultValue: 'stdout',
+        placeholder: 'stdout',
+      }) as string;
+    }
+
+    if (isCancel(output)) {
+      cancel(operationCancelled);
+      this.exit();
+    }
+      
+    return { language, file, output: output || 'stdout' };
   }
 }
