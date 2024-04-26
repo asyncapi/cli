@@ -68,7 +68,7 @@ describe('bundle', () => {
     ])
     .it('should be able to bundle multiple specs along with custom reference', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-      expect(validateGeneratedSpec('test/integration/bundle/final.yaml', spec)).to.be.true;
+      expect(validateGeneratedSpec('test/integration/bundle/final.yaml', spec)).to.equal(true);
       fileCleanup('./test/integration/bundle/final.yaml');
       done();
     });
@@ -80,7 +80,7 @@ describe('bundle', () => {
     ])
     .it('should be able to bundle correctly with overwriting base file', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-      expect(validateGeneratedSpec('test/integration/bundle/final-asyncapi.yaml', spec)).to.be.true;
+      expect(validateGeneratedSpec('test/integration/bundle/final-asyncapi.yaml', spec)).to.equal(true);
       fileCleanup('./test/integration/bundle/final.yaml');
       done();
     });
@@ -94,7 +94,7 @@ describe('bundle spec v3', () => {
       '--output=test/integration/bundle/final.yaml',
     ]).it('should be able to bundle v3 spec correctly', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-      expect(validateGeneratedSpec('test/integration/bundle/final.yaml', specv3)).to.be.true
+      expect(validateGeneratedSpec('test/integration/bundle/final.yaml', specv3)).to.equal(true);
       fileCleanup('./test/integration/bundle/final.yaml');
       done();
     });
