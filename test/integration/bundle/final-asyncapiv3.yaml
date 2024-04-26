@@ -5,14 +5,14 @@ info:
   description: This service is in charge of processing user signups
 channels:
   userSignedup:
-    address: 'user/signedup'
+    address: user/signedup
     messages:
       userSignedUpMessage:
         $ref: '#/components/messages/UserSignedUp'
   test:
-    address: '/test'
+    address: /test
     messages:
-      testMessage:
+      message:
         $ref: '#/components/messages/TestMessage'
 operations:
   UserSignedUp:
@@ -59,4 +59,3 @@ components:
             oneOf:
               - $ref: '#/components/messages/UserSignedUp'
               - $ref: '#/components/messages/UserLoggedOut'
-

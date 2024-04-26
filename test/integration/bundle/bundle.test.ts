@@ -6,9 +6,9 @@ import { fileCleanup } from '../../helpers';
 const spec = fs.readFileSync('./test/integration/bundle/final-asyncapi.yaml', {encoding: 'utf-8'});
 const specv3 = fs.readFileSync('./test/integration/bundle/final-asyncapiv3.yaml', {encoding: 'utf-8'});
 
-function validateGeneratedSpec(filePath: string, spec: string) {
+function assertSpecsEqual(filePath: string, spec: string) {
   const generatedSPec = fs.readFileSync(path.resolve(filePath), { encoding: 'utf-8' });
-  return generatedSPec === spec;
+  expect(generatedSPec).to.equal(spec);
 }
 
 describe('bundle', () => {
@@ -68,7 +68,7 @@ describe('bundle', () => {
     ])
     .it('should be able to bundle multiple specs along with custom reference', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-      expect(validateGeneratedSpec('test/integration/bundle/final.yaml', spec)).to.equal(true);
+      assertSpecsEqual('test/integration/bundle/final.yaml', spec);
       fileCleanup('./test/integration/bundle/final.yaml');
       done();
     });
@@ -80,7 +80,7 @@ describe('bundle', () => {
     ])
     .it('should be able to bundle correctly with overwriting base file', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-      expect(validateGeneratedSpec('test/integration/bundle/final-asyncapi.yaml', spec)).to.equal(true);
+      assertSpecsEqual('test/integration/bundle/final.yaml', spec);
       fileCleanup('./test/integration/bundle/final.yaml');
       done();
     });
@@ -94,7 +94,7 @@ describe('bundle spec v3', () => {
       '--output=test/integration/bundle/final.yaml',
     ]).it('should be able to bundle v3 spec correctly', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-      expect(validateGeneratedSpec('test/integration/bundle/final.yaml', specv3)).to.equal(true);
+      assertSpecsEqual('test/integration/bundle/final.yaml', specv3);
       fileCleanup('./test/integration/bundle/final.yaml');
       done();
     });

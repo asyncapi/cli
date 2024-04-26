@@ -37,5 +37,4 @@ components:
             description: Id the user
           timestamp:
             type: number
-            descriptio: Time stamp when the user logged out
-
+            description: Time stamp when the user logged out
