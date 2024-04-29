@@ -1,11 +1,6 @@
 import { expect, test } from '@oclif/test';
-import { fileCleanup } from '../../helpers';
 
 describe('config:analytics', () => {
-  afterEach(() => {
-    fileCleanup('.asyncapi-analytics');
-  });
-
   describe('with disable flag', () => {
     test
       .stderr()

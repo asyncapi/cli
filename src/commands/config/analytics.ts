@@ -2,6 +2,7 @@ import { Flags } from '@oclif/core';
 import { join, resolve } from 'path';
 import Command from '../../base';
 import { promises as fPromises } from 'fs';
+import { homedir } from 'os';
 
 const { readFile, writeFile } = fPromises;
 
@@ -15,7 +16,7 @@ export default class Analytics extends Command {
 
   async run() {
     const { flags } = await this.parse(Analytics);
-    const analyticsConfigFile = join(process.cwd(), '.asyncapi-analytics');
+    const analyticsConfigFile = join(homedir(), '.asyncapi-analytics');
 
     try {
       const analyticsConfigFileContent = JSON.parse(await readFile(resolve(analyticsConfigFile), { encoding: 'utf8' }));
@@ -34,7 +35,7 @@ export default class Analytics extends Command {
     } catch (e: any) {
       switch (e.code) {
       case 'ENOENT':
-        this.error(`Unable to access the analytics configuration file. We tried to access the ".asyncapi-analytics" file in your current working directory ("${process.cwd()}") but the file could not be found.`);
+        this.error(`Unable to access the analytics configuration file. We tried to access the ".asyncapi-analytics" file in your user's home directory ("${homedir()}") but the file could not be found.`);
         break;
       case 'EEXIST':
         this.error(`Unable to update the analytics configuration file. We tried to update your ".asyncapi-analytics" file in the path "${analyticsConfigFile}" but the file does not exist.`);

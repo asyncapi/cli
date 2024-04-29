@@ -79,7 +79,7 @@ export default class Bundle extends Command {
   private async collectMetricsData(document: Document) {
     try {
       // We collect the metadata from the final output so it contains all the files
-      this.specFile = new Specification(document.string());
+      this.specFile = new Specification(document.string() ?? '');
     } catch (e: any) {
       if (e instanceof Error) {
         this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
