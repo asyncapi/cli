@@ -110,7 +110,6 @@
   "oclif": {
     "commands": "./lib/commands",
     "bin": "asyncapi",
-    "plugins": [],
     "hooks": {
       "command_not_found": [
         "./lib/hooks/command_not_found/myhook"
@@ -128,6 +127,11 @@
       "generate": {
         "description": "Generate models and template"
       }
+    },
+    "plugins": ["@oclif/plugin-help", "@oclif/plugin-warn-if-update-available"],
+    "warn-if-update-available": {
+      "frequency": 24,
+      "frequencyUnit": "hours"
     }
   },
   "publishConfig": {
