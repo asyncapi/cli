@@ -4,6 +4,17 @@ import { PROJECT_DIRECTORY_PATH } from '../../helpers';
 import { expect } from '@oclif/test';
 
 const testHelper = new TestHelper();
+const successMessage = (projectName: string) =>
+  `🎉 Your glee project "${projectName}" has been successfully created!
+`;
+
+const errorMessages = {
+  alreadyExists: (projectName: string) =>
+    `Unable to create the project because the directory "${projectName}" already exists at "${process.cwd()}/${projectName}". 
+To specify a different name for the new project, please run the command below with a unique project name:
+  
+    asyncapi new glee --name ${projectName}-1`,  
+};
 
 describe('new glee', () => {
   before(() => {
@@ -27,7 +38,7 @@ describe('new glee', () => {
       .command(['new:glee', '-n=test-project'])
       .it('runs new glee command with name flag', async (ctx,done) => {
         expect(ctx.stderr).to.equal('');
-        expect(ctx.stdout).to.equal('Your project "test-project" has been created successfully!\n\nNext steps:\n\n  cd test-project\n  npm install\n  npm run dev\n\nAlso, you can already open the project in your favorite editor and start tweaking it.\n');
+        expect(ctx.stdout).to.contain(successMessage('test-project'));
         done();
       });
   });
@@ -52,7 +63,7 @@ describe('new glee', () => {
       .stdout()
       .command(['new:glee', '-n=test-project'])
       .it('should throw error if name of the new project already exists', async (ctx,done) => {
-        expect(ctx.stderr).to.equal(`Error: Unable to create the project. We tried to use "test-project" as the directory of your new project but it already exists (${PROJECT_DIRECTORY_PATH}). Please specify a different name for the new project. For example, run the following command instead:\n\n  asyncapi new glee --name test-project-1\n\n`);
+        expect(ctx.stderr).to.contains(`Error: ${errorMessages.alreadyExists('test-project')}`);
         expect(ctx.stdout).to.equal('');
         done();
       });

@@ -11,7 +11,7 @@ import { prompt } from 'inquirer';
 import Generator from '@asyncapi/generator';
 import { green, gray } from 'picocolors';
 
-const successMessage = (projectName: string) =>
+export const successMessage = (projectName: string) =>
   `🎉 Your glee project "${green(projectName)}" has been successfully created!
 ⏩ Next steps: follow the instructions ${green('below')} to manage your project:
 
@@ -27,8 +27,7 @@ const errorMessages = {
     `Unable to create the project because the directory "${green(projectName)}" already exists at "${process.cwd()}/${projectName}". 
 To specify a different name for the new project, please run the command ${green('below')} with a unique project name:
   
-    ${gray('asyncapi new glee --name ${projectName}-1')}
-`,    
+    ${gray('asyncapi new glee --name ') + gray(projectName) + gray('-1')}`,    
 };
 
 export default class NewGlee extends Command {
