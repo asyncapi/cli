@@ -12,7 +12,7 @@ import Generator from '@asyncapi/generator';
 import { green, gray } from 'picocolors';
 
 const successMessage = (projectName: string) =>
-  `🎉 Your glee project "${projectName}" has been successfully created!
+  `🎉 Your glee project "${green(projectName)}" has been successfully created!
 ⏩ Next steps: follow the instructions ${green('below')} to manage your project:
 
   cd ${projectName}\t\t ${gray('# Navigate to the project directory')}
@@ -22,10 +22,20 @@ const successMessage = (projectName: string) =>
 You can also open the project in your favourite editor and start tweaking it.
 `;
 
+const errorMessages = {
+  alreadyExists: (projectName: string) =>
+    `Unable to create the project because the directory "${green(projectName)}" already exists at "${process.cwd()}/${projectName}". 
+To specify a different name for the new project, please run the command ${green('below')} with a unique project name:
+  
+    ${gray('asyncapi new glee --name ${projectName}-1')}
+`,    
+};
+
 export default class NewGlee extends Command {
   static description = 'Creates a new Glee project';
   protected commandName = 'glee';
   static successMessage = successMessage;
+  static errorMessages = errorMessages;
 
   static flags = {
     help: Flags.help({ char: 'h' }),
@@ -106,12 +116,10 @@ export default class NewGlee extends Command {
         fs.existsSync(PROJECT_DIRECTORY) &&
         fs.readdirSync(PROJECT_DIRECTORY).length > 0
       ) {
-        throw new Error(
-          `Unable to create the project. We tried to use "${projectName}" as the directory of your new project but it already exists (${PROJECT_DIRECTORY}). Please specify a different name for the new project. For example, run the following command instead:\n\n  asyncapi new ${this.commandName} -f ${file} --name ${projectName}-1\n`
-        );
+        throw new Error(errorMessages.alreadyExists(projectName));
       }
     } catch (error: any) {
-      this.error(error.message);
+      this.log(error.message);
     }
   }
 
@@ -212,9 +220,7 @@ export default class NewGlee extends Command {
       } catch (err: any) {
         switch (err.code) {
         case 'EEXIST':
-          this.error(
-            `Unable to create the project. We tried to use "${projectName}" as the directory of your new project but it already exists (${PROJECT_DIRECTORY}). Please specify a different name for the new project. For example, run the following command instead:\n\n  asyncapi new ${this.commandName} --name ${projectName}-1\n`
-          );
+          this.error(errorMessages.alreadyExists(projectName));
           break;
         case 'EACCES':
           this.error(
