@@ -9,10 +9,23 @@ import { prompt } from 'inquirer';
 // eslint-disable-next-line
 // @ts-ignore
 import Generator from '@asyncapi/generator';
+import { green, gray } from 'picocolors';
+
+const successMessage = (projectName: string) =>
+  `🎉 Your glee project "${projectName}" has been successfully created!
+⏩ Next steps: follow the instructions ${green('below')} to manage your project:
+
+  cd ${projectName}\t\t ${gray('# Navigate to the project directory')}
+  npm install\t\t ${gray('# Install the project dependencies')}
+  npm run dev\t\t ${gray('# Start the project in development mode')} 
+
+You can also open the project in your favourite editor and start tweaking it.
+`;
 
 export default class NewGlee extends Command {
   static description = 'Creates a new Glee project';
   protected commandName = 'glee';
+  static successMessage = successMessage;
 
   static flags = {
     help: Flags.help({ char: 'h' }),
@@ -234,9 +247,7 @@ export default class NewGlee extends Command {
           `${PROJECT_DIRECTORY}/README-template.md`,
           `${PROJECT_DIRECTORY}/README.md`
         );
-        this.log(
-          `Your project "${projectName}" has been created successfully!\n\nNext steps:\n\n  cd ${projectName}\n  npm install\n  npm run dev\n\nAlso, you can already open the project in your favorite editor and start tweaking it.`
-        );
+        this.log(successMessage(projectName));
       } catch (err) {
         this.error(
           `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`

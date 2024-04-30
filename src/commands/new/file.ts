@@ -158,16 +158,16 @@ export default class NewFile extends Command {
     try {
       const content = await readFile(fileNameToWriteToDisk, { encoding: 'utf8' });
       if (content !== undefined) {
-        console.log(`File ${fileNameToWriteToDisk} already exists. Ignoring...`);
+        console.log(`A file named ${fileNameToWriteToDisk} already exists. Please choose a different name.`);
         return;
       }
     } catch (e:any) {
       if (e.code === 'EACCES') {
-        this.error('Permission denied to read the file. You do not have the necessary permissions.');
+        this.error('Permission has been denied to access the file');
       }
     }
     await writeFile(fileNameToWriteToDisk, asyncApiFile, { encoding: 'utf8' });
-    console.log(`Created file ${fileNameToWriteToDisk}...`);
+    console.log(`The ${fileNameToWriteToDisk} has been successfully created.`);
     this.specFile = await load(fileNameToWriteToDisk);
     this.metricsMetadata.selected_template = selectedTemplate;
   }
