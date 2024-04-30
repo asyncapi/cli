@@ -25,18 +25,22 @@ export default class Analytics extends Command {
 
       if (flags.disable) {
         analyticsConfigFileContent.analyticsEnabled = 'false';
-        this.log('Analytics disabled.');
+        this.log('\nAnalytics disabled.\n');
       } else if (flags.enable) {
         analyticsConfigFileContent.analyticsEnabled = 'true';
-        this.log('Analytics enabled.');
+        this.log('\nAnalytics enabled.\n');
       } else if (!flags.status) {
-        this.log('\nPlease append the "--disable" flag to the command in case you prefer to disable analytics, or use the "--enable" flag if you want to enable analytics back again.\n');
+        this.log('\nPlease append the "--disable" flag to the command in case you prefer to disable analytics, or use the "--enable" flag if you want to enable analytics back again. In case you do not know the analytics current status, then you can append the "--status" flag to be aware of it.\n');
         return;
       }
       await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), { encoding: 'utf8' });
 
       if (flags.status) {
-        this.log(analyticsConfigFileContent.analyticsEnabled);
+        if (analyticsConfigFileContent.analyticsEnabled === 'true') {
+          this.log('\nAnalytics are enabled. Please append the "--disable" flag to the command in case you prefer to disable analytics.\n');
+        } else {
+          this.log('\nAnalytics are disabled. Please append the "--enable" flag to the command in case you prefer to enable analytics.\n');
+        }
       }
     } catch (e: any) {
       switch (e.code) {
