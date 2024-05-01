@@ -35,15 +35,16 @@ export default class Convert extends Command {
     try {
       // LOAD FILE
       this.specFile = await load(filePath);
+      // eslint-disable-next-line sonarjs/no-duplicate-string
       this.metricsMetadata.to_version = flags['target-version'];
 
       // CONVERSION
       convertedFile = convert(this.specFile.text(), flags['target-version'] as ConvertVersion);
       if (convertedFile) {
         if (this.specFile.getFilePath()) {
-          this.log(`File ${this.specFile.getFilePath()} successfully converted!`);
+          this.log(`🎉 The ${this.specFile.getFilePath()} file has been successfully converted to version ${flags['target-version']}!!`);
         } else if (this.specFile.getFileURL()) {
-          this.log(`URL ${this.specFile.getFileURL()} successfully converted!`);
+          this.log(`🎉 The URL ${this.specFile.getFileURL()} has been successfully converted to version ${flags['target-version']}!!`);
         }
       }
 
@@ -64,9 +65,11 @@ export default class Convert extends Command {
           type: 'invalid-file',
           filepath: filePath
         }));
+      } else if (this.specFile?.toJson().asyncapi > flags['target-version']) {
+        this.error(`The ${filePath} file cannot be converted to an older version. Downgrading is not supported.`);
       } else {
         this.error(err as Error);
       }
-    }
+    } 
   }
 }
