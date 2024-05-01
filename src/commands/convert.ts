@@ -7,6 +7,7 @@ import { load } from '../models/SpecificationFile';
 import { SpecificationFileNotFound } from '../errors/specification-file';
 import { convert } from '@asyncapi/converter';
 import type { ConvertVersion } from '@asyncapi/converter';
+import { cyan, green } from 'picocolors';
 
 // @ts-ignore
 import specs from '@asyncapi/specs';
@@ -42,9 +43,9 @@ export default class Convert extends Command {
       convertedFile = convert(this.specFile.text(), flags['target-version'] as ConvertVersion);
       if (convertedFile) {
         if (this.specFile.getFilePath()) {
-          this.log(`🎉 The ${this.specFile.getFilePath()} file has been successfully converted to version ${flags['target-version']}!!`);
+          this.log(`🎉 The ${cyan(this.specFile.getFilePath())} file has been successfully converted to version ${green(flags['target-version'])}!!`);
         } else if (this.specFile.getFileURL()) {
-          this.log(`🎉 The URL ${this.specFile.getFileURL()} has been successfully converted to version ${flags['target-version']}!!`);
+          this.log(`🎉 The URL ${cyan(this.specFile.getFileURL())} has been successfully converted to version ${green(flags['target-version'])}!!`);
         }
       }
 
@@ -66,7 +67,7 @@ export default class Convert extends Command {
           filepath: filePath
         }));
       } else if (this.specFile?.toJson().asyncapi > flags['target-version']) {
-        this.error(`The ${filePath} file cannot be converted to an older version. Downgrading is not supported.`);
+        this.error(`The ${cyan(filePath)} file cannot be converted to an older version. Downgrading is not supported.`);
       } else {
         this.error(err as Error);
       }

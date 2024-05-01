@@ -5,16 +5,12 @@ import { expect } from '@oclif/test';
 
 const testHelper = new TestHelper();
 const successMessage = (projectName: string) =>
-  `🎉 Your glee project "${projectName}" has been successfully created!
-`;
+  '🎉 Your Glee project has been successfully created!';
 
 const errorMessages = {
   alreadyExists: (projectName: string) =>
     `Unable to create the project because the directory "${projectName}" already exists at "${process.cwd()}/${projectName}". 
-To specify a different name for the new project, please run the command below with a unique project name:
-  
-    asyncapi new glee --name ${projectName}-1`,  
-};
+To specify a different name for the new project, please run the command below with a unique project name:`};
 
 describe('new glee', () => {
   before(() => {
@@ -38,7 +34,7 @@ describe('new glee', () => {
       .command(['new:glee', '-n=test-project'])
       .it('runs new glee command with name flag', async (ctx,done) => {
         expect(ctx.stderr).to.equal('');
-        expect(ctx.stdout).to.contain(successMessage('test-project'));
+        expect(ctx.stdout).to.contains(successMessage('test-project'));
         done();
       });
   });

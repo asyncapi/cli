@@ -5,6 +5,7 @@ import * as inquirer from 'inquirer';
 import { start as startStudio, DEFAULT_PORT } from '../../models/Studio';
 import { resolve } from 'path';
 import { load } from '../../models/SpecificationFile';
+import { cyan } from 'picocolors';
 
 const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
@@ -163,11 +164,11 @@ export default class NewFile extends Command {
       }
     } catch (e:any) {
       if (e.code === 'EACCES') {
-        this.error('Permission has been denied to access the file');
+        this.error('Permission has been denied to access the file.');
       }
     }
     await writeFile(fileNameToWriteToDisk, asyncApiFile, { encoding: 'utf8' });
-    console.log(`The ${fileNameToWriteToDisk} has been successfully created.`);
+    console.log(`The ${cyan(fileNameToWriteToDisk)} has been successfully created.`);
     this.specFile = await load(fileNameToWriteToDisk);
     this.metricsMetadata.selected_template = selectedTemplate;
   }

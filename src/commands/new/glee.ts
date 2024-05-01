@@ -9,11 +9,11 @@ import { prompt } from 'inquirer';
 // eslint-disable-next-line
 // @ts-ignore
 import Generator from '@asyncapi/generator';
-import { green, gray } from 'picocolors';
+import { cyan, gray } from 'picocolors';
 
 export const successMessage = (projectName: string) =>
-  `🎉 Your glee project "${green(projectName)}" has been successfully created!
-⏩ Next steps: follow the instructions ${green('below')} to manage your project:
+  `🎉 Your Glee project has been successfully created!
+⏩ Next steps: follow the instructions ${cyan('below')} to manage your project:
 
   cd ${projectName}\t\t ${gray('# Navigate to the project directory')}
   npm install\t\t ${gray('# Install the project dependencies')}
@@ -24,9 +24,9 @@ You can also open the project in your favourite editor and start tweaking it.
 
 const errorMessages = {
   alreadyExists: (projectName: string) =>
-    `Unable to create the project because the directory "${green(projectName)}" already exists at "${process.cwd()}/${projectName}". 
-To specify a different name for the new project, please run the command ${green('below')} with a unique project name:
-  
+    `Unable to create the project because the directory "${cyan(projectName)}" already exists at "${process.cwd()}/${projectName}". 
+To specify a different name for the new project, please run the command below with a unique project name:
+
     ${gray('asyncapi new glee --name ') + gray(projectName) + gray('-1')}`,    
 };
 
