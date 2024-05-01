@@ -15,7 +15,6 @@ import { Parser } from '@asyncapi/parser';
 import type { Example } from '@oclif/core/lib/interfaces';
 import { intro, isCancel, spinner, text } from '@clack/prompts';
 import { inverse, yellow, magenta, green, red } from 'picocolors';
-import { url } from 'inspector';
 
 interface IMapBaseUrlToFlag {
   url: string,
