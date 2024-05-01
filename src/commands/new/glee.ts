@@ -33,8 +33,8 @@ To specify a different name for the new project, please run the command ${green(
 export default class NewGlee extends Command {
   static description = 'Creates a new Glee project';
   protected commandName = 'glee';
-  static successMessage = successMessage;
-  static errorMessages = errorMessages;
+  static readonly successMessage = successMessage;
+  static readonly errorMessages = errorMessages;
 
   static flags = {
     help: Flags.help({ char: 'h' }),
