@@ -15,6 +15,7 @@ import { Parser } from '@asyncapi/parser';
 import type { Example } from '@oclif/core/lib/interfaces';
 import { intro, isCancel, spinner, text } from '@clack/prompts';
 import { inverse, yellow, magenta, green, red } from 'picocolors';
+import { url } from 'inspector';
 
 interface IMapBaseUrlToFlag {
   url: string,
@@ -102,8 +103,17 @@ export default class Template extends Command {
     'map-base-url': Flags.string({
       description: 'Maps all schema references from base url to local folder'
     }),
+    'registry.url': Flags.string({
+      default: 'https://registry.npmjs.org',
+      description: 'Specifies the URL of the private registry for fetching templates and dependencies'
+    }),
+    'registry.auth': Flags.string({
+      description: 'The registry username and password encoded with base64, formatted as username:password'
+    }),
+    'registry.token': Flags.string({
+      description: 'The npm registry authentication token, that can be passed instead of base64 encoded username and password'
+    })
   };
-
   static args = [
     { name: 'asyncapi', description: '- Local path, url or context-name pointing to AsyncAPI file' },
     { name: 'template', description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template' },
@@ -135,6 +145,11 @@ export default class Template extends Command {
       noOverwriteGlobs: flags['no-overwrite'],
       mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
       disabledHooks: parsedFlags.disableHooks,
+      registry: {
+        url: flags["registry.url"],
+        auth: flags["registry.auth"],
+        token: flags["registry.token"]
+      }
     };
     const asyncapiInput = (await load(asyncapi)) || (await load());
     
