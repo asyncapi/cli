@@ -106,7 +106,7 @@ export default class Template extends Command {
       default: 'https://registry.npmjs.org',
       description: 'Specifies the URL of the private registry for fetching templates and dependencies'
     }),
-    'registry.auth': Flags.string({
+    ' ': Flags.string({
       description: 'The registry username and password encoded with base64, formatted as username:password'
     }),
     'registry.token': Flags.string({
@@ -135,7 +135,7 @@ export default class Template extends Command {
       output = parsedArgs.output;
     }
 
-    const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url']);
+    const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url'],flags['registry.url'],flags['registry.auth'],flags['registry.token']);
     const options = {
       forceWrite: flags['force-write'],
       install: flags.install,
@@ -145,9 +145,9 @@ export default class Template extends Command {
       mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
       disabledHooks: parsedFlags.disableHooks,
       registry: {
-        url: flags["registry.url"],
-        auth: flags["registry.auth"],
-        token: flags["registry.token"]
+        url: flags['registry.url'],
+        auth: flags['registry.auth'],
+        token: flags['registry.token']
       }
     };
     const asyncapiInput = (await load(asyncapi)) || (await load());
@@ -227,12 +227,31 @@ export default class Template extends Command {
     return { asyncapi, template, output };
   }
 
-  private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string): ParsedFlags {
+  private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string, registryUrl?: string, registryAuth?:string, registryToken?:string): ParsedFlags {
     return {
       params: this.paramParser(params),
       disableHooks: this.disableHooksParser(disableHooks),
       mapBaseUrlToFolder: this.mapBaseURLParser(mapBaseUrl),
+      registryURLValidation: this.registryURLParser(registryUrl),
+      registryAuthentication: this.registryValidation(registryUrl, registryAuth, registryToken)
+      
     } as ParsedFlags;
+  }
+
+  // Parsing the url
+  private registryURLParser(input?:string) {
+    if (!input) { return; }
+    const isURL = /^https?:/;
+    if (!isURL.test(input.toLowerCase())) {
+      throw new Error('Invalid --registry-url flag. The param requires a valid http/https url.');
+    }
+  }
+  // No we need at least one parameter to be passed registryAuth and registryToken 
+
+  private registryValidation(registryUrl?:string, registryAuth?:string, registryToken?:string) {
+    if (registryUrl!=='https://registry.npmjs.org'&&registryAuth&&!registryToken) {
+      throw new Error('Need to pass either registryAuth in username:password encoded in Base64 or need to pass registryToken');
+    }
   }
 
   private paramParser(inputs?: string[]) {
