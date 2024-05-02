@@ -15,6 +15,7 @@ import { Parser } from '@asyncapi/parser';
 import type { Example } from '@oclif/core/lib/interfaces';
 import { intro, isCancel, spinner, text } from '@clack/prompts';
 import { inverse, yellow, magenta, green, red } from 'picocolors';
+import axios from 'axios';
 
 interface IMapBaseUrlToFlag {
   url: string,
@@ -102,14 +103,14 @@ export default class Template extends Command {
     'map-base-url': Flags.string({
       description: 'Maps all schema references from base url to local folder'
     }),
-    'registry.url': Flags.string({
+    'registry-url': Flags.string({
       default: 'https://registry.npmjs.org',
       description: 'Specifies the URL of the private registry for fetching templates and dependencies'
     }),
-    ' ': Flags.string({
+    'registry-auth': Flags.string({
       description: 'The registry username and password encoded with base64, formatted as username:password'
     }),
-    'registry.token': Flags.string({
+    'registry-token': Flags.string({
       description: 'The npm registry authentication token, that can be passed instead of base64 encoded username and password'
     })
   };
@@ -145,9 +146,9 @@ export default class Template extends Command {
       mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
       disabledHooks: parsedFlags.disableHooks,
       registry: {
-        url: flags['registry.url'],
-        auth: flags['registry.auth'],
-        token: flags['registry.token']
+        url: flags['registry-url'],
+        auth: flags['registry-auth'],
+        token: flags['registry-token']
       }
     };
     const asyncapiInput = (await load(asyncapi)) || (await load());
@@ -238,7 +239,6 @@ export default class Template extends Command {
     } as ParsedFlags;
   }
 
-  // Parsing the url
   private registryURLParser(input?:string) {
     if (!input) { return; }
     const isURL = /^https?:/;
@@ -246,14 +246,12 @@ export default class Template extends Command {
       throw new Error('Invalid --registry-url flag. The param requires a valid http/https url.');
     }
   }
-  // No we need at least one parameter to be passed registryAuth and registryToken 
-
-  private registryValidation(registryUrl?:string, registryAuth?:string, registryToken?:string) {
-    if (registryUrl!=='https://registry.npmjs.org'&&registryAuth&&!registryToken) {
+  private async registryValidation(registryUrl?:string, registryAuth?:string, registryToken?:string) {
+    const response= await axios.get(registryUrl);
+    if (response === 400&&!registryAuth&&!registryToken) {
       throw new Error('Need to pass either registryAuth in username:password encoded in Base64 or need to pass registryToken');
     }
   }
-
   private paramParser(inputs?: string[]) {
     if (!inputs) { return {}; }
     const params: Record<string, any> = {};
