@@ -37,7 +37,7 @@ export default class Analytics extends Command {
 
       if (flags.status) {
         if (analyticsConfigFileContent.analyticsEnabled === 'true') {
-          this.log('\nAnalytics are enabled. Please append the "--disable" flag to the command in case you prefer to disable analytics.\n');
+          this.log('\nAnalytics are enabled.\n');
         } else {
           this.log('\nAnalytics are disabled. Please append the "--enable" flag to the command in case you prefer to enable analytics.\n');
         }
