@@ -36,4 +36,16 @@ describe('config:analytics', () => {
         done();
       });
   });
+
+  describe('with status flag', () => {
+    test
+      .stderr()
+      .stdout()
+      .command(['config:analytics', '--status'])
+      .it('should show a different informational message depending on the analytics status', (ctx, done) => {
+        expect(ctx.stdout).to.contain('\nAnalytics are ');
+        expect(ctx.stderr).to.equal('');
+        done();
+      });
+  });
 });
