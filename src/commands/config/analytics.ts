@@ -12,7 +12,7 @@ export default class Analytics extends Command {
     help: Flags.help({ char: 'h' }),
     disable: Flags.boolean({ char: 'd', description: 'disable analytics', default: false }),
     enable: Flags.boolean({ char: 'e', description: 'enable analytics', default: false }),
-    status: Flags.boolean({ char: 's', description: 'show analytics current status' }),
+    status: Flags.boolean({ char: 's', description: 'show current status of analytics' }),
 
   };
 
