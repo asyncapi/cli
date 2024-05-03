@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
@@ -110,7 +110,6 @@
   "oclif": {
     "commands": "./lib/commands",
     "bin": "asyncapi",
-    "plugins": [],
     "hooks": {
       "command_not_found": [
         "./lib/hooks/command_not_found/myhook"
@@ -128,6 +127,14 @@
       "generate": {
         "description": "Generate models and template"
       }
+    },
+    "plugins": [
+      "@oclif/plugin-warn-if-update-available"
+    ],
+    "warn-if-update-available": {
+      "frequency": 24,
+      "message": "\n<%= chalk.yellow('╭────────────────────────────────────────────────────────────────╮') %>\n<%= chalk.yellow('│                                                                │') %>\n<%= chalk.yellow('│') %>               Update available! <%= chalk.red(config.version) %> → <%= chalk.greenBright(latest) %>.                 <%= chalk.yellow('│') %>\n<%= chalk.yellow('│') %> <%= chalk.magentaBright('Changelog:') %> https://github.com/asyncapi/cli/releases/tag/v<%= latest %> <%= chalk.yellow('│') %>\n<%= chalk.yellow('│') %>      Run \"<%= chalk.magentaBright('npm install -g @asyncapi/cli@latest') %>\" to update.      <%= chalk.yellow('│') %>\n<%= chalk.yellow('│') %>                                                                <%= chalk.yellow('│') %>\n<%= chalk.yellow('╰────────────────────────────────────────────────────────────────╯') %>",
+      "frequencyUnit": "hours"
     }
   },
   "publishConfig": {
