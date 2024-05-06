@@ -248,7 +248,7 @@ export default class Template extends Command {
   }
   private async registryValidation(registryUrl?:string, registryAuth?:string, registryToken?:string) {
     const response= await axios.get(registryUrl as string);
-    if (response.status === 400&&!registryAuth&&!registryToken) {
+    if (response.status === 401&&!registryAuth&&!registryToken) {
       throw new Error('Need to pass either registryAuth in username:password encoded in Base64 or need to pass registryToken');
     }
   }
