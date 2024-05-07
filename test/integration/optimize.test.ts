@@ -12,18 +12,6 @@ const invalidFile = './test/fixtures/specification-invalid.yml';
 const asyncapiv3 = './test/fixtures/specification-v3.yml';
 
 describe('optimize', () => {
-  describe('should handle AsyncAPI v3 document correctly', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['optimize', asyncapiv3])
-      .it('give error', (ctx, done) => {
-        expect(ctx.stderr).to.equal('Error: Optimize command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/optimizer/issues/168\n');
-        expect(ctx.stdout).to.equal('');
-        done();
-      });
-  });
-
   describe('no optimization needed', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
@@ -64,9 +52,9 @@ describe('optimize', () => {
     test
       .stderr()
       .stdout()
-      .command(['optimize', 'http://localhost:8080/dummySpec.yml'])
+      .command(['optimize', 'http://localhost:8080/dummySpecWithoutSecurity.yml'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain('No optimization has been applied since http://localhost:8080/dummySpec.yml looks optimized!');
+        expect(ctx.stdout).to.contain('No optimization has been applied since http://localhost:8080/dummySpecWithoutSecurity.yml looks optimized!');
         expect(ctx.stderr).to.equal('');
         done();
       });

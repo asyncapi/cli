@@ -26,7 +26,7 @@ describe('new', () => {
       .command(['new', '--no-tty', '-n=specification.yaml'])
       .it('runs new command', async (ctx,done) => {
         expect(ctx.stderr).to.equal('');
-        expect(ctx.stdout).to.equal('Created file specification.yaml...\n');
+        expect(ctx.stdout).to.equal('The specification.yaml has been successfully created.\n');
         done();
       });
 
@@ -36,7 +36,7 @@ describe('new', () => {
       .command(['new:file', '--no-tty', '-n=specification.yaml'])
       .it('runs new file command', async (ctx,done) => {
         expect(ctx.stderr).to.equal('');
-        expect(ctx.stdout).to.equal('Created file specification.yaml...\n');
+        expect(ctx.stdout).to.equal('The specification.yaml has been successfully created.\n');
         done();
       });
   });
@@ -62,7 +62,7 @@ describe('new', () => {
       .command(['new:file', '--no-tty', '-n=specification.yaml'])
       .it('should inform about the existing file and finish the process', async (ctx,done) => {
         expect(ctx.stderr).to.equal('');
-        expect(ctx.stdout).to.equal('File specification.yaml already exists. Ignoring...\n');
+        expect(ctx.stdout).to.equal('A file named specification.yaml already exists. Please choose a different name.\n');
         done();
       });
   });
