@@ -36,8 +36,6 @@ const templatesNotSupportingV3: Record<string, string> = {
   '@asyncapi/java-spring-cloud-stream-template': 'https://github.com/asyncapi/java-spring-cloud-stream-template/issues/336',
   '@asyncapi/go-watermill-template': 'https://github.com/asyncapi/go-watermill-template/issues/243',
   '@asyncapi/java-spring-template': 'https://github.com/asyncapi/java-spring-template/issues/308',
-  '@asyncapi/nodejs-template': 'https://github.com/asyncapi/nodejs-template/issues/215',
-  '@asyncapi/java-template': 'https://github.com/asyncapi/java-template/issues/118',
   '@asyncapi/php-template': 'https://github.com/asyncapi/php-template/issues/191'
 };
 
