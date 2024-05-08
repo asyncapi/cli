@@ -81,5 +81,4 @@ export default class Bundle extends Command {
       }
     }
   }
-
 }
