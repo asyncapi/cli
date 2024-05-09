@@ -45,25 +45,14 @@ describe('bundle', () => {
       'bundle', './test/integration/bundle/asyncapi.yml'
     ])
     .it('should throw error message if the file path is wrong', (ctx, done) => {
-      expect(ctx.stderr).to.contain('error loading AsyncAPI document from file: ./test/integration/bundle/asyncapi.yml file does not exist.\n');
+      expect(ctx.stderr).to.contain('Error: ENOENT: no such file or directory');
       done();
     });
 
   test
     .stdout()
     .command([
-      'bundle', './test/integration/bundle/first-asyncapi.yaml', '--reference-into-components', '--output=./test/integration/bundle/final.yaml'
-    ])
-    .it('should be able to refence messages into components', (ctx, done) => {
-      expect(ctx.stdout).to.contain('Check out your shiny new bundled files at ./test/integration/bundle/final.yaml\n');
-      fileCleanup('./test/integration/bundle/final.yaml');
-      done();
-    });
-
-  test
-    .stdout()
-    .command([
-      'bundle', './test/integration/bundle/first-asyncapi.yaml', './test/integration/bundle/feature.yaml', '--reference-into-components', '--output=test/integration/bundle/final.yaml'
+      'bundle', './test/integration/bundle/first-asyncapi.yaml', './test/integration/bundle/feature.yaml', '--output=test/integration/bundle/final.yaml'
     ])
     .it('should be able to bundle multiple specs along with custom reference', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
@@ -75,7 +64,7 @@ describe('bundle', () => {
   test
     .stdout()
     .command([
-      'bundle', './test/integration/bundle/first-asyncapi.yaml', './test/integration/bundle/feature.yaml', '--reference-into-components', '--output=test/integration/bundle/final.yaml', '--base=./test/integration/bundle/first-asyncapi.yaml'
+      'bundle', './test/integration/bundle/first-asyncapi.yaml', './test/integration/bundle/feature.yaml', '--output=test/integration/bundle/final.yaml', '--base=./test/integration/bundle/first-asyncapi.yaml'
     ])
     .it('should be able to bundle correctly with overwriting base file', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
