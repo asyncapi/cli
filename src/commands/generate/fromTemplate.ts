@@ -15,7 +15,7 @@ import { Parser } from '@asyncapi/parser';
 import type { Example } from '@oclif/core/lib/interfaces';
 import { intro, isCancel, spinner, text } from '@clack/prompts';
 import { inverse, yellow, magenta, green, red } from 'picocolors';
-import axios from 'axios';
+import fetch from 'node-fetch'
 
 interface IMapBaseUrlToFlag {
   url: string,
@@ -247,7 +247,7 @@ export default class Template extends Command {
     }
   }
   private async registryValidation(registryUrl?:string, registryAuth?:string, registryToken?:string) {
-    const response= await axios.get(registryUrl as string);
+    const response= await fetch(registryUrl as string);
     if (response.status === 401&&!registryAuth&&!registryToken) {
       throw new Error('Need to pass either registryAuth in username:password encoded in Base64 or need to pass registryToken');
     }
