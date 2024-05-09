@@ -1,4 +1,4 @@
-asyncapi: "2.5.0"
+asyncapi: "2.6.0"
 info:
   title: Account Service
   version: 1.0.0
@@ -8,3 +8,7 @@ channels:
     subscribe:
       message:
         $ref: "./test/integration/bundle/messages.yaml#/messages/UserSignedUp"
+  user/loggedOut:
+    subscribe:
+      message:
+        $ref: "./test/integration/bundle/messages.yaml#/messages/UserLoggedOut"
