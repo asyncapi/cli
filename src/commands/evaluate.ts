@@ -42,17 +42,19 @@ export default class evaluate extends Command {
     let scoreEvalate = 0;
 
     if (document?.info().hasDescription()) {
-      scoreEvalate+=1;
+      scoreEvalate+=0.15;
     }
     if (document?.info().hasLicense()) {
-      scoreEvalate+=1;
+      scoreEvalate+=0.25;
     }
-    if (document?.servers()!==undefined) {
-      scoreEvalate+=1;
+    if (!document?.servers().isEmpty()) {
+      scoreEvalate+=0.25;
     }
-    if (document?.channels()!==undefined) {
-      scoreEvalate+=1;
+    if (!document?.channels().isEmpty()) {
+      scoreEvalate+=0.35;
     }
-    console.log((scoreEvalate*100)/4);
+    const finalScore = (scoreEvalate/1)*100;
+
+    this.log('The score of the asyncapi document is ', +finalScore);
   }
 }
