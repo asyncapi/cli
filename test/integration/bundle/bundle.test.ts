@@ -8,9 +8,9 @@ const specV2WithXOrigin = fs.readFileSync('./test/integration/bundle/final-async
 const specv3NoXOrigin = fs.readFileSync('./test/integration/bundle/final-asyncapiv3.yaml', {encoding: 'utf-8'});
 const specv3WithXOrigin = fs.readFileSync('./test/integration/bundle/final-asyncapiv3-with-xorigin.yaml', {encoding: 'utf-8'});
 
-function assertSpecsEqual(filePath: string, spec: string) {
+function validateGeneratedSpec(filePath: string, spec: string): boolean {
   const generatedSPec = fs.readFileSync(path.resolve(filePath), { encoding: 'utf-8' });
-  expect(generatedSPec).to.equal(spec);
+  return generatedSPec === spec;
 }
 
 describe('bundle', () => {
@@ -59,7 +59,7 @@ describe('bundle', () => {
     ])
     .it('should be able to bundle multiple specs along with custom reference', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-      assertSpecsEqual('test/integration/bundle/final.yaml', specV2NoXOrigin);
+      expect(validateGeneratedSpec('test/integration/bundle/final.yaml', specV2NoXOrigin)).to.equal(true);
       fileCleanup('./test/integration/bundle/final.yaml');
       done();
     });
@@ -71,7 +71,7 @@ describe('bundle', () => {
     ])
     .it('should be able to bundle correctly with overwriting base file', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-      assertSpecsEqual('test/integration/bundle/final.yaml', specV2NoXOrigin);
+      expect(validateGeneratedSpec('test/integration/bundle/final.yaml', specV2NoXOrigin)).to.equal(true);
       fileCleanup('./test/integration/bundle/final.yaml');
       done();
     });
@@ -83,7 +83,7 @@ describe('bundle', () => {
   ])
   .it('should be able to bundle multiple specs including x-origin', (ctx, done) => {
     expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-    assertSpecsEqual('test/integration/bundle/final.yaml', specV2WithXOrigin);
+    expect(validateGeneratedSpec('test/integration/bundle/final.yaml', specV2WithXOrigin)).to.equal(true);
     fileCleanup('./test/integration/bundle/final.yaml');
     done();
   });
@@ -97,7 +97,7 @@ describe('bundle spec v3', () => {
       '--output=test/integration/bundle/final.yaml',
     ]).it('should be able to bundle v3 spec correctly', (ctx, done) => {
       expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-      assertSpecsEqual('test/integration/bundle/final.yaml', specv3NoXOrigin);
+      expect(validateGeneratedSpec('test/integration/bundle/final.yaml', specv3NoXOrigin)).to.equal(true);
       fileCleanup('./test/integration/bundle/final.yaml');
       done();
     });
@@ -109,7 +109,7 @@ describe('bundle spec v3', () => {
     '--output=test/integration/bundle/final.yaml', '-x'
   ]).it('should be able to bundle v3 spec correctly including x-origin', (ctx, done) => {
     expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-    assertSpecsEqual('test/integration/bundle/final.yaml', specv3WithXOrigin);
+    expect(validateGeneratedSpec('test/integration/bundle/final.yaml', specv3WithXOrigin)).to.equal(true);
     fileCleanup('./test/integration/bundle/final.yaml');
     done();
   });
