@@ -39,3 +39,8 @@ operations:
       $ref: '#/channels/test'
     messages:
       - $ref: '#/channels/test/messages/testMessage'
+components:
+  messages:
+    TestMessage:
+      payload:
+        type: string
