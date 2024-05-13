@@ -39,21 +39,21 @@ export default class evaluate extends Command {
     const filePath = args['spec-file'];
     this.specFile = await load(filePath);
     const { document} = await parser.parse(this.specFile.text(), { source: this.specFile.getSource() });
-    let scoreEvalate = 0;
+    let scoreEvaluate = 0;
 
     if (document?.info().hasDescription()) {
-      scoreEvalate+=0.15;
+      scoreEvaluate+=0.15;
     }
     if (document?.info().hasLicense()) {
-      scoreEvalate+=0.25;
+      scoreEvaluate+=0.25;
     }
     if (!document?.servers().isEmpty()) {
-      scoreEvalate+=0.25;
+      scoreEvaluate+=0.25;
     }
     if (!document?.channels().isEmpty()) {
-      scoreEvalate+=0.35;
+      scoreEvaluate+=0.35;
     }
-    const finalScore = (scoreEvalate/1)*100;
+    const finalScore = (scoreEvaluate/1)*100;
 
     this.log('The score of the asyncapi document is ', +finalScore);
   }
