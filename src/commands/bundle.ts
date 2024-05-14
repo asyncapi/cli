@@ -4,49 +4,44 @@ import Command from '../base';
 import bundle from '@asyncapi/bundler';
 import { promises } from 'fs';
 import path from 'path';
-import { Specification, load } from '../models/SpecificationFile';
-import { Parser } from '@asyncapi/parser';
+import { Specification } from '../models/SpecificationFile';
 import { Document } from '@asyncapi/bundler/lib/document';
 
 const { writeFile } = promises;
 
 export default class Bundle extends Command {
-  static description = 'bundle one or multiple asyncapi documents and their references together.';
+  static readonly description = 'Bundle one or multiple AsyncAPI Documents and their references together.';
   static strict = false;
 
   static examples: Example[] = [
-    'asyncapi bundle ./asyncapi.yaml > final-asyncapi.yaml',
     'asyncapi bundle ./asyncapi.yaml --output final-asyncapi.yaml',
-    'asyncapi bundle ./asyncapi.yaml ./features.yaml --reference-into-components',
-    'asyncapi bundle ./asyncapi.yaml ./features.yaml --base ./asyncapi.yaml --reference-into-components'
+    'asyncapi bundle ./asyncapi.yaml ./features.yaml',
+    'asyncapi bundle ./asyncapi.yaml ./features.yaml --base ./main.yaml',
+    'asyncapi bundle ./asyncapi.yaml ./features.yaml --base ./main.yaml --xOrigin',
+    'asyncapi bundle ./asyncapi.yaml -o final-asyncapi.yaml --base ../public-api/main.yaml --baseDir ./social-media/comments-service',
   ];
 
   static flags = {
     help: Flags.help({ char: 'h' }),
     output: Flags.string({ char: 'o', description: 'The output file name. Omitting this flag the result will be printed in the console.' }),
-    'reference-into-components': Flags.boolean({ char: 'r', description: 'Bundle the message $refs into components object.' }),
-    base: Flags.string({ char: 'b', description: 'Path to the file which will act as a base. This is required when some properties are to needed to be overwritten.' }),
+    base: Flags.string({ char: 'b', description: 'Path to the file which will act as a base. This is required when some properties need to be overwritten.' }),
+    baseDir: Flags.string({ char: 'd', description: 'One relative/absolute path to directory relative to which paths to AsyncAPI Documents that should be bundled will be resolved.' }),
+    xOrigin: Flags.boolean({ char: 'x', description: 'Pass this switch to generate properties "x-origin" that will contain historical values of dereferenced "$ref"s.' }),
   };
-
-  parser = new Parser();
 
   async run() {
     const { argv, flags } = await this.parse(Bundle);
     const output = flags.output;
-    let baseFile;
     const outputFormat = path.extname(argv[0]);
-    const AsyncAPIFiles = await this.loadFiles(argv);
-    
+    const AsyncAPIFiles = argv;
+
     this.metricsMetadata.files = AsyncAPIFiles.length;
 
-    if (flags.base) {baseFile = (await load(flags.base)).text();}
-
-    const fileContents = AsyncAPIFiles.map((file) => file.text());
-
-    const document = await bundle(fileContents,
+    const document = await bundle(AsyncAPIFiles,
       {
-        referenceIntoComponents: flags['reference-into-components'],
-        base: baseFile
+        base: flags.base,
+        baseDir: flags.baseDir,
+        xOrigin: flags.xOrigin,
       }
     );
     
@@ -85,14 +80,5 @@ export default class Bundle extends Command {
         this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
       }
     }
-  }
-
-  async loadFiles(filepaths: string[]): Promise<Specification[]> {
-    const files = [];
-    for (const filepath of filepaths) {
-      const file = await load(filepath);
-      files.push(file);
-    }
-    return files;
   }
 }
