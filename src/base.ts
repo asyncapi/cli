@@ -8,7 +8,7 @@ import { promises as fPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { homedir } from 'os';
 
-const { readFile, writeFile } = fPromises;
+const { readFile, writeFile, stat } = fPromises;
 
 class DiscardSink implements Sink {
   async send() {
@@ -70,6 +70,7 @@ export default abstract class extends Command {
 
   async recordActionMetric(recordFunc: (recorder: Recorder) => Promise<void>) {
     try {
+      await this.setSource();
       await recordFunc(await this.recorder);
       await (await this.recorder).flush();
     } catch (e: any) {
@@ -79,6 +80,16 @@ export default abstract class extends Command {
     }
   }
 
+  async setSource() {
+    const specFilePath = this.specFile?.getFilePath();
+    if (!specFilePath) { return; }
+    try {
+      const stats = await stat(specFilePath);
+      this.metricsMetadata['file_creation_timestamp'] = stats.birthtimeMs;
+    } catch (e: any) {
+      // If there's an error with the file, we don't handle it here because it's expected to be handled and reported in the 'finally' method of the command.
+    }
+  }
   async finally(error: Error | undefined): Promise<any> {
     await super.finally(error);
     this.metricsMetadata['success'] = error === undefined;
