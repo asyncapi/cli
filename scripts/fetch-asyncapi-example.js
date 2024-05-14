@@ -23,22 +23,28 @@ const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
 const TEMP_ZIP_NAME = 'spec-examples.zip';
 
 const fetchAsyncAPIExamplesFromExternalURL = () => {
-  return new Promise((resolve, reject) => {
-    fetch(SPEC_EXAMPLES_ZIP_URL)
-      .then((res) => {
-        if (res.status !== 200) {
-          reject(new Error(`Failed to fetch examples from ${SPEC_EXAMPLES_ZIP_URL}`));
-        }
-        const file = fs.createWriteStream(TEMP_ZIP_NAME);
-        res.body.pipe(file);
-        file.on('close', () => {
-          console.log('Fetched ZIP file');
-          file.close();
-          resolve();
-        }).on('error', reject);
-      }
-      ).catch(reject);
-  });
+  try {
+    return new Promise((resolve, reject) => {
+      fetch(SPEC_EXAMPLES_ZIP_URL)
+        .then((res) => {
+          if (res.status !== 200) {
+            reject(new Error(`Failed to fetch examples from ${SPEC_EXAMPLES_ZIP_URL}`));
+          }
+          const file = fs.createWriteStream(TEMP_ZIP_NAME);
+          res.body.pipe(file);
+          file.on('close', () => {
+            console.log('Fetched ZIP file');
+            file.close();
+            resolve();
+          }).on('error', (err) => {
+            reject(err);
+          });
+        })
+        .catch(reject); 
+    });
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const unzipAsyncAPIExamples = async () => {
