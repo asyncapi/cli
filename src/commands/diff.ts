@@ -1,5 +1,5 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import { Flags } from '@oclif/core';
+import { Flags, Args } from '@oclif/core';
 import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
 import { promises as fs } from 'fs';
@@ -54,18 +54,10 @@ export default class Diff extends Command {
     ...validationFlags({ logDiagnostics: false }),
   };
 
-  static args = [
-    {
-      name: 'old',
-      description: 'old spec path, URL or context-name',
-      required: true,
-    },
-    {
-      name: 'new',
-      description: 'new spec path, URL or context-name',
-      required: true,
-    },
-  ];
+  static args = {
+    old: Args.string({description: 'old spec path, URL or context-name', required: true}),
+    new: Args.string({description: 'new spec path, URL or context-name', required: true}),
+  };
 
   /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
@@ -82,7 +74,7 @@ export default class Diff extends Command {
     let firstDocument: Specification, secondDocument: Specification;
 
     checkAndWarnFalseFlag(outputFormat, markdownSubtype);
-    markdownSubtype = setDefaultMarkdownSubtype(outputFormat, markdownSubtype);
+    markdownSubtype = setDefaultMarkdownSubtype(outputFormat, markdownSubtype) as string;
 
     try {
       firstDocument = await load(firstDocumentPath);
