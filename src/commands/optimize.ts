@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, Args } from '@oclif/core';
 import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
 import Command from '../base';
 import { ValidationError } from '../errors/validation-error';
@@ -6,7 +6,6 @@ import { load } from '../models/SpecificationFile';
 import * as inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
-import { Example } from '@oclif/core/lib/interfaces';
 import { Parser } from '@asyncapi/parser';
 
 const { writeFile } = promises;
@@ -29,7 +28,7 @@ export default class Optimize extends Command {
   selectedOptimizations?: Optimizations[];
   outputMethod?: Outputs;
 
-  static examples: Example[] = [
+  static examples = [
     'asyncapi optimize ./asyncapi.yaml',
     'asyncapi optimize ./asyncapi.yaml --no-tty',
     'asyncapi optimize ./asyncapi.yaml --optimization=remove-components --optimization=reuse-components --optimization=move-all-to-components --no-tty',
@@ -43,9 +42,9 @@ export default class Optimize extends Command {
     'no-tty': Flags.boolean({ description: 'do not use an interactive terminal', default: false }),
   };
 
-  static args = [
-    { name: 'spec-file', description: 'spec path, url, or context-name', required: false },
-  ];
+  static args = {
+    'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
+  };
 
   parser = new Parser();
 
@@ -86,7 +85,7 @@ export default class Optimize extends Command {
       this.log(`No optimization has been applied since ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} looks optimized!`);
       return;
     }
-    
+
     const isTTY = process.stdout.isTTY;
     if (this.isInteractive && isTTY) {
       await this.interactiveRun(report);
@@ -192,7 +191,7 @@ export default class Optimize extends Command {
     }]);
 
     this.selectedOptimizations = optimizationRes.optimization;
-        
+
     const outputRes = await inquirer.prompt([{
       name: 'output',
       message: 'where do you want to save the result:',

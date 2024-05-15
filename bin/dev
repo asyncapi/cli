@@ -15,4 +15,3 @@ oclif.settings.debug = true;
 
 // Start the CLI
 oclif.run().then(oclif.flush).catch(oclif.Errors.handle)
-

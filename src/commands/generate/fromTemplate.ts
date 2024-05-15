@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, Args } from '@oclif/core';
 import Command from '../../base';
 // eslint-disable-next-line
 // @ts-ignore
@@ -12,7 +12,6 @@ import { isLocalTemplate, Watcher } from '../../utils/generator';
 import { ValidationError } from '../../errors/validation-error';
 import { GeneratorError } from '../../errors/generator-error';
 import { Parser } from '@asyncapi/parser';
-import type { Example } from '@oclif/core/lib/interfaces';
 import { intro, isCancel, spinner, text } from '@clack/prompts';
 import { inverse, yellow, magenta, green, red } from 'picocolors';
 import fetch from 'node-fetch';
@@ -53,7 +52,7 @@ function verifyTemplateSupportForV3(template: string) {
 export default class Template extends Command {
   static description = 'Generates whatever you want using templates compatible with AsyncAPI Generator.';
 
-  static examples: Example[] = [
+  static examples = [
     'asyncapi generate fromTemplate asyncapi.yaml @asyncapi/html-template --param version=1.0.0 singleFile=true --output ./docs --force-write'
   ];
 
@@ -112,10 +111,11 @@ export default class Template extends Command {
       description: 'The npm registry authentication token, that can be passed instead of base64 encoded username and password'
     })
   };
-  static args = [
-    { name: 'asyncapi', description: '- Local path, url or context-name pointing to AsyncAPI file' },
-    { name: 'template', description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template' },
-  ];
+
+  static args = {
+    asyncapi: Args.string({description: '- Local path, url or context-name pointing to AsyncAPI file', required: true}),
+    template: Args.string({description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true}),
+  };
 
   parser = new Parser();
 
@@ -150,7 +150,7 @@ export default class Template extends Command {
       }
     };
     const asyncapiInput = (await load(asyncapi)) || (await load());
-    
+
     this.specFile = asyncapiInput;
     this.metricsMetadata.template = template;
 
@@ -193,7 +193,7 @@ export default class Template extends Command {
       });
     }
 
-    if (isCancel(asyncapi)) { 
+    if (isCancel(asyncapi)) {
       this.error(cancellationMessage, { exit: 1 });
     }
 
@@ -233,7 +233,7 @@ export default class Template extends Command {
       mapBaseUrlToFolder: this.mapBaseURLParser(mapBaseUrl),
       registryURLValidation: this.registryURLParser(registryUrl),
       registryAuthentication: this.registryValidation(registryUrl, registryAuth, registryToken)
-      
+
     } as ParsedFlags;
   }
 
