@@ -1,5 +1,4 @@
 import { Flags } from '@oclif/core';
-import { Example } from '@oclif/core/lib/interfaces';
 import Command from '../base';
 import bundle from '@asyncapi/bundler';
 import { promises } from 'fs';
@@ -13,7 +12,8 @@ export default class Bundle extends Command {
   static readonly description = 'Bundle one or multiple AsyncAPI Documents and their references together.';
   static strict = false;
 
-  static examples: Example[] = [
+  static examples = [
+    'asyncapi bundle ./asyncapi.yaml > final-asyncapi.yaml',
     'asyncapi bundle ./asyncapi.yaml --output final-asyncapi.yaml',
     'asyncapi bundle ./asyncapi.yaml ./features.yaml',
     'asyncapi bundle ./asyncapi.yaml ./features.yaml --base ./main.yaml',
@@ -32,8 +32,8 @@ export default class Bundle extends Command {
   async run() {
     const { argv, flags } = await this.parse(Bundle);
     const output = flags.output;
-    const outputFormat = path.extname(argv[0]);
-    const AsyncAPIFiles = argv;
+    const outputFormat = path.extname(argv[0] as string);
+    const AsyncAPIFiles = argv as string[];
 
     this.metricsMetadata.files = AsyncAPIFiles.length;
 
@@ -44,7 +44,7 @@ export default class Bundle extends Command {
         xOrigin: flags.xOrigin,
       }
     );
-    
+
     await this.collectMetricsData(document);
 
     if (!output) {
