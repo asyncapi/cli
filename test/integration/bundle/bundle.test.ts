@@ -77,16 +77,16 @@ describe('bundle', () => {
     });
 
   test
-  .stdout()
-  .command([
-    'bundle', './test/integration/bundle/first-asyncapi.yaml', './test/integration/bundle/feature.yaml', '--output=test/integration/bundle/final.yaml', '-x'
-  ])
-  .it('should be able to bundle multiple specs including x-origin', (ctx, done) => {
-    expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-    expect(validateGeneratedSpec('test/integration/bundle/final.yaml', specV2WithXOrigin)).to.equal(true);
-    fileCleanup('./test/integration/bundle/final.yaml');
-    done();
-  });
+    .stdout()
+    .command([
+      'bundle', './test/integration/bundle/first-asyncapi.yaml', './test/integration/bundle/feature.yaml', '--output=test/integration/bundle/final.yaml', '-x'
+    ])
+    .it('should be able to bundle multiple specs including x-origin', (ctx, done) => {
+      expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
+      expect(validateGeneratedSpec('test/integration/bundle/final.yaml', specV2WithXOrigin)).to.equal(true);
+      fileCleanup('./test/integration/bundle/final.yaml');
+      done();
+    });
 });
 
 describe('bundle spec v3', () => {
@@ -103,14 +103,14 @@ describe('bundle spec v3', () => {
     });
 
   test
-  .stdout()
-  .command([
-    'bundle', './test/integration/bundle/first-asyncapiv3.yaml',
-    '--output=test/integration/bundle/final.yaml', '-x'
-  ]).it('should be able to bundle v3 spec correctly including x-origin', (ctx, done) => {
-    expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
-    expect(validateGeneratedSpec('test/integration/bundle/final.yaml', specv3WithXOrigin)).to.equal(true);
-    fileCleanup('./test/integration/bundle/final.yaml');
-    done();
-  });
+    .stdout()
+    .command([
+      'bundle', './test/integration/bundle/first-asyncapiv3.yaml',
+      '--output=test/integration/bundle/final.yaml', '-x'
+    ]).it('should be able to bundle v3 spec correctly including x-origin', (ctx, done) => {
+      expect(ctx.stdout).to.contain('Check out your shiny new bundled files at test/integration/bundle/final.yaml\n');
+      expect(validateGeneratedSpec('test/integration/bundle/final.yaml', specv3WithXOrigin)).to.equal(true);
+      fileCleanup('./test/integration/bundle/final.yaml');
+      done();
+    });
 });
