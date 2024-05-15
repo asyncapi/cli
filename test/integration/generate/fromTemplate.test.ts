@@ -4,6 +4,8 @@ import { test } from '@oclif/test';
 import rimraf from 'rimraf';
 import { expect } from '@oclif/test';
 
+const nonInteractive = '--no-interactive';
+
 const generalOptions = [
   'generate:fromTemplate',
   './test/fixtures/specification.yml',
@@ -21,8 +23,9 @@ describe('template', () => {
   });
   test
     .stdout()
-    .command([...generalOptions, '--output=./test/docs/1', '--force-write'])
+    .command([...generalOptions, '--output=./test/docs/1', '--force-write', '--no-interactive'])
     .it('should generate minimal template', (ctx, done) => {
+      console.log(ctx.stdout);
       expect(ctx.stdout).to.contain(
         'Check out your shiny new generated files at ./test/docs/1.\n\n'
       );
@@ -37,7 +40,9 @@ describe('template', () => {
       .command([
         'generate:fromTemplate',
         asyncapiv3,
-        '@asyncapi/minimaltemplate'])
+        '@asyncapi/minimaltemplate',
+        nonInteractive,
+      ])
       .it('give error on disabled template', (ctx, done) => {
         expect(ctx.stderr).to.equal('Error: @asyncapi/minimaltemplate template does not support AsyncAPI v3 documents, please checkout some link\n');
         expect(ctx.stdout).to.equal('');
@@ -54,7 +59,7 @@ describe('template', () => {
     });
     test
       .stderr()
-      .command([...generalOptions, `--output=${pathToOutput}`])
+      .command([...generalOptions, `--output=${pathToOutput}`, nonInteractive])
       .it(
         'should throw error if output folder is in a git repository',
         (ctx, done) => {
@@ -75,6 +80,7 @@ describe('template', () => {
         '-p=version=1.0.0 mode=development',
         '--output=./test/docs/3',
         '--force-write',
+        nonInteractive
       ])
       .it('should pass custom param in the template', (ctx, done) => {
         expect(ctx.stdout).to.contain(
@@ -93,6 +99,7 @@ describe('template', () => {
         '--output=./test/docs/4',
         '--force-write',
         '-d=generate:after',
+        nonInteractive
       ])
       .it('should not create asyncapi.yaml file', async (_, done) => {
         const exits = fs.existsSync(path.resolve('./docs/asyncapi.yaml'));
@@ -110,6 +117,7 @@ describe('template', () => {
         '--output=./test/docs/5',
         '--force-write',
         '--debug',
+        nonInteractive
       ])
       .it('should print debug logs', (ctx, done) => {
         expect(ctx.stdout).to.contain(
@@ -130,6 +138,7 @@ describe('template', () => {
         '--output=./test/docs/6',
         '--force-write',
         '--no-overwrite=./test/docs/asyncapi.md',
+        nonInteractive
       ])
       .it('should skip the filepath and generate normally', (ctx, done) => {
         expect(ctx.stdout).to.contain(

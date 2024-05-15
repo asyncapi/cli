@@ -1,4 +1,4 @@
-asyncapi: 2.5.0
+asyncapi: 2.6.0
 info:
   title: Account Service
   version: 1.0.0
@@ -9,7 +9,7 @@ channels:
       message:
         $ref: '#/components/messages/UserSignedUp'
   user/loggedOut:
-    subcribe:
+    unsubcribe:
       message:
         $ref: '#/components/messages/UserLoggedOut'
 components:
@@ -38,4 +38,3 @@ components:
           timestamp:
             type: number
             descriptio: Time stamp when the user logged out
-

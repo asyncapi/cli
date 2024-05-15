@@ -9,10 +9,32 @@ import { prompt } from 'inquirer';
 // eslint-disable-next-line
 // @ts-ignore
 import Generator from '@asyncapi/generator';
+import { cyan, gray } from 'picocolors';
+
+export const successMessage = (projectName: string) =>
+  `🎉 Your Glee project has been successfully created!
+⏩ Next steps: follow the instructions ${cyan('below')} to manage your project:
+
+  cd ${projectName}\t\t ${gray('# Navigate to the project directory')}
+  npm install\t\t ${gray('# Install the project dependencies')}
+  npm run dev\t\t ${gray('# Start the project in development mode')} 
+
+You can also open the project in your favourite editor and start tweaking it.
+`;
+
+const errorMessages = {
+  alreadyExists: (projectName: string) =>
+    `Unable to create the project because the directory "${cyan(projectName)}" already exists at "${process.cwd()}/${projectName}". 
+To specify a different name for the new project, please run the command below with a unique project name:
+
+    ${gray('asyncapi new glee --name ') + gray(projectName) + gray('-1')}`,    
+};
 
 export default class NewGlee extends Command {
   static description = 'Creates a new Glee project';
   protected commandName = 'glee';
+  static readonly successMessage = successMessage;
+  static readonly errorMessages = errorMessages;
 
   static flags = {
     help: Flags.help({ char: 'h' }),
@@ -93,12 +115,10 @@ export default class NewGlee extends Command {
         fs.existsSync(PROJECT_DIRECTORY) &&
         fs.readdirSync(PROJECT_DIRECTORY).length > 0
       ) {
-        throw new Error(
-          `Unable to create the project. We tried to use "${projectName}" as the directory of your new project but it already exists (${PROJECT_DIRECTORY}). Please specify a different name for the new project. For example, run the following command instead:\n\n  asyncapi new ${this.commandName} -f ${file} --name ${projectName}-1\n`
-        );
+        throw new Error(errorMessages.alreadyExists(projectName));
       }
     } catch (error: any) {
-      this.error(error.message);
+      this.log(error.message);
     }
   }
 
@@ -199,9 +219,7 @@ export default class NewGlee extends Command {
       } catch (err: any) {
         switch (err.code) {
         case 'EEXIST':
-          this.error(
-            `Unable to create the project. We tried to use "${projectName}" as the directory of your new project but it already exists (${PROJECT_DIRECTORY}). Please specify a different name for the new project. For example, run the following command instead:\n\n  asyncapi new ${this.commandName} --name ${projectName}-1\n`
-          );
+          this.error(errorMessages.alreadyExists(projectName));
           break;
         case 'EACCES':
           this.error(
@@ -234,9 +252,7 @@ export default class NewGlee extends Command {
           `${PROJECT_DIRECTORY}/README-template.md`,
           `${PROJECT_DIRECTORY}/README.md`
         );
-        this.log(
-          `Your project "${projectName}" has been created successfully!\n\nNext steps:\n\n  cd ${projectName}\n  npm install\n  npm run dev\n\nAlso, you can already open the project in your favorite editor and start tweaking it.`
-        );
+        this.log(successMessage(projectName));
       } catch (err) {
         this.error(
           `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`

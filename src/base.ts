@@ -6,8 +6,9 @@ import { join, resolve } from 'path';
 import { existsSync } from 'fs-extra';
 import { promises as fPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
+import { homedir } from 'os';
 
-const { readFile, writeFile } = fPromises;
+const { readFile, writeFile, stat } = fPromises;
 
 class DiscardSink implements Sink {
   async send() {
@@ -69,6 +70,7 @@ export default abstract class extends Command {
 
   async recordActionMetric(recordFunc: (recorder: Recorder) => Promise<void>) {
     try {
+      await this.setSource();
       await recordFunc(await this.recorder);
       await (await this.recorder).flush();
     } catch (e: any) {
@@ -78,6 +80,16 @@ export default abstract class extends Command {
     }
   }
 
+  async setSource() {
+    const specFilePath = this.specFile?.getFilePath();
+    if (!specFilePath) { return; }
+    try {
+      const stats = await stat(specFilePath);
+      this.metricsMetadata['file_creation_timestamp'] = stats.birthtimeMs;
+    } catch (e: any) {
+      // If there's an error with the file, we don't handle it here because it's expected to be handled and reported in the 'finally' method of the command.
+    }
+  }
   async finally(error: Error | undefined): Promise<any> {
     await super.finally(error);
     this.metricsMetadata['success'] = error === undefined;
@@ -86,7 +98,7 @@ export default abstract class extends Command {
   
   async recorderFromEnv(prefix: string): Promise<Recorder> {
     let sink: Sink = new DiscardSink();
-    const analyticsConfigFile = join(process.cwd(), '.asyncapi-analytics');
+    const analyticsConfigFile = join(homedir(), '.asyncapi-analytics');
 
     if (!existsSync(analyticsConfigFile)) {
       await writeFile(analyticsConfigFile, JSON.stringify({ analyticsEnabled: 'true', infoMessageShown: 'false', userID: uuidv4()}), { encoding: 'utf8' });
@@ -109,7 +121,7 @@ export default abstract class extends Command {
         sink = new NewRelicSink(process.env.ASYNCAPI_METRICS_NEWRELIC_KEY || 'eu01xx73a8521047150dd9414f6aedd2FFFFNRAL');
 
         if (analyticsConfigFileContent.infoMessageShown === 'false') {
-          this.log('\nAsyncAPI anonymously tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.\n\nTo disable tracking, please run the following command:\n  asyncapi config analytics --disable\n\nOnce disabled, if you want to enable tracking back again then run:\n  asyncapi config analytics --enable');
+          this.log('\nAsyncAPI anonymously tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.\n\nTo disable tracking, please run the following command:\n  asyncapi config analytics --disable\n\nOnce disabled, if you want to enable tracking back again then run:\n  asyncapi config analytics --enable\n');
           analyticsConfigFileContent.infoMessageShown = 'true';
           await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), { encoding: 'utf8' });
         }        

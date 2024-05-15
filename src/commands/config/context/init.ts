@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, Args } from '@oclif/core';
 import Command from '../../../base';
 import { initContext } from '../../../models/Context';
 
@@ -13,19 +13,15 @@ export default class ContextInit extends Command {
     - root of current repository : asyncapi config context init ./
     - user's home directory      : asyncapi config context init ~`;
 
-  static args = [
-    {
-      name: 'context-file-path',
-      description: `${ContextInit.contextFilePathMessage}`,
-      required: false,
-    },
-  ];
+  static args = {
+    'context-file-path': Args.string({description: `${ContextInit.contextFilePathMessage}`, required: false})
+  };
 
   async run() {
     const { args } = await this.parse(ContextInit);
     const contextFilePath = args['context-file-path'];
 
-    const contextWritePath = await initContext(contextFilePath);
+    const contextWritePath = await initContext(contextFilePath as string);
     this.log(`Initialized context ${contextWritePath}`);
   }
 }
