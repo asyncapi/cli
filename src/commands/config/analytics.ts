@@ -26,9 +26,11 @@ export default class Analytics extends Command {
       if (flags.disable) {
         analyticsConfigFileContent.analyticsEnabled = 'false';
         this.log('\nAnalytics disabled.\n');
+        this.metricsMetadata.analytics_disabled = flags.disable;
       } else if (flags.enable) {
         analyticsConfigFileContent.analyticsEnabled = 'true';
         this.log('\nAnalytics enabled.\n');
+        this.metricsMetadata.analytics_enabled = flags.enable;
       } else if (!flags.status) {
         this.log('\nPlease append the "--disable" flag to the command in case you prefer to disable analytics, or use the "--enable" flag if you want to enable analytics back again. In case you do not know the analytics current status, then you can append the "--status" flag to be aware of it.\n');
         return;
@@ -41,6 +43,7 @@ export default class Analytics extends Command {
         } else {
           this.log('\nAnalytics are disabled. Please append the "--enable" flag to the command in case you prefer to enable analytics.\n');
         }
+        this.metricsMetadata.analytics_status_check = flags.status;
       }
     } catch (e: any) {
       switch (e.code) {
