@@ -134,7 +134,7 @@ export default class Template extends Command {
       output = parsedArgs.output;
     }
 
-    const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url'],flags['registry.url'],flags['registry.auth'],flags['registry.token']);
+    const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url'], flags['registry.url'], flags['registry.auth'], flags['registry.token']);
     const options = {
       forceWrite: flags['force-write'],
       install: flags.install,
@@ -245,9 +245,14 @@ export default class Template extends Command {
     }
   }
   private async registryValidation(registryUrl?:string, registryAuth?:string, registryToken?:string) {
-    const response= await fetch(registryUrl as string);
-    if (response.status === 401&&!registryAuth&&!registryToken) {
-      throw new Error('Need to pass either registryAuth in username:password encoded in Base64 or need to pass registryToken');
+    if (!registryUrl) { return; }
+    try {
+      const response = await fetch(registryUrl as string);
+      if (response.status === 401 && !registryAuth && !registryToken) {
+        this.error('You Need to pass either registryAuth in username:password encoded in Base64 or need to pass registryToken', { exit: 1 });
+      }
+    } catch (error: any) {
+      this.error(`Can't fetch registryURL: ${registryUrl}`, { exit: 1 });
     }
   }
   private paramParser(inputs?: string[]) {
