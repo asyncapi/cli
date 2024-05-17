@@ -1,9 +1,10 @@
-import { Flags } from '@oclif/core';
+import { Flags, Args } from '@oclif/core';
 import Command from '../base';
-import { validationFlags} from '../parser';
+import { validate, validationFlags, ValidateOptions, ValidationStatus } from '../parser';
 import { load } from '../models/SpecificationFile';
-import { Parser} from '@asyncapi/parser/cjs';
+import { specWatcher } from '../globals';
 import { watchFlag } from '../flags';
+import { Parser} from '@asyncapi/parser/cjs';
 import { AvroSchemaParser } from '@asyncapi/avro-schema-parser';
 import { OpenAPISchemaParser } from '@asyncapi/openapi-schema-parser';
 import { RamlDTSchemaParser } from '@asyncapi/raml-dt-schema-parser';
@@ -21,8 +22,9 @@ parser.registerSchemaParser(AvroSchemaParser());
 parser.registerSchemaParser(OpenAPISchemaParser());
 parser.registerSchemaParser(RamlDTSchemaParser());
 parser.registerSchemaParser(ProtoBuffSchemaParser());
-export default class evaluate extends Command {
-  static description = 'evaluate asyncapi file';
+
+export default class Evaluate extends Command {
+  static description = 'validate asyncapi file';
 
   static flags = {
     help: Flags.help({ char: 'h' }),
@@ -30,12 +32,12 @@ export default class evaluate extends Command {
     ...validationFlags(),
   };
 
-  static args = [
-    { name: 'spec-file', description: 'spec path, url, or context-name', required: false },
-  ];
+  static args = {
+    'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
+  };
 
   async run() {
-    const { args } = await this.parse(evaluate); //NOSONAR
+    const { args } = await this.parse(Evaluate); //NOSONAR
     const filePath = args['spec-file'];
     this.specFile = await load(filePath);
     const { document} = await parser.parse(this.specFile.text(), { source: this.specFile.getSource() });
