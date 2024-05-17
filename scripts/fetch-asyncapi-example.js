@@ -65,10 +65,10 @@ const unzipAsyncAPIExamples = async () => {
           entry.autodrain();
         }
       }).on('close', () => {
-        console.log('Unzipped all examples from zip');
+        console.log('Unzipped all examples from ZIP');
         resolve();
-      }).on('error', () => {
-        reject();
+      }).on('error', (error) => {
+        reject(new Error(`Error in unzipping from ZIP: ${error.message}`));
       });
   });
 };
@@ -79,11 +79,11 @@ const buildCLIListFromExamples = async () => {
 
   const buildExampleList = examples.map(async example => {
     const examplePath = path.join(EXAMPLE_DIRECTORY, example);
-    const exampleContent = fs.readFileSync(examplePath, { encoding: 'utf-8'});
+    const exampleContent = fs.readFileSync(examplePath, { encoding: 'utf-8' });
 
     try {
       const { document } = await parser.parse(exampleContent);
-      // Failed for somereason to parse this spec file (document is undefined), ignore for now
+      // Failed for some reason to parse this spec file (document is undefined), ignore for now
       if (!document) {
         return;
       }
@@ -114,7 +114,7 @@ const listAllProtocolsForFile = (document) => {
   return servers.all().map(server => server.protocol()).join(',');
 };
 
-const tidyup = async () => {
+const tidyUp = async () => {
   fs.unlinkSync(TEMP_ZIP_NAME);
 };
 
@@ -122,5 +122,5 @@ const tidyup = async () => {
   await fetchAsyncAPIExamplesFromExternalURL();
   await unzipAsyncAPIExamples();
   await buildCLIListFromExamples();
-  await tidyup();
+  await tidyUp();
 })();
