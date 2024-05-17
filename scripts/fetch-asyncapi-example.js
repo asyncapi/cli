@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const request = require('request');
+const fetch = require('node-fetch');
 const fs = require('fs');
 const unzipper = require('unzipper');
 const path = require('path');
@@ -23,16 +23,28 @@ const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
 const TEMP_ZIP_NAME = 'spec-examples.zip';
 
 const fetchAsyncAPIExamplesFromExternalURL = () => {
-  return new Promise((resolve, reject) => {
-    request(SPEC_EXAMPLES_ZIP_URL)
-      .pipe(fs.createWriteStream(TEMP_ZIP_NAME))
-      .on('close', () => {
-        console.log('Fetched ZIP file');
-        resolve();
-      }).on('error', (error) => {
-        reject(new Error(`Error in fetching ZIP file ${error.message}`));
-      });
-  });
+  try {
+    return new Promise((resolve, reject) => {
+      fetch(SPEC_EXAMPLES_ZIP_URL)
+        .then((res) => {
+          if (res.status !== 200) {
+            reject(new Error(`Failed to fetch examples from ${SPEC_EXAMPLES_ZIP_URL}`));
+          }
+          const file = fs.createWriteStream(TEMP_ZIP_NAME);
+          res.body.pipe(file);
+          file.on('close', () => {
+            console.log('Fetched ZIP file');
+            file.close();
+            resolve();
+          }).on('error', (err) => {
+            reject(err);
+          });
+        })
+        .catch(reject); 
+    });
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const unzipAsyncAPIExamples = async () => {
