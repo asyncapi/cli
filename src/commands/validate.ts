@@ -1,6 +1,6 @@
-import { Flags } from '@oclif/core';
+import { Flags, Args } from '@oclif/core';
 import Command from '../base';
-import { validate, validationFlags, ValidationStatus } from '../parser';
+import { validate, validationFlags, ValidateOptions, ValidationStatus } from '../parser';
 import { load } from '../models/SpecificationFile';
 import { specWatcher } from '../globals';
 import { watchFlag } from '../flags';
@@ -14,9 +14,9 @@ export default class Validate extends Command {
     ...validationFlags(),
   };
 
-  static args = [
-    { name: 'spec-file', description: 'spec path, url, or context-name', required: false },
-  ];
+  static args = {
+    'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
+  };
 
   async run() {
     const { args, flags } = await this.parse(Validate); //NOSONAR
@@ -28,9 +28,9 @@ export default class Validate extends Command {
       specWatcher({ spec: this.specFile, handler: this, handlerName: 'validate' });
     }
 
-    const result = await validate(this, this.specFile, flags);
+    const result = await validate(this, this.specFile, flags as ValidateOptions);
     this.metricsMetadata.validation_result = result;
-    
+
     if (result === ValidationStatus.INVALID) {
       process.exitCode = 1;
     }

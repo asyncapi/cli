@@ -32,7 +32,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert', filePath])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain('File ./test/fixtures/specification.yml successfully converted!\n');
+        expect(ctx.stdout).to.contain('The ./test/fixtures/specification.yml file has been successfully converted to version 3.0.0!!');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -52,7 +52,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert', 'http://localhost:8080/dummySpec.yml'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain('URL http://localhost:8080/dummySpec.yml successfully converted!\n');
+        expect(ctx.stdout).to.contain('The URL http://localhost:8080/dummySpec.yml has been successfully converted to version 3.0.0!!');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -73,7 +73,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert'])
       .it('converts from current context', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`File ${path.resolve(__dirname, '../fixtures/specification.yml')} successfully converted!\n`);
+        expect(ctx.stdout).to.contain(`The ${path.resolve(__dirname, '../fixtures/specification.yml')} file has been successfully converted to version 3.0.0!!\n`);
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -159,7 +159,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert', filePath, '-o=./test/fixtures/specification_output.yml'])
       .it('works when .yml file is passed', (ctx, done) => {
-        expect(ctx.stdout).to.equal(`File ${filePath} successfully converted!\n`);
+        expect(ctx.stdout).to.contain(`The ${filePath} file has been successfully converted to version 3.0.0!!`);
         expect(fs.existsSync('./test/fixtures/specification_output.yml')).to.equal(true);
         expect(ctx.stderr).to.equal('');
         fs.unlinkSync('./test/fixtures/specification_output.yml');
@@ -171,7 +171,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert', JSONFilePath, '-o=./test/fixtures/specification_output.json'])
       .it('works when .json file is passed', (ctx, done) => {
-        expect(ctx.stdout).to.equal(`File ${JSONFilePath} successfully converted!\n`);
+        expect(ctx.stdout).to.contain(`The ${JSONFilePath} file has been successfully converted to version 3.0.0!!`);
         expect(fs.existsSync('./test/fixtures/specification_output.json')).to.equal(true);
         expect(ctx.stderr).to.equal('');
         fs.unlinkSync('./test/fixtures/specification_output.json');

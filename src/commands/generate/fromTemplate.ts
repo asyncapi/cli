@@ -1,4 +1,4 @@
-import { Flags } from '@oclif/core';
+import { Flags, Args } from '@oclif/core';
 import Command from '../../base';
 // eslint-disable-next-line
 // @ts-ignore
@@ -12,9 +12,9 @@ import { isLocalTemplate, Watcher } from '../../utils/generator';
 import { ValidationError } from '../../errors/validation-error';
 import { GeneratorError } from '../../errors/generator-error';
 import { Parser } from '@asyncapi/parser';
-import type { Example } from '@oclif/core/lib/interfaces';
 import { intro, isCancel, spinner, text } from '@clack/prompts';
 import { inverse, yellow, magenta, green, red } from 'picocolors';
+import fetch from 'node-fetch';
 
 interface IMapBaseUrlToFlag {
   url: string,
@@ -36,8 +36,6 @@ const templatesNotSupportingV3: Record<string, string> = {
   '@asyncapi/java-spring-cloud-stream-template': 'https://github.com/asyncapi/java-spring-cloud-stream-template/issues/336',
   '@asyncapi/go-watermill-template': 'https://github.com/asyncapi/go-watermill-template/issues/243',
   '@asyncapi/java-spring-template': 'https://github.com/asyncapi/java-spring-template/issues/308',
-  '@asyncapi/nodejs-template': 'https://github.com/asyncapi/nodejs-template/issues/215',
-  '@asyncapi/java-template': 'https://github.com/asyncapi/java-template/issues/118',
   '@asyncapi/php-template': 'https://github.com/asyncapi/php-template/issues/191'
 };
 
@@ -54,7 +52,7 @@ function verifyTemplateSupportForV3(template: string) {
 export default class Template extends Command {
   static description = 'Generates whatever you want using templates compatible with AsyncAPI Generator.';
 
-  static examples: Example[] = [
+  static examples = [
     'asyncapi generate fromTemplate asyncapi.yaml @asyncapi/html-template --param version=1.0.0 singleFile=true --output ./docs --force-write'
   ];
 
@@ -102,12 +100,22 @@ export default class Template extends Command {
     'map-base-url': Flags.string({
       description: 'Maps all schema references from base url to local folder'
     }),
+    'registry-url': Flags.string({
+      default: 'https://registry.npmjs.org',
+      description: 'Specifies the URL of the private registry for fetching templates and dependencies'
+    }),
+    'registry-auth': Flags.string({
+      description: 'The registry username and password encoded with base64, formatted as username:password'
+    }),
+    'registry-token': Flags.string({
+      description: 'The npm registry authentication token, that can be passed instead of base64 encoded username and password'
+    })
   };
 
-  static args = [
-    { name: 'asyncapi', description: '- Local path, url or context-name pointing to AsyncAPI file' },
-    { name: 'template', description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template' },
-  ];
+  static args = {
+    asyncapi: Args.string({description: '- Local path, url or context-name pointing to AsyncAPI file', required: true}),
+    template: Args.string({description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true}),
+  };
 
   parser = new Parser();
 
@@ -126,7 +134,7 @@ export default class Template extends Command {
       output = parsedArgs.output;
     }
 
-    const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url']);
+    const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url'], flags['registry.url'], flags['registry.auth'], flags['registry.token']);
     const options = {
       forceWrite: flags['force-write'],
       install: flags.install,
@@ -135,9 +143,14 @@ export default class Template extends Command {
       noOverwriteGlobs: flags['no-overwrite'],
       mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
       disabledHooks: parsedFlags.disableHooks,
+      registry: {
+        url: flags['registry-url'],
+        auth: flags['registry-auth'],
+        token: flags['registry-token']
+      }
     };
     const asyncapiInput = (await load(asyncapi)) || (await load());
-    
+
     this.specFile = asyncapiInput;
     this.metricsMetadata.template = template;
 
@@ -180,7 +193,7 @@ export default class Template extends Command {
       });
     }
 
-    if (isCancel(asyncapi)) { 
+    if (isCancel(asyncapi)) {
       this.error(cancellationMessage, { exit: 1 });
     }
 
@@ -213,14 +226,35 @@ export default class Template extends Command {
     return { asyncapi, template, output };
   }
 
-  private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string): ParsedFlags {
+  private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string, registryUrl?: string, registryAuth?:string, registryToken?:string): ParsedFlags {
     return {
       params: this.paramParser(params),
       disableHooks: this.disableHooksParser(disableHooks),
       mapBaseUrlToFolder: this.mapBaseURLParser(mapBaseUrl),
+      registryURLValidation: this.registryURLParser(registryUrl),
+      registryAuthentication: this.registryValidation(registryUrl, registryAuth, registryToken)
+
     } as ParsedFlags;
   }
 
+  private registryURLParser(input?:string) {
+    if (!input) { return; }
+    const isURL = /^https?:/;
+    if (!isURL.test(input.toLowerCase())) {
+      throw new Error('Invalid --registry-url flag. The param requires a valid http/https url.');
+    }
+  }
+  private async registryValidation(registryUrl?:string, registryAuth?:string, registryToken?:string) {
+    if (!registryUrl) { return; }
+    try {
+      const response = await fetch(registryUrl as string);
+      if (response.status === 401 && !registryAuth && !registryToken) {
+        this.error('You Need to pass either registryAuth in username:password encoded in Base64 or need to pass registryToken', { exit: 1 });
+      }
+    } catch (error: any) {
+      this.error(`Can't fetch registryURL: ${registryUrl}`, { exit: 1 });
+    }
+  }
   private paramParser(inputs?: string[]) {
     if (!inputs) { return {}; }
     const params: Record<string, any> = {};

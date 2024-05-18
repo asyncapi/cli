@@ -10,4 +10,3 @@ oclif.run()
     const oclifHandler = require('@oclif/core/handle');
     return oclifHandler(err.message);
   });
-

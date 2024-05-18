@@ -1,12 +1,13 @@
 import { AvroSchemaParser } from '@asyncapi/avro-schema-parser';
 import { OpenAPISchemaParser } from '@asyncapi/openapi-schema-parser';
-import { Parser, convertToOldAPI } from '@asyncapi/parser/cjs';
+import { DiagnosticSeverity, Parser, convertToOldAPI } from '@asyncapi/parser/cjs';
 import { RamlDTSchemaParser } from '@asyncapi/raml-dt-schema-parser';
 import { Flags } from '@oclif/core';
 import { ProtoBuffSchemaParser } from '@asyncapi/protobuf-schema-parser';
 import { getDiagnosticSeverity } from '@stoplight/spectral-core';
 import { OutputFormat } from '@stoplight/spectral-cli/dist/services/config';
 import { html, json, junit, pretty, stylish, teamcity, text } from '@stoplight/spectral-formatters';
+import { red, yellow, green, cyan } from 'chalk';
 
 import type { Diagnostic } from '@asyncapi/parser/cjs';
 import type Command from './base';
@@ -45,20 +46,20 @@ export function validationFlags({ logDiagnostics = true }: ValidationFlagsOption
       default: logDiagnostics,
       allowNo: true,
     }),
-    'diagnostics-format': Flags.enum({
+    'diagnostics-format': Flags.option({
       description: 'format to use for validation diagnostics',
       options: Object.values(OutputFormat),
       default: OutputFormat.STYLISH,
-    }),
-    'fail-severity': Flags.enum<SeverityKind>({
+    })(),
+    'fail-severity': Flags.option({
       description: 'diagnostics of this level or above will trigger a failure exit code',
-      options: ['error', 'warn', 'info', 'hint'],
+      options: ['error', 'warn', 'info', 'hint'] as const,
       default: 'error',
-    }),
+    })(),
   };
 }
 
-interface ValidateOptions {
+export interface ValidateOptions {
   'log-diagnostics'?: boolean;
   'diagnostics-format'?: `${OutputFormat}`;
   'fail-severity'?: SeverityKind;
@@ -102,9 +103,10 @@ function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: S
 }
 
 export function formatOutput(diagnostics: Diagnostic[], format: `${OutputFormat}`, failSeverity: SeverityKind) {
-  const options = { failSeverity: getDiagnosticSeverity(failSeverity) };
+  const diagnosticSeverity = getDiagnosticSeverity(failSeverity);
+  const options = { failSeverity: diagnosticSeverity !== -1 ? diagnosticSeverity : DiagnosticSeverity.Error };
   switch (format) {
-  case 'stylish': return stylish(diagnostics, options);
+  case 'stylish': return formatStylish(diagnostics, options);
   case 'json': return json(diagnostics, options);
   case 'junit': return junit(diagnostics, options);
   case 'html': return html(diagnostics, options);
@@ -112,6 +114,30 @@ export function formatOutput(diagnostics: Diagnostic[], format: `${OutputFormat}
   case 'teamcity': return teamcity(diagnostics, options);
   case 'pretty': return pretty(diagnostics, options);
   default: return stylish(diagnostics, options);
+  }
+}
+
+function formatStylish(diagnostics: Diagnostic[], options: { failSeverity: DiagnosticSeverity }) {
+  const groupedDiagnostics = diagnostics.reduce((acc, diagnostic) => {
+    const severity = diagnostic.severity;
+    if (!acc[severity as DiagnosticSeverity]) {
+      acc[severity as DiagnosticSeverity] = [];
+    }
+    acc[severity as DiagnosticSeverity].push(diagnostic);
+    return acc;
+  }, {} as Record<DiagnosticSeverity, Diagnostic[]>);
+
+  return Object.entries(groupedDiagnostics).map(([severity, diagnostics]) => {
+    return `${getSeverityTitle(Number(severity))} ${stylish(diagnostics, options)}`;
+  }).join('\n');
+}
+
+function getSeverityTitle(severity: DiagnosticSeverity) {
+  switch (severity) {
+  case DiagnosticSeverity.Error: return red('Errors');
+  case DiagnosticSeverity.Warning: return yellow('Warnings');
+  case DiagnosticSeverity.Information: return cyan('Information');
+  case DiagnosticSeverity.Hint: return green('Hints');
   }
 }
 

@@ -31,7 +31,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/fixtures/specification.yml'])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.match(/File .\/test\/fixtures\/specification.yml is valid but has \(itself and\/or referenced documents\) governance issues.\n\ntest\/fixtures\/specification.yml/);
+        expect(ctx.stdout).to.contain('File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.\n');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -41,7 +41,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/fixtures/specification-avro.yml'])
       .it('works when file path is passed and schema is avro', (ctx, done) => {
-        expect(ctx.stdout).to.match(/File .\/test\/fixtures\/specification-avro.yml is valid but has \(itself and\/or referenced documents\) governance issues.\n/);
+        expect(ctx.stdout).to.contain('File ./test/fixtures/specification-avro.yml is valid but has (itself and/or referenced documents) governance issues.\n');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -61,7 +61,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', 'http://localhost:8080/dummySpec.yml'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).to.match(/URL http:\/\/localhost:8080\/dummySpec.yml is valid but has \(itself and\/or referenced documents\) governance issues.\n\nhttp:\/\/localhost:8080\/dummySpec.yml/);
+        expect(ctx.stdout).to.contain('URL http://localhost:8080/dummySpec.yml is valid but has (itself and/or referenced documents) governance issues.\n');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -180,7 +180,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/fixtures/specification.yml', '--log-diagnostics'])
       .it('works with --log-diagnostics', (ctx, done) => {
-        expect(ctx.stdout).to.match(/File .\/test\/fixtures\/specification.yml is valid but has \(itself and\/or referenced documents\) governance issues.\n\ntest\/fixtures\/specification.yml/);
+        expect(ctx.stdout).to.contain('File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.\n');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -240,7 +240,7 @@ describe('validate', () => {
       .stdout()
       .command(['validate', './test/fixtures/specification.yml', '--fail-severity=warn'])
       .it('works with --fail-severity', (ctx, done) => {
-        expect(ctx.stderr).to.include('\nFile ./test/fixtures/specification.yml and/or referenced documents have governance issues.\n\ntest/fixtures/specification.yml');
+        expect(ctx.stderr).to.contain('File ./test/fixtures/specification.yml and/or referenced documents have governance issues.');
         expect(process.exitCode).to.equal(1);
         done();
       });

@@ -222,4 +222,3 @@ async function detectSpecFile(): Promise<string | undefined> {
   }));
   return existingFileNames.find(filename => filename !== undefined);
 }
-
