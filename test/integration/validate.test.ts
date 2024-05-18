@@ -245,4 +245,24 @@ describe('validate', () => {
         done();
       });
   });
+  // The score of the asyncapi document is 50
+  describe('with --score flag',() => {
+    beforeEach(() => {
+      testHelper.createDummyContextFile();
+    });
+
+    afterEach(() => {
+      testHelper.deleteDummyContextFile();
+    });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['validate', './test/fixtures/specification.yml', '--score'])
+      .it('worth with --score flag', (ctx, done) => {
+        expect(ctx.stderr).to.contain('The score of the asyncapi document is 50');
+        expect(process.exitCode).to.equal(1);
+        done();
+      });
+  });
 });
