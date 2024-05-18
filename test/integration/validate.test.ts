@@ -256,12 +256,11 @@ describe('validate', () => {
     });
 
     test
-      .stderr()
       .stdout()
-      .command(['validate', './test/fixtures/specification.yml', '--score'])
-      .it('worth with --score flag', (ctx, done) => {
-        expect(ctx.stderr).to.contain('The score of the asyncapi document is 50');
-        expect(process.exitCode).to.equal(1);
+      .command(['validate', './test/fixtures/asyncapiTestingScore.yml', '--score'])
+      .it('work with --score flag', (ctx, done) => {
+        expect(ctx.stdout).to.contains("The score of the asyncapi document is 100");
+        expect(ctx.stdout).to.contains("File ./test/fixtures/asyncapiTestingScore.yml is valid! File ./test/fixtures/asyncapiTestingScore.yml and referenced documents don't have governance issues.")
         done();
       });
   });
