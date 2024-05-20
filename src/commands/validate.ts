@@ -15,7 +15,7 @@ export default class Validate extends Command {
     watch: watchFlag(),
     ...validationFlags(),
     score: Flags.boolean({
-      
+      description: 'Compute the score of the AsyncAPI document',
       required: false,
       default: false
     }),
