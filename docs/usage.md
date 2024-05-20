@@ -433,11 +433,11 @@ Generates typed models
 USAGE
   $ asyncapi generate models LANGUAGE FILE [-h] [--no-interactive] [-o <value>] [--tsModelType class|interface]
     [--tsEnumType enum|union] [--tsModuleSystem ESM|CJS] [--tsIncludeComments] [--tsExportType default|named]
-    [--tsJsonBinPack] [--tsMarshalling] [--tsExampleInstance] [--tsRawPropertyNames] [--packageName <value>]
-    [--javaIncludeComments] [--javaJackson] [--javaConstraints] [--namespace <value>] [--csharpAutoImplement]
-    [--csharpNewtonsoft] [--csharpArrayType Array|List] [--csharpHashcode] [--csharpEqual] [--csharpSystemJson]
-    [--log-diagnostics] [--diagnostics-format json|stylish|junit|html|text|teamcity|pretty] [--fail-severity
-    error|warn|info|hint]
+    [--tsJsonBinPack] [--tsMarshalling] [--tsExampleInstance] [--tsRawPropertyNames] [--packageName <value>] 
+    [--javaIncludeComments] [--javaJackson] [--javaConstraints] [--javaArrayType Array|List] [--namespace <value>]
+    [--csharpAutoImplement] [--csharpNewtonsoft] [--csharpArrayType Array|List] [--csharpHashcode] [--csharpEqual]
+    [--csharpSystemJson] [--log-diagnostics] [--diagnostics-format json|stylish|junit|html|text|teamcity|pretty]
+    [--fail-severity error|warn|info|hint]
 
 ARGUMENTS
   LANGUAGE  (typescript|csharp|golang|java|javascript|dart|python|rust|kotlin|php|cplusplus) The language you want the
@@ -460,6 +460,8 @@ FLAGS
       --fail-severity=<option>       [default: error] diagnostics of this level or above will trigger a failure exit
                                      code
                                      <options: error|warn|info|hint>
+      --javaArrayType=<option>       [default: Array] Java specific, define which type of array needs to be generated.
+                                     <options: Array|List>
       --javaConstraints              Java specific, generate the models with constraints
       --javaIncludeComments          Java specific, if enabled add comments while generating models.
       --javaJackson                  Java specific, generate the models with Jackson serialization support
