@@ -127,6 +127,13 @@ export default class Models extends Command {
       required: false,
       default: false
     }),
+    javaArrayType: Flags.string({
+      type: 'option',
+      description: 'Java specific, define which type of array needs to be generated.',
+      options: ['Array', 'List'],
+      required: false,
+      default: 'Array'
+    }),
 
     /**
      * C++ and C# and PHP specific namespace to use for the generated models
@@ -178,7 +185,7 @@ export default class Models extends Command {
   async run() {
     const { args, flags } = await this.parse(Models);
 
-    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, tsExampleInstance, tsRawPropertyNames, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, javaIncludeComments, javaJackson, javaConstraints } = flags;
+    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, tsExampleInstance, tsRawPropertyNames, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, javaIncludeComments, javaJackson, javaConstraints, javaArrayType } = flags;
     let { language, file } = args;
     let output = flags.output || 'stdout';
     const interactive = !flags['no-interactive'];
@@ -327,7 +334,12 @@ export default class Models extends Command {
       if (javaIncludeComments) {presets.push(JAVA_DESCRIPTION_PRESET);}
       if (javaJackson) {presets.push(JAVA_JACKSON_PRESET);}
       if (javaConstraints) {presets.push(JAVA_CONSTRAINTS_PRESET);}
-      fileGenerator = new JavaFileGenerator({ presets });
+
+      fileGenerator = new JavaFileGenerator({
+        presets,
+        collectionType: javaArrayType as 'Array' | 'List'
+      });
+
       fileOptions = {
         packageName
       };
