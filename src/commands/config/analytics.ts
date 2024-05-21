@@ -43,7 +43,7 @@ export default class Analytics extends Command {
         } else {
           this.log('\nAnalytics are disabled. Please append the "--enable" flag to the command in case you prefer to enable analytics.\n');
         }
-        this.metricsMetadata.analytics_status_check = flags.status;
+        this.metricsMetadata.analytics_status_checked = flags.status;
       }
     } catch (e: any) {
       switch (e.code) {
