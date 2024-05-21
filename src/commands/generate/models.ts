@@ -5,9 +5,9 @@ import { formatOutput, parse, validationFlags } from '../../parser';
 
 export default class Models extends Command {
   static readonly description = 'Generates typed models through Modelina';
-  static readonly args = ModelinaArgs;
+  static readonly args = ModelinaArgs as any;
   static readonly flags = {
-    ...ModelinaFlags,
+    ...ModelinaFlags as any,
     ...validationFlags({ logDiagnostics: false }),
   };
   async run() {
