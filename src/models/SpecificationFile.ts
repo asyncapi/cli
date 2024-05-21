@@ -122,24 +122,25 @@ interface LoadType {
 
 /* eslint-disable sonarjs/cognitive-complexity */
 export async function load(filePathOrContextName?: string, loadType?: LoadType): Promise<Specification> { // NOSONAR
-  if (filePathOrContextName) {
-    if (loadType?.file) { return Specification.fromFile(filePathOrContextName); }
-    if (loadType?.context) { return loadFromContext(filePathOrContextName); }
-    if (loadType?.url) { return Specification.fromURL(filePathOrContextName); }
-
-    const type = await nameType(filePathOrContextName);
-    if (type === TYPE_CONTEXT_NAME) {
-      return loadFromContext(filePathOrContextName);
-    }
-
-    if (type === TYPE_URL) {
-      return Specification.fromURL(filePathOrContextName);
-    }
-    await fileExists(filePathOrContextName);
-    return Specification.fromFile(filePathOrContextName);
-  }
-
   try {
+    if (filePathOrContextName) {
+      if (loadType?.file) { return Specification.fromFile(filePathOrContextName); }
+      if (loadType?.context) { return loadFromContext(filePathOrContextName); }
+      if (loadType?.url) { return Specification.fromURL(filePathOrContextName); }
+
+      const type = await nameType(filePathOrContextName);
+      if (type === TYPE_CONTEXT_NAME) {
+        return loadFromContext(filePathOrContextName);
+      }
+
+      if (type === TYPE_URL) {
+        return Specification.fromURL(filePathOrContextName);
+      }
+      await fileExists(filePathOrContextName);
+
+      return Specification.fromFile(filePathOrContextName);
+    }
+
     return await loadFromContext();
   } catch (e) {
     const autoDetectedSpecFile = await detectSpecFile();
@@ -221,4 +222,3 @@ async function detectSpecFile(): Promise<string | undefined> {
   }));
   return existingFileNames.find(filename => filename !== undefined);
 }
-

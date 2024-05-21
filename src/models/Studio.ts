@@ -7,6 +7,7 @@ import chokidar from 'chokidar';
 import open from 'open';
 import path from 'path';
 import { version as studioVersion } from '@asyncapi/studio/package.json';
+import { gray } from 'picocolors';
 
 const { readFile, writeFile } = fPromises;
 
@@ -99,7 +100,8 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
 
   server.listen(port, () => {
     const url = `http://localhost:${port}?liveServer=${port}&studio-version=${studioVersion}`;
-    console.log(`Studio is running at ${url}`);
+    console.log(`Studio is now running at ${url}.`);
+    console.log(`You can open this URL in your web browser, and if needed, press ${gray('Ctrl + C')} to stop the process.`);
     console.log(`Watching changes on file ${filePath}`);
     open(url);
   });

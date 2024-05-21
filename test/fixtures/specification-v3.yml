@@ -77,10 +77,10 @@ servers:
     security:
       - $ref: '#/components/securitySchemes/apiKey'
 channels:
-  'smartylighting/streetlights/1/0/event/{streetlightId}/lighting/measured':
+  'lightingMeasured':
     address: 'smartylighting/streetlights/1/0/event/{streetlightId}/lighting/measured'
     messages:
-      lightMeasured.message:
+      lightMeasured:
         payload:
           type: object
     servers:
@@ -88,10 +88,10 @@ channels:
     parameters:
       streetlightId:
         $ref: '#/components/parameters/streetlightId'
-  'smartylighting/streetlights/1/0/action/{streetlightId}/turn/on':
+  'turnOn':
     address: 'smartylighting/streetlights/1/0/action/{streetlightId}/turn/on'
     messages:
-      publish.message:
+      lightMeasured:
         $ref: '#/components/messages/lightMeasured'
       subscribe.message.0:
         $ref: '#/components/messages/turnOnOff'
@@ -110,58 +110,50 @@ channels:
   customChannelId:
     address: 'smartylighting/streetlights/1/0/action/{streetlightId}/turn/off'
     messages:
-      turnOnOff.message:
+      turnOnOff:
         $ref: '#/components/messages/turnOnOff'
     parameters:
       streetlightId:
         $ref: '#/components/parameters/streetlightId'
     x-channelId: customChannelId
-  'smartylighting/streetlights/1/0/action/{streetlightId}/dim':
+  'dim':
     address: 'smartylighting/streetlights/1/0/action/{streetlightId}/dim'
     messages:
-      dimLight.message:
+      dimLight:
         $ref: '#/components/messages/dimLight'
     parameters:
       streetlightId:
         $ref: '#/components/parameters/streetlightId'
 operations:
-  lightMeasured:
+  receiveLightMeasured:
     action: receive
     channel:
-      $ref: >-
-        #/channels/smartylighting~1streetlights~11~10~1event~1{streetlightId}~1lighting~1measured
+      $ref: '#/channels/lightingMeasured'
     messages:
-      - $ref: >-
-          #/channels/smartylighting~1streetlights~11~10~1event~1{streetlightId}~1lighting~1measured/messages/lightMeasured.message
-  'smartylighting/streetlights/1/0/action/{streetlightId}/turn/on.publish':
+      - $ref: '#/channels/lightingMeasured/messages/lightMeasured'
+  'receiveTurnOn':
     action: receive
     channel:
-      $ref: >-
-        #/channels/smartylighting~1streetlights~11~10~1action~1{streetlightId}~1turn~1on
+      $ref: '#/channels/turnOn'
     messages:
-      - $ref: '#/components/messages/lightMeasured'
+      - $ref: '#/channels/turnOn/messages/lightMeasured'
   'smartylighting/streetlights/1/0/action/{streetlightId}/turn/on.subscribe':
     action: send
     channel:
-      $ref: >-
-        #/channels/smartylighting~1streetlights~11~10~1action~1{streetlightId}~1turn~1on
+      $ref: '#/channels/turnOn'
     messages:
-      - $ref: '#/components/messages/turnOnOff'
-      - $ref: >-
-          #/channels/smartylighting~1streetlights~11~10~1action~1{streetlightId}~1turn~1on/messages/customMessageId
-      - $ref: >-
-          #/channels/smartylighting~1streetlights~11~10~1action~1{streetlightId}~1turn~1on/messages/subscribe.message.2
+      - $ref: '#/channels/turnOn/messages/customMessageId'
+      - $ref: '#/channels/turnOn/messages/subscribe.message.2'
   turnOnOff:
     action: send
     channel:
       $ref: '#/channels/customChannelId'
     messages:
-      - $ref: '#/components/messages/turnOnOff'
+      - $ref: '#/channels/customChannelId/messages/turnOnOff'
   dimLight:
     action: send
     channel:
-      $ref: >-
-        #/channels/smartylighting~1streetlights~11~10~1action~1{streetlightId}~1dim
+      $ref: '#/channels/dim'
     security:
       - type: oauth2
         flows:
@@ -173,7 +165,7 @@ operations:
         scopes:
           - 'write:pets'
     messages:
-      - $ref: '#/components/messages/dimLight'
+      - $ref: '#/channels/dim/messages/dimLight'
 components:
   messages:
     lightMeasured:
@@ -239,6 +231,7 @@ components:
             'write:pets': modify pets in your account
             'read:pets': read your pets
     openIdConnect:
+      type: openIdConnect
       openIdConnectUrl: https://example.com/api
       scopes:
         - 'some:scope:1'

@@ -1,4 +1,4 @@
-import { Flags, CliUx } from '@oclif/core';
+import { Flags, Args } from '@oclif/core';
 import Command from '../../base';
 // eslint-disable-next-line
 // @ts-ignore
@@ -12,12 +12,9 @@ import { isLocalTemplate, Watcher } from '../../utils/generator';
 import { ValidationError } from '../../errors/validation-error';
 import { GeneratorError } from '../../errors/generator-error';
 import { Parser } from '@asyncapi/parser';
-import type { Example } from '@oclif/core/lib/interfaces';
-
-const red = (text: string) => `\x1b[31m${text}\x1b[0m`;
-const magenta = (text: string) => `\x1b[35m${text}\x1b[0m`;
-const yellow = (text: string) => `\x1b[33m${text}\x1b[0m`;
-const green = (text: string) => `\x1b[32m${text}\x1b[0m`;
+import { intro, isCancel, spinner, text } from '@clack/prompts';
+import { inverse, yellow, magenta, green, red } from 'picocolors';
+import fetch from 'node-fetch';
 
 interface IMapBaseUrlToFlag {
   url: string,
@@ -39,8 +36,6 @@ const templatesNotSupportingV3: Record<string, string> = {
   '@asyncapi/java-spring-cloud-stream-template': 'https://github.com/asyncapi/java-spring-cloud-stream-template/issues/336',
   '@asyncapi/go-watermill-template': 'https://github.com/asyncapi/go-watermill-template/issues/243',
   '@asyncapi/java-spring-template': 'https://github.com/asyncapi/java-spring-template/issues/308',
-  '@asyncapi/nodejs-template': 'https://github.com/asyncapi/nodejs-template/issues/215',
-  '@asyncapi/java-template': 'https://github.com/asyncapi/java-template/issues/118',
   '@asyncapi/php-template': 'https://github.com/asyncapi/php-template/issues/191'
 };
 
@@ -57,7 +52,7 @@ function verifyTemplateSupportForV3(template: string) {
 export default class Template extends Command {
   static description = 'Generates whatever you want using templates compatible with AsyncAPI Generator.';
 
-  static examples: Example[] = [
+  static examples = [
     'asyncapi generate fromTemplate asyncapi.yaml @asyncapi/html-template --param version=1.0.0 singleFile=true --output ./docs --force-write'
   ];
 
@@ -67,6 +62,11 @@ export default class Template extends Command {
       char: 'd',
       description: 'Disable a specific hook type or hooks from a given hook type',
       multiple: true
+    }),
+    'no-interactive': Flags.boolean({
+      description: 'Disable interactive mode and run with the provided flags.',
+      required: false,
+      default: false,
     }),
     install: Flags.boolean({
       char: 'i',
@@ -100,22 +100,41 @@ export default class Template extends Command {
     'map-base-url': Flags.string({
       description: 'Maps all schema references from base url to local folder'
     }),
+    'registry-url': Flags.string({
+      default: 'https://registry.npmjs.org',
+      description: 'Specifies the URL of the private registry for fetching templates and dependencies'
+    }),
+    'registry-auth': Flags.string({
+      description: 'The registry username and password encoded with base64, formatted as username:password'
+    }),
+    'registry-token': Flags.string({
+      description: 'The npm registry authentication token, that can be passed instead of base64 encoded username and password'
+    })
   };
 
-  static args = [
-    { name: 'asyncapi', description: '- Local path, url or context-name pointing to AsyncAPI file', required: true },
-    { name: 'template', description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true }
-  ];
+  static args = {
+    asyncapi: Args.string({description: '- Local path, url or context-name pointing to AsyncAPI file', required: true}),
+    template: Args.string({description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true}),
+  };
 
   parser = new Parser();
 
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
+    const interactive = !flags['no-interactive'];
 
-    const asyncapi = args['asyncapi'];
-    const template = args['template'];
-    const output = flags.output || process.cwd();
-    const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url']);
+    let { asyncapi, template } = args;
+    let output = flags.output as string;
+    if (interactive) {
+      intro(inverse('AsyncAPI Generator'));
+
+      const parsedArgs = await this.parseArgs(args, output);
+      asyncapi = parsedArgs.asyncapi;
+      template = parsedArgs.template;
+      output = parsedArgs.output;
+    }
+
+    const parsedFlags = this.parseFlags(flags['disable-hook'], flags['param'], flags['map-base-url'], flags['registry.url'], flags['registry.auth'], flags['registry.token']);
     const options = {
       forceWrite: flags['force-write'],
       install: flags.install,
@@ -124,9 +143,14 @@ export default class Template extends Command {
       noOverwriteGlobs: flags['no-overwrite'],
       mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
       disabledHooks: parsedFlags.disableHooks,
+      registry: {
+        url: flags['registry-url'],
+        auth: flags['registry-auth'],
+        token: flags['registry-token']
+      }
     };
     const asyncapiInput = (await load(asyncapi)) || (await load());
-    
+
     this.specFile = asyncapiInput;
     this.metricsMetadata.template = template;
 
@@ -142,21 +166,95 @@ export default class Template extends Command {
         this.error(`${template} template does not support AsyncAPI v3 documents, please checkout ${v3IssueLink}`);
       }
     }
-    await this.generate(asyncapi, template, output, options, genOption);
+    await this.generate(asyncapi, template, output, options, genOption, interactive);
     if (watchTemplate) {
-      const watcherHandler = this.watcherHandler(asyncapi, template, output, options, genOption);
+      const watcherHandler = this.watcherHandler(asyncapi, template, output, options, genOption, interactive);
       await this.runWatchMode(asyncapi, template, output, watcherHandler);
     }
   }
 
-  private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string): ParsedFlags {
+  private async parseArgs(args: Record<string, any>, output?: string): Promise<{ asyncapi: string; template: string; output: string; }> {
+    let asyncapi = args['asyncapi'];
+    let template = args['template'];
+    const cancellationMessage = 'Operation cancelled';
+
+    if (!asyncapi) {
+      asyncapi = await text({
+        message: 'Please provide the path to the AsyncAPI document',
+        placeholder: 'asyncapi.yaml',
+        defaultValue: 'asyncapi.yaml',
+        validate(value: string) {
+          if (!value) {
+            return 'The path to the AsyncAPI document is required';
+          } else if (!fs.existsSync(value)) {
+            return 'The file does not exist';
+          }
+        }
+      });
+    }
+
+    if (isCancel(asyncapi)) {
+      this.error(cancellationMessage, { exit: 1 });
+    }
+
+    if (!template) {
+      template = await text({
+        message: 'Please provide the name of the generator template',
+        placeholder: '@asyncapi/html-template',
+        defaultValue: '@asyncapi/html-template',
+      });
+    }
+
+    if (!output) {
+      output = await text({
+        message: 'Please provide the output directory',
+        placeholder: './docs',
+        validate(value: string) {
+          if (!value) {
+            return 'The output directory is required';
+          } else if (typeof value !== 'string') {
+            return 'The output directory must be a string';
+          }
+        }
+      }) as string;
+    }
+
+    if (isCancel(output) || isCancel(template)) {
+      this.error(cancellationMessage, { exit: 1 });
+    }
+
+    return { asyncapi, template, output };
+  }
+
+  private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string, registryUrl?: string, registryAuth?:string, registryToken?:string): ParsedFlags {
     return {
       params: this.paramParser(params),
       disableHooks: this.disableHooksParser(disableHooks),
       mapBaseUrlToFolder: this.mapBaseURLParser(mapBaseUrl),
+      registryURLValidation: this.registryURLParser(registryUrl),
+      registryAuthentication: this.registryValidation(registryUrl, registryAuth, registryToken)
+
     } as ParsedFlags;
   }
 
+  private registryURLParser(input?:string) {
+    if (!input) { return; }
+    const isURL = /^https?:/;
+    if (!isURL.test(input.toLowerCase())) {
+      throw new Error('Invalid --registry-url flag. The param requires a valid http/https url.');
+    }
+  }
+  private async registryValidation(registryUrl?:string, registryAuth?:string, registryToken?:string) {
+    if (!registryUrl) { return; }
+    try {
+      const response = await fetch(registryUrl as string);
+      if (response.status === 401 && !registryAuth && !registryToken) {
+        this.error('You Need to pass either registryAuth in username:password encoded in Base64 or need to pass registryToken', { exit: 1 });
+      }
+    } catch (error: any) {
+      this.error(`Can't fetch registryURL: ${registryUrl}`, { exit: 1 });
+    }
+  }
   private paramParser(inputs?: string[]) {
     if (!inputs) { return {}; }
     const params: Record<string, any> = {};
@@ -204,7 +302,7 @@ export default class Template extends Command {
     return mapBaseURLToFolder;
   }
 
-  private async generate(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any) {
+  private async generate(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any, interactive = true) {
     let specification: Specification;
     try {
       specification = await load(asyncapi);
@@ -218,16 +316,15 @@ export default class Template extends Command {
       );
     }
     const generator = new AsyncAPIGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
-
-    CliUx.ux.action.start('Generation in progress. Keep calm and wait a bit');
+    const s = interactive ? spinner() : { start: () => null, stop: (string: string) => console.log(string) };
+    s.start('Generation in progress. Keep calm and wait a bit');
     try {
       await generator.generateFromString(specification.text(), genOption);
-      CliUx.ux.action.stop();
     } catch (err: any) {
-      CliUx.ux.action.stop('done\n');
+      s.stop('Generation failed');
       throw new GeneratorError(err);
     }
-    console.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
+    s.stop(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
   }
 
   private async runWatchMode(asyncapi: string | undefined, template: string, output: string, watchHandler: ReturnType<typeof this.watcherHandler>) {
@@ -270,7 +367,7 @@ export default class Template extends Command {
     });
   }
 
-  private watcherHandler(asyncapi: string, template: string, output: string, options: Record<string, any>, genOption: any): (changedFiles: Record<string, any>) => Promise<void> {
+  private watcherHandler(asyncapi: string, template: string, output: string, options: Record<string, any>, genOption: any, interactive: boolean): (changedFiles: Record<string, any>) => Promise<void> {
     return async (changedFiles: Record<string, any>): Promise<void> => {
       console.clear();
       console.log('[WATCHER] Change detected');
@@ -292,7 +389,7 @@ export default class Template extends Command {
         this.log(`\t${magenta(value.path)} was ${eventText}`);
       }
       try {
-        await this.generate(asyncapi, template, output, options, genOption);
+        await this.generate(asyncapi, template, output, options, genOption, interactive);
       } catch (err: any) {
         throw new GeneratorError(err);
       }
