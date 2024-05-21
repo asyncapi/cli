@@ -12,6 +12,7 @@ jobs:
     name: Generate and upload assets
     if: startsWith(github.event.commits[0].message, 'chore(release):')
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     strategy:
       matrix:
         include:
@@ -23,11 +24,11 @@ jobs:
             npm_script: pack:tarballs
             dist_folder: tar
             extension: tar.gz
-          - os: windows-latest
+          - os: ubuntu-latest
             npm_script: pack:windows
             dist_folder: win32
             extension: x64.exe
-          - os: windows-latest
+          - os: ubuntu-latest
             npm_script: pack:windows
             dist_folder: win32
             extension: x86.exe
@@ -57,6 +58,10 @@ jobs:
             const packageJson = require('./package.json');
             const packageJsonVersion = packageJson.version;
             core.setOutput('version', packageJsonVersion);
+      - if: matrix.npm_script == 'pack:windows':
+        #fix for windows build issue #1433
+        name: Install p7zip-full nsis
+        run: sudo apt-get install -y p7zip-full nsis
       - if: steps.lockversion.outputs.version == '18' && matrix.os == 'windows-latest'
         #npm cli 10 is buggy because of some cache issue
         name: Install npm cli 8
