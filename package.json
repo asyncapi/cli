@@ -12,7 +12,7 @@
     "@asyncapi/bundler": "^0.5.1",
     "@asyncapi/converter": "^1.4.19",
     "@asyncapi/diff": "^0.4.1",
-    "@asyncapi/modelina-cli": "^4.0.0-next.39",
+    "@asyncapi/modelina-cli": "^4.0.0-next.43",
     "@asyncapi/generator": "^1.17.25",
     "@asyncapi/openapi-schema-parser": "^3.0.22",
     "@asyncapi/optimizer": "^1.0.2",
