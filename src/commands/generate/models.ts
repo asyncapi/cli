@@ -1,14 +1,14 @@
-import { CSharpFileGenerator, JavaFileGenerator, JavaScriptFileGenerator, TypeScriptFileGenerator, GoFileGenerator, Logger, DartFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_JSONBINPACK_PRESET, CSHARP_DEFAULT_PRESET, CSHARP_NEWTONSOFT_SERIALIZER_PRESET, CSHARP_COMMON_PRESET, CSHARP_JSON_SERIALIZER_PRESET, KotlinFileGenerator, TS_DESCRIPTION_PRESET, PhpFileGenerator, CplusplusFileGenerator, JAVA_CONSTRAINTS_PRESET, JAVA_JACKSON_PRESET, JAVA_COMMON_PRESET, JAVA_DESCRIPTION_PRESET } from '@asyncapi/modelina';
-import { Flags, Args } from '@oclif/core';
+import { CSHARP_COMMON_PRESET, CSHARP_DEFAULT_PRESET, CSHARP_JSON_SERIALIZER_PRESET, CSHARP_NEWTONSOFT_SERIALIZER_PRESET, CSharpFileGenerator, CplusplusFileGenerator, DartFileGenerator, GoFileGenerator, JAVA_COMMON_PRESET, JAVA_CONSTRAINTS_PRESET, JAVA_DESCRIPTION_PRESET, JAVA_JACKSON_PRESET, JavaFileGenerator, JavaScriptFileGenerator, KotlinFileGenerator, Logger, PhpFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_DESCRIPTION_PRESET, TS_JSONBINPACK_PRESET, TypeScriptFileGenerator } from '@asyncapi/modelina';
+import { Args, Flags } from '@oclif/core';
 import { ConvertDocumentParserAPIVersion } from '@smoya/multi-parser';
 import Command from '../../base';
 import { load } from '../../models/SpecificationFile';
-import { formatOutput, parse, validationFlags, ValidateOptions } from '../../parser';
+import { ValidateOptions, formatOutput, parse, validationFlags } from '../../parser';
 
-import { select, text, spinner, isCancel, cancel, intro } from '@clack/prompts';
+import { cancel, intro, isCancel, select, spinner, text } from '@clack/prompts';
 import { green, inverse } from 'picocolors';
 
-import type { AbstractGenerator, AbstractFileGenerator } from '@asyncapi/modelina';
+import type { AbstractFileGenerator, AbstractGenerator } from '@asyncapi/modelina';
 
 enum Languages {
   typescript = 'typescript',
@@ -97,6 +97,11 @@ export default class Models extends Command {
       required: false,
       default: false,
     }),
+    tsRawPropertyNames: Flags.boolean({
+      description: 'Typescript specific, generate the models using raw property names.',
+      required: false,
+      default: false,
+    }),
     /**
      * Go and Java specific package name to use for the generated models
      */
@@ -173,7 +178,7 @@ export default class Models extends Command {
   async run() {
     const { args, flags } = await this.parse(Models);
 
-    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, tsExampleInstance, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, javaIncludeComments, javaJackson, javaConstraints } = flags;
+    const { tsModelType, tsEnumType, tsIncludeComments, tsModuleSystem, tsExportType, tsJsonBinPack, tsMarshalling, tsExampleInstance, tsRawPropertyNames, namespace, csharpAutoImplement, csharpArrayType, csharpNewtonsoft, csharpHashcode, csharpEqual, csharpSystemJson, packageName, javaIncludeComments, javaJackson, javaConstraints } = flags;
     let { language, file } = args;
     let output = flags.output || 'stdout';
     const interactive = !flags['no-interactive'];
@@ -242,6 +247,7 @@ export default class Models extends Command {
       fileGenerator = new TypeScriptFileGenerator({
         modelType: tsModelType as 'class' | 'interface',
         enumType: tsEnumType as 'enum' | 'union',
+        rawPropertyNames: tsRawPropertyNames,
         presets
       });
       fileOptions = {
