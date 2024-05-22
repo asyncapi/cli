@@ -76,6 +76,12 @@ export default class Diff extends Command {
     checkAndWarnFalseFlag(outputFormat, markdownSubtype);
     markdownSubtype = setDefaultMarkdownSubtype(outputFormat, markdownSubtype) as string;
 
+    this.metricsMetadata.output_format = outputFormat;
+    this.metricsMetadata.output_type = outputType;
+    if (outputFormat === 'md') {
+      this.metricsMetadata.output_markdown_subtype = flags['markdownSubtype'];
+    }
+
     try {
       firstDocument = await load(firstDocumentPath);
 
