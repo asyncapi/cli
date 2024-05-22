@@ -58,7 +58,7 @@ jobs:
             const packageJson = require('./package.json');
             const packageJsonVersion = packageJson.version;
             core.setOutput('version', packageJsonVersion);
-      - if: matrix.npm_script == 'pack:windows':
+      - if: matrix.npm_script == 'pack:windows'
         #fix for windows build issue #1433
         name: Install p7zip-full nsis
         run: sudo apt-get install -y p7zip-full nsis
