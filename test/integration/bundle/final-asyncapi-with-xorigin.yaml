@@ -17,6 +17,7 @@ channels:
               type: string
               format: email
               description: Email of the user
+        x-origin: ./test/integration/bundle/messages.yaml#/messages/UserSignedUp
   user/loggedOut:
     subscribe:
       message:
@@ -32,3 +33,4 @@ channels:
             timestamp:
               type: number
               description: Time stamp when the user logged out
+        x-origin: ./test/integration/bundle/messages.yaml#/messages/UserLoggedOut

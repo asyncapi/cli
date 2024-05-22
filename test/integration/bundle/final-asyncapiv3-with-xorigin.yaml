@@ -1,0 +1,50 @@
+asyncapi: 3.0.0
+info:
+  title: Example Service
+  version: 1.0.0
+  description: Example Service.
+channels:
+  commentLikedChannel:
+    address: comment/liked
+    x-origin: ./test/integration/bundle/channels.yaml#/channels/commentLikedChannel
+  userSignedup:
+    address: user/signedup
+    messages:
+      userSignedUpMessage:
+        payload:
+          type: object
+          properties:
+            displayName:
+              type: string
+              description: Name of the user
+            email:
+              type: string
+              format: email
+              description: Email of the user
+        x-origin: ./test/integration/bundle/messages.yaml#/messages/UserSignedUp
+  test:
+    address: /test
+    messages:
+      testMessage:
+        payload:
+          type: string
+        x-origin: '#/components/messages/TestMessage'
+operations:
+  UserSignedUp:
+    action: send
+    channel:
+      $ref: '#/channels/userSignedup'
+    messages:
+      - $ref: '#/channels/userSignedup/messages/userSignedUpMessage'
+  TestOpp:
+    action: send
+    channel:
+      $ref: '#/channels/test'
+    messages:
+      - $ref: '#/channels/test/messages/testMessage'
+components:
+  messages:
+    TestMessage:
+      payload:
+        type: string
+      x-origin: '#/components/messages/TestMessage'

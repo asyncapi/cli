@@ -5,17 +5,27 @@ info:
   description: Example Service.
 channels:
   commentLikedChannel:
-    $ref: './test/integration/bundle/channels.yaml#/channels/commentLikedChannel'
+    address: comment/liked
   userSignedup:
-    address: 'user/signedup'
+    address: user/signedup
     messages:
       userSignedUpMessage:
-        $ref: './test/integration/bundle/messages.yaml#/messages/UserSignedUp'
+        payload:
+          type: object
+          properties:
+            displayName:
+              type: string
+              description: Name of the user
+            email:
+              type: string
+              format: email
+              description: Email of the user
   test:
-    address: '/test'
+    address: /test
     messages:
       testMessage:
-        $ref: '#/components/messages/TestMessage'
+        payload:
+          type: string
 operations:
   UserSignedUp:
     action: send

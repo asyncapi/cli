@@ -8,3 +8,7 @@ channels:
     subscribe:
       message:
         $ref: "./test/integration/bundle/messages.yaml#/messages/UserSignedUp"
+  user/loggedOut:
+    subscribe:
+      message:
+        $ref: "./test/integration/bundle/messages.yaml#/messages/UserLoggedOut"
