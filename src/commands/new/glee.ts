@@ -10,6 +10,7 @@ import { prompt } from 'inquirer';
 // @ts-ignore
 import Generator from '@asyncapi/generator';
 import { cyan, gray } from 'picocolors';
+import template from 'lodash.template';
 
 export const successMessage = (projectName: string) =>
   `🎉 Your Glee project has been successfully created!
@@ -213,6 +214,8 @@ export default class NewGlee extends Command {
         projectName,
         forceWrite
       );
+      this.specFile = await load(flags.file);
+      this.metricsMetadata.template = flags.template;
     } else {
       try {
         await fPromises.mkdir(PROJECT_DIRECTORY);
@@ -258,6 +261,8 @@ export default class NewGlee extends Command {
           `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`
         );
       }
+      this.specFile = await load(`${GLEE_TEMPLATES_DIRECTORY}/asyncapi.yaml`);
+      this.metricsMetadata.template = flags.template;
     }
   }
 }
