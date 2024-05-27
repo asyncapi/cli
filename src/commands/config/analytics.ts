@@ -18,7 +18,7 @@ export default class Analytics extends Command {
 
   async run() {
     const { flags } = await this.parse(Analytics);
-    const analyticsConfigFile = join(homedir(), '.asyncapi-analytics');
+    const analyticsConfigFile = process.env.ASYNCAPI_METRICS_CONFIG_PATH || join(homedir(), '.asyncapi-analytics');
 
     try {
       const analyticsConfigFileContent = JSON.parse(await readFile(resolve(analyticsConfigFile), { encoding: 'utf8' }));
@@ -43,9 +43,11 @@ export default class Analytics extends Command {
         }
       }
     } catch (e: any) {
+      // TO DO
+      // Update config file location
       switch (e.code) {
       case 'ENOENT':
-        this.error(`Unable to access the analytics configuration file. We tried to access the ".asyncapi-analytics" file in your user's home directory ("${homedir()}") but the file could not be found.`);
+        this.error(`Unable to access the analytics configuration file. We tried to access the ".asyncapi-analytics" file in in the path "${analyticsConfigFile}" but the file could not be found.`);
         break;
       case 'EEXIST':
         this.error(`Unable to update the analytics configuration file. We tried to update your ".asyncapi-analytics" file in the path "${analyticsConfigFile}" but the file does not exist.`);
