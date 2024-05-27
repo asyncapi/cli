@@ -43,8 +43,6 @@ export default class Analytics extends Command {
         }
       }
     } catch (e: any) {
-      // TO DO
-      // Update config file location
       switch (e.code) {
       case 'ENOENT':
         this.error(`Unable to access the analytics configuration file. We tried to access the ".asyncapi-analytics" file in in the path "${analyticsConfigFile}" but the file could not be found.`);
