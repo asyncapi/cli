@@ -32,7 +32,8 @@ export default class Validate extends Command {
     if (flags['score']) {
       this.specFile = await load(filePath);
       const { document } = await parse(this,this.specFile);
-      this.log(await calculateScore(document));
+      let score = await calculateScore(document)
+      this.log("The score of asyncapi document is "+ score);
     }
     this.specFile = await load(filePath);
     if (watchMode) {

@@ -15,6 +15,6 @@ export async function calculateScore(document: AsyncAPIDocumentInterface | undef
     scoreEvaluate += 0.35;
   }
   const finalScore = (scoreEvaluate / 1) * 100;
-  
-  return `The score of the asyncapi document is ${finalScore}`;
+
+  return finalScore;
 }
