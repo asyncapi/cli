@@ -14,7 +14,5 @@ export async function calculateScore(document: AsyncAPIDocumentInterface | undef
   if (!document?.channels().isEmpty()) {
     scoreEvaluate += 0.35;
   }
-  const finalScore = (scoreEvaluate / 1) * 100;
-
-  return finalScore;
+  return (scoreEvaluate / 1) * 100;
 }
