@@ -46,5 +46,15 @@ export const fromTemplateFlags = () => {
     'map-base-url': Flags.string({
       description: 'Maps all schema references from base url to local folder'
     }),
+    'registry-url': Flags.string({
+      default: 'https://registry.npmjs.org',
+      description: 'Specifies the URL of the private registry for fetching templates and dependencies'
+    }),
+    'registry-auth': Flags.string({
+      description: 'The registry username and password encoded with base64, formatted as username:password'
+    }),
+    'registry-token': Flags.string({
+      description: 'The npm registry authentication token, that can be passed instead of base64 encoded username and password'
+    })
   };
 };

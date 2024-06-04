@@ -66,6 +66,11 @@ export const modelsFlags = () => {
       required: false,
       default: false,
     }),
+    tsRawPropertyNames: Flags.boolean({
+      description: 'Typescript specific, generate the models using raw property names.',
+      required: false,
+      default: false,
+    }),
     /**
      * Go and Java specific package name to use for the generated models
      */

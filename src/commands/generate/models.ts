@@ -1,14 +1,15 @@
 import { CSHARP_COMMON_PRESET, CSHARP_DEFAULT_PRESET, CSHARP_JSON_SERIALIZER_PRESET, CSHARP_NEWTONSOFT_SERIALIZER_PRESET, CSharpFileGenerator, CplusplusFileGenerator, DartFileGenerator, GoFileGenerator, JAVA_COMMON_PRESET, JAVA_CONSTRAINTS_PRESET, JAVA_DESCRIPTION_PRESET, JAVA_JACKSON_PRESET, JavaFileGenerator, JavaScriptFileGenerator, KotlinFileGenerator, Logger, PhpFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_DESCRIPTION_PRESET, TS_JSONBINPACK_PRESET, TypeScriptFileGenerator } from '@asyncapi/modelina';
-import { Args, Flags } from '@oclif/core';
+import { Args } from '@oclif/core';
 import { ConvertDocumentParserAPIVersion } from '@smoya/multi-parser';
 import Command from '../../core/base';
 import { load } from '../../core/models/SpecificationFile';
-import { ValidateOptions, formatOutput, parse, validationFlags } from '../../core/parser';
+import { ValidateOptions, formatOutput, parse } from '../../core/parser';
 
 import { cancel, intro, isCancel, select, spinner, text } from '@clack/prompts';
 import { green, inverse } from 'picocolors';
 
 import type { AbstractFileGenerator, AbstractGenerator } from '@asyncapi/modelina';
+import { modelsFlags } from 'core/flags/generate/models.flags';
 
 enum Languages {
   typescript = 'typescript',
@@ -33,146 +34,7 @@ export default class Models extends Command {
     file: Args.string({description: 'Path or URL to the AsyncAPI document, or context-name', required: true}),
   };
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    'no-interactive': Flags.boolean({
-      description: 'Disable interactive mode and run with the provided flags.',
-      required: false,
-      default: false,
-    }),
-    output: Flags.string({
-      char: 'o',
-      description: 'The output directory where the models should be written to. Omitting this flag will write the models to `stdout`.',
-      required: false
-    }),
-    /**
-     * TypeScript specific options
-     */
-    tsModelType: Flags.string({
-      type: 'option',
-      options: ['class', 'interface'],
-      description: 'TypeScript specific, define which type of model needs to be generated.',
-      required: false,
-      default: 'class',
-    }),
-    tsEnumType: Flags.string({
-      type: 'option',
-      options: ['enum', 'union'],
-      description: 'TypeScript specific, define which type of enums needs to be generated.',
-      required: false,
-      default: 'enum',
-    }),
-    tsModuleSystem: Flags.string({
-      type: 'option',
-      options: ['ESM', 'CJS'],
-      description: 'TypeScript specific, define the module system to be used.',
-      required: false,
-      default: 'ESM',
-
-    }),
-    tsIncludeComments: Flags.boolean({
-      description: 'TypeScript specific, if enabled add comments while generating models.',
-      required: false,
-      default: false,
-    }),
-    tsExportType: Flags.string({
-      type: 'option',
-      options: ['default', 'named'],
-      description: 'TypeScript specific, define which type of export needs to be generated.',
-      required: false,
-      default: 'default',
-    }),
-    tsJsonBinPack: Flags.boolean({
-      description: 'TypeScript specific, define basic support for serializing to and from binary with jsonbinpack.',
-      required: false,
-      default: false,
-    }),
-    tsMarshalling: Flags.boolean({
-      description: 'TypeScript specific, generate the models with marshalling functions.',
-      required: false,
-      default: false,
-    }),
-    tsExampleInstance: Flags.boolean({
-      description: 'Typescript specific, generate example of the model',
-      required: false,
-      default: false,
-    }),
-    tsRawPropertyNames: Flags.boolean({
-      description: 'Typescript specific, generate the models using raw property names.',
-      required: false,
-      default: false,
-    }),
-    /**
-     * Go and Java specific package name to use for the generated models
-     */
-    packageName: Flags.string({
-      description: 'Go, Java and Kotlin specific, define the package to use for the generated models. This is required when language is `go`, `java` or `kotlin`.',
-      required: false
-    }),
-    /**
-     * Java specific options
-     */
-    javaIncludeComments: Flags.boolean({
-      description: 'Java specific, if enabled add comments while generating models.',
-      required: false,
-      default: false
-    }),
-    javaJackson: Flags.boolean({
-      description: 'Java specific, generate the models with Jackson serialization support',
-      required: false,
-      default: false
-    }),
-    javaConstraints: Flags.boolean({
-      description: 'Java specific, generate the models with constraints',
-      required: false,
-      default: false
-    }),
-
-    /**
-     * C++ and C# and PHP specific namespace to use for the generated models
-     */
-    namespace: Flags.string({
-      description: 'C#, C++ and PHP specific, define the namespace to use for the generated models. This is required when language is `csharp`,`c++` or `php`.',
-      required: false
-    }),
-
-    /**
-     * C# specific options
-     */
-    csharpAutoImplement: Flags.boolean({
-      description: 'C# specific, define whether to generate auto-implemented properties or not.',
-      required: false,
-      default: false
-    }),
-    csharpNewtonsoft: Flags.boolean({
-      description: 'C# specific, generate the models with newtonsoft serialization support',
-      required: false,
-      default: false
-    }),
-    csharpArrayType: Flags.string({
-      type: 'option',
-      description: 'C# specific, define which type of array needs to be generated.',
-      options: ['Array', 'List'],
-      required: false,
-      default: 'Array'
-    }),
-    csharpHashcode: Flags.boolean({
-      description: 'C# specific, generate the models with the GetHashCode method overwritten',
-      required: false,
-      default: false
-    }),
-    csharpEqual: Flags.boolean({
-      description: 'C# specific, generate the models with the Equal method overwritten',
-      required: false,
-      default: false
-    }),
-    csharpSystemJson: Flags.boolean({
-      description: 'C# specific, generate the models with System.Text.Json serialization support',
-      required: false,
-      default: false
-    }),
-    ...validationFlags({ logDiagnostics: false }),
-  };
+  static flags = modelsFlags();
 
   /* eslint-disable sonarjs/cognitive-complexity */
   async run() {
