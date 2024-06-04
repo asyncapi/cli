@@ -1,11 +1,11 @@
 import { Flags, Args } from '@oclif/core';
-import Command from '../../../base';
-import { setCurrentContext, CONTEXT_FILE_PATH } from '../../../models/Context';
+import Command from '../../../core/base';
+import { setCurrentContext, CONTEXT_FILE_PATH } from '../../../core/models/Context';
 import {
   MissingContextFileError,
   ContextFileWrongFormatError,
   ContextFileEmptyError,
-} from '../../../errors/context-error';
+} from '../../../core/errors/context-error';
 
 export default class ContextUse extends Command {
   static description = 'Set a context as current';

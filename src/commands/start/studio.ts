@@ -1,7 +1,7 @@
 import {Flags} from '@oclif/core';
-import Command from '../../base';
-import { start as startStudio } from '../../models/Studio';
-import { load } from '../../models/SpecificationFile';
+import Command from '../../core/base';
+import { start as startStudio } from '../../core/models/Studio';
+import { load } from '../../core/models/SpecificationFile';
 
 export default class StartStudio extends Command {
   static description = 'starts a new local instance of Studio';

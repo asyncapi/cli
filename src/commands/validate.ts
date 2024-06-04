@@ -1,9 +1,9 @@
 import { Flags, Args } from '@oclif/core';
-import Command from '../base';
-import { validate, validationFlags, ValidateOptions, ValidationStatus } from '../parser';
-import { load } from '../models/SpecificationFile';
-import { specWatcher } from '../globals';
-import { watchFlag } from '../flags';
+import Command from '../core/base';
+import { validate, validationFlags, ValidateOptions, ValidationStatus } from '../core/parser';
+import { load } from '../core/models/SpecificationFile';
+import { specWatcher } from '../core/globals';
+import { watchFlag } from '../core/flagsD/global.flags';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';

@@ -1,9 +1,9 @@
 import { Flags } from '@oclif/core';
 import { promises as fPromises } from 'fs';
-import Command from '../../base';
+import Command from '../../core/base';
 import path, { resolve, join } from 'path';
 import fs from 'fs-extra';
-import { Specification, load } from '../../models/SpecificationFile';
+import { Specification, load } from '../../core/models/SpecificationFile';
 import yaml from 'js-yaml';
 import { prompt } from 'inquirer';
 // eslint-disable-next-line
@@ -17,17 +17,17 @@ export const successMessage = (projectName: string) =>
 
   cd ${projectName}\t\t ${gray('# Navigate to the project directory')}
   npm install\t\t ${gray('# Install the project dependencies')}
-  npm run dev\t\t ${gray('# Start the project in development mode')} 
+  npm run dev\t\t ${gray('# Start the project in development mode')}
 
 You can also open the project in your favourite editor and start tweaking it.
 `;
 
 const errorMessages = {
   alreadyExists: (projectName: string) =>
-    `Unable to create the project because the directory "${cyan(projectName)}" already exists at "${process.cwd()}/${projectName}". 
+    `Unable to create the project because the directory "${cyan(projectName)}" already exists at "${process.cwd()}/${projectName}".
 To specify a different name for the new project, please run the command below with a unique project name:
 
-    ${gray('asyncapi new glee --name ') + gray(projectName) + gray('-1')}`,    
+    ${gray('asyncapi new glee --name ') + gray(projectName) + gray('-1')}`,
 };
 
 export default class NewGlee extends Command {

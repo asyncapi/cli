@@ -1,6 +1,6 @@
 import { Flags } from '@oclif/core';
 import { join, resolve } from 'path';
-import Command from '../../base';
+import Command from '../../core/base';
 import { promises as fPromises } from 'fs';
 import { homedir } from 'os';
 
@@ -57,5 +57,5 @@ export default class Analytics extends Command {
         this.error(`Unable to change your analytics configuration. Please check the following message for further info about the error:\n\n${e}`);
       }
     }
-  }  
+  }
 }

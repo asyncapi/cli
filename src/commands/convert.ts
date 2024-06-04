@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { promises as fPromises } from 'fs';
 import { Flags, Args } from '@oclif/core';
-import Command from '../base';
-import { ValidationError } from '../errors/validation-error';
-import { load } from '../models/SpecificationFile';
-import { SpecificationFileNotFound } from '../errors/specification-file';
+import Command from '../core/base';
+import { ValidationError } from '../core/errors/validation-error';
+import { load } from '../core/models/SpecificationFile';
+import { SpecificationFileNotFound } from '../core/errors/specification-file';
 import { convert } from '@asyncapi/converter';
 import type { ConvertVersion } from '@asyncapi/converter';
 import { cyan, green } from 'picocolors';
@@ -71,6 +71,6 @@ export default class Convert extends Command {
       } else {
         this.error(err as Error);
       }
-    } 
+    }
   }
 }

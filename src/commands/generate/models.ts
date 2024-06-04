@@ -1,9 +1,9 @@
 import { CSHARP_COMMON_PRESET, CSHARP_DEFAULT_PRESET, CSHARP_JSON_SERIALIZER_PRESET, CSHARP_NEWTONSOFT_SERIALIZER_PRESET, CSharpFileGenerator, CplusplusFileGenerator, DartFileGenerator, GoFileGenerator, JAVA_COMMON_PRESET, JAVA_CONSTRAINTS_PRESET, JAVA_DESCRIPTION_PRESET, JAVA_JACKSON_PRESET, JavaFileGenerator, JavaScriptFileGenerator, KotlinFileGenerator, Logger, PhpFileGenerator, PythonFileGenerator, RustFileGenerator, TS_COMMON_PRESET, TS_DESCRIPTION_PRESET, TS_JSONBINPACK_PRESET, TypeScriptFileGenerator } from '@asyncapi/modelina';
 import { Args, Flags } from '@oclif/core';
 import { ConvertDocumentParserAPIVersion } from '@smoya/multi-parser';
-import Command from '../../base';
-import { load } from '../../models/SpecificationFile';
-import { ValidateOptions, formatOutput, parse, validationFlags } from '../../parser';
+import Command from '../../core/base';
+import { load } from '../../core/models/SpecificationFile';
+import { ValidateOptions, formatOutput, parse, validationFlags } from '../../core/parser';
 
 import { cancel, intro, isCancel, select, spinner, text } from '@clack/prompts';
 import { green, inverse } from 'picocolors';

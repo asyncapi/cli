@@ -1,6 +1,6 @@
 import path from 'path';
 import { test } from '@oclif/test';
-import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
+import { NO_CONTEXTS_SAVED } from '../../src/core/errors/context-error';
 import TestHelper, { createMockServer, stopMockServer } from '../helpers';
 import fs from 'fs-extra';
 import { expect } from '@oclif/test';

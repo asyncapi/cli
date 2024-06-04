@@ -1,8 +1,8 @@
 import { Flags, Args } from '@oclif/core';
 import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
-import Command from '../base';
-import { ValidationError } from '../errors/validation-error';
-import { load } from '../models/SpecificationFile';
+import Command from '../core/base';
+import { ValidationError } from '../core/errors/validation-error';
+import { load } from '../core/models/SpecificationFile';
 import * as inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';

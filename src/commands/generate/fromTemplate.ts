@@ -1,16 +1,16 @@
 import { Flags, Args } from '@oclif/core';
-import Command from '../../base';
+import Command from '../../core/base';
 // eslint-disable-next-line
 // @ts-ignore
 import AsyncAPIGenerator from '@asyncapi/generator';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
-import { load, Specification } from '../../models/SpecificationFile';
-import { watchFlag } from '../../flags';
-import { isLocalTemplate, Watcher } from '../../utils/generator';
-import { ValidationError } from '../../errors/validation-error';
-import { GeneratorError } from '../../errors/generator-error';
+import { load, Specification } from '../../core/models/SpecificationFile';
+import { watchFlag } from '../../core/flagsD/global.flags';
+import { isLocalTemplate, Watcher } from '../../core/utils/generator';
+import { ValidationError } from '../../core/errors/validation-error';
+import { GeneratorError } from '../../core/errors/generator-error';
 import { Parser } from '@asyncapi/parser';
 import { intro, isCancel, spinner, text } from '@clack/prompts';
 import { inverse, yellow, magenta, green, red } from 'picocolors';

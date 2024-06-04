@@ -1,5 +1,5 @@
 import { Flags } from '@oclif/core';
-import Command from '../../base';
+import Command from '../../core/base';
 
 export default class Versions extends Command {
   static description = 'Show versions of AsyncAPI tools used';

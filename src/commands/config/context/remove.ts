@@ -1,11 +1,11 @@
 import { Flags, Args } from '@oclif/core';
-import Command from '../../../base';
-import { removeContext, CONTEXT_FILE_PATH } from '../../../models/Context';
+import Command from '../../../core/base';
+import { removeContext, CONTEXT_FILE_PATH } from '../../../core/models/Context';
 import {
   MissingContextFileError,
   ContextFileWrongFormatError,
   ContextFileEmptyError,
-} from '../../../errors/context-error';
+} from '../../../core/errors/context-error';
 
 export default class ContextRemove extends Command {
   static description = 'Delete a context from the store';

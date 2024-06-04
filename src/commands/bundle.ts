@@ -1,9 +1,9 @@
 import { Flags } from '@oclif/core';
-import Command from '../base';
+import Command from '../core/base';
 import bundle from '@asyncapi/bundler';
 import { promises } from 'fs';
 import path from 'path';
-import { Specification } from '../models/SpecificationFile';
+import { Specification } from '../core/models/SpecificationFile';
 import { Document } from '@asyncapi/bundler/lib/document';
 
 const { writeFile } = promises;

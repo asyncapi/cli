@@ -1,6 +1,6 @@
 import { Flags, Args } from '@oclif/core';
-import Command from '../../../base';
-import { initContext } from '../../../models/Context';
+import Command from '../../../core/base';
+import { initContext } from '../../../core/models/Context';
 
 export default class ContextInit extends Command {
   static description = 'Initialize context';
