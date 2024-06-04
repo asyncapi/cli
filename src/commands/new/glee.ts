@@ -1,4 +1,3 @@
-import { Flags } from '@oclif/core';
 import { promises as fPromises } from 'fs';
 import Command from '../../core/base';
 import path, { resolve, join } from 'path';
@@ -10,6 +9,7 @@ import { prompt } from 'inquirer';
 // @ts-ignore
 import Generator from '@asyncapi/generator';
 import { cyan, gray } from 'picocolors';
+import { gleeFlags } from 'core/flags/new/glee.flags';
 
 export const successMessage = (projectName: string) =>
   `🎉 Your Glee project has been successfully created!
@@ -36,29 +36,7 @@ export default class NewGlee extends Command {
   static readonly successMessage = successMessage;
   static readonly errorMessages = errorMessages;
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    name: Flags.string({
-      char: 'n',
-      description: 'Name of the Project',
-      default: 'project',
-    }),
-    template: Flags.string({
-      char: 't',
-      description: 'Name of the Template',
-      default: 'default',
-    }),
-    file: Flags.string({
-      char: 'f',
-      description:
-        'The path to the AsyncAPI file for generating a Glee project.',
-    }),
-    'force-write': Flags.boolean({
-      default: false,
-      description:
-        'Force writing of the generated files to given directory even if it is a git repo with unstaged files or not empty dir (defaults to false)',
-    }),
-  };
+  static flags = gleeFlags();
 
   async getFilteredServers(serversObject: any) {
     console.log({ serversObject });
