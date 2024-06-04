@@ -98,7 +98,7 @@ export default abstract class extends Command {
   
   async recorderFromEnv(prefix: string): Promise<Recorder> {
     let sink: Sink = new DiscardSink();
-    const analyticsConfigFile = join(homedir(), '.asyncapi-analytics');
+    const analyticsConfigFile = process.env.ASYNCAPI_METRICS_CONFIG_PATH || join(homedir(), '.asyncapi-analytics');
 
     if (!existsSync(analyticsConfigFile)) {
       await writeFile(analyticsConfigFile, JSON.stringify({ analyticsEnabled: 'true', infoMessageShown: 'false', userID: uuidv4()}), { encoding: 'utf8' });
