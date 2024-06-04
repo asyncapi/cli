@@ -1,4 +1,3 @@
-import { Flags } from '@oclif/core';
 import Command from '../../../core/base';
 import {
   loadContextFile,
@@ -9,12 +8,11 @@ import {
   MissingContextFileError,
   ContextFileWrongFormatError,
 } from '../../../core/errors/context-error';
+import { helpFlag } from 'core/flags/global.flags';
 
 export default class ContextList extends Command {
   static description = 'List all the stored contexts in the store';
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-  };
+  static flags = helpFlag();
 
   async run() {
     try {
