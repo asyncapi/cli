@@ -1,12 +1,10 @@
-import { Flags } from '@oclif/core';
 import Command from '../../core/base';
+import { helpFlag } from '../../core/flags/global.flags';
 
 export default class Versions extends Command {
   static description = 'Show versions of AsyncAPI tools used';
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-  };
+  static flags = helpFlag();
 
   async run() {
     const dependencies: string[] = [];

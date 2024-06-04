@@ -1,18 +1,14 @@
-import { Flags, Args } from '@oclif/core';
+import { Args } from '@oclif/core';
 import Command from '../core/base';
-import { validate, validationFlags, ValidateOptions, ValidationStatus } from '../core/parser';
+import { validate, ValidateOptions, ValidationStatus } from '../core/parser';
 import { load } from '../core/models/SpecificationFile';
 import { specWatcher } from '../core/globals';
-import { watchFlag } from '../core/flagsD/global.flags';
+import { validateFlags } from '../core/flags/validate.flags';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    watch: watchFlag(),
-    ...validationFlags(),
-  };
+  static flags = validateFlags();
 
   static args = {
     'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),

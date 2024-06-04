@@ -8,7 +8,7 @@ import {
   MissingContextFileError,
   ContextFileWrongFormatError,
 } from '../../../core/errors/context-error';
-import { helpFlag } from 'core/flags/global.flags';
+import { helpFlag } from '../../../core/flags/global.flags';
 
 export default class ContextList extends Command {
   static description = 'List all the stored contexts in the store';

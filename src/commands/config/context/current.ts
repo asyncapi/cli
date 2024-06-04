@@ -6,7 +6,7 @@ import {
   ContextFileEmptyError,
   ContextNotFoundError,
 } from '../../../core/errors/context-error';
-import { helpFlag } from 'core/flags/global.flags';
+import { helpFlag } from '../../../core/flags/global.flags';
 
 export default class ContextCurrent extends Command {
   static description = 'Shows the current context that is being used';

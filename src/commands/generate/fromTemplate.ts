@@ -14,7 +14,7 @@ import { Parser } from '@asyncapi/parser';
 import { intro, isCancel, spinner, text } from '@clack/prompts';
 import { inverse, yellow, magenta, green, red } from 'picocolors';
 import fetch from 'node-fetch';
-import { fromTemplateFlags } from 'core/flags/generate/fromTemplate.flags';
+import { fromTemplateFlags } from '../../core/flags/generate/fromTemplate.flags';
 
 interface IMapBaseUrlToFlag {
   url: string,

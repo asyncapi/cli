@@ -5,7 +5,7 @@ import {
   MissingContextFileError,
   ContextFileWrongFormatError,
 } from '../../../core/errors/context-error';
-import { addFlags } from 'core/flags/config/context.flags';
+import { addFlags } from '../../../core/flags/config/context.flags';
 
 export default class ContextAdd extends Command {
   static description = 'Add a context to the store';

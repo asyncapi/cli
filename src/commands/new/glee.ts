@@ -9,7 +9,7 @@ import { prompt } from 'inquirer';
 // @ts-ignore
 import Generator from '@asyncapi/generator';
 import { cyan, gray } from 'picocolors';
-import { gleeFlags } from 'core/flags/new/glee.flags';
+import { gleeFlags } from '../../core/flags/new/glee.flags';
 
 export const successMessage = (projectName: string) =>
   `🎉 Your Glee project has been successfully created!

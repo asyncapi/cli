@@ -9,7 +9,7 @@ import { cancel, intro, isCancel, select, spinner, text } from '@clack/prompts';
 import { green, inverse } from 'picocolors';
 
 import type { AbstractFileGenerator, AbstractGenerator } from '@asyncapi/modelina';
-import { modelsFlags } from 'core/flags/generate/models.flags';
+import { modelsFlags } from '../../core/flags/generate/models.flags';
 
 enum Languages {
   typescript = 'typescript',

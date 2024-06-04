@@ -6,7 +6,7 @@ import {
   ContextFileWrongFormatError,
   ContextFileEmptyError,
 } from '../../../core/errors/context-error';
-import { helpFlag } from 'core/flags/global.flags';
+import { helpFlag } from '../../../core/flags/global.flags';
 
 export default class ContextRemove extends Command {
   static description = 'Delete a context from the store';

@@ -1,4 +1,4 @@
-import { Flags, Args } from '@oclif/core';
+import { Args } from '@oclif/core';
 import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
 import Command from '../core/base';
 import { ValidationError } from '../core/errors/validation-error';
@@ -7,6 +7,7 @@ import * as inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
 import { Parser } from '@asyncapi/parser';
+import { optimizeFlags } from '../core/flags/optimize.flags';
 
 const { writeFile } = promises;
 
@@ -35,12 +36,7 @@ export default class Optimize extends Command {
     'asyncapi optimize ./asyncapi.yaml --optimization=remove-components --output=terminal --no-tty',
   ];
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    optimization: Flags.string({char: 'p', default: Object.values(Optimizations), options: Object.values(Optimizations), multiple: true, description: 'select the type of optimizations that you want to apply.'}),
-    output: Flags.string({char: 'o', default: Outputs.TERMINAL, options: Object.values(Outputs), description: 'select where you want the output.'}),
-    'no-tty': Flags.boolean({ description: 'do not use an interactive terminal', default: false }),
-  };
+  static flags = optimizeFlags();
 
   static args = {
     'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),

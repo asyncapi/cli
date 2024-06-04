@@ -5,7 +5,7 @@ import { start as startStudio, DEFAULT_PORT } from '../../core/models/Studio';
 import { resolve } from 'path';
 import { load } from '../../core/models/SpecificationFile';
 import { cyan } from 'picocolors';
-import { fileFlags } from 'core/flags/new/file.flags';
+import { fileFlags } from '../../core/flags/new/file.flags';
 
 const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';

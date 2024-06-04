@@ -4,7 +4,7 @@ import { promises } from 'fs';
 import path from 'path';
 import { Specification } from '../core/models/SpecificationFile';
 import { Document } from '@asyncapi/bundler/lib/document';
-import { bundleFlags } from 'core/flags/bundle.flags';
+import { bundleFlags } from '../core/flags/bundle.flags';
 
 const { writeFile } = promises;
 
