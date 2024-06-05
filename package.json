@@ -18,7 +18,7 @@
     "@asyncapi/optimizer": "^1.0.2",
     "@asyncapi/parser": "^3.0.15",
     "@asyncapi/protobuf-schema-parser": "^3.2.12",
-    "@asyncapi/raml-dt-schema-parser": "^4.0.22",
+    "@asyncapi/raml-dt-schema-parser": "^4.0.23",
     "@asyncapi/studio": "^0.20.0",
     "@clack/prompts": "^0.7.0",
     "@oclif/core": "^3",
