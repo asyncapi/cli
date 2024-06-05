@@ -1,6 +1,17 @@
 import { expect, test } from '@oclif/test';
+import { fileCleanup } from '../../helpers';
+
+const analyticsConfigFilePath = './test/fixtures/.asyncapi-analytics';
 
 describe('config:analytics', () => {
+  beforeEach(() => {
+    process.env = Object.assign(process.env, { ASYNCAPI_METRICS_CONFIG_PATH: analyticsConfigFilePath });
+  });
+
+  afterEach(() => {
+    fileCleanup(analyticsConfigFilePath);
+  });
+
   describe('with disable flag', () => {
     test
       .stderr()
