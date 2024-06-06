@@ -1,27 +1,18 @@
-import { Flags, Args } from '@oclif/core';
-import Command from '../base';
-import { calculateScore } from '../utils/scoreCalculator';
-import { validate, validationFlags, ValidateOptions, ValidationStatus, parse } from '../parser';
-import { load } from '../models/SpecificationFile';
-import { specWatcher } from '../globals';
-import { watchFlag } from '../flags';
-
+import { Args } from '@oclif/core';
+import Command from '../core/base';
+import { validate, ValidateOptions, ValidationStatus } from '../core/parser';
+import { load } from '../core/models/SpecificationFile';
+import { specWatcher } from '../core/globals';
+import { validateFlags } from '../core/flags/validate.flags';
+import { calculateScore } from 'core/utils/scoreCalculator';
+import { parse } from 'core/parser';
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    watch: watchFlag(),
-    ...validationFlags(),
-    score: Flags.boolean({
-      description: 'Compute the score of the AsyncAPI document, scoring is based on whether the document description, License, server and channels.',
-      required: false,
-      default: false
-    }),
-  };
+  static flags = validateFlags();
 
   static args = {
-    'spec-file': Args.string({ description: 'spec path, url, or context-name', required: false }),
+    'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
   };
 
   async run() {
