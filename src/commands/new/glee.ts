@@ -1,15 +1,15 @@
-import { Flags } from '@oclif/core';
 import { promises as fPromises } from 'fs';
-import Command from '../../base';
+import Command from '../../core/base';
 import path, { resolve, join } from 'path';
 import fs from 'fs-extra';
-import { Specification, load } from '../../models/SpecificationFile';
+import { Specification, load } from '../../core/models/SpecificationFile';
 import yaml from 'js-yaml';
 import { prompt } from 'inquirer';
 // eslint-disable-next-line
 // @ts-ignore
 import Generator from '@asyncapi/generator';
 import { cyan, gray } from 'picocolors';
+import { gleeFlags } from '../../core/flags/new/glee.flags';
 
 export const successMessage = (projectName: string) =>
   `🎉 Your Glee project has been successfully created!
@@ -17,17 +17,17 @@ export const successMessage = (projectName: string) =>
 
   cd ${projectName}\t\t ${gray('# Navigate to the project directory')}
   npm install\t\t ${gray('# Install the project dependencies')}
-  npm run dev\t\t ${gray('# Start the project in development mode')} 
+  npm run dev\t\t ${gray('# Start the project in development mode')}
 
 You can also open the project in your favourite editor and start tweaking it.
 `;
 
 const errorMessages = {
   alreadyExists: (projectName: string) =>
-    `Unable to create the project because the directory "${cyan(projectName)}" already exists at "${process.cwd()}/${projectName}". 
+    `Unable to create the project because the directory "${cyan(projectName)}" already exists at "${process.cwd()}/${projectName}".
 To specify a different name for the new project, please run the command below with a unique project name:
 
-    ${gray('asyncapi new glee --name ') + gray(projectName) + gray('-1')}`,    
+    ${gray('asyncapi new glee --name ') + gray(projectName) + gray('-1')}`,
 };
 
 export default class NewGlee extends Command {
@@ -36,29 +36,7 @@ export default class NewGlee extends Command {
   static readonly successMessage = successMessage;
   static readonly errorMessages = errorMessages;
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    name: Flags.string({
-      char: 'n',
-      description: 'Name of the Project',
-      default: 'project',
-    }),
-    template: Flags.string({
-      char: 't',
-      description: 'Name of the Template',
-      default: 'default',
-    }),
-    file: Flags.string({
-      char: 'f',
-      description:
-        'The path to the AsyncAPI file for generating a Glee project.',
-    }),
-    'force-write': Flags.boolean({
-      default: false,
-      description:
-        'Force writing of the generated files to given directory even if it is a git repo with unstaged files or not empty dir (defaults to false)',
-    }),
-  };
+  static flags = gleeFlags();
 
   async getFilteredServers(serversObject: any) {
     console.log({ serversObject });

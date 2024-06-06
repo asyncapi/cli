@@ -1,5 +1,5 @@
-import Command from '../../base';
-import {loadHelpClass} from '@oclif/core';
+import Command from '../../core/base';
+import { loadHelpClass } from '@oclif/core';
 
 export default class Config extends Command {
   static description = 'CLI config settings';

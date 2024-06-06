@@ -1,10 +1,10 @@
-import { Flags } from '@oclif/core';
-import Command from '../base';
+import Command from '../core/base';
 import bundle from '@asyncapi/bundler';
 import { promises } from 'fs';
 import path from 'path';
-import { Specification } from '../models/SpecificationFile';
+import { Specification } from '../core/models/SpecificationFile';
 import { Document } from '@asyncapi/bundler/lib/document';
+import { bundleFlags } from '../core/flags/bundle.flags';
 
 const { writeFile } = promises;
 
@@ -21,13 +21,7 @@ export default class Bundle extends Command {
     'asyncapi bundle ./asyncapi.yaml -o final-asyncapi.yaml --base ../public-api/main.yaml --baseDir ./social-media/comments-service',
   ];
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    output: Flags.string({ char: 'o', description: 'The output file name. Omitting this flag the result will be printed in the console.' }),
-    base: Flags.string({ char: 'b', description: 'Path to the file which will act as a base. This is required when some properties need to be overwritten.' }),
-    baseDir: Flags.string({ char: 'd', description: 'One relative/absolute path to directory relative to which paths to AsyncAPI Documents that should be bundled will be resolved.' }),
-    xOrigin: Flags.boolean({ char: 'x', description: 'Pass this switch to generate properties "x-origin" that will contain historical values of dereferenced "$ref"s.' }),
-  };
+  static flags = bundleFlags();
 
   async run() {
     const { argv, flags } = await this.parse(Bundle);
