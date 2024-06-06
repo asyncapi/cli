@@ -9,7 +9,7 @@ const successMessage = (projectName: string) =>
 
 const errorMessages = {
   alreadyExists: (projectName: string) =>
-    `Unable to create the project because the directory "${projectName}" already exists at "${process.cwd()}/${projectName}". 
+    `Unable to create the project because the directory "${projectName}" already exists at "${process.cwd()}/${projectName}".
 To specify a different name for the new project, please run the command below with a unique project name:`};
 
 describe('new glee', () => {
@@ -27,7 +27,7 @@ describe('new glee', () => {
     afterEach(() => {
       testHelper.deleteDummyProjectDirectory();
     });
-    
+
     test
       .stderr()
       .stdout()
@@ -39,7 +39,7 @@ describe('new glee', () => {
       });
   });
 
-  describe('when new project name already exists', () => {    
+  describe('when new project name already exists', () => {
     beforeEach(() => {
       try {
         testHelper.createDummyProjectDirectory();
@@ -52,7 +52,7 @@ describe('new glee', () => {
 
     afterEach(() => {
       testHelper.deleteDummyProjectDirectory();
-    });  
+    });
 
     test
       .stderr()
