@@ -1,13 +1,10 @@
 import Command from '../../core/base';
 import { load } from '../../core/models/SpecificationFile';
 import { formatOutput, parse } from '../../core/parser';
-
 import { cancel, intro, isCancel, select, spinner, text } from '@clack/prompts';
 import { green, inverse } from 'picocolors';
-
 import { generateModels, Languages, ModelinaArgs } from '@asyncapi/modelina-cli';
 import { modelsFlags } from '../../core/flags/generate/models.flags';
-import { ValidateOptions } from '@asyncapi/parser';
 
 export default class Models extends Command {
   static description = 'Generates typed models';
