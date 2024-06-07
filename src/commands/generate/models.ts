@@ -7,6 +7,7 @@ import { green, inverse } from 'picocolors';
 
 import { generateModels, Languages, ModelinaArgs } from '@asyncapi/modelina-cli';
 import { modelsFlags } from '../../core/flags/generate/models.flags';
+import { ValidateOptions } from '@asyncapi/parser';
 
 export default class Models extends Command {
   static description = 'Generates typed models';
@@ -19,6 +20,7 @@ export default class Models extends Command {
     const { args, flags } = await this.parse(Models);
     let { language, file } = args;
     let { output } = flags;
+
     const interactive = !flags['no-interactive'];
 
     if (!interactive) {
@@ -31,7 +33,10 @@ export default class Models extends Command {
     }
 
     const inputFile = (await load(file)) || (await load());
-    const { document, diagnostics ,status } = await parse(this, inputFile, flags as any);
+    if (inputFile.isAsyncAPI3()) {
+      this.error('Generate Models command does not support AsyncAPI v3 yet, please checkout https://github.com/asyncapi/modelina/issues/1376');
+    }
+    const { document, diagnostics ,status } = await parse(this, inputFile, flags);
     if (!document || status === 'invalid') {
       const severityErrors = diagnostics.filter((obj) => obj.severity === 0);
       this.log(`Input is not a correct AsyncAPI document so it cannot be processed.${formatOutput(severityErrors,'stylish','error')}`);
