@@ -4,8 +4,8 @@ import { validate, ValidateOptions, ValidationStatus } from '../core/parser';
 import { load } from '../core/models/SpecificationFile';
 import { specWatcher } from '../core/globals';
 import { validateFlags } from '../core/flags/validate.flags';
-import { calculateScore } from 'core/utils/scoreCalculator';
-import { parse } from 'core/parser';
+import { calculateScore } from '../core/utils/scoreCalculator';
+import { parse } from '../core/parser';
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
 
