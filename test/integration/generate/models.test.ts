@@ -1,9 +1,19 @@
 import { expect, test } from '@oclif/test';
 import path from 'path';
+import rimraf from 'rimraf';
+import { createMockServer, stopMockServer } from '../../helpers';
 const generalOptions = ['generate:models'];
 const outputDir = './test/fixtures/generate/models';
 
 describe('models', () => {
+  before(() => {
+    createMockServer();
+  });
+  after(() => {
+    stopMockServer();
+    rimraf.sync(outputDir);
+  });
+
   test
     .stderr()
     .stdout()
