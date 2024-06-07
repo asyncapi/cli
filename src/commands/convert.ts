@@ -1,27 +1,24 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { promises as fPromises } from 'fs';
-import { Flags, Args } from '@oclif/core';
-import Command from '../base';
-import { ValidationError } from '../errors/validation-error';
-import { load } from '../models/SpecificationFile';
-import { SpecificationFileNotFound } from '../errors/specification-file';
+import { Args } from '@oclif/core';
+import Command from '../core/base';
+import { ValidationError } from '../core/errors/validation-error';
+import { load } from '../core/models/SpecificationFile';
+import { SpecificationFileNotFound } from '../core/errors/specification-file';
 import { convert } from '@asyncapi/converter';
 import type { ConvertVersion } from '@asyncapi/converter';
 import { cyan, green } from 'picocolors';
 
 // @ts-ignore
 import specs from '@asyncapi/specs';
+import { convertFlags } from '../core/flags/convert.flags';
 
 const latestVersion = Object.keys(specs.schemas).pop() as string;
 
 export default class Convert extends Command {
   static description = 'Convert asyncapi documents older to newer versions';
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    output: Flags.string({ char: 'o', description: 'path to the file where the result is saved' }),
-    'target-version': Flags.string({ char: 't', description: 'asyncapi version to convert to', default: latestVersion })
-  };
+  static flags = convertFlags(latestVersion);
 
   static args = {
     'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
@@ -71,6 +68,6 @@ export default class Convert extends Command {
       } else {
         this.error(err as Error);
       }
-    } 
+    }
   }
 }

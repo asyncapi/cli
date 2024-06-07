@@ -1,7 +1,7 @@
 import { Command } from '@oclif/core';
 import { MetadataFromDocument, MetricMetadata, NewRelicSink, Recorder, Sink, StdOutSink } from '@smoya/asyncapi-adoption-metrics';
 import { Parser } from '@asyncapi/parser';
-import { Specification } from 'models/SpecificationFile';
+import { Specification } from './models/SpecificationFile';
 import { join, resolve } from 'path';
 import { existsSync } from 'fs-extra';
 import { promises as fPromises } from 'fs';
@@ -52,7 +52,7 @@ export default abstract class extends Command {
         }
       }
     }
-    
+
     const callable = async function(recorder: Recorder) {
       await recorder.recordActionFinished(action, metadata);
     };
@@ -95,7 +95,7 @@ export default abstract class extends Command {
     this.metricsMetadata['success'] = error === undefined;
     await this.recordActionFinished(this.id as string, this.metricsMetadata, this.specFile?.text());
   }
-  
+
   async recorderFromEnv(prefix: string): Promise<Recorder> {
     let sink: Sink = new DiscardSink();
     const analyticsConfigFile = process.env.ASYNCAPI_METRICS_CONFIG_PATH || join(homedir(), '.asyncapi-analytics');
@@ -124,11 +124,11 @@ export default abstract class extends Command {
           this.log('\nAsyncAPI anonymously tracks command executions to improve the specification and tools, ensuring no sensitive data reaches our servers. It aids in comprehending how AsyncAPI tools are used and adopted, facilitating ongoing improvements to our specifications and tools.\n\nTo disable tracking, please run the following command:\n  asyncapi config analytics --disable\n\nOnce disabled, if you want to enable tracking back again then run:\n  asyncapi config analytics --enable\n');
           analyticsConfigFileContent.infoMessageShown = 'true';
           await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), { encoding: 'utf8' });
-        }        
+        }
         break;
       }
     }
-    
+
     return new Recorder(prefix, sink);
   }
 }

@@ -1,23 +1,20 @@
-import { generateModels, Languages, ModelinaArgs, ModelinaFlags } from '@asyncapi/modelina-cli';
-import Command from '../../base';
-import { load } from '../../models/SpecificationFile';
-import { formatOutput, parse, validationFlags } from '../../parser';
-import { Flags } from '@oclif/core';
+import Command from '../../core/base';
+import { load } from '../../core/models/SpecificationFile';
+import { formatOutput, parse } from '../../core/parser';
+
 import { cancel, intro, isCancel, select, spinner, text } from '@clack/prompts';
 import { green, inverse } from 'picocolors';
 
+import { generateModels, Languages, ModelinaArgs } from '@asyncapi/modelina-cli';
+import { modelsFlags } from '../../core/flags/generate/models.flags';
+
 export default class Models extends Command {
-  static readonly description = 'Generates typed models through Modelina';
+  static description = 'Generates typed models';
+
   static readonly args = ModelinaArgs as any;
-  static readonly flags = {
-    ...ModelinaFlags as any,
-    ...validationFlags({ logDiagnostics: false }),
-    'no-interactive': Flags.boolean({
-      description: 'Disable interactive mode and run with the provided flags.',
-      required: false,
-      default: false,
-    }),
-  };
+
+  static flags = modelsFlags();
+
   async run() {
     const { args, flags } = await this.parse(Models);
     let { language, file } = args;

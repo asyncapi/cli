@@ -1,22 +1,15 @@
-import { Flags, Args } from '@oclif/core';
-import Command from '../../../base';
-import { addContext, setCurrentContext } from '../../../models/Context';
+import { Args } from '@oclif/core';
+import Command from '../../../core/base';
+import { addContext, setCurrentContext } from '../../../core/models/Context';
 import {
   MissingContextFileError,
   ContextFileWrongFormatError,
-} from '../../../errors/context-error';
+} from '../../../core/errors/context-error';
+import { addFlags } from '../../../core/flags/config/context.flags';
 
 export default class ContextAdd extends Command {
   static description = 'Add a context to the store';
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    'set-current': Flags.boolean({
-      char: 's',
-      description: 'Set context being added as the current context',
-      default: false,
-      required: false,
-    })
-  };
+  static flags = addFlags();
 
   static args = {
     'context-name': Args.string({description: 'context name', required: true}),
