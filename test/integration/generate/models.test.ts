@@ -1,20 +1,9 @@
-/* eslint-disable no-warning-comments */
-/* eslint-disable sonarjs/no-duplicate-string */
-/* eslint-disable sonarjs/no-identical-functions */
 import { expect, test } from '@oclif/test';
-import rimraf from 'rimraf';
-import { createMockServer, stopMockServer } from '../../helpers';
+import path from 'path';
 const generalOptions = ['generate:models'];
 const outputDir = './test/fixtures/generate/models';
 
 describe('models', () => {
-  before(() => {
-    createMockServer();
-  });
-  after(() => {
-    stopMockServer();
-    rimraf.sync(outputDir);
-  });
   test
     .stderr()
     .stdout()
@@ -25,6 +14,18 @@ describe('models', () => {
       );
       done();
     });
+
+  test
+    .stderr()
+    .stdout()
+    .command([...generalOptions, 'typescript', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './ts')}`])
+    .it('works when file path is passed', (ctx, done) => {
+      expect(ctx.stdout).to.contain(
+        'Successfully generated the following models: '
+      );
+      done();
+    });
+
   describe('with logging diagnostics', () => {
     test
       .stderr()
