@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
 # Set ARG to explicit value to build chosen version. Default is "latest"
-ARG ASYNCAPI_CLI_VERSION=   
+ARG ASYNCAPI_CLI_VERSION=
 
 # Create a non-root user
 RUN addgroup -S myuser && adduser -S myuser -G myuser
@@ -21,6 +21,9 @@ RUN apk --update add git chromium && \
 
 # Installing latest released npm package
 RUN npm install --ignore-scripts -g @asyncapi/cli@"$ASYNCAPI_CLI_VERSION"
+
+RUN chown -R myuser:myuser /usr/local/lib/node_modules && \
+chown -R myuser:myuser /usr/local/bin
 
 # Switch to the non-root user
 USER myuser
