@@ -245,7 +245,7 @@ describe('validate', () => {
         done();
       });
   });
-  // The score of the asyncapi document is 50
+  
   describe('with --score flag',() => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
