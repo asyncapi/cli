@@ -1,11 +1,11 @@
-import {Flags} from '@oclif/core';
 import { promises as fPromises, readFileSync } from 'fs';
-import Command from '../../base';
+import Command from '../../core/base';
 import * as inquirer from 'inquirer';
-import { start as startStudio, DEFAULT_PORT } from '../../models/Studio';
+import { start as startStudio, DEFAULT_PORT } from '../../core/models/Studio';
 import { resolve } from 'path';
-import { load } from '../../models/SpecificationFile';
+import { load } from '../../core/models/SpecificationFile';
 import { cyan } from 'picocolors';
+import { fileFlags } from '../../core/flags/new/file.flags';
 
 const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
@@ -33,15 +33,8 @@ function getExamplesFlagDescription (): string {
 export default class NewFile extends Command {
   static description = 'Creates a new asyncapi file';
 
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-    'file-name': Flags.string({ char: 'n', description: 'name of the file' }),
-    example: Flags.string({ char: 'e', description: getExamplesFlagDescription() }),
-    studio: Flags.boolean({ char: 's', description: 'open in Studio' }),
-    port: Flags.integer({ char: 'p', description: 'port in which to start Studio' }),
-    'no-tty': Flags.boolean({ description: 'do not use an interactive terminal' }),
-  };
-  
+  static flags = fileFlags(getExamplesFlagDescription());
+
   static examples = [
     'asyncapi new\t - start creation of a file in interactive mode',
     'asyncapi new --file-name=my-asyncapi.yml --example=default-example.yml --no-tty\t - create a new file with a specific name, using one of the examples and without interactive mode'
@@ -128,7 +121,7 @@ export default class NewFile extends Command {
       if (!fileName) {fileName = answers.filename as string;}
       if (!selectedTemplate) {selectedTemplate = answers.selectedTemplate as string;}
       if (openStudio === undefined) {openStudio = answers.studio;}
-    } 
+    }
 
     fileName = fileName || DEFAULT_ASYNCAPI_FILE_NAME;
     selectedTemplate = selectedTemplate || DEFAULT_ASYNCAPI_TEMPLATE;
@@ -141,7 +134,7 @@ export default class NewFile extends Command {
     const asyncApiFile = await readFile(resolve(__dirname, '../../../assets/examples/', selectedTemplate), { encoding: 'utf8' });
 
     let fileNameToWriteToDisk;
-    
+
     if (!fileName.includes('.')) {
       fileNameToWriteToDisk=`${fileName}.yaml`;
     } else {
