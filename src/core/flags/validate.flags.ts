@@ -8,7 +8,7 @@ export const validateFlags = () => {
     watch: watchFlag(),
     ...validationFlags(),
     score: Flags.boolean({
-      description: 'Compute the score of the AsyncAPI document, scoring is based on whether the document description, License, server and channels.',
+      description: 'Compute the score of the AsyncAPI document. Scoring is based on whether the document has description, license, server and/or channels.',
       required: false,
       default: false
     })
