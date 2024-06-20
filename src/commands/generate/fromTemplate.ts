@@ -282,7 +282,7 @@ export default class Template extends Command {
     const ignorePaths = [outputPath, transpiledTemplatePath];
     const specificationFile = specification.getFilePath();
 
-    // Template name is needed as it is not always a part of the cli commad
+    // Template name is needed as it is not always a part of the cli command
     // There is a use case that you run generator from a root of the template with `./` path
     let templateName = '';
     try {
