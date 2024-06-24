@@ -1,17 +1,16 @@
-import { Flags, Args } from '@oclif/core';
-import Command from '../../../base';
-import { setCurrentContext, CONTEXT_FILE_PATH } from '../../../models/Context';
+import { Args } from '@oclif/core';
+import Command from '../../../core/base';
+import { setCurrentContext, CONTEXT_FILE_PATH } from '../../../core/models/Context';
 import {
   MissingContextFileError,
   ContextFileWrongFormatError,
   ContextFileEmptyError,
-} from '../../../errors/context-error';
+} from '../../../core/errors/context-error';
+import { helpFlag } from '../../../core/flags/global.flags';
 
 export default class ContextUse extends Command {
   static description = 'Set a context as current';
-  static flags = {
-    help: Flags.help({ char: 'h' }),
-  };
+  static flags = helpFlag();
 
   static args = {
     'context-name': Args.string({description: 'name of the saved context', required: true}),

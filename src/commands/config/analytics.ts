@@ -1,20 +1,14 @@
-import { Flags } from '@oclif/core';
 import { join, resolve } from 'path';
-import Command from '../../base';
+import Command from '../../core/base';
 import { promises as fPromises } from 'fs';
 import { homedir } from 'os';
+import { analyticsFlags } from '../../core/flags/config/analytics.flags';
 
 const { readFile, writeFile } = fPromises;
 
 export default class Analytics extends Command {
   static readonly description = 'Enable or disable analytics for metrics collection';
-  static readonly flags = {
-    help: Flags.help({ char: 'h' }),
-    disable: Flags.boolean({ char: 'd', description: 'disable analytics', default: false }),
-    enable: Flags.boolean({ char: 'e', description: 'enable analytics', default: false }),
-    status: Flags.boolean({ char: 's', description: 'show current status of analytics' }),
-
-  };
+  static readonly flags = analyticsFlags();
 
   async run() {
     const { flags } = await this.parse(Analytics);
@@ -26,9 +20,11 @@ export default class Analytics extends Command {
       if (flags.disable) {
         analyticsConfigFileContent.analyticsEnabled = 'false';
         this.log('\nAnalytics disabled.\n');
+        this.metricsMetadata.analytics_disabled = flags.disable;
       } else if (flags.enable) {
         analyticsConfigFileContent.analyticsEnabled = 'true';
         this.log('\nAnalytics enabled.\n');
+        this.metricsMetadata.analytics_enabled = flags.enable;
       } else if (!flags.status) {
         this.log('\nPlease append the "--disable" flag to the command in case you prefer to disable analytics, or use the "--enable" flag if you want to enable analytics back again. In case you do not know the analytics current status, then you can append the "--status" flag to be aware of it.\n');
         return;
@@ -41,6 +37,7 @@ export default class Analytics extends Command {
         } else {
           this.log('\nAnalytics are disabled. Please append the "--enable" flag to the command in case you prefer to enable analytics.\n');
         }
+        this.metricsMetadata.analytics_status_checked = flags.status;
       }
     } catch (e: any) {
       switch (e.code) {
@@ -54,5 +51,5 @@ export default class Analytics extends Command {
         this.error(`Unable to change your analytics configuration. Please check the following message for further info about the error:\n\n${e}`);
       }
     }
-  }  
+  }
 }
