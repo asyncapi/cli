@@ -1,9 +1,10 @@
 import { Args } from '@oclif/core';
 import Command from '../core/base';
-import { validate, ValidateOptions, ValidationStatus } from '../core/parser';
+import { validate, ValidateOptions, ValidationStatus, parse } from '../core/parser';
 import { load } from '../core/models/SpecificationFile';
 import { specWatcher } from '../core/globals';
 import { validateFlags } from '../core/flags/validate.flags';
+import { calculateScore } from '../core/utils/scoreCalculator';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
@@ -16,9 +17,14 @@ export default class Validate extends Command {
 
   async run() {
     const { args, flags } = await this.parse(Validate); //NOSONAR
+
     const filePath = args['spec-file'];
     const watchMode = flags.watch;
-
+    if (flags['score']) {
+      this.specFile = await load(filePath);
+      const { document } = await parse(this,this.specFile);
+      this.log(`The score of the asyncapi document is ${await calculateScore(document)}`);
+    }
     this.specFile = await load(filePath);
     if (watchMode) {
       specWatcher({ spec: this.specFile, handler: this, handlerName: 'validate' });
