@@ -1,0 +1,12 @@
+{
+    "name": "myTemplate",
+    "generator": {
+        "renderer": "react",
+        "supportedProtocols": [
+            "mqtt"
+        ]
+    },
+    "dependencies": {
+        "@asyncapi/generator-react-sdk": "^0.2.25"
+    }
+}
