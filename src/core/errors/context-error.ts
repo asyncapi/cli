@@ -1,5 +1,5 @@
 export const NO_CONTEXTS_SAVED = `These are your options to specify in the CLI what AsyncAPI file should be used:
-	- You can provide a path to the AsyncAPI file: asyncapi <command> path/to/file/asyncapi.yml
+	- You can provide a path to the AsyncAPI file: asyncapi <command> -f path/to/file/asyncapi.yml
 	- You can provide URL to the AsyncAPI file: asyncapi <command> https://example.com/path/to/file/asyncapi.yml
 	- You can also pass a saved context that points to your AsyncAPI file: asyncapi <command> context-name
 	- In case you did not specify a context that you want to use, the CLI checks if there is a default context and uses it. To set default context run: asyncapi config context use mycontext
