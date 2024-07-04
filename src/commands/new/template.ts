@@ -81,7 +81,7 @@ export default class template extends Command {
           `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`
         );
       }
-      this.specFile = await load(`${templateDirectory}/asyncapi.yml`);
+      this.specFile = await load(`${templateDirectory}/asyncapi.yaml`);
       this.metricsMetadata.template = flags.template;
     }
   }

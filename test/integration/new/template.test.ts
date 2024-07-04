@@ -10,7 +10,7 @@ const errorMessages = {
   alreadyExists: (projectName: string) =>
     'Unable to create the project',
 };
-describe('new glee', () => {
+describe('new template', () => {
   before(() => {
     try {
       testHelper.deleteDummyProjectDirectory();

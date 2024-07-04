@@ -1,0 +1,33 @@
+asyncapi: 2.6.0
+
+info:
+  title: Temperature Service
+  version: 1.0.0
+  description: This service is in charge of processing all the events related to temperature.
+
+servers:
+  dev:
+    url: test.mosquitto.org
+    protocol: mqtt
+
+channels:
+  temperature/changed:
+    description: Updates the bedroom temperature in the database when the temperatures drops or goes up.
+    publish:
+      operationId: temperatureChange
+      message:
+        description: Message that is being sent when the temperature in the bedroom changes.
+        payload:
+          type: object
+          additionalProperties: false
+          properties:
+            temperatureId:
+              type: string
+components:
+  schemas:
+    temperatureId:
+      type: object
+      additionalProperties: false
+      properties:
+        temperatureId:
+          type: string
