@@ -1,17 +1,16 @@
 import { test } from '@oclif/test';
 import TestHelper from '../../helpers';
 import { expect } from '@oclif/test';
-
+import { cyan, gray } from 'picocolors';
 const testHelper = new TestHelper();
 const successMessage = (projectName: string) =>
-  '🎉 Your template is succesfully created!';
+  '🎉 Your template is succesfully created';
 
 const errorMessages = {
   alreadyExists: (projectName: string) =>
-    `Unable to create the project because the directory "${projectName}" already exists at "${process.cwd()}/${projectName}".
-To specify a different name for the new project, please run the command below with a unique project name:`};
-
-describe('new template', () => {
+    'Unable to create the project',
+};
+describe('new glee', () => {
   before(() => {
     try {
       testHelper.deleteDummyProjectDirectory();
@@ -31,7 +30,7 @@ describe('new template', () => {
       .stderr()
       .stdout()
       .command(['new:template', '-n=test-project'])
-      .it('runs new template command with name flag', async (ctx,done) => {
+      .it('runs new glee command with name flag', async (ctx,done) => {
         expect(ctx.stderr).to.equal('');
         expect(ctx.stdout).to.contains(successMessage('test-project'));
         done();
