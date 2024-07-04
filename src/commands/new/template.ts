@@ -38,8 +38,6 @@ export default class template extends Command {
     const {
       name: projectName,
       template: templateName,
-      file,
-      'force-write': forceWrite,
     } = flags;
 
     const PROJECT_DIRECTORY = join(process.cwd(), projectName);
