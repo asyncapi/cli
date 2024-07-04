@@ -163,6 +163,7 @@ export default class Optimize extends Command {
     const canMoveAll = report.moveAllToComponents?.length;
     const canRemove = report.removeComponents?.length;
     const canReuse = report.reuseComponents?.length;
+    const canIgnoreSchema = this.disableOptimizations?.includes(DisableOptimizations.SCHEMA);
     const choices = [];
 
     if (canMoveAll) {
@@ -189,6 +190,11 @@ export default class Optimize extends Command {
       this.showOptimizations(report.reuseComponents);
       choices.push({name: 'reuse components', value: Optimizations.REUSE_COMPONENTS});
     }
+    if (canIgnoreSchema) {
+      this.log("Do not ignore schema for the components");
+      choices.push({name: 'Do not ignore schema', value: DisableOptimizations.SCHEMA});
+    }
+
     const optimizationRes = await inquirer.prompt([{
       name: 'optimization',
       message: 'select the type of optimization that you want to apply:',
@@ -196,6 +202,10 @@ export default class Optimize extends Command {
       default: 'all',
       choices
     }]);
+
+    if (optimizationRes.optimization.includes('schema')) {
+      this.disableOptimizations = this.disableOptimizations?.filter(opt => opt !== DisableOptimizations.SCHEMA);
+    }
 
     this.selectedOptimizations = optimizationRes.optimization;
 
