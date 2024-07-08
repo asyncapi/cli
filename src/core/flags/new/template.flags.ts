@@ -23,5 +23,9 @@ export const templateFlags = () => {
       description:
         'Force writing of the generated files to given directory even if it is a git repo with unstaged files or not empty dir (defaults to false)',
     }),
+    renderer: Flags.string({
+      default: 'react',
+      description: 'Creating a template for particular engine, Its value can be either react or nunjucks.'
+    })
   };
 };

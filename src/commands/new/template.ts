@@ -1,10 +1,12 @@
 import { promises as fPromises } from 'fs';
 import Command from '../../core/base';
 import { resolve, join } from 'path';
-import {load } from '../../core/models/SpecificationFile';
+import { load } from '../../core/models/SpecificationFile';
 import fs from 'fs-extra';
 import { templateFlags } from '../../core/flags/new/template.flags';
 import { cyan, gray } from 'picocolors';
+import jsonfile from 'jsonfile';
+import path from 'path';
 
 export const successMessage = (projectName: string) =>
   `🎉 Your template is succesfully created
@@ -38,9 +40,14 @@ export default class template extends Command {
     const {
       name: projectName,
       template: templateName,
+      renderer: rendererName
     } = flags;
 
     const PROJECT_DIRECTORY = join(process.cwd(), projectName);
+
+    if (rendererName!=='nunjucks' && rendererName!=='react') {
+      this.error('Invalid flag check the flag name of renderer');
+    }
 
     const templateDirectory = resolve(
       __dirname,
@@ -74,7 +81,7 @@ export default class template extends Command {
       }
 
       try {
-        await fs.copy(templateDirectory, PROJECT_DIRECTORY);
+        await copyAndModify(templateDirectory, PROJECT_DIRECTORY,rendererName, projectName);
         this.log(successMessage(projectName));
       } catch (err) {
         this.error(
@@ -84,5 +91,27 @@ export default class template extends Command {
       this.specFile = await load(`${templateDirectory}/asyncapi.yaml`);
       this.metricsMetadata.template = flags.template;
     }
+  }
+}
+
+async function copyAndModify(templateDirectory:string, PROJECT_DIRECTORY:string, rendererName:string, projectName:string) {
+  const packageJsonPath = path.join(templateDirectory, 'package.json');
+  try {
+    await fs.copy(templateDirectory, PROJECT_DIRECTORY, {
+      filter: (src) => {
+        return !src.endsWith('package.json');
+      }
+    });
+    const packageData = await jsonfile.readFile(packageJsonPath);
+    if ((packageData.generator && 'renderer' in packageData.generator)) {
+      packageData.generator.renderer = rendererName;
+    }
+    if (packageData.name) {
+      packageData.name = projectName;
+    }
+  
+    await fs.writeJSON(`${PROJECT_DIRECTORY}/package.json`, packageData, { spaces: 2 });
+  } catch (err) {
+    console.error('Error:', err);
   }
 }
