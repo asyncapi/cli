@@ -35,7 +35,7 @@ export default class template extends Command {
   static flags = templateFlags();
 
   async run() {
-    const { flags } = await this.parse(template); // NOSONA
+    const { flags } = await this.parse(template); // NOSONAR
 
     const {
       name: projectName,
@@ -109,7 +109,7 @@ async function copyAndModify(templateDirectory:string, PROJECT_DIRECTORY:string,
     if (packageData.name) {
       packageData.name = projectName;
     }
-  
+
     await fs.writeJSON(`${PROJECT_DIRECTORY}/package.json`, packageData, { spaces: 2 });
   } catch (err) {
     console.error('Error:', err);
