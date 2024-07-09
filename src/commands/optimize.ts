@@ -163,7 +163,6 @@ export default class Optimize extends Command {
     const canMoveAll = report.moveAllToComponents?.length;
     const canRemove = report.removeComponents?.length;
     const canReuse = report.reuseComponents?.length;
-    const canIgnoreSchema = this.disableOptimizations?.includes(DisableOptimizations.SCHEMA);
     const choices = [];
 
     if (canMoveAll) {
@@ -190,9 +189,11 @@ export default class Optimize extends Command {
       this.showOptimizations(report.reuseComponents);
       choices.push({name: 'reuse components', value: Optimizations.REUSE_COMPONENTS});
     }
-    if (canIgnoreSchema) {
-      this.log("Do not ignore schema for the components");
+
+    if (this.disableOptimizations?.includes(DisableOptimizations.SCHEMA)) {
       choices.push({name: 'Do not ignore schema', value: DisableOptimizations.SCHEMA});
+    } else {
+      choices.push({name: 'Ignore schema', value: DisableOptimizations.SCHEMA});
     }
 
     const optimizationRes = await inquirer.prompt([{
@@ -204,7 +205,11 @@ export default class Optimize extends Command {
     }]);
 
     if (optimizationRes.optimization.includes('schema')) {
-      this.disableOptimizations = this.disableOptimizations?.filter(opt => opt !== DisableOptimizations.SCHEMA);
+      if (this.disableOptimizations?.includes(DisableOptimizations.SCHEMA)) {
+        this.disableOptimizations = this.disableOptimizations?.filter(opt => opt !== DisableOptimizations.SCHEMA);
+      } else {
+        this.disableOptimizations = [...(this.disableOptimizations || []), DisableOptimizations.SCHEMA];
+      }
     }
 
     this.selectedOptimizations = optimizationRes.optimization;
