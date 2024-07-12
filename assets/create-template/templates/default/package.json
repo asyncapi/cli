@@ -1,0 +1,10 @@
+{
+  "name": "myTemplate",
+  "generator": {
+    "renderer": "react",
+    "supportedProtocols": []
+  },
+  "dependencies": {
+    "@asyncapi/generator-react-sdk": "^1.0.20"
+  }
+}
