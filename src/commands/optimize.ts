@@ -18,6 +18,10 @@ export enum Optimizations {
   MOVE_ALL_TO_COMPONENTS='move-all-to-components',
 }
 
+export enum DisableOptimizations {
+  SCHEMA='schema'
+}
+
 export enum Outputs {
   TERMINAL='terminal',
   NEW_FILE='new-file',
@@ -27,6 +31,7 @@ export default class Optimize extends Command {
   static description = 'optimize asyncapi specification file';
   isInteractive = false;
   selectedOptimizations?: Optimizations[];
+  disableOptimizations?: DisableOptimizations[];
   outputMethod?: Outputs;
 
   static examples = [
@@ -34,6 +39,7 @@ export default class Optimize extends Command {
     'asyncapi optimize ./asyncapi.yaml --no-tty',
     'asyncapi optimize ./asyncapi.yaml --optimization=remove-components --optimization=reuse-components --optimization=move-all-to-components --no-tty',
     'asyncapi optimize ./asyncapi.yaml --optimization=remove-components --output=terminal --no-tty',
+    'asyncapi optimize ./asyncapi.yaml --ignore=schema'
   ];
 
   static flags = optimizeFlags();
@@ -74,6 +80,7 @@ export default class Optimize extends Command {
     }
     this.isInteractive = !flags['no-tty'];
     this.selectedOptimizations = flags.optimization as Optimizations[];
+    this.disableOptimizations = flags.ignore as DisableOptimizations[];
     this.outputMethod = flags.output as Outputs;
     this.metricsMetadata.optimized = false;
 
@@ -93,7 +100,11 @@ export default class Optimize extends Command {
         moveAllToComponents: this.selectedOptimizations.includes(Optimizations.MOVE_ALL_TO_COMPONENTS),
         removeComponents: this.selectedOptimizations.includes(Optimizations.REMOVE_COMPONENTS),
         reuseComponents: this.selectedOptimizations.includes(Optimizations.REUSE_COMPONENTS)
-      }, output: Output.YAML});
+      },
+      disableOptimizationFor: {
+        schema: this.disableOptimizations.includes(DisableOptimizations.SCHEMA)
+      },
+      output: Output.YAML});
 
       this.collectMetricsData(report);
 
@@ -178,6 +189,13 @@ export default class Optimize extends Command {
       this.showOptimizations(report.reuseComponents);
       choices.push({name: 'reuse components', value: Optimizations.REUSE_COMPONENTS});
     }
+
+    if (this.disableOptimizations?.includes(DisableOptimizations.SCHEMA)) {
+      choices.push({name: 'Do not ignore schema', value: DisableOptimizations.SCHEMA});
+    } else {
+      choices.push({name: 'Ignore schema', value: DisableOptimizations.SCHEMA});
+    }
+
     const optimizationRes = await inquirer.prompt([{
       name: 'optimization',
       message: 'select the type of optimization that you want to apply:',
@@ -185,6 +203,14 @@ export default class Optimize extends Command {
       default: 'all',
       choices
     }]);
+
+    if (optimizationRes.optimization.includes('schema')) {
+      if (this.disableOptimizations?.includes(DisableOptimizations.SCHEMA)) {
+        this.disableOptimizations = this.disableOptimizations?.filter(opt => opt !== DisableOptimizations.SCHEMA);
+      } else {
+        this.disableOptimizations = [...(this.disableOptimizations || []), DisableOptimizations.SCHEMA];
+      }
+    }
 
     this.selectedOptimizations = optimizationRes.optimization;
 
