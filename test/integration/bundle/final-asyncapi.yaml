@@ -8,10 +8,6 @@ channels:
     subscribe:
       message:
         $ref: '#/components/messages/UserSignedUp'
-  user/loggedOut:
-    unsubcribe:
-      message:
-        $ref: '#/components/messages/UserLoggedOut'
 components:
   messages:
     UserSignedUp:
