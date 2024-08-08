@@ -3,8 +3,3 @@ info:
   title: Account Service
   version: 1.0.0
   description: This service is in charge of processing user logouts
-channels:
-  user/loggedOut:
-    unsubcribe:
-      message:
-        $ref: 'test/integration/bundle/messages.yaml#/messages/UserLoggedOut'
