@@ -1,0 +1,63 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "derberg",
+      "name": "Lukasz Gornicki",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6995927?v=4",
+      "profile": "https://www.brainfart.dev/",
+      "contributions": [
+        "code",
+        "maintenance",
+        "infra",
+        "review"
+      ]
+    },
+    {
+      "login": "magicmatatjahu",
+      "name": "Maciej Urbańczyk",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20404945?v=4",
+      "profile": "https://github.com/magicmatatjahu",
+      "contributions": [
+        "review"
+      ]
+    },
+    {
+      "login": "victormartingarcia",
+      "name": "Victor",
+      "avatar_url": "https://avatars.githubusercontent.com/u/659832?v=4",
+      "profile": "https://www.victormartingarcia.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "HUTCHHUTCHHUTCH",
+      "name": "HUTCHHUTCHHUTCH",
+      "avatar_url": "https://avatars.githubusercontent.com/u/55915170?v=4",
+      "profile": "https://github.com/HUTCHHUTCHHUTCH",
+      "contributions": [
+        "infra"
+      ]
+    },
+    {
+      "login": "pioneer2k",
+      "name": "Thomas Heyer",
+      "avatar_url": "https://avatars.githubusercontent.com/u/32297829?v=4",
+      "profile": "https://github.com/pioneer2k",
+      "contributions": [
+        "infra"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "github-action-for-generator",
+  "projectOwner": "asyncapi",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "commitConvention": "none"
+}

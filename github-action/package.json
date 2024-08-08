@@ -1,0 +1,74 @@
+{
+  "name": "github-action-for-generator",
+  "version": "2.1.9",
+  "description": "GitHub action to generate all the things form your AsyncAPI document",
+  "main": "dist/index.js",
+  "scripts": {
+    "release": "semantic-release",
+    "lint": "eslint --max-warnings 0 --config .eslintrc lib",
+    "package": "ncc build lib/index.js -o dist -s --external=\"@npmcli/run-script\"",
+    "test": "jest --coverage",
+    "start": "node lib/index.js",
+    "generate:assets": "echo 'No additional assets need to be generated at the moment'",
+    "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
+    "docker:build": "docker build -t asyncapi/github-action-for-generator:latest ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asyncapi/github-action-for-generator.git"
+  },
+  "keywords": [
+    "GitHub",
+    "Actions",
+    "AsyncAPI"
+  ],
+  "author": "Lukasz Gornicki <lpgornicki@gmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/asyncapi/github-action-for-generator/issues"
+  },
+  "homepage": "https://github.com/asyncapi/github-action-for-generator#readme",
+  "devDependencies": {
+    "@npmcli/run-script": "^1.8.5",
+    "@semantic-release/commit-analyzer": "^8.0.1",
+    "@semantic-release/github": "^7.0.4",
+    "@semantic-release/npm": "^7.0.5",
+    "@semantic-release/release-notes-generator": "^9.0.1",
+    "@vercel/ncc": "^0.31.1",
+    "conventional-changelog-conventionalcommits": "^4.6.3",
+    "eslint": "^6.8.0",
+    "eslint-plugin-sonarjs": "^0.5.0",
+    "jest": "^26.6.3",
+    "semantic-release": "^19.0.3"
+  },
+  "dependencies": {
+    "@actions/core": "^1.9.1",
+    "@asyncapi/generator": "^1.9.15"
+  },
+  "release": {
+    "branches": [
+      "master"
+    ],
+    "plugins": [
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "conventionalcommits"
+        }
+      ],
+      [
+        "@semantic-release/release-notes-generator",
+        {
+          "preset": "conventionalcommits"
+        }
+      ],
+      [
+        "@semantic-release/npm",
+        {
+          "npmPublish": false
+        }
+      ],
+      "@semantic-release/github"
+    ]
+  }
+}
