@@ -6,7 +6,7 @@ import { ValidationError } from '../core/errors/validation-error';
 import { load } from '../core/models/SpecificationFile';
 import { SpecificationFileNotFound } from '../core/errors/specification-file';
 import { convert } from '@asyncapi/converter';
-import type { ConvertVersion } from '@asyncapi/converter';
+import type { AsyncAPIConvertVersion } from '@asyncapi/converter';
 import { cyan, green } from 'picocolors';
 
 // @ts-ignore
@@ -37,7 +37,7 @@ export default class Convert extends Command {
       this.metricsMetadata.to_version = flags['target-version'];
 
       // CONVERSION
-      convertedFile = convert(this.specFile.text(), flags['target-version'] as ConvertVersion);
+      convertedFile = convert(this.specFile.text(), flags['target-version'] as AsyncAPIConvertVersion);
       if (convertedFile) {
         if (this.specFile.getFilePath()) {
           this.log(`🎉 The ${cyan(this.specFile.getFilePath())} file has been successfully converted to version ${green(flags['target-version'])}!!`);
