@@ -1,24 +1,54 @@
-name: 'Generator for AsyncAPI documents'
+name: 'Generator, Validator, Converter and others - all in one for your AsyncAPI docs'
 description: 'Use this action to generate docs or code from your AsyncAPI document. Use default templates or provide your custom ones.'
 inputs:
+  cli_version: 
+    description: 'Version of AsyncAPI CLI to be used. This is only needed if you want to test with a specific version of AsyncAPI CLI. Default is latest which is also the recommended option.'
+    required: false
+    default: ''
+  command:
+    description: 'Command to run. Available commands in action :- generate, validate, convert, optimize and custom. Default is generate. For custom command, provide the whole command as input. List of available commands can be found in https://www.asyncapi.com/docs/tools/cli/usage.'
+    required: false
+    default: 'generate'
+  filepath:
+    description: 'Path to AsyncAPI document. This input is required if command is set to generate, validate, convert or optimize. Default is ./asyncapi.yaml'
+    required: false
+    default: 'asyncapi.yml'
   template: 
     description: 'Template for the generator. Official templates are listed here https://github.com/search?q=topic%3Aasyncapi+topic%3Agenerator+topic%3Atemplate. You can pass template as npm package, url to git repository, link to tar file or local template.'
     default: '@asyncapi/markdown-template@0.10.0'
     required: false
-  filepath: 
-    description: 'Location of the AsyncAPI document.'
-    default: 'asyncapi.yml'
+  language:
+    description: 'Language of the generated code. This input is required if you want to generate models. List of available languages can be found in https://www.asyncapi.com/docs/tools/cli/usage#asyncapi-generate-models-language-file'
     required: false
-  parameters: 
-    description: 'The template that you use might support and even require specific parameters to be passed to the template for the generation.'
-    required: false
+    default: ''
   output:
-    description: 'Directory where to put the generated files.'
+    description: 'Directory where to put the generated files. Can be used only with generate or convert commands. Default is output.'
     required: false
     default: 'output'
+  parameters: 
+    description: 'The command that you use might support and even require specific parameters to be passed to the CLI for the generation. Template parameters should be preceded by -p'
+    required: false
+    default: ''
+  custom_command:
+    description: 'Custom command to be run. This input is required if command is set to custom.'
+    required: false
+    default: ''
+  
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: 'docker'
+  # This is the image that will be used to run the action. 
+  # IMPORTANT: The version has to be changed manually in your PRs.
+  image: 'docker://asyncapi/github-action-for-cli:3.1.2'
+  args:
+    - ${{ inputs.cli_version }}
+    - ${{ inputs.command }}
+    - ${{ inputs.filepath }}
+    - ${{ inputs.template }}
+    - ${{ inputs.language }}
+    - ${{ inputs.output }}
+    - ${{ inputs.parameters }}
+    - ${{ inputs.custom_command }}
+
 branding:
   icon: 'file-text'
   color: purple

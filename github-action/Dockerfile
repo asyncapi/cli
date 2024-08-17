@@ -1,15 +1,20 @@
-FROM node:14 as builder
+FROM node:18-alpine
 
-COPY ./ /app
-WORKDIR /app
+# Create a non-root user
+RUN addgroup -S myuser && adduser -S myuser -G myuser
 
-RUN npm install && npm run package
+RUN apk add --no-cache bash>5.1.16 git>2.42.0 chromium
 
-FROM node:14-alpine
+# Environment variables for Puppeteer for PDF generation by HTML Template
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-# We need to copy entire node modules as some dependencies (@npmcli/run-script) cannot be packaged
-# and need to be used by dist as external dependency
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
+# Installing latest released npm package
+RUN npm install --ignore-scripts -g @asyncapi/cli
 
-ENTRYPOINT [ "node", "/dist/index.js" ]
+COPY entrypoint.sh /entrypoint.sh
+
+# Make the bash file executable
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
