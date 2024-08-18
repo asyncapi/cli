@@ -8,6 +8,7 @@ import { expect } from '@oclif/test';
 const testHelper = new TestHelper();
 const filePath = './test/fixtures/specification.yml';
 const JSONFilePath = './test/fixtures/specification.json';
+const openAPIFilePath = './test/fixtures/openapi.yml';
 
 describe('convert', () => {
   describe('with file paths', () => {
@@ -175,6 +176,67 @@ describe('convert', () => {
         expect(fs.existsSync('./test/fixtures/specification_output.json')).to.equal(true);
         expect(ctx.stderr).to.equal('');
         fs.unlinkSync('./test/fixtures/specification_output.json');
+        done();
+      });
+  });
+  describe('with OpenAPI input', () => {
+    beforeEach(() => {
+      testHelper.createDummyContextFile();
+    });
+
+    afterEach(() => {
+      testHelper.deleteDummyContextFile();
+    });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['convert', openAPIFilePath])
+      .it('works when OpenAPI file path is passed', (ctx, done) => {
+        expect(ctx.stdout).to.contain('The OpenAPI document has been successfully converted to AsyncAPI version 3.0.0!');
+        expect(ctx.stderr).to.equal('');
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['convert', openAPIFilePath, '-p=client'])
+      .it('works when OpenAPI file path is passed with client perspective', (ctx, done) => {
+        expect(ctx.stdout).to.contain('The OpenAPI document has been successfully converted to AsyncAPI version 3.0.0!');
+        expect(ctx.stderr).to.equal('');
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['convert', openAPIFilePath, '-p=server'])
+      .it('works when OpenAPI file path is passed with server perspective', (ctx, done) => {
+        expect(ctx.stdout).to.contain('The OpenAPI document has been successfully converted to AsyncAPI version 3.0.0!');
+        expect(ctx.stderr).to.equal('');
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['convert', openAPIFilePath, '-p=invalid'])
+      .it('should throw error if invalid perspective is passed', (ctx, done) => {
+        expect(ctx.stdout).to.equal('');
+        expect(ctx.stderr).to.contain('Error: Expected --perspective=invalid to be one of: client, server');
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['convert', openAPIFilePath, '-o=./test/fixtures/openapi_converted_output.yml'])
+      .it('works when OpenAPI file is converted and output is saved', (ctx, done) => {
+        expect(ctx.stdout).to.contain('🎉 The OpenAPI document has been successfully converted to AsyncAPI version 3.0.0!');
+        expect(fs.existsSync('./test/fixtures/openapi_converted_output.yml')).to.equal(true);
+        expect(ctx.stderr).to.equal('');
+        fs.unlinkSync('./test/fixtures/openapi_converted_output.yml');
         done();
       });
   });
