@@ -3,6 +3,7 @@ import Command from '../../core/base';
 // eslint-disable-next-line
 // @ts-ignore
 import AsyncAPIGenerator from '@asyncapi/generator';
+import AsyncAPINewGenerator from 'asyncapi-generator-v2';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
@@ -59,8 +60,8 @@ export default class Template extends Command {
   static flags = fromTemplateFlags();
 
   static args = {
-    asyncapi: Args.string({description: '- Local path, url or context-name pointing to AsyncAPI file', required: true}),
-    template: Args.string({description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true}),
+    asyncapi: Args.string({ description: '- Local path, url or context-name pointing to AsyncAPI file', required: true }),
+    template: Args.string({ description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true }),
   };
 
   parser = new Parser();
@@ -103,7 +104,7 @@ export default class Template extends Command {
     const watchTemplate = flags['watch'];
     const genOption: any = {};
     if (flags['map-base-url']) {
-      genOption.resolve = {resolve: this.getMapBaseUrlToFolderResolver(parsedFlags.mapBaseUrlToFolder)};
+      genOption.resolve = { resolve: this.getMapBaseUrlToFolderResolver(parsedFlags.mapBaseUrlToFolder) };
     }
 
     if (asyncapiInput.isAsyncAPI3()) {
@@ -112,7 +113,11 @@ export default class Template extends Command {
         this.error(`${template} template does not support AsyncAPI v3 documents, please checkout ${v3IssueLink}`);
       }
     }
-    await this.generate(asyncapi, template, output, options, genOption, interactive);
+    if (flags['use-new-generator']) {
+      await this.generateUsingNewGenerator(asyncapi, template, output, options, genOption, interactive)
+    } else {
+      await this.generate(asyncapi, template, output, options, genOption, interactive);
+    }
     if (watchTemplate) {
       const watcherHandler = this.watcherHandler(asyncapi, template, output, options, genOption, interactive);
       await this.runWatchMode(asyncapi, template, output, watcherHandler);
@@ -172,7 +177,7 @@ export default class Template extends Command {
     return { asyncapi, template, output };
   }
 
-  private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string, registryUrl?: string, registryAuth?:string, registryToken?:string): ParsedFlags {
+  private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string, registryUrl?: string, registryAuth?: string, registryToken?: string): ParsedFlags {
     return {
       params: this.paramParser(params),
       disableHooks: this.disableHooksParser(disableHooks),
@@ -183,14 +188,14 @@ export default class Template extends Command {
     } as ParsedFlags;
   }
 
-  private registryURLParser(input?:string) {
+  private registryURLParser(input?: string) {
     if (!input) { return; }
     const isURL = /^https?:/;
     if (!isURL.test(input.toLowerCase())) {
       throw new Error('Invalid --registry-url flag. The param requires a valid http/https url.');
     }
   }
-  private async registryValidation(registryUrl?:string, registryAuth?:string, registryToken?:string) {
+  private async registryValidation(registryUrl?: string, registryAuth?: string, registryToken?: string) {
     if (!registryUrl) { return; }
     try {
       const response = await fetch(registryUrl as string);
@@ -265,7 +270,32 @@ export default class Template extends Command {
     const s = interactive ? spinner() : { start: () => null, stop: (string: string) => console.log(string) };
     s.start('Generation in progress. Keep calm and wait a bit');
     try {
-      await generator.generateFromString(specification.text(), {...genOption, path: asyncapi});
+      await generator.generateFromString(specification.text(), { ...genOption, path: asyncapi });
+    } catch (err: any) {
+      s.stop('Generation failed');
+      throw new GeneratorError(err);
+    }
+    s.stop(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
+  }
+
+  private async generateUsingNewGenerator(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any, interactive = true) {
+    let specification: Specification;
+    try {
+      specification = await load(asyncapi)
+    } catch (error) {
+      return this.error(
+        new ValidationError({
+          type: 'invalid-file',
+          filepath: asyncapi
+        }),
+        { exit: 1 }
+      )
+    }
+    const generator = new AsyncAPINewGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
+    const s = interactive ? spinner() : { start: () => null, stop: (string: string) => console.log(string) };
+    s.start('Generation in progress. Keep calm and wait a bit');
+    try {
+      await generator.generateFromString(specification.text(), { ...genOption, path: asyncapi });
     } catch (err: any) {
       s.stop('Generation failed');
       throw new GeneratorError(err);
@@ -320,17 +350,17 @@ export default class Template extends Command {
       for (const [, value] of Object.entries(changedFiles)) {
         let eventText;
         switch (value.eventType) {
-        case 'changed':
-          eventText = green(value.eventType);
-          break;
-        case 'removed':
-          eventText = red(value.eventType);
-          break;
-        case 'renamed':
-          eventText = yellow(value.eventType);
-          break;
-        default:
-          eventText = yellow(value.eventType);
+          case 'changed':
+            eventText = green(value.eventType);
+            break;
+          case 'removed':
+            eventText = red(value.eventType);
+            break;
+          case 'renamed':
+            eventText = yellow(value.eventType);
+            break;
+          default:
+            eventText = yellow(value.eventType);
         }
         this.log(`\t${magenta(value.path)} was ${eventText}`);
       }
@@ -354,7 +384,7 @@ export default class Template extends Command {
 
         return new Promise(((resolve, reject) => {
           let localpath = file.url;
-          localpath = localpath.replace(baseUrl,baseDir);
+          localpath = localpath.replace(baseUrl, baseDir);
           try {
             fs.readFile(localpath, (err, data) => {
               if (err) {

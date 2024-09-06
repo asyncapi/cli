@@ -14,6 +14,7 @@
     "@asyncapi/diff": "^0.4.1",
     "@asyncapi/modelina-cli": "^4.0.0-next.48",
     "@asyncapi/generator": "^1.17.25",
+    "asyncapi-generator-v2": "npm:@asyncapi/generator@^2.0.3",
     "@asyncapi/modelina": "^3.6.0",
     "@asyncapi/openapi-schema-parser": "^3.0.24",
     "@asyncapi/optimizer": "^1.0.2",
