@@ -7,6 +7,7 @@ import {
   ContextFileEmptyError,
 } from '../../../core/errors/context-error';
 import { helpFlag } from '../../../core/flags/global.flags';
+import { cyan } from 'picocolors';
 
 export default class ContextUse extends Command {
   static description = 'Set a context as current';
@@ -22,18 +23,14 @@ export default class ContextUse extends Command {
 
     try {
       await setCurrentContext(contextName);
-      this.log(`${contextName} is set as current`);
+      this.log(`Context ${cyan(contextName)} is now set as current.`);
     } catch (e) {
       if (
         e instanceof (MissingContextFileError || ContextFileWrongFormatError)
       ) {
-        this.log(
-          'You have no context file configured. Run "asyncapi config context init" to initialize it.'
-        );
-        return;
+        this.error(`Unable to set the current context. You have no context file configured.\nRun ${cyan('asyncapi config context init')} to initialize it.`);
       } else if (e instanceof ContextFileEmptyError) {
-        this.log(`Context file "${CONTEXT_FILE_PATH}" is empty.`);
-        return;
+        this.error(`Context file ${cyan(CONTEXT_FILE_PATH)} is empty.`);
       }
       throw e;
     }

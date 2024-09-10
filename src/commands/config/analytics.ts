@@ -3,6 +3,7 @@ import Command from '../../core/base';
 import { promises as fPromises } from 'fs';
 import { homedir } from 'os';
 import { analyticsFlags } from '../../core/flags/config/analytics.flags';
+import { cyan, red } from 'picocolors';
 
 const { readFile, writeFile } = fPromises;
 
@@ -26,7 +27,7 @@ export default class Analytics extends Command {
         this.log('\nAnalytics enabled.\n');
         this.metricsMetadata.analytics_enabled = flags.enable;
       } else if (!flags.status) {
-        this.log('\nPlease append the "--disable" flag to the command in case you prefer to disable analytics, or use the "--enable" flag if you want to enable analytics back again. In case you do not know the analytics current status, then you can append the "--status" flag to be aware of it.\n');
+        this.log(`\nPlease append the ${cyan('--disable')} flag to the command if you prefer to disable analytics, or use the ${cyan('--enable')} flag if you want to enable analytics again. To check the current analytics status, use the ${cyan('--status')} flag.\n`);
         return;
       }
       await writeFile(analyticsConfigFile, JSON.stringify(analyticsConfigFileContent), { encoding: 'utf8' });
@@ -35,17 +36,17 @@ export default class Analytics extends Command {
         if (analyticsConfigFileContent.analyticsEnabled === 'true') {
           this.log('\nAnalytics are enabled.\n');
         } else {
-          this.log('\nAnalytics are disabled. Please append the "--enable" flag to the command in case you prefer to enable analytics.\n');
+          this.log(`\n${red('Analytics are disabled.')} To enable analytics, use the ${cyan('--enable')} flag.\n`);
         }
         this.metricsMetadata.analytics_status_checked = flags.status;
       }
     } catch (e: any) {
       switch (e.code) {
       case 'ENOENT':
-        this.error(`Unable to access the analytics configuration file. We tried to access the ".asyncapi-analytics" file in in the path "${analyticsConfigFile}" but the file could not be found.`);
+        this.error(`Unable to access the analytics configuration file. We tried to access the ${cyan('.asyncapi-analytics')} file in the path "${cyan(analyticsConfigFile)}" but the file could not be found.`);
         break;
       case 'EEXIST':
-        this.error(`Unable to update the analytics configuration file. We tried to update your ".asyncapi-analytics" file in the path "${analyticsConfigFile}" but the file does not exist.`);
+        this.error(`Unable to update the analytics configuration file. We tried to update your ".asyncapi-analytics" file in the path "${cyan(analyticsConfigFile)}" but the file does not exist.`);
         break;
       default:
         this.error(`Unable to change your analytics configuration. Please check the following message for further info about the error:\n\n${e}`);
