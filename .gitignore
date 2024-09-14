@@ -11,10 +11,32 @@
 /yarn.lock
 /assets/examples/**
 !assets/examples/default-example.yaml
+!assets/examples/tutorial.yml
 node_modules
-
+/test/integration/generate/models/
+test.asyncapi-cli
 asyncapi.json
-asyncapi.yaml
 asyncapi.yml
+test/fixtures/minimaltemplate/__transpiled
+.vscode
 
+oclif.manifest.json
 spec-examples.zip
+
+# Coverage for testing
+
+coverage
+.asyncapi-analytics
+
+# Analytics
+
+.asyncapi-analytics
+
+# Glee
+assets/create-glee-app/templates/default/.glee
+assets/create-glee-app/templates/tutorial/.glee
+assets/create-glee-app/templates/default/docs
+assets/create-glee-app/templates/tutorial/docs
+
+# Modelina
+test/fixtures/generate/models

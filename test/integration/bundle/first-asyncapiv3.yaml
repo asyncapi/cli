@@ -1,0 +1,8 @@
+asyncapi: 3.0.0
+info:
+  title: Example Service
+  version: 1.0.0
+  description: Example Service.
+channels:
+  commentLikedChannel:
+    $ref: './channels.yaml#/channels/commentLikedChannel'

@@ -1,5 +1,5 @@
-#This action is centrally managed in https://github.com/asyncapi/.github/
-#Don't make changes to this file in this repo as they will be overwritten with changes made to the same file in above mentioned repo
+# This action is centrally managed in https://github.com/asyncapi/.github/
+# Don't make changes to this file in this repo as they will be overwritten with changes made to the same file in above mentioned repo
 
 name: Manage stale issues and PRs
 
@@ -9,9 +9,11 @@ on:
 
 jobs:
   stale:
+    if: startsWith(github.repository, 'asyncapi/')
+    name: Mark issue or PR as stale
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/stale@v4.0.0
+    - uses: actions/stale@99b6c709598e2b0d0841cd037aaf1ba07a4410bd #v5.2.0 but pointing to commit for security reasons
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         stale-issue-message: |
@@ -40,3 +42,4 @@ jobs:
         stale-pr-label: stale
         exempt-issue-labels: keep-open
         exempt-pr-labels: keep-open
+        close-issue-reason: not_planned

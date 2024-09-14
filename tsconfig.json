@@ -1,16 +1,26 @@
 {
   "compilerOptions": {
+    "outDir": "./lib",
+    "baseUrl": "./src",
+    "target": "es6",
+    "module": "commonjs",
+    "lib": [
+      "esnext",
+    ],
     "declaration": true,
     "importHelpers": true,
-    "esModuleInterop": true,
-    "module": "commonjs",
-    "outDir": "lib",
-    "rootDir": "src",
-    "strict": true,
+    "allowJs": true,
     "skipLibCheck": true,
-    "target": "es2017"
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
   },
   "include": [
-    "src/**/*"
+    "src"
   ]
 }

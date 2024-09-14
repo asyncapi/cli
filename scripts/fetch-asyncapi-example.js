@@ -1,24 +1,50 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const request = require('request');
+const fetch = require('node-fetch');
 const fs = require('fs');
 const unzipper = require('unzipper');
 const path = require('path');
-const parser = require('@asyncapi/parser');
 
-const SPEC_EXAMPLES_ZIP_URL = 'https://github.com/asyncapi/spec/archive/refs/tags/v2.3.0.zip';
+const { Parser } = require('@asyncapi/parser/cjs');
+const { AvroSchemaParser } = require('@asyncapi/avro-schema-parser');
+const { OpenAPISchemaParser } = require('@asyncapi/openapi-schema-parser');
+const { RamlDTSchemaParser } = require('@asyncapi/raml-dt-schema-parser');
+
+const parser = new Parser({
+  schemaParsers: [
+    AvroSchemaParser(),
+    OpenAPISchemaParser(),
+    RamlDTSchemaParser(),
+  ]
+});
+
+const SPEC_EXAMPLES_ZIP_URL = 'https://github.com/asyncapi/spec/archive/refs/heads/master.zip';
 const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
 const TEMP_ZIP_NAME = 'spec-examples.zip';
 
 const fetchAsyncAPIExamplesFromExternalURL = () => {
-  return new Promise((resolve, reject) => {
-    request(SPEC_EXAMPLES_ZIP_URL)
-      .pipe(fs.createWriteStream(TEMP_ZIP_NAME))
-      .on('close', () => {
-        console.log('Fetched ZIP file');
-        resolve();
-      }).on('error', reject);
-  });
+  try {
+    return new Promise((resolve, reject) => {
+      fetch(SPEC_EXAMPLES_ZIP_URL)
+        .then((res) => {
+          if (res.status !== 200) {
+            reject(new Error(`Failed to fetch examples from ${SPEC_EXAMPLES_ZIP_URL}`));
+          }
+          const file = fs.createWriteStream(TEMP_ZIP_NAME);
+          res.body.pipe(file);
+          file.on('close', () => {
+            console.log('Fetched ZIP file');
+            file.close();
+            resolve();
+          }).on('error', (err) => {
+            reject(err);
+          });
+        })
+        .catch(reject); 
+    });
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const unzipAsyncAPIExamples = async () => {
@@ -39,10 +65,10 @@ const unzipAsyncAPIExamples = async () => {
           entry.autodrain();
         }
       }).on('close', () => {
-        console.log('Unzipped all examples from zip');
+        console.log('Unzipped all examples from ZIP');
         resolve();
-      }).on('error', () => {
-        reject();
+      }).on('error', (error) => {
+        reject(new Error(`Error in unzipping from ZIP: ${error.message}`));
       });
   });
 };
@@ -51,46 +77,50 @@ const buildCLIListFromExamples = async () => {
   const files = fs.readdirSync(EXAMPLE_DIRECTORY);
   const examples = files.filter(file => file.includes('.yml')).sort();
 
-  const listAllProtocolsForFile = (parsedAsyncAPI) => {
-    if (!parsedAsyncAPI.hasServers()) {return '';}
-    const servers = parsedAsyncAPI.servers();
-    return Object.keys(servers).map(server => servers[String(server)].protocol()).join(',');
-  };
-
   const buildExampleList = examples.map(async example => {
     const examplePath = path.join(EXAMPLE_DIRECTORY, example);
-    const exampleContent = fs.readFileSync(examplePath, { encoding: 'utf-8'});
-    
+    const exampleContent = fs.readFileSync(examplePath, { encoding: 'utf-8' });
+
     try {
-      const parsedSpec = await parser.parse(exampleContent);
-      const title = parsedSpec.info().title();
-      const protocols = listAllProtocolsForFile(parsedSpec);
+      const { document } = await parser.parse(exampleContent);
+      // Failed for some reason to parse this spec file (document is undefined), ignore for now
+      if (!document) {
+        return;
+      }
+
+      const title = document.info().title();
+      const protocols = listAllProtocolsForFile(document);
       return {
         name: protocols ? `${title} - (protocols: ${protocols})` : title,
         value: example
       };
     } catch (error) {
-      // Failed for somereason to parse this spec file, ignore for now
       console.error(error);
     }
   });
 
-  const exampleList = await Promise.all(buildExampleList);
+  const exampleList = (await Promise.all(buildExampleList)).filter(item => !!item);
   const orderedExampleList = exampleList.sort((a, b) => a.name.localeCompare(b.name));
 
   fs.writeFileSync(path.join(EXAMPLE_DIRECTORY, 'examples.json'), JSON.stringify(orderedExampleList, null, 4));
 };
 
-const tidyup = async () => {
+const listAllProtocolsForFile = (document) => {
+  const servers = document.servers();
+  if (servers.length === 0) {
+    return '';
+  }
+
+  return servers.all().map(server => server.protocol()).join(',');
+};
+
+const tidyUp = async () => {
   fs.unlinkSync(TEMP_ZIP_NAME);
 };
 
-const main = async () => {
+(async () => {
   await fetchAsyncAPIExamplesFromExternalURL();
   await unzipAsyncAPIExamples();
   await buildCLIListFromExamples();
-  await tidyup();
-};
-
-main();
-
+  await tidyUp();
+})();

@@ -1,46 +1,40 @@
-import { flags } from '@oclif/command';
-import * as parser from '@asyncapi/parser';
-import Command from '../base';
-import { ValidationError } from '../errors/validation-error';
-import { load } from '../models/SpecificationFile';
-import { specWatcher } from '../globals';
-import { watchFlag } from '../flags';
+import { Args } from '@oclif/core';
+import Command from '../core/base';
+import { validate, ValidateOptions, ValidationStatus, parse } from '../core/parser';
+import { load } from '../core/models/SpecificationFile';
+import { specWatcher } from '../core/globals';
+import { validateFlags } from '../core/flags/validate.flags';
+import { calculateScore } from '../core/utils/scoreCalculator';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
 
-  static flags = {
-    help: flags.help({ char: 'h' }),
-    watch: watchFlag
-  }
+  static flags = validateFlags();
 
-  static args = [
-    { name: 'spec-file', description: 'spec path, url, or context-name', required: false },
-  ]
+  static args = {
+    'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
+  };
 
   async run() {
-    const { args, flags } = this.parse(Validate); // NOSONAR
+    const { args, flags } = await this.parse(Validate); //NOSONAR
+
     const filePath = args['spec-file'];
-
-    const watchMode = flags['watch'];
-
-    const specFile = await load(filePath);
-    if (watchMode) {
-      specWatcher({spec: specFile, handler: this, handlerName: 'validate'});
+    const watchMode = flags.watch;
+    if (flags['score']) {
+      this.specFile = await load(filePath);
+      const { document } = await parse(this,this.specFile);
+      this.log(`The score of the asyncapi document is ${await calculateScore(document)}`);
     }
-    try {
-      if (specFile.getFilePath()) {
-        await parser.parse(specFile.text());
-        this.log(`File ${specFile.getFilePath()} successfully validated!`);
-      } else if (specFile.getFileURL()) {
-        await parser.parse(specFile.text());
-        this.log(`URL ${specFile.getFileURL()} successfully validated`);
-      }
-    } catch (error) {
-      throw new ValidationError({
-        type: 'parser-error',
-        err: error
-      });
+    this.specFile = await load(filePath);
+    if (watchMode) {
+      specWatcher({ spec: this.specFile, handler: this, handlerName: 'validate' });
+    }
+
+    const result = await validate(this, this.specFile, flags as ValidateOptions);
+    this.metricsMetadata.validation_result = result;
+
+    if (result === ValidationStatus.INVALID) {
+      process.exitCode = 1;
     }
   }
 }
