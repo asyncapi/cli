@@ -38,7 +38,8 @@ export default class Convert extends Command {
 
       // Determine if the input is OpenAPI or AsyncAPI
       const specJson = this.specFile.toJson();
-      const isOpenAPI = 'openapi' in specJson;
+      const isOpenAPI = flags['format'] === 'openapi';
+      const isAsyncAPI = flags['format'] === 'asyncapi';
 
       // CONVERSION
       if (isOpenAPI) {
@@ -46,12 +47,12 @@ export default class Convert extends Command {
           perspective: flags['perspective'] as 'client' | 'server'
         });
         this.log(`🎉 The OpenAPI document has been successfully converted to AsyncAPI version ${green(flags['target-version'])}!`);
-      } else {
+      } else if (isAsyncAPI) {
         convertedFile = convert(this.specFile.text(), flags['target-version'] as AsyncAPIConvertVersion);
         if (this.specFile.getFilePath()) {
-          this.log(`🎉 The ${cyan(this.specFile.getFilePath())} file has been successfully converted to version ${green(flags['target-version'])}!`);
+          this.log(`🎉 The ${cyan(this.specFile.getFilePath())} file has been successfully converted to version ${green(flags['target-version'])}!!`);
         } else if (this.specFile.getFileURL()) {
-          this.log(`🎉 The URL ${cyan(this.specFile.getFileURL())} has been successfully converted to version ${green(flags['target-version'])}!`);
+          this.log(`🎉 The URL ${cyan(this.specFile.getFileURL())} has been successfully converted to version ${green(flags['target-version'])}!!`);
         }
       }
 
