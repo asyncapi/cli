@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "2.3.12",
+  "version": "2.3.13",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
@@ -10,7 +10,7 @@
   "dependencies": {
     "@asyncapi/avro-schema-parser": "^3.0.23",
     "@asyncapi/bundler": "^0.6.3",
-    "@asyncapi/converter": "^1.6.0",
+    "@asyncapi/converter": "^1.6.1",
     "@asyncapi/diff": "^0.4.1",
     "@asyncapi/generator": "^1.17.25",
     "@asyncapi/modelina": "^3.7.0",
