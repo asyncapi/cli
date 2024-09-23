@@ -5,7 +5,7 @@ import Command from '../core/base';
 import { ValidationError } from '../core/errors/validation-error';
 import { load } from '../core/models/SpecificationFile';
 import { SpecificationFileNotFound } from '../core/errors/specification-file';
-import { convert, convertOpenAPI } from '@asyncapi/converter';
+import { convert, convertOpenAPI, convertPostman } from '@asyncapi/converter';
 import type { AsyncAPIConvertVersion, OpenAPIConvertVersion } from '@asyncapi/converter';
 import { cyan, green } from 'picocolors';
 
@@ -16,7 +16,7 @@ import { convertFlags } from '../core/flags/convert.flags';
 const latestVersion = Object.keys(specs.schemas).pop() as string;
 
 export default class Convert extends Command {
-  static description = 'Convert asyncapi documents older to newer versions or OpenAPI documents to AsyncAPI';
+  static description = 'Convert asyncapi documents older to newer versions or OpenAPI/postman-collection documents to AsyncAPI';
 
   static flags = convertFlags(latestVersion);
 
@@ -53,6 +53,15 @@ export default class Convert extends Command {
           this.log(`🎉 The ${cyan(this.specFile.getFilePath())} file has been successfully converted to version ${green(flags['target-version'])}!!`);
         } else if (this.specFile.getFileURL()) {
           this.log(`🎉 The URL ${cyan(this.specFile.getFileURL())} has been successfully converted to version ${green(flags['target-version'])}!!`);
+        }
+      } else {
+        convertedFile = convertPostman(this.specFile.text(), '3.0.0', {
+          perspective: flags['perspective'] as 'client' | 'server'
+        });
+        if (this.specFile.getFilePath()) {
+          this.log(`🎉 The ${cyan(this.specFile.getFilePath())} file has been successfully converted to asyncapi of version ${green(flags['target-version'])}!!`);
+        } else if (this.specFile.getFileURL()) {
+          this.log(`🎉 The URL ${cyan(this.specFile.getFileURL())} has been successfully converted to asyncapi of version ${green(flags['target-version'])}!!`);
         }
       }
 
