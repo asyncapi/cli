@@ -114,7 +114,7 @@ export default class Template extends Command {
       }
     }
     if (flags['use-new-generator']) {
-      await this.generateUsingNewGenerator(asyncapi, template, output, options, genOption, interactive)
+      await this.generateUsingNewGenerator(asyncapi, template, output, options, genOption, interactive);
     } else {
       await this.generate(asyncapi, template, output, options, genOption, interactive);
     }
@@ -350,17 +350,17 @@ export default class Template extends Command {
       for (const [, value] of Object.entries(changedFiles)) {
         let eventText;
         switch (value.eventType) {
-          case 'changed':
-            eventText = green(value.eventType);
-            break;
-          case 'removed':
-            eventText = red(value.eventType);
-            break;
-          case 'renamed':
-            eventText = yellow(value.eventType);
-            break;
-          default:
-            eventText = yellow(value.eventType);
+        case 'changed':
+          eventText = green(value.eventType);
+          break;
+        case 'removed':
+          eventText = red(value.eventType);
+          break;
+        case 'renamed':
+          eventText = yellow(value.eventType);
+          break;
+        default:
+          eventText = yellow(value.eventType);
         }
         this.log(`\t${magenta(value.path)} was ${eventText}`);
       }
