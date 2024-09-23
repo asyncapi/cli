@@ -5,6 +5,6 @@
     "supportedProtocols": []
   },
   "dependencies": {
-    "@asyncapi/generator-react-sdk": "^1.1.1"
+    "@asyncapi/generator-react-sdk": "^1.1.2"
   }
 }
