@@ -16,6 +16,8 @@ import { convertFlags } from '../core/flags/convert.flags';
 const latestVersion = Object.keys(specs.schemas).pop() as string;
 
 export default class Convert extends Command {
+  static specFile: any;
+  static metricsMetadata: any = {};
   static description = 'Convert asyncapi documents older to newer versions or OpenAPI/postman-collection documents to AsyncAPI';
 
   static flags = convertFlags(latestVersion);
@@ -42,51 +44,84 @@ export default class Convert extends Command {
       const isAsyncAPI = flags['format'] === 'asyncapi';
 
       // CONVERSION
-      if (isOpenAPI) {
-        convertedFile = convertOpenAPI(this.specFile.text(), specJson.openapi as OpenAPIConvertVersion, {
-          perspective: flags['perspective'] as 'client' | 'server'
-        });
-        this.log(`🎉 The OpenAPI document has been successfully converted to AsyncAPI version ${green(flags['target-version'])}!`);
-      } else if (isAsyncAPI) {
-        convertedFile = convert(this.specFile.text(), flags['target-version'] as AsyncAPIConvertVersion);
-        if (this.specFile.getFilePath()) {
-          this.log(`🎉 The ${cyan(this.specFile.getFilePath())} file has been successfully converted to version ${green(flags['target-version'])}!!`);
-        } else if (this.specFile.getFileURL()) {
-          this.log(`🎉 The URL ${cyan(this.specFile.getFileURL())} has been successfully converted to version ${green(flags['target-version'])}!!`);
-        }
-      } else {
-        convertedFile = convertPostman(this.specFile.text(), '3.0.0', {
-          perspective: flags['perspective'] as 'client' | 'server'
-        });
-        if (this.specFile.getFilePath()) {
-          this.log(`🎉 The ${cyan(this.specFile.getFilePath())} file has been successfully converted to asyncapi of version ${green(flags['target-version'])}!!`);
-        } else if (this.specFile.getFileURL()) {
-          this.log(`🎉 The URL ${cyan(this.specFile.getFileURL())} has been successfully converted to asyncapi of version ${green(flags['target-version'])}!!`);
-        }
-      }
+      convertedFile = this.handleConversion(isOpenAPI, isAsyncAPI, flags);
 
-      if (typeof convertedFile === 'object') {
-        convertedFileFormatted = JSON.stringify(convertedFile, null, 4);
-      } else {
-        convertedFileFormatted = convertedFile;
-      }
+      // Handle file output or log the result
+      convertedFileFormatted = this.formatConvertedFile(convertedFile);
+      await this.handleOutput(flags.output, convertedFileFormatted);
 
-      if (flags.output) {
-        await fPromises.writeFile(`${flags.output}`, convertedFileFormatted, { encoding: 'utf8' });
-      } else {
-        this.log(convertedFileFormatted);
-      }
     } catch (err) {
-      if (err instanceof SpecificationFileNotFound) {
-        this.error(new ValidationError({
-          type: 'invalid-file',
-          filepath: filePath
-        }));
-      } else if (this.specFile?.toJson().asyncapi > flags['target-version']) {
-        this.error(`The ${cyan(filePath)} file cannot be converted to an older version. Downgrading is not supported.`);
-      } else {
-        this.error(err as Error);
-      }
+      this.handleError(err, filePath ?? "unknown", flags);
+    }
+  }
+
+  // Helper function to handle conversion logic
+  private handleConversion(isOpenAPI: boolean, isAsyncAPI: boolean, flags: any) {
+    const specJson = this.specFile?.toJson();
+    if (isOpenAPI) {
+      return this.convertOpenAPI(specJson, flags);
+    } else if (isAsyncAPI) {
+      return this.convertAsyncAPI(flags);
+    } else {
+      return this.convertPostman(flags);
+    }
+  }
+
+  private convertOpenAPI(specJson: any, flags: any) {
+    const convertedFile = convertOpenAPI(this.specFile?.text() ?? '', specJson.openapi as OpenAPIConvertVersion, {
+      perspective: flags['perspective'] as 'client' | 'server'
+    });
+    this.log(`🎉 The OpenAPI document has been successfully converted to AsyncAPI version ${green(flags['target-version'])}!`);
+    return convertedFile;
+  }
+
+  private convertAsyncAPI(flags: any) {
+    const convertedFile = convert(this.specFile?.text() ?? '', flags['target-version'] as AsyncAPIConvertVersion);
+    if (this.specFile?.getFilePath()) {
+      this.log(`🎉 The ${cyan(this.specFile?.getFilePath())} file has been successfully converted to version ${green(flags['target-version'])}!!`);
+    } else if (this.specFile?.getFileURL()) {
+      this.log(`🎉 The URL ${cyan(this.specFile?.getFileURL())} has been successfully converted to version ${green(flags['target-version'])}!!`);
+    }
+    return convertedFile;
+  }
+
+  private convertPostman(flags: any) {
+    const convertedFile = convertPostman(this.specFile?.text() ?? '', '3.0.0', {
+      perspective: flags['perspective'] as 'client' | 'server'
+    });
+    if (this.specFile?.getFilePath()) {
+      this.log(`🎉 The ${cyan(this.specFile?.getFilePath())} file has been successfully converted to asyncapi of version ${green(flags['target-version'])}!!`);
+    } else if (this.specFile?.getFileURL()) {
+      this.log(`🎉 The URL ${cyan(this.specFile?.getFileURL())} has been successfully converted to asyncapi of version ${green(flags['target-version'])}!!`);
+    }
+    return convertedFile;
+  }
+
+  // Helper function to format the converted file
+  private formatConvertedFile(convertedFile: any) {
+    return typeof convertedFile === 'object' ? JSON.stringify(convertedFile, null, 4) : convertedFile;
+  }
+
+  // Helper function to handle output
+  private async handleOutput(outputPath: string | undefined, convertedFileFormatted: string) {
+    if (outputPath) {
+      await fPromises.writeFile(`${outputPath}`, convertedFileFormatted, { encoding: 'utf8' });
+    } else {
+      this.log(convertedFileFormatted);
+    }
+  }
+
+  // Helper function to handle errors
+  private handleError(err: any, filePath: string, flags: any) {
+    if (err instanceof SpecificationFileNotFound) {
+      this.error(new ValidationError({
+        type: 'invalid-file',
+        filepath: filePath
+      }));
+    } else if (this.specFile?.toJson().asyncapi > flags['target-version']) {
+      this.error(`The ${cyan(filePath)} file cannot be converted to an older version. Downgrading is not supported.`);
+    } else {
+      this.error(err as Error);
     }
   }
 }
