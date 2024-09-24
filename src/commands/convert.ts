@@ -39,7 +39,6 @@ export default class Convert extends Command {
       this.metricsMetadata.to_version = flags['target-version'];
 
       // Determine if the input is OpenAPI or AsyncAPI
-      const specJson = this.specFile.toJson();
       const isOpenAPI = flags['format'] === 'openapi';
       const isAsyncAPI = flags['format'] === 'asyncapi';
 
@@ -49,9 +48,8 @@ export default class Convert extends Command {
       // Handle file output or log the result
       convertedFileFormatted = this.formatConvertedFile(convertedFile);
       await this.handleOutput(flags.output, convertedFileFormatted);
-
     } catch (err) {
-      this.handleError(err, filePath ?? "unknown", flags);
+      this.handleError(err, filePath ?? 'unknown', flags);
     }
   }
 
@@ -62,9 +60,8 @@ export default class Convert extends Command {
       return this.convertOpenAPI(specJson, flags);
     } else if (isAsyncAPI) {
       return this.convertAsyncAPI(flags);
-    } else {
-      return this.convertPostman(flags);
-    }
+    } 
+    return this.convertPostman(flags);
   }
 
   private convertOpenAPI(specJson: any, flags: any) {
