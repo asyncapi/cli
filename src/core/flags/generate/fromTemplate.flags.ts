@@ -55,6 +55,10 @@ export const fromTemplateFlags = () => {
     }),
     'registry-token': Flags.string({
       description: 'The npm registry authentication token, that can be passed instead of base64 encoded username and password'
+    }),
+    'use-new-generator': Flags.boolean({
+      default: false,
+      description: 'Use v2 generator, for generating from newer templates'
     })
   };
 };
