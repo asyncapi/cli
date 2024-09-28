@@ -34,7 +34,7 @@ describe('optimize', () => {
       .stdout()
       .command(['optimize', optimizedFilePath])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`No optimization has been applied since ${optimizedFilePath} looks optimized!`);
+        expect(ctx.stdout).to.contain(`🎉 Great news! Your file at ${optimizedFilePath} is already optimized.`);
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -54,7 +54,7 @@ describe('optimize', () => {
       .stdout()
       .command(['optimize', 'http://localhost:8080/dummySpecWithoutSecurity.yml'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain('No optimization has been applied since http://localhost:8080/dummySpecWithoutSecurity.yml looks optimized!');
+        expect(ctx.stdout).to.contain('🎉 Great news! Your file at http://localhost:8080/dummySpecWithoutSecurity.yml is already optimized.');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -75,7 +75,7 @@ describe('optimize', () => {
       .stdout()
       .command(['optimize'])
       .it('converts from current context', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`No optimization has been applied since ${path.resolve(__dirname, '../fixtures/specification.yml')} looks optimized!`);
+        expect(ctx.stdout).to.contain(`🎉 Great news! Your file at ${path.resolve(__dirname, '../fixtures/specification.yml')} is already optimized.`);
         expect(ctx.stderr).to.equal('');
         done();
       });
