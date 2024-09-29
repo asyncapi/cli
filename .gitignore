@@ -21,6 +21,7 @@ test/fixtures/minimaltemplate/__transpiled
 .vscode
 
 /action/
+/github-action/output/
 
 oclif.manifest.json
 spec-examples.zip

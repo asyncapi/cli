@@ -3,18 +3,36 @@ FROM node:18-alpine
 # Create a non-root user
 RUN addgroup -S myuser && adduser -S myuser -G myuser
 
-RUN apk add --no-cache bash>5.1.16 git>2.42.0 chromium
+# Install necessary packages
+RUN apk add --no-cache bash git chromium
 
-# Environment variables for Puppeteer for PDF generation by HTML Template
+# Environment variables for Puppeteer
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-# Installing latest released npm package
-RUN npm install --ignore-scripts -g @asyncapi/cli
+FROM ubuntu:latest
 
-COPY entrypoint.sh /entrypoint.sh
+# Copy the asyncapi directory
+COPY tmp/asyncapi/ /asyncapi
 
-# Make the bash file executable
+# Create a script that runs the desired command
+RUN echo "#!/bin/bash\n/asyncapi/bin/run" > /usr/local/bin/asyncapi
+
+# Make the script executable
+RUN chmod +x /usr/local/bin/asyncapi
+
+RUN ls -l /usr/local/bin/asyncapi
+
+# Change ownership to non-root user
+RUN chown -R myuser:myuser /asyncapi /usr/local/bin/asyncapi || echo "Failed to change ownership"
+
+# Copy the entrypoint script
+COPY github-action/entrypoint.sh /entrypoint.sh
+
+# Make the entrypoint script executable
 RUN chmod +x /entrypoint.sh
 
+FROM node:18-alpine 
+
+# Set the entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
