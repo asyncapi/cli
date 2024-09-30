@@ -50,6 +50,25 @@ describe('template', () => {
       });
   }).timeout(200000);
 
+  describe('should be able to use the new generator', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'generate:fromTemplate',
+        './test/fixtures/asyncapi_v2.yml',
+        '@asyncapi/newtemplate',
+        '--output=./test/docs/2',
+        '--force-write',
+        '--use-new-generator',
+      ])
+      .it('should be able to generate using newer version of generator', (ctx, done) => {
+        expect(ctx.stdout).to.contain('Check out your shiny new generated files at ./test/docs/2.\n\n');
+        cleanup('./test/docs/2');
+        done();
+      });
+  });
+
   describe('git clash', () => {
     const pathToOutput = './test/docs/2';
     before(() => {
