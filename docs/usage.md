@@ -712,6 +712,9 @@ _See code: [src/commands/optimize.ts](https://github.com/asyncapi/cli/blob/v2.4.
 ```
 USAGE
   $ asyncapi start
+
+DESCRIPTION
+  main command for starting asyncapi services, currently studio only
 ```
 
 _See code: [src/commands/start/index.ts](https://github.com/asyncapi/cli/blob/v2.4.1/src/commands/start/index.ts)_
