@@ -44,6 +44,7 @@ export default abstract class extends Command {
       try {
         const {document} = await this.parser.parse(rawDocument);
         if (document !== undefined) {
+          // @ts-ignore
           metadata = MetadataFromDocument(document, metadata);
         }
       } catch (e: any) {
