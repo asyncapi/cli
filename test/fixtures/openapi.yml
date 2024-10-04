@@ -1,0 +1,137 @@
+openapi: 3.0.0
+info:
+  title: Callbacks, Links, and Content Types API
+  version: 1.0.0
+  description: An API showcasing callbacks, links, and various content types
+servers:
+  - url: https://api.example.com/v1
+paths:
+  /webhooks:
+    post:
+      summary: Subscribe to webhook
+      operationId: subscribeWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                callbackUrl:
+                  type: string
+                  format: uri
+      responses:
+        '201':
+          description: Subscription created
+      callbacks:
+        onEvent:
+          '{$request.body#/callbackUrl}':
+            post:
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        eventType:
+                          type: string
+                        eventData:
+                          type: object
+              responses:
+                '200':
+                  description: Webhook processed
+  /users/{userId}:
+    get:
+      summary: Get a user
+      operationId: getUser
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          links:
+            userPosts:
+              operationId: getUserPosts
+              parameters:
+                userId: '$response.body#/id'
+  /users/{userId}/posts:
+    get:
+      summary: Get user posts
+      operationId: getUserPosts
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+  /upload:
+    post:
+      summary: Upload a file
+      operationId: uploadFile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Successful upload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fileId:
+                    type: string
+  /stream:
+    get:
+      summary: Get a data stream
+      operationId: getStream
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string

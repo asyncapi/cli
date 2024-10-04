@@ -5,4 +5,4 @@ info:
   description: Example Service.
 channels:
   commentLikedChannel:
-    $ref: './test/integration/bundle/channels.yaml#/channels/commentLikedChannel'
+    $ref: './channels.yaml#/channels/commentLikedChannel'

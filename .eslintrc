@@ -197,6 +197,12 @@
         "no-use-before-define": "off",
         "sonarjs/cognitive-complexity": "off"
       }
+    },
+    {
+      "files": ["src/core/base.ts"],
+      "rules": {
+        "@typescript-eslint/ban-ts-comment": "off"
+      }
     }
   ]
 }
