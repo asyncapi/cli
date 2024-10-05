@@ -34,7 +34,5 @@ COPY github-action/entrypoint.sh /entrypoint.sh
 # Make the entrypoint script executable
 RUN chmod +x /entrypoint.sh
 
-FROM node:18-alpine 
-
 # Set the entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
