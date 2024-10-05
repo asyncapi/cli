@@ -52,6 +52,9 @@ RUN chown -R myuser:myuser /libraries /usr/local/bin/asyncapi || echo "Failed to
 # Copy the entrypoint script
 COPY github-action/entrypoint.sh /entrypoint.sh
 
+# Copy github-action folder
+COPY github-action /github-action
+
 # Make the entrypoint script executable
 RUN chmod +x /entrypoint.sh
 
