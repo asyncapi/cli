@@ -16,6 +16,7 @@ RUN mkdir -p /libraries
 # Copy the lib, bin, node_modules, and package.json files to the /libraries directory
 RUN cp -r /tmp/source_code/lib /libraries
 RUN cp -r /tmp/source_code/node_modules /libraries
+RUN cp -r /tmp/source_code/assets /libraries
 RUN cp /tmp/source_code/package.json /libraries
 RUN cp /tmp/source_code/package-lock.json /libraries
 

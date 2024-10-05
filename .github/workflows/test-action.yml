@@ -78,7 +78,7 @@ jobs:
       - name: Test GitHub Action
         uses: ./
         with:
-          filepath: github-action/test/asyncapi.yml
+          filepath: ./github-action/test/asyncapi.yml
       - name: Assert GitHub Action
         run: |
           echo "Listing all files"  
@@ -110,7 +110,7 @@ jobs:
       - name: Test GitHub Action
         uses: ./
         with:
-          filepath: github-action/test/asyncapi.yml
+          filepath: ./github-action/test/asyncapi.yml
           command: validate
 
   test-custom-command:
@@ -165,7 +165,7 @@ jobs:
       - name: Test GitHub Action
         uses: ./
         with:
-          filepath: github-action/test/asyncapi.yml
+          filepath: ./github-action/test/asyncapi.yml
           output: custom-output
       - name: Assert GitHub Action
         run: |
