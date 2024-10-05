@@ -16,7 +16,6 @@ node_modules
 /test/integration/generate/models/
 test.asyncapi-cli
 asyncapi.json
-asyncapi.yml
 test/fixtures/minimaltemplate/__transpiled
 .vscode
 
