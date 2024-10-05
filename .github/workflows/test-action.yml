@@ -84,10 +84,10 @@ jobs:
           echo "Listing all files"  
           ls -R  
           echo "Asserting GitHub Action"
-          if [ -f "./github-action/output/asyncapi.md" ]; then
+          if [ -f "./output/asyncapi.md" ]; then
             echo "Files exist"
           else
-            echo "Files do not exist:- ./github-action/output/asyncapi.md"
+            echo "Files do not exist:- ./output/asyncapi.md"
             echo "Action failed"
             exit 1
           fi
@@ -139,7 +139,7 @@ jobs:
           echo "Listing all files"
           ls -R
           echo "Asserting GitHub Action"
-          if [ -f "./github-action/output/AnonymousSchema_1.ts" ]; then
+          if [ -f "./output/AnonymousSchema_1.ts" ]; then
             echo "Models have been generated"
           else
             echo "Models have not been generated"
@@ -329,7 +329,7 @@ jobs:
         uses: ./
         with:
           command: convert
-          filepath: test/asyncapi.yml 
+          filepath: github-action/test/asyncapi.yml 
           output: output/convert/asyncapi.yaml
       - name: Assert GitHub Action
         run: |
