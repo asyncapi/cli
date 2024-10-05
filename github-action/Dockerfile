@@ -3,6 +3,8 @@ FROM node:18-alpine
 # Create a non-root user
 RUN addgroup -S myuser && adduser -S myuser -G myuser
 
+USER myuser
+
 # Install necessary packages
 RUN apk add --no-cache bash git chromium
 
