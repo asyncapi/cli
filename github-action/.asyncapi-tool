@@ -1,0 +1,6 @@
+title: GitHub Action for Generator
+filters:
+    technology:
+        - AsyncAPI Generator
+    categories:
+        - github-actions
