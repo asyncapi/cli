@@ -7,4 +7,4 @@ channels:
   user/loggedOut:
     subscribe:
       message:
-        $ref: "./test/bundle/messages.yaml#/messages/UserLoggedOut"
+        $ref: "./messages.yaml#/messages/UserLoggedOut"
