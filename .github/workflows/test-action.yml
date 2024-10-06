@@ -292,7 +292,7 @@ jobs:
           docker image ls -a
       - uses: actions/checkout@v4
       - name: Make output directory
-        run: mkdir -p ./github-action/output/bundle
+        run: mkdir -p ./output/bundle
       - name: Test GitHub Action
         uses: ./
         with:
