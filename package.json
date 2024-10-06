@@ -175,7 +175,7 @@
     "get-version": "echo $npm_package_version",
     "createhook": "oclif generate hook myhook --event=command_not_found",
     "createhookinit": "oclif generate hook inithook --event=init",
-    "action:docker:build": "npm run build && docker build -f github-action/Dockerfile -t asyncapi/github-action-for-cli:latest .",
+    "action:docker:build": "docker build -f github-action/Dockerfile -t asyncapi/github-action-for-cli:latest .",
     "action:bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
     "action:test": "cd github-action && make test"
   },

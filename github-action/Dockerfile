@@ -5,7 +5,7 @@ FROM node:18-alpine as build
 COPY ./ /tmp/source_code
 
 # Install dependencies
-RUN cd /tmp/source_code && npm install
+RUN cd /tmp/source_code && npm install --ignore-scripts
 
 # Build the source code
 RUN cd /tmp/source_code && npm run build
@@ -15,7 +15,6 @@ RUN mkdir -p /libraries
 
 # Copy the lib, bin, node_modules, and package.json files to the /libraries directory
 RUN cp -r /tmp/source_code/lib /libraries
-RUN cp -r /tmp/source_code/node_modules /libraries
 RUN cp -r /tmp/source_code/assets /libraries
 RUN cp /tmp/source_code/package.json /libraries
 RUN cp /tmp/source_code/package-lock.json /libraries
@@ -30,17 +29,15 @@ RUN rm -rf /tmp/*
 FROM node:18-alpine
 
 # Install necessary packages
-RUN apk add --no-cache bash git chromium
+RUN apk add --no-cache bash git
 
 # Copy the libraries directory from the build stage
 COPY --from=build /libraries /libraries
 
-# Environment variables for Puppeteer
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+RUN cd /libraries && npm install --production --ignore-scripts
 
 # Create a non-root user
-RUN addgroup -S myuser && adduser -S myuser -G myuser
+# RUN addgroup -S myuser && adduser -S myuser -G myuser
 
 # Create a script that runs the desired command
 RUN ln -s /libraries/bin/run_bin /usr/local/bin/asyncapi
@@ -49,7 +46,7 @@ RUN ln -s /libraries/bin/run_bin /usr/local/bin/asyncapi
 RUN chmod +x /usr/local/bin/asyncapi
 
 # Change ownership to non-root user
-RUN chown -R myuser:myuser /libraries /usr/local/bin/asyncapi || echo "Failed to change ownership"
+# RUN chown -R myuser:myuser /libraries /usr/local/bin/asyncapi || echo "Failed to change ownership"
 
 # Copy the entrypoint script
 COPY github-action/entrypoint.sh /entrypoint.sh
