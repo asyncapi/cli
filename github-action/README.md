@@ -1,7 +1,4 @@
 # GitHub Action for CLI
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 This action exposes the [AsyncAPI CLI](https://github.com/asyncapi/cli). It allows you to generate documentation, validate AsyncAPI documents, convert between different AsyncAPI versions and much more.
 
@@ -216,33 +213,27 @@ jobs:
         filepath: docs/api/my-asyncapi.yml
 ```
 
+## Local dry run
+
+Use following commands to run and test github action locally:
+
+1. Build docker image of github action for cli
+
+  ```bash
+    npm run action:docker:build
+  ```
+
+2. Execute docker image with proper arguments
+
+  ```bash
+    docker run -e GITHUB_WORKSPACE="" --workdir /action  -v "/home/{user}/path/to/repo":"/action" asyncapi/github-action-for-cli  "" "generate" "github-action/test/asyncapi.yml" "@asyncapi/markdown-template@0.10.0" "" "output" "" ""
+  ```
+
+Make sure to change the path of the repo and user in the command.
+
 ## Troubleshooting
 
 You can enable more log information in GitHub Action by adding `ACTIONS_STEP_DEBUG` secret to repository where you want to use this action. Set the value of this secret to `true` and you''ll notice more debug logs from this action.
 
-## Contributors
-
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://www.brainfart.dev/"><img src="https://avatars.githubusercontent.com/u/6995927?v=4?s=100" width="100px;" alt="Lukasz Gornicki"/><br /><sub><b>Lukasz Gornicki</b></sub></a><br /><a href="https://github.com/asyncapi/github-action-for-cli/commits?author=derberg" title="Code">💻</a> <a href="#maintenance-derberg" title="Maintenance">🚧</a> <a href="#infra-derberg" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/asyncapi/github-action-for-cli/pulls?q=is%3Apr+reviewed-by%3Aderberg" title="Reviewed Pull Requests">👀</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/magicmatatjahu"><img src="https://avatars.githubusercontent.com/u/20404945?v=4?s=100" width="100px;" alt="Maciej Urbańczyk"/><br /><sub><b>Maciej Urbańczyk</b></sub></a><br /><a href="https://github.com/asyncapi/github-action-for-cli/pulls?q=is%3Apr+reviewed-by%3Amagicmatatjahu" title="Reviewed Pull Requests">👀</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://www.victormartingarcia.com"><img src="https://avatars.githubusercontent.com/u/659832?v=4?s=100" width="100px;" alt="Victor"/><br /><sub><b>Victor</b></sub></a><br /><a href="https://github.com/asyncapi/github-action-for-cli/commits?author=victormartingarcia" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/HUTCHHUTCHHUTCH"><img src="https://avatars.githubusercontent.com/u/55915170?v=4?s=100" width="100px;" alt="HUTCHHUTCHHUTCH"/><br /><sub><b>HUTCHHUTCHHUTCH</b></sub></a><br /><a href="#infra-HUTCHHUTCHHUTCH" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/pioneer2k"><img src="https://avatars.githubusercontent.com/u/32297829?v=4?s=100" width="100px;" alt="Thomas Heyer"/><br /><sub><b>Thomas Heyer</b></sub></a><br /><a href="#infra-pioneer2k" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="http://ashishpadhy.live"><img src="https://avatars.githubusercontent.com/u/100484401?v=4?s=100" width="100px;" alt="Ashish Padhy"/><br /><sub><b>Ashish Padhy</b></sub></a><br /><a href="https://github.com/asyncapi/github-action-for-cli/commits?author=Shurtu-gal" title="Code">💻</a> <a href="https://github.com/asyncapi/github-action-for-cli/commits?author=Shurtu-gal" title="Tests">⚠️</a> <a href="https://github.com/asyncapi/github-action-for-cli/commits?author=Shurtu-gal" title="Documentation">📖</a> <a href="#ideas-Shurtu-gal" title="Ideas, Planning, & Feedback">🤔</a></td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
