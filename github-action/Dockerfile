@@ -19,6 +19,7 @@ RUN cp -r /tmp/source_code/node_modules /libraries
 RUN cp -r /tmp/source_code/assets /libraries
 RUN cp /tmp/source_code/package.json /libraries
 RUN cp /tmp/source_code/package-lock.json /libraries
+RUN cp /tmp/source_code/oclif.manifest.json /libraries
 
 # Copy the bin directory to the /libraries directory
 RUN cp -r /tmp/source_code/bin /libraries
@@ -42,7 +43,7 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 RUN addgroup -S myuser && adduser -S myuser -G myuser
 
 # Create a script that runs the desired command
-RUN echo -e "#!/bin/bash\n/libraries/bin/run_bin" > /usr/local/bin/asyncapi
+RUN ln -s /libraries/bin/run_bin /usr/local/bin/asyncapi
 
 # Make the script executable
 RUN chmod +x /usr/local/bin/asyncapi
@@ -52,9 +53,6 @@ RUN chown -R myuser:myuser /libraries /usr/local/bin/asyncapi || echo "Failed to
 
 # Copy the entrypoint script
 COPY github-action/entrypoint.sh /entrypoint.sh
-
-# Copy github-action folder
-COPY github-action /github-action
 
 # Make the entrypoint script executable
 RUN chmod +x /entrypoint.sh
