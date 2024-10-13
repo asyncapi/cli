@@ -16,12 +16,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Update action.yml with version
         run: |
           VERSION=${{ github.event.inputs.version }}
-          sed "s/\${{ version }}/${VERSION}/g" action-template.yml > action.yml
+          sed "s/\\\${{ version }}/${VERSION}/g" action-template.yml > action.yml
 
       - name: Create branch
         run: |
