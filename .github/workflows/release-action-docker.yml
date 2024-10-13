@@ -29,7 +29,7 @@ jobs:
       - name: Release to Docker
         run: |
           echo ${{env.DOCKER_PASSWORD}} | docker login -u ${{env.DOCKER_USERNAME}} --password-stdin
-          npm run docker:build
+          npm run action:docker:build
           docker tag asyncapi/github-action-for-cli:latest asyncapi/github-action-for-cli:${{ steps.version.outputs.value }}
           docker push asyncapi/github-action-for-cli:${{ steps.version.outputs.value }}
           docker push asyncapi/github-action-for-cli:latest
