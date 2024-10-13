@@ -21,7 +21,7 @@ jobs:
       - name: Update action.yml with version
         run: |
           VERSION=${{ github.event.inputs.version }}
-          sed "s/\\\${{ version }}/${VERSION}/g" action-template.yml > action.yml
+          sed "s/\\\${ version }/${VERSION}/g" action-template.yml > action.yml
 
       - name: Create branch
         run: |
