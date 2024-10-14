@@ -293,14 +293,14 @@ export default class Template extends Command {
     }
     const generator = new AsyncAPINewGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
     const s = interactive ? spinner() : { start: () => null, stop: (string: string) => console.log(string) };
-    s.start('Generation in progress. Keep calm and wait a bit');
+    this.log('Generation in progress. Keep calm and wait a bit');
     try {
       await generator.generateFromString(specification.text(), { ...genOption, path: asyncapi });
     } catch (err: any) {
-      s.stop('Generation failed');
+      this.log('Generation failed');
       throw new GeneratorError(err);
     }
-    s.stop(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
+    this.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
   }
 
   private async runWatchMode(asyncapi: string | undefined, template: string, output: string, watchHandler: ReturnType<typeof this.watcherHandler>) {
@@ -350,17 +350,17 @@ export default class Template extends Command {
       for (const [, value] of Object.entries(changedFiles)) {
         let eventText;
         switch (value.eventType) {
-        case 'changed':
-          eventText = green(value.eventType);
-          break;
-        case 'removed':
-          eventText = red(value.eventType);
-          break;
-        case 'renamed':
-          eventText = yellow(value.eventType);
-          break;
-        default:
-          eventText = yellow(value.eventType);
+          case 'changed':
+            eventText = green(value.eventType);
+            break;
+          case 'removed':
+            eventText = red(value.eventType);
+            break;
+          case 'renamed':
+            eventText = yellow(value.eventType);
+            break;
+          default:
+            eventText = yellow(value.eventType);
         }
         this.log(`\t${magenta(value.path)} was ${eventText}`);
       }

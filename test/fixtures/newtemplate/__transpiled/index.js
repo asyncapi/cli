@@ -1,21 +1,21 @@
 'use strict';
 
 require('source-map-support/register');
-const generatorReactSdk = require('@asyncapi/generator-react-sdk');
-const jsxRuntime = require('/mnt/c/Users/Souvik/Documents/Programs/asyncapi/forks/cli/node_modules/@asyncapi/generator-react-sdk/node_modules/react/cjs/react-jsx-runtime.production.min.js');
+var generatorReactSdk = require('@asyncapi/generator-react-sdk');
+var jsxRuntime = require('C:/Users/Souvik/Documents/Programs/asyncapi/cli/node_modules/@asyncapi/generator-react-sdk/node_modules/react/cjs/react-jsx-runtime.production.min.js');
 
 function index ({
   asyncapi,
   params
 }) {
   return /*#__PURE__*/jsxRuntime.jsxs(generatorReactSdk.File, {
-    name: 'asyncapi.md',
+    name: "asyncapi.md",
     children: [/*#__PURE__*/jsxRuntime.jsx(generatorReactSdk.Text, {
-      children: 'This is a markdown file for my application.'
+      children: "This is a markdown file for my application."
     }), /*#__PURE__*/jsxRuntime.jsxs(generatorReactSdk.Text, {
-      children: ['App name is: **', asyncapi.info().title(), '**']
+      children: ["App name is: **", asyncapi.info().title(), "**"]
     }), /*#__PURE__*/jsxRuntime.jsxs(generatorReactSdk.Text, {
-      children: ['Version ', params.version, ' running on ', params.mode, ' mode ']
+      children: ["Version ", params.version, " running on ", params.mode, " mode "]
     })]
   });
 }
