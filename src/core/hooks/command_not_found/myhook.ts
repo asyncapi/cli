@@ -1,4 +1,5 @@
 import {Help, Hook, toConfiguredId, ux} from '@oclif/core';
+import {confirm} from '@clack/prompts'
 import chalk from 'chalk';
 import {default as levenshtein} from 'fast-levenshtein';
 
@@ -42,16 +43,16 @@ const hook: Hook.CommandNotFound = async function (opts) {
   const originalCmd = toConfiguredId(opts.id, this.config);
   this.warn(`${chalk.yellow(originalCmd)} is not a ${opts.config.bin} command.`);
 
-  let response = '';
+  let response;
   try {
     if (opts.id === 'help') {readableSuggestion = '--help';}
-    response = await ux.prompt(`Did you mean ${chalk.blueBright(readableSuggestion)}? [y/n]`, {timeout: 10_000});
+    response = await confirm({message: `Did you mean ${chalk.blueBright(readableSuggestion)}? [y/n]`})
   } catch (error) {
     this.log('');
     this.debug(error);
   }
 
-  if (response === 'y') {
+  if (response === true) {
     // this will split the original command from the suggested replacement, and gather the remaining args as varargs to help with situations like:
     // confit set foo-bar -> confit:set:foo-bar -> config:set:foo-bar -> config:set foo-bar
     let argv = opts.argv?.length ? opts.argv : opts.id.split(':').slice(suggestion.split(':').length);
