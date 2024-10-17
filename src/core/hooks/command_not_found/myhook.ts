@@ -1,5 +1,5 @@
-import {Help, Hook, toConfiguredId, ux} from '@oclif/core';
-import {confirm} from '@clack/prompts'
+import {Help, Hook, toConfiguredId} from '@oclif/core';
+import {confirm} from '@clack/prompts';
 import chalk from 'chalk';
 import {default as levenshtein} from 'fast-levenshtein';
 
@@ -46,7 +46,7 @@ const hook: Hook.CommandNotFound = async function (opts) {
   let response;
   try {
     if (opts.id === 'help') {readableSuggestion = '--help';}
-    response = await confirm({message: `Did you mean ${chalk.blueBright(readableSuggestion)}? [y/n]`})
+    response = await confirm({message: `Did you mean ${chalk.blueBright(readableSuggestion)}? [y/n]`});
   } catch (error) {
     this.log('');
     this.debug(error);
