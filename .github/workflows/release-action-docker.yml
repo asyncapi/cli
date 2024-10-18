@@ -3,7 +3,7 @@ name: Release Github action for CLI
 on:
   release:
     types:
-      - published
+      - prereleased
 
 jobs:
   release-action-yml:
