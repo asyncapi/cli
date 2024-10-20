@@ -17,6 +17,13 @@ export class SpecificationFileNotFound extends SpecificationFileError {
   }
 }
 
+export class SpecificationWrongFileFormat extends SpecificationFileError {
+  constructor(filePath?: string) {
+    super();
+    this.message = `File ${filePath} is not of correct format.`;
+  }
+}
+
 export class SpecificationURLNotFound extends SpecificationFileError {
   constructor(URL: string) {
     super();
