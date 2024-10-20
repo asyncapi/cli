@@ -11,10 +11,7 @@ import {
 } from '../core/models/SpecificationFile';
 import { SpecificationWrongFileFormat } from '../core/errors/specification-file';
 import { cyan, green } from 'picocolors';
-import {
-  convertFormatFlags,
-  fileFormat,
-} from '../core/flags/format.flags';
+import { convertFormatFlags, fileFormat } from '../core/flags/format.flags';
 
 export default class Convert extends Command {
   static specFile: any;
@@ -42,8 +39,8 @@ export default class Convert extends Command {
       this.metricsMetadata.to_version = flags['target-version'];
 
       const ff = retrieveFileFormat(this.specFile.text());
-      const isSpecFileJson = ff == 'json';
-      const isSpecFileYaml = ff == 'yaml';
+      const isSpecFileJson = ff === 'json';
+      const isSpecFileYaml = ff === 'yaml';
 
       if (!isSpecFileJson && !isSpecFileYaml) {
         throw new SpecificationWrongFileFormat(filePath);
@@ -55,7 +52,9 @@ export default class Convert extends Command {
         outputFileFormat,
       );
 
-      if (!convertedFile) return;
+      if (!convertedFile) {
+        return;
+      }
       await this.handleOutput(flags.output, convertedFile, outputFileFormat);
     } catch (err) {
       this.error(err as Error);
@@ -69,13 +68,13 @@ export default class Convert extends Command {
   ): string | undefined {
     const text = this.specFile?.text();
     if (isSpecFileJson && text) {
-      if (outputFileFormat == 'json') {
+      if (outputFileFormat === 'json') {
         throw new Error(`Your document is already a ${cyan('JSON')}`);
       }
       return convertToYaml(text);
     }
     if (isSpecFileYaml && text) {
-      if (outputFileFormat == 'yaml' || outputFileFormat == 'yml') {
+      if (outputFileFormat === 'yaml' || outputFileFormat === 'yml') {
         throw new Error(`Your document is already a ${cyan('YAML')}`);
       }
       return convertToJSON(text);
@@ -89,13 +88,11 @@ export default class Convert extends Command {
   ) {
     if (outputPath) {
       outputPath = this.removeExtensionFromOutputPath(outputPath);
-      try {
-        const finalFileName = `${outputPath}.${outputFileFormat}`;
-        await fPromises.writeFile(finalFileName, formattedFile, {
-          encoding: 'utf8',
-        });
-        this.log(`converted to ${outputFileFormat} at ${green(finalFileName)}`);
-      } catch (err) {}
+      const finalFileName = `${outputPath}.${outputFileFormat}`;
+      await fPromises.writeFile(finalFileName, formattedFile, {
+        encoding: 'utf8',
+      });
+      this.log(`converted to ${outputFileFormat} at ${green(finalFileName)}`);
     } else {
       this.log(formattedFile);
     }
