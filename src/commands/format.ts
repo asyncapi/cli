@@ -92,9 +92,12 @@ export default class Convert extends Command {
       await fPromises.writeFile(finalFileName, formattedFile, {
         encoding: 'utf8',
       });
-      this.log(`converted to ${outputFileFormat} at ${green(finalFileName)}`);
+      this.log(
+        `succesfully formatted to ${outputFileFormat} at ${green(finalFileName)} ✅`,
+      );
     } else {
       this.log(formattedFile);
+      this.log(`succesfully logged after formatting to ${outputFileFormat} ✅`);
     }
   }
 
