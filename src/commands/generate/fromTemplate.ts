@@ -257,9 +257,79 @@ export default class Template extends Command {
 
   private async generate(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any, interactive = true) {
     let specification: Specification;
+    
+    const progressBar = interactive ? new cliProgress.SingleBar({
+      format: colors.cyan('{bar}') + ' | {percentage}% | {status}',
+      barCompleteChar: '\u2588',
+      barIncompleteChar: '\u2591',
+      hideCursor: true
+    }) : null;
+
     try {
+      if (progressBar) {
+        console.log('\n');
+        progressBar.start(100, 0, { status: 'Loading specification...' });
+      }
+      
+      
       specification = await load(asyncapi);
+      
+      progressBar?.update(30, { status: 'Initializing generator...' });
+      
+      const generator = new AsyncAPIGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
+      progressBar?.update(50, { status: 'Generating files...' });
+      
+      await generator.generateFromString(specification.text(), { ...genOption, path: asyncapi });
+      
+      progressBar?.update(100, { status: 'Generation complete!' });
+      progressBar?.stop();
+
     } catch (err: any) {
+      progressBar?.stop();
+      if (err instanceof ValidationError) {
+        return this.error(
+          new ValidationError({
+            type: 'invalid-file',
+            filepath: asyncapi,
+          }),
+          { exit: 1 },
+        );
+      }
+      throw new GeneratorError(err);
+    }
+    console.log('\n');
+    console.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
+}
+
+private async generateUsingNewGenerator(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any, interactive = true) {
+  let specification: Specification;
+  
+  const progressBar = interactive ? new cliProgress.SingleBar({
+    format: colors.cyan('{bar}') + ' | {percentage}% | {status}',
+    barCompleteChar: '\u2588',
+    barIncompleteChar: '\u2591',
+    hideCursor: true
+  }) : null;
+
+  try {
+    if (progressBar) {
+      progressBar.start(100, 0, { status: 'Loading specification...' });
+    }
+
+    specification = await load(asyncapi);
+    progressBar?.update(30, { status: 'Initializing generator...' });
+    
+    const generator = new AsyncAPINewGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
+    progressBar?.update(50, { status: 'Generating files...' });
+    
+    await generator.generateFromString(specification.text(), { ...genOption, path: asyncapi });
+    
+    progressBar?.update(100, { status: 'Generation complete!' });
+    progressBar?.stop();
+
+  } catch (err: any) {
+    progressBar?.stop();
+    if (err instanceof ValidationError) {
       return this.error(
         new ValidationError({
           type: 'invalid-file',
@@ -268,92 +338,9 @@ export default class Template extends Command {
         { exit: 1 },
       );
     }
-    
-    const generator = new AsyncAPIGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
-    console.log('\n');
-    const progressBar = new cliProgress.SingleBar({
-      format: colors.cyan('{bar}') + ' | {percentage}% | ETA: {eta}s',
-      barCompleteChar: '\u2588',
-      barIncompleteChar: '\u2591',
-      hideCursor: true
-    });
-
-    if (interactive) {
-      progressBar.start(100, 0);
-    }
-
-    try {
-      let progress = 0;
-      const progressInterval = setInterval(() => {
-        if (progress < 95) {
-          progress += Math.random() * 5;
-          progressBar.update(progress);
-        }
-      }, 300);
-
-      await generator.generateFromString(specification.text(), { ...genOption, path: asyncapi });
-      
-      clearInterval(progressInterval);
-      progressBar.update(100);
-      progressBar.stop();
-    } catch (err: any) {
-      if (interactive) {
-        progressBar.stop();
-      }
-      throw new GeneratorError(err);
-    }
-    console.log('\n ');
-    console.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
-}
-
-private async generateUsingNewGenerator(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any, interactive = true) {
-  let specification: Specification;
-  try {
-    specification = await load(asyncapi);
-  } catch (err: any) {
-    return this.error(
-      new ValidationError({
-        type: 'invalid-file',
-        filepath: asyncapi,
-      }),
-      { exit: 1 },
-    );
-  }
-  
-  const generator = new AsyncAPINewGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
-  console.log('\n');
-  const progressBar = new cliProgress.SingleBar({
-    format: colors.cyan('{bar}') + ' | {percentage}% | ETA: {eta}s',
-    barCompleteChar: '\u2588',
-    barIncompleteChar: '\u2591',
-    hideCursor: true
-  });
-
-  if (interactive) {
-    progressBar.start(100, 0);
-  }
-
-  try {
-    let progress = 0;
-    const progressInterval = setInterval(() => {
-      if (progress < 95) {
-        progress += Math.random() * 5;
-        progressBar.update(progress);
-      }
-    }, 300);
-
-    await generator.generateFromString(specification.text(), { ...genOption, path: asyncapi });
-    
-    clearInterval(progressInterval);
-    progressBar.update(100);
-    progressBar.stop();
-  } catch (err: any) {
-    if (interactive) {
-      progressBar.stop();
-    }
     throw new GeneratorError(err);
   }
-  console.log('\n');
+
   console.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
 }
 
