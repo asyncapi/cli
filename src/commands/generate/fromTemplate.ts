@@ -313,6 +313,7 @@ private async generateUsingNewGenerator(asyncapi: string | undefined, template: 
 
   try {
     if (progressBar) {
+      console.log('\n');
       progressBar.start(100, 0, { status: 'Loading specification...' });
     }
 
@@ -340,7 +341,7 @@ private async generateUsingNewGenerator(asyncapi: string | undefined, template: 
     }
     throw new GeneratorError(err);
   }
-
+  console.log('\n');
   console.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
 }
 
