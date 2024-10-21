@@ -9,7 +9,7 @@
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
     "@asyncapi/avro-schema-parser": "^3.0.23",
-    "@asyncapi/bundler": "^0.6.3",
+    "@asyncapi/bundler": "^0.6.4",
     "@asyncapi/converter": "^1.6.2",
     "@asyncapi/diff": "^0.4.1",
     "@asyncapi/generator": "^1.17.25",
