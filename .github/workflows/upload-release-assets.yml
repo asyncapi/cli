@@ -62,7 +62,7 @@ jobs:
         #fix for windows build issue #1433
         name: Install p7zip-full nsis
         run: sudo apt-get install -y p7zip-full nsis
-      - if: matrix.os == 'windows-latest'
+      - if: matrix.npm_script == 'pack:windows'
         #npm cli 10 is buggy because of some cache issue
         name: Install npm cli 10
         shell: bash
