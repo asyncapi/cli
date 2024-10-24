@@ -50,6 +50,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "${{ steps.lockversion.outputs.version }}"
+      - if: matrix.npm_script == 'pack:windows'
+        name: install nodejs for windows
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
       - name: Get version from package.json
         uses: actions/github-script@v6
         id: extractver
