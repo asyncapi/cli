@@ -50,6 +50,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "${{ steps.lockversion.outputs.version }}"
+      - if: matrix.npm_script == 'pack:windows'
+        name: install nodejs for windows
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
       - name: Get version from package.json
         uses: actions/github-script@v6
         id: extractver
@@ -62,11 +67,12 @@ jobs:
         #fix for windows build issue #1433
         name: Install p7zip-full nsis
         run: sudo apt-get install -y p7zip-full nsis
-      - if: steps.lockversion.outputs.version == '18' && matrix.os == 'windows-latest'
+
+      - if: matrix.npm_script == 'pack:windows'
         #npm cli 10 is buggy because of some cache issue
-        name: Install npm cli 8
+        name: Install npm cli 10
         shell: bash
-        run: npm install -g npm@8.19.4
+        run: npm install -g npm@latest
       - name: Install dependencies
         run: npm ci
       - name: Build project

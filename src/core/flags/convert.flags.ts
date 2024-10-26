@@ -7,7 +7,7 @@ export const convertFlags = (latestVersion: string) => {
     format: Flags.string({
       char: 'f',
       description: 'Specify the format to convert from (openapi or asyncapi)',
-      options: ['openapi', 'asyncapi'],
+      options: ['openapi', 'asyncapi', 'postman-collection'],
       required: true,
       default: 'asyncapi',
     }),

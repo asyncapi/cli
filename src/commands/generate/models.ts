@@ -1,6 +1,6 @@
 import Command from '../../core/base';
 import { load } from '../../core/models/SpecificationFile';
-import { formatOutput, parse } from '../../core/parser';
+import { formatOutput, parse, ValidateOptions } from '../../core/parser';
 import { cancel, intro, isCancel, select, spinner, text } from '@clack/prompts';
 import { green, inverse } from 'picocolors';
 import { generateModels, Languages, ModelinaArgs } from '@asyncapi/modelina-cli';
@@ -31,7 +31,7 @@ export default class Models extends Command {
 
     const inputFile = (await load(file)) || (await load());
 
-    const { document, diagnostics ,status } = await parse(this, inputFile, flags);
+    const { document, diagnostics ,status } = await parse(this, inputFile, flags as ValidateOptions);
 
     if (!document || status === 'invalid') {
       const severityErrors = diagnostics.filter((obj) => obj.severity === 0);
