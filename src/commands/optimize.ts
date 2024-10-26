@@ -85,7 +85,7 @@ export default class Optimize extends Command {
     this.metricsMetadata.optimized = false;
 
     if (!(report.moveDuplicatesToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length)) {
-      this.log(`No optimization has been applied since ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} looks optimized!`);
+      this.log(`🎉 Great news! Your file at ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} is already optimized.`);
       return;
     }
 
@@ -120,21 +120,22 @@ export default class Optimize extends Command {
 
       switch (this.outputMethod) {
       case Outputs.TERMINAL:
+        this.log('📄 Here is your optimized AsyncAPI document:\n');
         this.log(optimizedDocument);
         break;
       case Outputs.NEW_FILE:
         await writeFile(newPath, optimizedDocument, { encoding: 'utf8' });
-        this.log(`Created file ${newPath}...`);
+        this.log(`✅ Success! Your optimized file has been created at ${chalk.blue({newPath})}.`);
         break;
       case Outputs.OVERWRITE:
         await writeFile(specPath ?? 'asyncapi.yaml', optimizedDocument, { encoding: 'utf8' });
-        this.log(`Updated file ${specPath}...`);
+        this.log(`✅ Success! Your original file at ${specPath} has been updated.`);
         break;
       }
     } catch (error) {
       throw new ValidationError({
         type: 'parser-error',
-        err: error
+        err: error,
       });
     }
   }
@@ -219,7 +220,7 @@ export default class Optimize extends Command {
       message: 'where do you want to save the result:',
       type: 'list',
       default: 'log to terminal',
-      choices: [{name: 'log to terminal',value: Outputs.TERMINAL}, {name: 'create new file', value: Outputs.NEW_FILE}, {name: 'update original', value: Outputs.OVERWRITE}]
+      choices: [{name: 'log to terminal',value: Outputs.TERMINAL}, {name: 'create new file', value: Outputs.NEW_FILE}, {name: 'update original file', value: Outputs.OVERWRITE}]
     }]);
     this.outputMethod = outputRes.output;
   }
