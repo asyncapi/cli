@@ -10,7 +10,6 @@ const convYmlFilePath = './test/fixtures/specification-conv.yml';
 const convYamlFilePath = './test/fixtures/specification-conv.yaml';
 const convJSONFilePath = './test/fixtures/specification-conv.json';
 
-
 describe('format', () => {
   describe('with file paths', () => {
     beforeEach(() => {
