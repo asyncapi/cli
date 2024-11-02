@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "2.7.4",
+  "version": "2.8.0",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
@@ -9,13 +9,13 @@
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
     "@asyncapi/avro-schema-parser": "^3.0.23",
-    "@asyncapi/bundler": "^0.6.3",
+    "@asyncapi/bundler": "^0.6.4",
     "@asyncapi/converter": "^1.6.2",
     "@asyncapi/diff": "^0.4.1",
     "@asyncapi/generator": "^1.17.25",
     "@asyncapi/modelina-cli": "^4.0.0-next.48",
     "@asyncapi/openapi-schema-parser": "^3.0.24",
-    "@asyncapi/optimizer": "^1.0.3",
+    "@asyncapi/optimizer": "^1.0.4",
     "@asyncapi/parser": "^3.3.0",
     "@asyncapi/protobuf-schema-parser": "^3.2.13",
     "@asyncapi/raml-dt-schema-parser": "^4.0.24",
