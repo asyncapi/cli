@@ -15,9 +15,13 @@ import type { Specification } from './models/SpecificationFile';
 import { promises } from 'fs';
 import path from 'path';
 
-const { writeFile } = promises;
-
 type DiagnosticsFormat = 'stylish' | 'json' | 'junit' | 'html' | 'text' | 'teamcity' | 'pretty';
+
+export type SeverityKind = 'error' | 'warn' | 'info' | 'hint';
+
+export { convertToOldAPI };
+
+const { writeFile } = promises;
 
 const formatExtensions: Record<DiagnosticsFormat, string> = {
   stylish: '.txt',
@@ -29,9 +33,7 @@ const formatExtensions: Record<DiagnosticsFormat, string> = {
   pretty: '.txt',
 };
 
-export type SeverityKind = 'error' | 'warn' | 'info' | 'hint';
-
-export { convertToOldAPI };
+const validFormats = ['stylish', 'json', 'junit', 'html', 'text', 'teamcity', 'pretty'];
 
 const parser = new Parser({
   __unstable: {
@@ -72,7 +74,7 @@ export function validationFlags({ logDiagnostics = true }: ValidationFlagsOption
       options: ['error', 'warn', 'info', 'hint'] as const,
       default: 'error',
     })(),
-    'output': Flags.string({
+    output: Flags.string({
       description: 'The output file name. Omitting this flag the result will be printed in the console.',
       char: 'o' 
     })
@@ -97,40 +99,92 @@ export async function parse(command: Command, specFile: Specification, options: 
   return { document, diagnostics, status };
 }
 
-function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: Specification, options: ValidateOptions = {}): 'valid' | 'invalid' {
+// function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: Specification, options: ValidateOptions = {}): 'valid' | 'invalid' {
+//   const logDiagnostics = options['log-diagnostics'];
+//   const failSeverity = options['fail-severity'] ?? 'error';
+//   const diagnosticsFormat = options['diagnostics-format'] ?? 'stylish';
+
+//   const sourceString = specFile.toSourceString();
+//   if (diagnostics.length) {
+//     if (hasFailSeverity(diagnostics, failSeverity)) {
+//       if (logDiagnostics) {
+//         command.logToStderr(`\n${sourceString} and/or referenced documents have governance issues.`);
+//         const diagnosticsOutput = formatOutput(diagnostics, diagnosticsFormat, failSeverity);
+//         if (options.output) {
+//           writeValidationDiagnostic(options.output, command, diagnosticsFormat, diagnosticsOutput);
+//         } else {
+//           command.log(diagnosticsOutput);
+//         }
+//       }
+//       return ValidationStatus.INVALID;
+//     }
+
+//     if (logDiagnostics) {
+//       command.log(`\n${sourceString} is valid but has (itself and/or referenced documents) governance issues.`);
+//       const diagnosticsOutput = formatOutput(diagnostics, diagnosticsFormat, failSeverity);
+//       if (options.output) {
+//         writeValidationDiagnostic(options.output, command, diagnosticsFormat, diagnosticsOutput);
+//       } else {
+//         command.log(diagnosticsOutput);
+//       }
+//     }
+//   } else if (logDiagnostics) {
+//     command.log(`\n${sourceString} is valid! ${sourceString} and referenced documents don't have governance issues.`);
+//   }
+
+//   return ValidationStatus.VALID;
+// }
+
+function logDiagnostics(
+  diagnostics: Diagnostic[],
+  command: Command,
+  specFile: Specification,
+  options: ValidateOptions = {}
+): 'valid' | 'invalid' {
   const logDiagnostics = options['log-diagnostics'];
   const failSeverity = options['fail-severity'] ?? 'error';
   const diagnosticsFormat = options['diagnostics-format'] ?? 'stylish';
-
   const sourceString = specFile.toSourceString();
-  if (diagnostics.length) {
-    if (hasFailSeverity(diagnostics, failSeverity)) {
-      if (logDiagnostics) {
-        command.logToStderr(`\n${sourceString} and/or referenced documents have governance issues.`);
-        const diagnosticsOutput = formatOutput(diagnostics, diagnosticsFormat, failSeverity);
-        if (options.output) {
-          writeValidationDiagnostic(options.output, command, diagnosticsFormat, diagnosticsOutput);
-        } else {
-          command.log(diagnosticsOutput);
-        }
-      }
-      return ValidationStatus.INVALID;
-    }
 
-    if (logDiagnostics) {
-      command.log(`\n${sourceString} is valid but has (itself and/or referenced documents) governance issues.`);
-      const diagnosticsOutput = formatOutput(diagnostics, diagnosticsFormat, failSeverity);
-      if (options.output) {
-        writeValidationDiagnostic(options.output, command, diagnosticsFormat, diagnosticsOutput);
-      } else {
-        command.log(diagnosticsOutput);
-      }
-    }
-  } else if (logDiagnostics) {
-    command.log(`\n${sourceString} is valid! ${sourceString} and referenced documents don't have governance issues.`);
+  const hasIssues = diagnostics.length > 0;
+  const isFailSeverity = hasIssues && hasFailSeverity(diagnostics, failSeverity);
+
+  if (logDiagnostics) {
+    logGovernanceMessage(command, sourceString, hasIssues, isFailSeverity);
+    outputDiagnostics(command, diagnostics, diagnosticsFormat, failSeverity, options);
   }
 
-  return ValidationStatus.VALID;
+  return isFailSeverity ? ValidationStatus.INVALID : ValidationStatus.VALID;
+}
+
+function logGovernanceMessage(
+  command: Command,
+  sourceString: string,
+  hasIssues: boolean,
+  isFailSeverity: boolean
+) {
+  if (!hasIssues) {
+    command.log(`\n${sourceString} is valid! ${sourceString} and referenced documents don't have governance issues.`);
+  } else if (isFailSeverity) {
+    command.logToStderr(`\n${sourceString} and/or referenced documents have governance issues.`);
+  } else {
+    command.log(`\n${sourceString} is valid but has (itself and/or referenced documents) governance issues.`);
+  }
+}
+
+function outputDiagnostics(
+  command: Command,
+  diagnostics: Diagnostic[],
+  diagnosticsFormat: DiagnosticsFormat,
+  failSeverity: SeverityKind,
+  options: ValidateOptions
+) {
+  const diagnosticsOutput = formatOutput(diagnostics, diagnosticsFormat, failSeverity);
+  if (options.output) {
+    writeValidationDiagnostic(options.output, command, diagnosticsFormat, diagnosticsOutput);
+  } else {
+    command.log(diagnosticsOutput);
+  }
 }
 
 export function formatOutput(diagnostics: Diagnostic[], format: `${OutputFormat}`, failSeverity: SeverityKind) {
@@ -177,8 +231,13 @@ function hasFailSeverity(diagnostics: Diagnostic[], failSeverity: SeverityKind) 
   return diagnostics.some(diagnostic => diagnostic.severity <= diagnosticSeverity);
 }
 
-async function writeValidationDiagnostic(outputPath: string, command: Command, format: DiagnosticsFormat, formatOutput: string){
-  const expectedExtension = formatExtensions[format];
+async function writeValidationDiagnostic(outputPath: string, command: Command, format: DiagnosticsFormat, formatOutput: string) {
+  if (!validFormats.includes(format)) {
+    command.logToStderr(`Invalid diagnostics format: "${format}"`);
+    return;
+  }
+
+  const expectedExtension = formatExtensions[format as keyof typeof formatExtensions];
   const actualExtension = path.extname(outputPath);
 
   // Validate file extension against diagnostics format
@@ -189,5 +248,4 @@ async function writeValidationDiagnostic(outputPath: string, command: Command, f
       encoding: 'utf-8',
     }).catch(err => console.log(err));
   }
-
 }
