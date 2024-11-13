@@ -99,42 +99,6 @@ export async function parse(command: Command, specFile: Specification, options: 
   return { document, diagnostics, status };
 }
 
-// function logDiagnostics(diagnostics: Diagnostic[], command: Command, specFile: Specification, options: ValidateOptions = {}): 'valid' | 'invalid' {
-//   const logDiagnostics = options['log-diagnostics'];
-//   const failSeverity = options['fail-severity'] ?? 'error';
-//   const diagnosticsFormat = options['diagnostics-format'] ?? 'stylish';
-
-//   const sourceString = specFile.toSourceString();
-//   if (diagnostics.length) {
-//     if (hasFailSeverity(diagnostics, failSeverity)) {
-//       if (logDiagnostics) {
-//         command.logToStderr(`\n${sourceString} and/or referenced documents have governance issues.`);
-//         const diagnosticsOutput = formatOutput(diagnostics, diagnosticsFormat, failSeverity);
-//         if (options.output) {
-//           writeValidationDiagnostic(options.output, command, diagnosticsFormat, diagnosticsOutput);
-//         } else {
-//           command.log(diagnosticsOutput);
-//         }
-//       }
-//       return ValidationStatus.INVALID;
-//     }
-
-//     if (logDiagnostics) {
-//       command.log(`\n${sourceString} is valid but has (itself and/or referenced documents) governance issues.`);
-//       const diagnosticsOutput = formatOutput(diagnostics, diagnosticsFormat, failSeverity);
-//       if (options.output) {
-//         writeValidationDiagnostic(options.output, command, diagnosticsFormat, diagnosticsOutput);
-//       } else {
-//         command.log(diagnosticsOutput);
-//       }
-//     }
-//   } else if (logDiagnostics) {
-//     command.log(`\n${sourceString} is valid! ${sourceString} and referenced documents don't have governance issues.`);
-//   }
-
-//   return ValidationStatus.VALID;
-// }
-
 function logDiagnostics(
   diagnostics: Diagnostic[],
   command: Command,
