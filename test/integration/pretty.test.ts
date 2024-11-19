@@ -4,6 +4,7 @@ import { expect } from '@oclif/test';
 
 const testHelper = new TestHelper();
 const badFormatPath = './test/fixtures/asyncapi_v1.yml';
+const validFormatPath = './test/fixtures/asyncapiValid_v1.yml';
 
 describe('pretty', () => {
   describe('with file paths', () => {
@@ -30,6 +31,18 @@ describe('pretty', () => {
       .it('should log the information file has been beautified', (ctx, done) => {
         expect(ctx.stdout).to.contain(
           `Asyncapi document ${badFormatPath} has been beautified in-place`,
+        );
+        expect(ctx.stderr).to.equal('');
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['pretty', badFormatPath ,'-o', validFormatPath])
+      .it('should log the information file has been beautified', (ctx, done) => {
+        expect(ctx.stdout).to.contain(
+          `Asyncapi document has been beautified ${validFormatPath}`,
         );
         expect(ctx.stderr).to.equal('');
         done();

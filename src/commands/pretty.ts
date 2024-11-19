@@ -7,16 +7,16 @@ import { ValidationError } from '../core/errors/validation-error';
 import { prettyFlags } from '../core/flags/pretty.flags';
 
 export default class Pretty extends Command {
-  static description = 'Format AsyncAPI specification file';
+  static readonly description = 'Format AsyncAPI specification file';
 
-  static examples = [
+  static readonly examples = [
     'asyncapi pretty ./asyncapi.yaml',
     'asyncapi pretty ./asyncapi.yaml --output formatted-asyncapi.yaml',
   ];
 
-  static flags = prettyFlags();
+  static readonly flags = prettyFlags();
 
-  static args = {
+  static readonly args = {
     'spec-file': Args.string({description: 'spec path, url, or context-name', required: true}),
   };
 
