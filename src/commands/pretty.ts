@@ -52,10 +52,10 @@ export default class Pretty extends Command {
 
     if (outputPath) {
       await fs.writeFile(outputPath, formatted, 'utf8');
-      this.log(`Asyncapi document has been beautifi${outputPath}`);
+      this.log(`Asyncapi document has been beautified ${outputPath}`);
     } else {
       await fs.writeFile(filePath, formatted, 'utf8');
-      this.log(`Asyncapi document ${filePath} has been formatted in-place.`);
+      this.log(`Asyncapi document ${filePath} has been beautified in-place.`);
     }
   }
 }

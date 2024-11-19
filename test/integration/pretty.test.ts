@@ -29,7 +29,7 @@ describe('pretty', () => {
       .command(['pretty', badFormatPath])
       .it('should log the information file has been beautified', (ctx, done) => {
         expect(ctx.stdout).to.contain(
-          'Asyncapi document has been formatted',
+          `Asyncapi document ${badFormatPath} has been beautified in-place`,
         );
         expect(ctx.stderr).to.equal('');
         done();
