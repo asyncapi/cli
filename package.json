@@ -41,7 +41,8 @@
     "strip-ansi": "^6.0.0",
     "unzipper": "^0.10.11",
     "uuid": "^9.0.1",
-    "ws": "^8.2.3"
+    "ws": "^8.2.3",
+    "yaml": "^2.6.1"
   },
   "devDependencies": {
     "@asyncapi/minimaltemplate": "./test/fixtures/minimaltemplate",

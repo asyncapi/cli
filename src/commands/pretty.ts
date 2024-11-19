@@ -1,6 +1,6 @@
 import { Args } from '@oclif/core';
 import { promises as fs } from 'fs';
-import * as yaml from 'js-yaml';
+import * as yaml from 'yaml';
 import Command from '../core/base';
 import { load } from '../core/models/SpecificationFile';
 import { ValidationError } from '../core/errors/validation-error';
@@ -40,23 +40,22 @@ export default class Pretty extends Command {
     let formatted: string;
 
     try {
-      const parsed = yaml.load(content);
-      formatted = yaml.dump(parsed, {
-        indent: 2,
-        lineWidth: -1,
-        noRefs: true,
-        sortKeys: true,
-      });
+    const yamlDoc = yaml.parseDocument(content);
+
+     formatted = yamlDoc.toString({
+      lineWidth: 0, 
+    });
+   
     } catch (err) {
       this.error(`Error formatting file: ${err}`);
     }
 
     if (outputPath) {
       await fs.writeFile(outputPath, formatted, 'utf8');
-      this.log(`Formatted content has been written to ${outputPath}`);
+      this.log(`Asyncapi document has been beautifi${outputPath}`);
     } else {
       await fs.writeFile(filePath, formatted, 'utf8');
-      this.log(`File ${filePath} has been formatted in-place.`);
+      this.log(`Asyncapi document ${filePath} has been formatted in-place.`);
     }
   }
 }
