@@ -1,62 +1,121 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { promises as fPromises } from 'fs';
 import { Args } from '@oclif/core';
-import { promises as fs } from 'fs';
-import * as yaml from 'js-yaml';
 import Command from '../core/base';
-import { load } from '../core/models/SpecificationFile';
-import { ValidationError } from '../core/errors/validation-error';
-import { formatFlags } from '../core/flags/format.flags';
 
-export default class Format extends Command {
-  static description = 'Format AsyncAPI specification file';
+import {
+  convertToJSON,
+  convertToYaml,
+  load,
+  retrieveFileFormat,
+} from '../core/models/SpecificationFile';
+import { SpecificationWrongFileFormat } from '../core/errors/specification-file';
+import { cyan, green } from 'picocolors';
+import { convertFormatFlags, fileFormat } from '../core/flags/format.flags';
 
-  static examples = [
-    'asyncapi format ./asyncapi.yaml',
-    'asyncapi format ./asyncapi.yaml --output formatted-asyncapi.yaml',
-  ];
+export default class Convert extends Command {
+  static specFile: any;
+  static metricsMetadata: any = {};
+  static description =
+    'Convert asyncapi documents from any format to yaml, yml or JSON';
 
-  static flags = formatFlags();
+  static flags = convertFormatFlags();
 
   static args = {
-    'spec-file': Args.string({description: 'spec path, url, or context-name', required: true}),
+    'spec-file': Args.string({
+      description: 'spec path, url, or context-name',
+      required: false,
+    }),
   };
 
   async run() {
-    const { args, flags } = await this.parse(Format);
+    const { args, flags } = await this.parse(Convert);
     const filePath = args['spec-file'];
-    const outputPath = flags.output; 
-
+    const outputFileFormat = flags['format'] as fileFormat;
+    let convertedFile;
     try {
       this.specFile = await load(filePath);
-    } catch (err) {
-      this.error(
-        new ValidationError({
-          type: 'invalid-file',
-          filepath: filePath,
-        })
+      // eslint-disable-next-line sonarjs/no-duplicate-string
+      this.metricsMetadata.to_version = flags['target-version'];
+
+      const ff = retrieveFileFormat(this.specFile.text());
+      const isSpecFileJson = ff === 'json';
+      const isSpecFileYaml = ff === 'yaml';
+
+      if (!isSpecFileJson && !isSpecFileYaml) {
+        throw new SpecificationWrongFileFormat(filePath);
+      }
+
+      convertedFile = this.handleConversion(
+        isSpecFileJson,
+        isSpecFileYaml,
+        outputFileFormat,
       );
-    }
 
-    const content = this.specFile.text();
-    let formatted: string;
-
-    try {
-      const parsed = yaml.load(content);
-      formatted = yaml.dump(parsed, {
-        indent: 2,
-        lineWidth: -1,
-        noRefs: true,
-        sortKeys: true,
-      });
+      if (!convertedFile) {
+        return;
+      }
+      await this.handleOutput(flags.output, convertedFile, outputFileFormat);
     } catch (err) {
-      this.error(`Error formatting file: ${err}`);
+      this.error(err as Error);
+    }
+  }
+
+  private handleConversion(
+    isSpecFileJson: boolean,
+    isSpecFileYaml: boolean,
+    outputFileFormat: fileFormat,
+  ): string | undefined {
+    const text = this.specFile?.text();
+    if (isSpecFileJson && text) {
+      if (outputFileFormat === 'json') {
+        throw new Error(`Your document is already a ${cyan('JSON')}`);
+      }
+      return convertToYaml(text);
+    }
+    if (isSpecFileYaml && text) {
+      if (outputFileFormat === 'yaml' || outputFileFormat === 'yml') {
+        throw new Error(`Your document is already a ${cyan('YAML')}`);
+      }
+      return convertToJSON(text);
+    }
+  }
+
+  private async handleOutput(
+    outputPath: string | undefined,
+    formattedFile: string,
+    outputFileFormat: fileFormat,
+  ) {
+    if (outputPath) {
+      outputPath = this.removeExtensionFromOutputPath(outputPath);
+      const finalFileName = `${outputPath}.${outputFileFormat}`;
+      await fPromises.writeFile(finalFileName, formattedFile, {
+        encoding: 'utf8',
+      });
+      this.log(
+        `succesfully formatted to ${outputFileFormat} at ${green(finalFileName)} ✅`,
+      );
+    } else {
+      this.log(formattedFile);
+      this.log(`succesfully logged after formatting to ${outputFileFormat} ✅`);
+    }
+  }
+
+  private removeExtensionFromOutputPath(filename: string): string {
+    // Removes the extension from a filename if it is .json, .yaml, or .yml
+    // this is so that we can remove the provided extension name in the -o flag and
+    // apply our own extension name according to the content of the file
+    const validExtensions = ['json', 'yaml', 'yml'];
+
+    const parts = filename.split('.');
+
+    if (parts.length > 1) {
+      const extension = parts.pop()?.toLowerCase();
+      if (extension && validExtensions.includes(extension)) {
+        return parts.join('.');
+      }
     }
 
-    if (outputPath) {
-      await fs.writeFile(outputPath, formatted, 'utf8');
-      this.log(`The Asyncapi document has been formatted, the new formatted document is present in ${outputPath}`);
-    } else {
-      await fs.writeFile(filePath, formatted, 'utf8');
-      this.log(`Asyncapi document ${filePath} has been formatted in-place.`);
-    }
+    return filename;
   }
 }
