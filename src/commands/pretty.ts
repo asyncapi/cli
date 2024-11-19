@@ -40,12 +40,11 @@ export default class Pretty extends Command {
     let formatted: string;
 
     try {
-    const yamlDoc = yaml.parseDocument(content);
+      const yamlDoc = yaml.parseDocument(content);
 
-     formatted = yamlDoc.toString({
-      lineWidth: 0, 
-    });
-   
+      formatted = yamlDoc.toString({
+        lineWidth: 0, 
+      });
     } catch (err) {
       this.error(`Error formatting file: ${err}`);
     }

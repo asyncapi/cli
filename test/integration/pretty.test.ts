@@ -34,5 +34,5 @@ describe('pretty', () => {
         expect(ctx.stderr).to.equal('');
         done();
       });
-
-})})
+  });
+});
