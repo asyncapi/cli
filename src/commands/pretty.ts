@@ -5,7 +5,9 @@ import Command from '../core/base';
 import { load } from '../core/models/SpecificationFile';
 import { ValidationError } from '../core/errors/validation-error';
 import { prettyFlags } from '../core/flags/pretty.flags';
-
+import {
+  retrieveFileFormat,
+} from '../core/models/SpecificationFile';
 export default class Pretty extends Command {
   static readonly description = 'Format AsyncAPI specification file';
 
@@ -40,11 +42,18 @@ export default class Pretty extends Command {
     let formatted: string;
 
     try {
-      const yamlDoc = yaml.parseDocument(content);
-
-      formatted = yamlDoc.toString({
-        lineWidth: 0, 
-      });
+      const fileFormat = retrieveFileFormat(this.specFile.text());
+      if (fileFormat === 'yaml') {
+        const yamlDoc = yaml.parseDocument(content);
+        formatted = yamlDoc.toString({
+          lineWidth: 0, 
+        });
+      } else if (fileFormat === 'json') {
+        const jsonObj = JSON.parse(content); 
+        formatted = JSON.stringify(jsonObj, null, 2); 
+      } else {
+        throw new Error('Unsupported file format');
+      }
     } catch (err) {
       this.error(`Error formatting file: ${err}`);
     }
