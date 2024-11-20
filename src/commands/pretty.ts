@@ -2,12 +2,10 @@ import { Args } from '@oclif/core';
 import { promises as fs } from 'fs';
 import * as yaml from 'yaml';
 import Command from '../core/base';
-import { load } from '../core/models/SpecificationFile';
+import { load , retrieveFileFormat} from '../core/models/SpecificationFile';
 import { ValidationError } from '../core/errors/validation-error';
 import { prettyFlags } from '../core/flags/pretty.flags';
-import {
-  retrieveFileFormat,
-} from '../core/models/SpecificationFile';
+
 export default class Pretty extends Command {
   static readonly description = 'Format AsyncAPI specification file';
 
