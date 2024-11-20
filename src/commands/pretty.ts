@@ -41,7 +41,7 @@ export default class Pretty extends Command {
 
     try {
       const fileFormat = retrieveFileFormat(this.specFile.text());
-      if (fileFormat === 'yaml' || fileFormat == 'yml') {
+      if (fileFormat === 'yaml' || fileFormat === 'yml') {
         const yamlDoc = yaml.parseDocument(content);
         formatted = yamlDoc.toString({
           lineWidth: 0, 
