@@ -109,12 +109,32 @@ jobs:
         # This step can be removed once the issue is fixed in the changeset package.
         run: npm install @changesets/changelog-git@0.2.0
       - if: steps.packagejson.outputs.exists == 'true'
+        name: Get version from the changeset
+        uses: changesets/action@v1
+        id: get-version
+        with:
+          version: npx -p @changesets/cli@2.27.7 changeset version
+      - if: steps.packagejson.outputs.exists == 'true'
+        name: Update version inside action.yml
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const templatePath = path.resolve(__dirname, '../../', 'action-template.yml');
+            const outputPath = path.resolve(__dirname, '../../', 'action.yml');
+
+            const updatedContent = templateContent.replace(/\${ version }/g, '${{ steps.get-version.outputs.version }}');
+            fs.writeFileSync(outputPath, updatedContent, 'utf8');
+            console.log(`Updated action.yml with version ${{ steps.get-version.outputs.version }}`);
+
+      - if: steps.packagejson.outputs.exists == 'true'
         name: Publish to any of NPM, Github, and Docker Hub
         #this step has 2 goals, it is either identifying that there is changeset file created and then this action creates a PR with version bump that will trigger release - or if it sees there is no changeset, and there are versions changes in package.json files, it publish new versions to NPM is they are not there yet
         uses: changesets/action@v1
         id: release
         with:
-          version: npx -p @changesets/cli@2.27.7 changeset version
           commit: "chore(release): release and bump versions of packages"
           title: "chore(release): release and bump versions of packages"
           publish: npx -p @changesets/cli@2.27.7 changeset publish
