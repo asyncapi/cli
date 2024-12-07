@@ -70,7 +70,7 @@ feat: add new feature
     
     ```markdown
     ---
-    "@asyncapi/generator": minor
+    "@asyncapi/cli": minor
     ---
 
     Adding new Release Github Flow to the Turborepo. No new features or bugfixes were introduced.
@@ -107,13 +107,13 @@ feat: add new feature
 
      Before:
      ```json
-     "name": "@asyncapi/generator",
+     "name": "@asyncapi/cli",
      "version": "2.0.1",
      ```
 
      After:
      ```json
-     "name": "@asyncapi/generator",
+     "name": "@asyncapi/cli",
      "version": "3.0.1",
      ```
 
