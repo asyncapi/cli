@@ -22,7 +22,7 @@
     "sonarjs/no-small-switch": "off",
     "security/detect-non-literal-fs-filename": "off",
     "no-process-exit": "error",
-    "no-warning-comments": "error",
+    "no-warning-comments": "off",
     "no-loop-func": "error",
     "curly": ["error"],
     "no-multi-spaces": "error",
@@ -34,12 +34,12 @@
     "func-style": 0,
     "max-nested-callbacks": ["error", 3],
     "camelcase": 0,
-    "no-debugger": 1,
-    "no-empty": 1,
-    "no-invalid-regexp": 1,
-    "no-unused-expressions": 1,
+    "no-debugger": 0,
+    "no-empty": 0,
+    "no-invalid-regexp": 2,
+    "no-unused-expressions": 0,
     "no-native-reassign": 1,
-    "no-fallthrough": 1,
+    "no-fallthrough": 2,
     "sonarjs/cognitive-complexity": 1,
     "eqeqeq": 2,
     "no-undef": "off",
@@ -102,7 +102,7 @@
       "last"
     ],
     "no-multiple-empty-lines": [
-      2,
+      0,
       {
         "max": 1
       }
@@ -113,7 +113,7 @@
       "always"
     ],
     "padded-blocks": [
-      2,
+      0,
       "never"
     ],
     "quote-props": [
