@@ -5,7 +5,7 @@ export const proxyFlags = () => {
     help: Flags.help({ char: 'h' }),
     http_proxy: Flags.string({ string: 'http_proxy', description: 'add http_proxy', default: '' }),
     https_proxy: Flags.string({ string: 'https_proxy', description: 'add https_proxy', default: '' }),
-    no_proxy: Flags.string({ string: 'no_proxy', description: 'remove all the proxies from the env' }),
+    no_proxy: Flags.boolean({ description: 'Remove all the proxies from the environment', default: false }),
 
   };
 };
