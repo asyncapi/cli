@@ -113,14 +113,6 @@ jobs:
         uses: changesets/action@v1
         with:
           version: npx -p @changesets/cli@2.27.7 changeset version
-          commit: "chore(release): release and bump versions of packages"
-          title: "chore(release): release and bump versions of packages"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          GIT_AUTHOR_NAME: asyncapi-bot
-          GIT_AUTHOR_EMAIL: info@asyncapi.io
-          GIT_COMMITTER_NAME: asyncapi-bot
-          GIT_COMMITTER_EMAIL: info@asyncapi.io
 
       - if: steps.packagejson.outputs.exists == 'true'
         name: Get version from package.json
@@ -145,18 +137,14 @@ jobs:
             console.log(`Updated action.yml with version ${{ steps.get-version.outputs.version }}`);
 
       - if: steps.packagejson.outputs.exists == 'true'
-        name: Commit changes of action.yml
-        run: |
-          git commit -am "chore(release): release and bump versions of github action docker"
-          git push --set-upstream origin ${GITHUB_REF#refs/heads/} || git push origin ${GITHUB_REF#refs/heads/}
-
-      - if: steps.packagejson.outputs.exists == 'true'
         name: Publish to any of NPM, Github, and Docker Hub
         #this step has 2 goals, it is either identifying that there is changeset file created and then this action creates a PR with version bump that will trigger release - or if it sees there is no changeset, and there are versions changes in package.json files, it publish new versions to NPM is they are not there yet
         uses: changesets/action@v1
         id: release
         with:
           publish: npx -p @changesets/cli@2.27.7 changeset publish
+          commit: "chore(release): release and bump versions of packages"
+          title: "chore(release): release and bump versions of packages"
           setupGitUser: false
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
