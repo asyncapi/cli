@@ -142,7 +142,8 @@
   "repository": "asyncapi/cli",
   "scripts": {
     "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && tsc && oclif manifest && echo \"Build Completed\"",
-    "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
+    "bump:github-action": "cd github-action/lib/ && node bump-action-version.js",
+    "bump:version": "npx -p @changesets/cli@2.27.7 changeset version && npm run bump:github-action",
     "dev": "tsc --watch",
     "docker:build": "docker build -t asyncapi/cli:latest .",
     "generate:readme:create": "node -e \"const fs = require('fs'); fs.writeFileSync('scripts/README.md', '# Usage\\n\\n<!-- usage -->\\n\\n# Commands\\n\\n<!-- commands -->\\n');\"",
@@ -169,7 +170,6 @@
     "createhook": "oclif generate hook myhook --event=command_not_found",
     "createhookinit": "oclif generate hook inithook --event=init",
     "action:docker:build": "docker build -f github-action/Dockerfile -t asyncapi/github-action-for-cli:latest .",
-    "action:bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
     "action:test": "cd github-action && make test"
   },
   "types": "lib/index.d.ts"

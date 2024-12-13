@@ -108,33 +108,6 @@ jobs:
         shell: bash
         # This step can be removed once the issue is fixed in the changeset package.
         run: npm install @changesets/changelog-git@0.2.0
-      - if: steps.packagejson.outputs.exists == 'true'
-        name: Get version update from the changeset
-        uses: changesets/action@v1
-        with:
-          version: npx -p @changesets/cli@2.27.7 changeset version
-
-      - if: steps.packagejson.outputs.exists == 'true'
-        name: Get version from package.json
-        id: get-version
-        run: echo ::set-output name=version::$(node -p "require('./package.json').version")
-
-      - if: steps.packagejson.outputs.exists == 'true'
-        name: Update version inside action.yml
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-
-            const templatePath = path.resolve('./', 'action-template.yml');
-            const outputPath = path.resolve('./', 'action.yml');
-
-            const templateContent = fs.readFileSync(templatePath, 'utf8');
-            const updatedContent = templateContent.replace(/\${ version }/g, '${{ steps.get-version.outputs.version }}');
-
-            fs.writeFileSync(outputPath, updatedContent, 'utf8');
-            console.log(`Updated action.yml with version ${{ steps.get-version.outputs.version }}`);
 
       - if: steps.packagejson.outputs.exists == 'true'
         name: Publish to any of NPM, Github, and Docker Hub
@@ -142,9 +115,10 @@ jobs:
         uses: changesets/action@v1
         id: release
         with:
-          publish: npx -p @changesets/cli@2.27.7 changeset publish
+          version: npm run update:version
           commit: "chore(release): release and bump versions of packages"
           title: "chore(release): release and bump versions of packages"
+          publish: npx -p @changesets/cli@2.27.7 changeset publish
           setupGitUser: false
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
