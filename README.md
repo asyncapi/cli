@@ -32,10 +32,10 @@ Read [CONTRIBUTING](https://github.com/asyncapi/.github/blob/master/CONTRIBUTING
 
 ### Set up development environment
 
-Follow these steps:
+Read [Development.md](/Development.md) file for development setup.
 
-- Clone the repo.
-- Run `npm install` to install all the required dependencies
+Additional steps:
+
 - Run `npm run test` to make sure everything is properly set up
 - Run `npm run build` and then `bin/run` to try new CLI locally
 
