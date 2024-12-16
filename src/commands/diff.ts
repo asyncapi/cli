@@ -57,10 +57,6 @@ export default class Diff extends Command {
     try {
       firstDocument = await load(firstDocumentPath);
 
-      if (firstDocument.isAsyncAPI3()) {
-        this.error('Diff command does not support AsyncAPI v3 yet which was your first document, please checkout https://github.com/asyncapi/diff/issues/154');
-      }
-
       enableWatch(watchMode, {
         spec: firstDocument,
         handler: this,
@@ -82,10 +78,6 @@ export default class Diff extends Command {
 
     try {
       secondDocument = await load(secondDocumentPath);
-
-      if (secondDocument.isAsyncAPI3()) {
-        this.error('Diff command does not support AsyncAPI v3 yet which was your second document, please checkout https://github.com/asyncapi/diff/issues/154');
-      }
 
       enableWatch(watchMode, {
         spec: secondDocument,
@@ -146,9 +138,9 @@ export default class Diff extends Command {
         throwOnBreakingChange(diffOutput, outputFormat);
       }
     } catch (error) {
-      if (error instanceof DiffBreakingChangeError) {
+      if (error instanceof DiffBreakingChangeError || error instanceof TypeError) {
         this.error(error);
-      }
+      } 
       throw new ValidationError({
         type: 'parser-error',
         err: error,
@@ -196,15 +188,13 @@ function genericOutput(diffOutput: AsyncAPIDiff, outputType: string) {
 }
 
 async function parseDocuments(command: Command, firstDocument: Specification, secondDocument: Specification, flags: Record<string, any>) {
-  const { document: newFirstDocumentParsed, status: firstDocumentStatus } = await parse(command, firstDocument, flags);
-  const { document: newSecondDocumentParsed, status: secondDocumentStatus } = await parse(command, secondDocument, flags);
+  const { document: firstDocumentParsed, status: firstDocumentStatus } = await parse(command, firstDocument, flags);
+  const { document: secondDocumentParsed, status: secondDocumentStatus } = await parse(command, secondDocument, flags);
 
-  if (!newFirstDocumentParsed || !newSecondDocumentParsed || firstDocumentStatus === 'invalid' || secondDocumentStatus === 'invalid') {
+  if (!firstDocumentParsed || !secondDocumentParsed || firstDocumentStatus === 'invalid' || secondDocumentStatus === 'invalid') {
     return;
   }
 
-  const firstDocumentParsed = convertToOldAPI(newFirstDocumentParsed);
-  const secondDocumentParsed = convertToOldAPI(newSecondDocumentParsed);
   return { firstDocumentParsed, secondDocumentParsed };
 }
 
