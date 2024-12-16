@@ -14,7 +14,7 @@ import {
   DiffOverrideJSONError,
 } from '../core/errors/diff-error';
 import { specWatcher } from '../core/globals';
-import { parse, convertToOldAPI } from '../core/parser';
+import { parse } from '../core/parser';
 
 import type { SpecWatcherParams } from '../core/globals';
 import { diffFlags } from '../core/flags/diff.flags';
