@@ -32,7 +32,7 @@ Read [CONTRIBUTING](https://github.com/asyncapi/.github/blob/master/CONTRIBUTING
 
 ### Set up development environment
 
-Read [Development.md](/Development.md) file for development setup.
+Read [DEVELOPMENT.md](/DEVELOPMENT.md) file for development setup.
 
 Additional steps:
 

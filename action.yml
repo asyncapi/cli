@@ -1,5 +1,5 @@
-name: 'Generator, Validator, Converter and others - all in one for your AsyncAPI docs'
-description: 'Use this action to generate docs or code from your AsyncAPI document. Use default templates or provide your custom ones.'
+name: 'AsyncAPI CLI Action'
+description: 'One stop solution for all your AsyncAPI Specification needs in github actions. Use this action to generate code, validate your AsyncAPI document, convert it to other formats, optimize it or run custom commands.'
 inputs:
   cli_version:
     description: 'Version of AsyncAPI CLI to be used. This is only needed if you want to test with a specific version of AsyncAPI CLI. Default is latest which is also the recommended option.'

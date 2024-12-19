@@ -16,6 +16,11 @@ jobs:
           VERSION_WITHOUT_V=${VERSION:1}
           echo "value=${VERSION_WITHOUT_V}" >> $GITHUB_OUTPUT
 
+      - name : Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: tags/${{ github.event.release.tag_name }}
+
       - name: Set Up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -27,10 +32,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      # This workflow triggers on GitHub Release, but it may start before the npm package is published.
-      - name: Sleep for 30 sec
-        run: sleep 30s
 
       - name: Build Image
         uses: docker/build-push-action@v4
