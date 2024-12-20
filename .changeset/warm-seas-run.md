@@ -1,5 +1,5 @@
 ---
-'@asyncapi/cli': patch
+'@asyncapi/cli': minor
 ---
 
 - Changed docker build to a source code based build
