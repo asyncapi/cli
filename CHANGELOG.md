@@ -1,5 +1,13 @@
 # @asyncapi/cli
 
+## 2.14.0
+
+### Minor Changes
+
+- 6839c8f: - Changed docker build to a source code based build
+  - Changed name of github action to avoid clash
+  - Fixed Docker and Release Pipeline
+
 ## 2.13.1
 
 ### Patch Changes
