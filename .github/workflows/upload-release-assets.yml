@@ -1,16 +1,13 @@
 name: Upload custom assets to GitHub release
 
 on:
-  # It cannot run on release event as when release is created then version is not yet bumped in package.json
-  # This means we cannot extract easily latest version and have a risk that package is not yet on npm
-  push:
-    branches:
-      - master
+  release:
+    types:
+      - published
 
 jobs:
   upload-assets:
     name: Generate and upload assets
-    if: startsWith(github.event.commits[0].message, 'chore(release):')
     runs-on: ${{ matrix.os }}
     continue-on-error: true
     strategy:
