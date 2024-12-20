@@ -11,14 +11,14 @@ jobs:
       - if: >
           !github.event.pull_request.draft && !(
             (github.actor == 'asyncapi-bot' && (
-              startsWith(github.event.pull_request.title, 'ci: update of files from global .github repo') || 
+              startsWith(github.event.pull_request.title, 'ci: update of files from global .github repo') ||
               startsWith(github.event.pull_request.title, 'chore(release):')
             )) ||
             (github.actor == 'asyncapi-bot-eve' && (
-              startsWith(github.event.pull_request.title, 'ci: update of files from global .github repo') || 
+              startsWith(github.event.pull_request.title, 'ci: update of files from global .github repo') ||
               startsWith(github.event.pull_request.title, 'chore(release):')
             )) ||
-            (github.actor == 'allcontributors[bot]' && 
+            (github.actor == 'allcontributors[bot]' &&
               startsWith(github.event.pull_request.title, 'docs: add')
             )
           )
@@ -54,7 +54,7 @@ jobs:
           tags: asyncapi/github-action-for-cli:${{ steps.docker_version.outputs.action_version }}
           outputs: type=docker,dest=/tmp/asyncapi.tar
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: asyncapi
           path: /tmp/asyncapi.tar
@@ -66,7 +66,7 @@ jobs:
     needs: [should-workflow-run, build-docker]
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: asyncapi
           path: /tmp
@@ -81,8 +81,8 @@ jobs:
           filepath: ./github-action/test/asyncapi.yml
       - name: Assert GitHub Action
         run: |
-          echo "Listing all files"  
-          ls -R  
+          echo "Listing all files"
+          ls -R
           echo "Asserting GitHub Action"
           if [ -f "./output/asyncapi.md" ]; then
             echo "Files exist"
@@ -146,7 +146,7 @@ jobs:
             echo "Action failed"
             exit 1
           fi
-  
+
   test-custom-output:
     if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
     runs-on: ubuntu-latest
@@ -179,7 +179,7 @@ jobs:
             echo "Action failed"
             exit 1
           fi
-  
+
   test-file-not-found:
     if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
     runs-on: ubuntu-latest
@@ -209,7 +209,7 @@ jobs:
           else
             echo "Test Success: non_existent_file.yml threw an error as expected"
           fi
-  
+
   test-invalid-input:
     if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
     runs-on: ubuntu-latest
@@ -275,7 +275,7 @@ jobs:
             echo "Action failed"
             exit 1
           fi
-      
+
   test-bundle:
     if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
     runs-on: ubuntu-latest
@@ -309,7 +309,7 @@ jobs:
             echo "Action failed"
             exit 1
           fi
-  
+
   test-convert:
     if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
     runs-on: ubuntu-latest
@@ -329,7 +329,7 @@ jobs:
         uses: ./
         with:
           command: convert
-          filepath: github-action/test/asyncapi.yml 
+          filepath: github-action/test/asyncapi.yml
           output: output/convert/asyncapi.yaml
       - name: Assert GitHub Action
         run: |
