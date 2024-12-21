@@ -1,0 +1,345 @@
+name: PR testing of CLI action
+
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
+
+jobs:
+  should-workflow-run:
+    runs-on: ubuntu-latest
+    steps:
+      - if: >
+          !github.event.pull_request.draft && !(
+            (github.actor == 'asyncapi-bot' && (
+              startsWith(github.event.pull_request.title, 'ci: update of files from global .github repo') ||
+              startsWith(github.event.pull_request.title, 'chore(release):')
+            )) ||
+            (github.actor == 'asyncapi-bot-eve' && (
+              startsWith(github.event.pull_request.title, 'ci: update of files from global .github repo') ||
+              startsWith(github.event.pull_request.title, 'chore(release):')
+            )) ||
+            (github.actor == 'allcontributors[bot]' &&
+              startsWith(github.event.pull_request.title, 'docs: add')
+            )
+          )
+        id: should_run
+        name: Should Run
+        run: echo "shouldrun=true" >> $GITHUB_OUTPUT
+    outputs:
+      shouldrun: ${{ steps.should_run.outputs.shouldrun }}
+
+  build-docker:
+    needs: should-workflow-run
+    name: Build Docker image
+    if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get docker version
+        id: docker_version
+        run: >
+          ls -la;
+          action=$(cat action.yml);
+          regex='docker:\/\/asyncapi\/github-action-for-cli:([0-9.]+)';
+          [[ $action =~ $regex ]];
+          action_version=${BASH_REMATCH[1]};
+          echo "action_version=$action_version" >> $GITHUB_OUTPUT
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build Docker image and export
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./github-action/Dockerfile
+          tags: asyncapi/github-action-for-cli:${{ steps.docker_version.outputs.action_version }}
+          outputs: type=docker,dest=/tmp/asyncapi.tar
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: asyncapi
+          path: /tmp/asyncapi.tar
+
+
+  test-defaults:
+    if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
+    runs-on: ubuntu-latest
+    needs: [should-workflow-run, build-docker]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asyncapi
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/asyncapi.tar
+          docker image ls -a
+      - uses: actions/checkout@v4
+      - name: Test GitHub Action
+        uses: ./
+        with:
+          filepath: ./github-action/test/asyncapi.yml
+      - name: Assert GitHub Action
+        run: |
+          echo "Listing all files"
+          ls -R
+          echo "Asserting GitHub Action"
+          if [ -f "./output/asyncapi.md" ]; then
+            echo "Files exist"
+          else
+            echo "Files do not exist:- ./output/asyncapi.md"
+            echo "Action failed"
+            exit 1
+          fi
+
+  test-validate-success:
+    if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
+    runs-on: ubuntu-latest
+    needs: [should-workflow-run, build-docker]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asyncapi
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/asyncapi.tar
+          docker image ls -a
+      - uses: actions/checkout@v4
+      - name: Test GitHub Action
+        uses: ./
+        with:
+          filepath: ./github-action/test/asyncapi.yml
+          command: validate
+
+  test-custom-command:
+    if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
+    runs-on: ubuntu-latest
+    needs: [should-workflow-run, build-docker]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asyncapi
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/asyncapi.tar
+          docker image ls -a
+      - uses: actions/checkout@v4
+      - name: Test GitHub Action
+        uses: ./
+        with:
+          # Custom command to generate models
+          # Note: You can use command itself to generate models, but this is just an example for testing custom commands
+          custom_command: "generate models typescript ./github-action/test/asyncapi.yml -o ./output"
+      - name: Assert GitHub Action
+        run: |
+          echo "Listing all files"
+          ls -R
+          echo "Asserting GitHub Action"
+          if [ -f "./output/AnonymousSchema_1.ts" ]; then
+            echo "Models have been generated"
+          else
+            echo "Models have not been generated"
+            echo "Action failed"
+            exit 1
+          fi
+
+  test-custom-output:
+    if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
+    runs-on: ubuntu-latest
+    needs: [should-workflow-run, build-docker]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asyncapi
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/asyncapi.tar
+          docker image ls -a
+      - uses: actions/checkout@v4
+      - name: Test GitHub Action
+        uses: ./
+        with:
+          filepath: ./github-action/test/asyncapi.yml
+          output: custom-output
+      - name: Assert GitHub Action
+        run: |
+          echo "Listing all files"
+          ls -R
+          echo "Asserting GitHub Action"
+          if [ -f "./custom-output/asyncapi.md" ]; then
+            echo "Files exist"
+          else
+            echo "Files do not exist:- ./custom-output/asyncapi.md"
+            echo "Action failed"
+            exit 1
+          fi
+
+  test-file-not-found:
+    if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
+    runs-on: ubuntu-latest
+    needs: [should-workflow-run, build-docker]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asyncapi
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/asyncapi.tar
+          docker image ls -a
+      - uses: actions/checkout@v4
+      - name: Test GitHub Action
+        id: test
+        uses: ./
+        with:
+          filepath: non_existent_file.yml
+        continue-on-error: true
+      - name: Check for failure
+        run: |
+          if [ "${{ steps.test.outcome }}" == "success" ]; then
+            echo "Test Failure: non_existent_file.yml should throw an error but did not"
+            exit 1
+          else
+            echo "Test Success: non_existent_file.yml threw an error as expected"
+          fi
+
+  test-invalid-input:
+    if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
+    runs-on: ubuntu-latest
+    needs: [should-workflow-run, build-docker]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asyncapi
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/asyncapi.tar
+          docker image ls -a
+      - uses: actions/checkout@v4
+      - name: Test GitHub Action
+        id: test
+        uses: ./
+        with:
+          filepath: github-action/test/asyncapi.yml
+          command: generate # No template or language specified
+          template: '' # Empty string
+        continue-on-error: true
+      - name: Check for failure
+        run: |
+          if [ "${{ steps.test.outcome }}" == "success" ]; then
+            echo "Test Failure: generate command should throw an error as no template or language specified but did not"
+            exit 1
+          else
+            echo "Test Success: generate command threw an error as expected"
+          fi
+
+  test-optimize:
+    if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
+    runs-on: ubuntu-latest
+    needs: [should-workflow-run, build-docker]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asyncapi
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/asyncapi.tar
+          docker image ls -a
+      - uses: actions/checkout@v4
+      - name: Test GitHub Action
+        uses: ./
+        with:
+          filepath: github-action/test/unoptimized.yml
+          command: optimize
+          parameters: '-o new-file --no-tty'
+      - name: Assert GitHub Action
+        run: |
+          echo "Listing all files"
+          ls -R
+          echo "Asserting GitHub Action"
+          if [ -f "./github-action/test/unoptimized_optimized.yml" ]; then
+            echo "The specified file has been optimized"
+          else
+            echo "The specified file has not been optimized"
+            echo "Action failed"
+            exit 1
+          fi
+
+  test-bundle:
+    if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
+    runs-on: ubuntu-latest
+    needs: [should-workflow-run, build-docker]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asyncapi
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/asyncapi.tar
+          docker image ls -a
+      - uses: actions/checkout@v4
+      - name: Make output directory
+        run: mkdir -p ./output/bundle
+      - name: Test GitHub Action
+        uses: ./
+        with:
+          custom_command: 'bundle ./github-action/test/bundle/asyncapi.yaml ./github-action/test/bundle/features.yaml --base ./github-action/test/bundle/asyncapi.yaml -o ./output/bundle/asyncapi.yaml'
+      - name: Assert GitHub Action
+        run: |
+          echo "Listing all files"
+          ls -R
+          echo "Asserting GitHub Action"
+          if [ -f "./output/bundle/asyncapi.yaml" ]; then
+            echo "The specified files have been bundled"
+          else
+            echo "The specified files have not been bundled"
+            echo "Action failed"
+            exit 1
+          fi
+
+  test-convert:
+    if: ${{ needs.should-workflow-run.outputs.shouldrun == 'true' }}
+    runs-on: ubuntu-latest
+    needs: [should-workflow-run, build-docker]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: asyncapi
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/asyncapi.tar
+          docker image ls -a
+      - uses: actions/checkout@v4
+      - name: Test GitHub Action
+        uses: ./
+        with:
+          command: convert
+          filepath: github-action/test/asyncapi.yml
+          output: output/convert/asyncapi.yaml
+      - name: Assert GitHub Action
+        run: |
+          echo "Listing all files"
+          ls -R
+          echo "Asserting GitHub Action"
+          if [ -f "./output/convert/asyncapi.yaml" ]; then
+            echo "The specified file has been converted"
+          else
+            echo "The specified file has not been converted"
+            echo "Action failed"
+            exit 1
+          fi

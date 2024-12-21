@@ -37,8 +37,8 @@ export class ValidationError extends Error {
         const errorHasTitle = !!e.title;
         const errorHasLocation = !!e.location;
         /*
-        * All the conditions below are needed since validationErrors (from ParserError) come from Parser JS library, 
-        * so we cannot assure that all the fields or properties are always provided in the error. There might be cases 
+        * All the conditions below are needed since validationErrors (from ParserError) come from Parser JS library,
+        * so we cannot assure that all the fields or properties are always provided in the error. There might be cases
         * that even title is not provided.
         */
         if (errorHasTitle && errorHasLocation) {

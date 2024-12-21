@@ -6,6 +6,7 @@ import yaml from 'js-yaml';
 import { loadContext } from './Context';
 import { ErrorLoadingSpec } from '../errors/specification-file';
 import { MissingContextFileError } from '../errors/context-error';
+import { fileFormat } from 'core/flags/format.flags';
 
 const { readFile, lstat } = fs;
 const allowedFileNames: string[] = [
@@ -221,4 +222,40 @@ async function detectSpecFile(): Promise<string | undefined> {
     }
   }));
   return existingFileNames.find(filename => filename !== undefined);
+}
+
+export function retrieveFileFormat(content: string): fileFormat | undefined {
+  try {
+    if (content.trimStart()[0] === '{') {
+      JSON.parse(content);
+      return 'json';
+    }
+    // below yaml.load is not a definitive way to determine if a file is yaml or not.
+    // it is able to load .txt text files also.
+    yaml.load(content);
+    return 'yaml';
+  } catch (err) {
+    return undefined;
+  }
+}
+
+export function convertToYaml(spec: string) {
+  try {
+    // JS object -> YAML string
+    const jsonContent = yaml.load(spec);
+    return yaml.dump(jsonContent);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export function convertToJSON(spec: string) {
+  try {
+    // JSON or YAML String -> JS object
+    const jsonContent = yaml.load(spec);
+    // JS Object -> pretty JSON string
+    return JSON.stringify(jsonContent, null, 2);
+  } catch (err) {
+    console.error(err);
+  }
 }

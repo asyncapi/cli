@@ -16,9 +16,14 @@ node_modules
 /test/integration/generate/models/
 test.asyncapi-cli
 asyncapi.json
-asyncapi.yml
 test/fixtures/minimaltemplate/__transpiled
+test/fixtures/specification-conv.yml
+test/fixtures/specification-conv.yaml
+test/fixtures/specification-conv.json
 .vscode
+
+/action/
+/github-action/output/
 
 oclif.manifest.json
 spec-examples.zip
