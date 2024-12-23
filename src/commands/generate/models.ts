@@ -71,7 +71,7 @@ export default class Models extends Command {
       });
       s.stop(green(`Successfully generated the following models: ${generatedModelStrings.join('\n')}`));
     } catch (error) {
-      s.stop(green("Failed to generate models")); 
+      s.stop(green('Failed to generate models')); 
 
       if (error instanceof Error) {
         this.error(error.message);
