@@ -1,14 +1,15 @@
 import { Flags } from '@oclif/core';
 
-export const proxyFlag = () => {
-    return {
-      proxyHost: Flags.string({
-        description: 'Name of the ProxyHost',
-      }),
-      proxyPort: Flags.string({
-        description: "Port number number for the proxyHost."
-      })
-    }
+export const proxyFlags = () => {
+  return {
+    proxyHost: Flags.string({
+      description: 'Name of the ProxyHost',
+      required: false
+    }),
+    proxyPort: Flags.string({
+      description: 'Port number number for the proxyHost.',
+      required: false
+    })
+  };
 };
-
 
