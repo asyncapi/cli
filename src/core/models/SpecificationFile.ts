@@ -7,7 +7,7 @@ import { loadContext } from './Context';
 import { ErrorLoadingSpec } from '../errors/specification-file';
 import { MissingContextFileError } from '../errors/context-error';
 import { fileFormat } from 'core/flags/format.flags';
-
+import { HttpsProxyAgent } from 'https-proxy-agent';
 const { readFile, lstat } = fs;
 const allowedFileNames: string[] = [
   'asyncapi.json',
@@ -87,15 +87,42 @@ export class Specification {
 
   static async fromURL(URLpath: string) {
     let response;
+    const delimiter = '+';
+    let targetUrl = URLpath;
+    let proxyUrl = '';
+
+    // Check if URLpath contains a proxy URL
+    if (URLpath.includes(delimiter)) {
+      [targetUrl, proxyUrl] = URLpath.split(delimiter);
+    }
+
     try {
-      response = await fetch(URLpath, { method: 'GET' });
+    // Validate the target URL
+      new URL(targetUrl);
+
+      const fetchOptions: any = { method: 'GET' };
+
+      // If proxy URL is provided, create a proxy agent
+      if (proxyUrl) {
+        try {
+          new URL(proxyUrl);
+          const proxyAgent = new HttpsProxyAgent(proxyUrl,);
+          fetchOptions.agent = proxyAgent;
+        } catch (error) {
+          throw new Error(`Invalid proxy URL: ${proxyUrl}`);
+        }
+      }
+
+      // Fetch the target URL
+      response = await fetch(targetUrl, fetchOptions);
       if (!response.ok) {
-        throw new ErrorLoadingSpec('url', URLpath);
+        throw new ErrorLoadingSpec('url', targetUrl);
       }
     } catch (error) {
-      throw new ErrorLoadingSpec('url', URLpath);
+      throw new ErrorLoadingSpec('url', targetUrl);
     }
-    return new Specification(await response?.text() as string, { fileURL: URLpath });
+
+    return new Specification(await response?.text() as string, { fileURL: targetUrl });
   }
 }
 
