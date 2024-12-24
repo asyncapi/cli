@@ -8,7 +8,7 @@ import { SpecificationFileNotFound } from '../core/errors/specification-file';
 import { convert, convertOpenAPI, convertPostman } from '@asyncapi/converter';
 import type { AsyncAPIConvertVersion, OpenAPIConvertVersion } from '@asyncapi/converter';
 import { cyan, green } from 'picocolors';
-
+import { proxyFlags } from '../core/flags/proxy.flags';
 // @ts-ignore
 import specs from '@asyncapi/specs';
 import { convertFlags } from '../core/flags/convert.flags';
@@ -20,15 +20,27 @@ export default class Convert extends Command {
   static metricsMetadata: any = {};
   static description = 'Convert asyncapi documents older to newer versions or OpenAPI/postman-collection documents to AsyncAPI';
 
-  static flags = convertFlags(latestVersion);
+  static flags = {
+    ...convertFlags(latestVersion),
+    ...proxyFlags()
+
+  };
 
   static args = {
     'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
+    proxyHost: Args.string({description: 'Name of the Proxy Host', required: false}),
+    proxyPort: Args.string({description: 'Name of the Port of the ProxyHost', required: false}),
   };
 
   async run() {
     const { args, flags } = await this.parse(Convert);
-    const filePath = args['spec-file'];
+    let filePath = args['spec-file'];
+    const proxyHost = flags['proxyHost'];
+    const proxyPort = flags['proxyPort'];
+    if (proxyHost && proxyPort) {
+      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
+      filePath = `${filePath}+${proxyUrl}`; // Update filePath with proxyUrl
+    }
     let convertedFile;
     let convertedFileFormatted;
 
