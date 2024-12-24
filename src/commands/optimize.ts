@@ -45,7 +45,7 @@ export default class Optimize extends Command {
   static flags = {
     ...optimizeFlags(),
     ...proxyFlags(),
-  }
+  };
 
   static args = {
     'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
