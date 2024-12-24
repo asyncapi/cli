@@ -36,11 +36,9 @@ export default class Validate extends Command {
       const { document } = await parse(this,this.specFile);
       this.log(`The score of the asyncapi document is ${await calculateScore(document)}`);
     }
-
     if (watchMode) {
       specWatcher({ spec: this.specFile, handler: this, handlerName: 'validate' });
     }
-
     const result = await validate(this, this.specFile, flags as ValidateOptions);
     this.metricsMetadata.validation_result = result;
 
