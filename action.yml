@@ -1,5 +1,5 @@
-name: 'AsyncAPI CLI Action'
-description: 'One stop solution for all your AsyncAPI Specification needs in github actions. Use this action to generate code, validate your AsyncAPI document, convert it to other formats, optimize it or run custom commands.'
+name: 'Generator, Validator, Converter and others - all in one for your AsyncAPI docs'
+description: 'Use this action to generate docs or code from your AsyncAPI document. Use default templates or provide your custom ones.'
 inputs:
   cli_version:
     description: 'Version of AsyncAPI CLI to be used. This is only needed if you want to test with a specific version of AsyncAPI CLI. Default is latest which is also the recommended option.'
@@ -38,7 +38,7 @@ runs:
   using: 'docker'
   # This is the image that will be used to run the action.
   # IMPORTANT: The version has to be changed manually in your PRs.
-  image: 'docker://asyncapi/github-action-for-cli:2.14.0'
+  image: 'docker://asyncapi/github-action-for-cli:2.14.1'
   args:
     - ${{ inputs.cli_version }}
     - ${{ inputs.command }}
