@@ -1,5 +1,12 @@
 # @asyncapi/cli
 
+## 2.14.1
+
+### Patch Changes
+
+- 08afb45: Prepare github action for release
+- da64c63: ci: bump artifact actions to v4
+
 ## 2.14.0
 
 ### Minor Changes
