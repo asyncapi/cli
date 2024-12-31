@@ -29,6 +29,7 @@
     "fast-levenshtein": "^3.0.0",
     "fs-extra": "^11.1.0",
     "generator-v2": "npm:@asyncapi/generator@^2.4.1",
+    "https-proxy-agent": "^7.0.6",
     "inquirer": "^8.2.0",
     "js-yaml": "^4.1.0",
     "lodash.template": "^4.4.0",
