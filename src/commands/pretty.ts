@@ -7,7 +7,7 @@ import { ValidationError } from '../core/errors/validation-error';
 import { prettyFlags } from '../core/flags/pretty.flags';
 
 export default class Pretty extends Command {
-  static readonly description = 'Format AsyncAPI specification file';
+  static readonly description = 'Beautify the AsyncAPI spec file (indentation, styling) in place or output the formatted spec to a new file.';
 
   static readonly examples = [
     'asyncapi pretty ./asyncapi.yaml',

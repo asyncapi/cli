@@ -1,0 +1,73 @@
+asyncapi: 2.0.0
+info:
+  title: Streetlights API
+  version: 1.0.0
+channels:
+  smartylighting/event/{streetlightId}/lighting/measured:
+    $ref: >-
+      #/components/channels/smartylighting/event/{streetlightId}/lighting/measured
+    parameters:
+      streetlightId:
+        schema:
+          $ref: '#/components/schemas/schema'
+  smartylighting/action/{streetlightId}/turn/on:
+    $ref: '#/components/channels/smartylighting/action/{streetlightId}/turn/on'
+components:
+  schemas:
+    sentAt:
+      type: string
+      format: date-time
+    lumens:
+      type: integer
+      minimum: 0
+    payload:
+      type: object
+      properties:
+        sentAt:
+          $ref: '#/components/schemas/sentAt'
+  messages:
+    message:
+      name: turnOnOff
+      title: Turn on/off
+      traits:
+        - headers:
+            type: object
+            properties:
+              my-app-header:
+                type: integer
+                minimum: 0
+                maximum: 100
+      payload:
+        $ref: '#/components/schemas/payload'
+  operations:
+    subscribe:
+      operationId: receiveLightMeasurement
+      traits:
+        - bindings:
+            kafka:
+              clientId: my-app-id
+      message:
+        $ref: '#/components/messages/message'
+    publish:
+      operationId: turnOn
+      traits:
+        - bindings:
+            kafka:
+              clientId: my-app-id
+      message:
+        $ref: '#/components/messages/message'
+  channels:
+    smartylighting/event/{streetlightId}/lighting/measured:
+      parameters:
+        streetlightId:
+          schema:
+            $ref: '#/components/schemas/schema'
+      subscribe:
+        $ref: '#/components/operations/subscribe'
+    smartylighting/action/{streetlightId}/turn/on:
+      parameters:
+        streetlightId:
+          schema:
+            $ref: '#/components/schemas/schema'
+      publish:
+        $ref: '#/components/operations/publish'
