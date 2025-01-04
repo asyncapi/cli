@@ -106,19 +106,21 @@ export class Specification {
       if (proxyUrl) {
         try {
           new URL(proxyUrl);
-          const proxyAgent = new HttpsProxyAgent(proxyUrl,);
+          const proxyAgent = new HttpsProxyAgent(proxyUrl);
           fetchOptions.agent = proxyAgent;
+          response = await fetch(targetUrl,fetchOptions);
         } catch (error) {
           throw new Error(`Invalid proxy URL: ${proxyUrl}`);
         }
       }
 
-      // Fetch the target URL
-      response = await fetch(targetUrl, fetchOptions);
+      response = await fetch(targetUrl);
       if (!response.ok) {
+        //   console.log(response+" sdf")
         throw new ErrorLoadingSpec('url', targetUrl);
       }
     } catch (error) {
+      console.log(error);
       throw new ErrorLoadingSpec('url', targetUrl);
     }
 
