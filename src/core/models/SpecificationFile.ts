@@ -112,12 +112,12 @@ export class Specification {
         } catch (error) {
           throw new Error(`Invalid proxy URL: ${proxyUrl}`);
         }
-      }
-
-      response = await fetch(targetUrl);
-      if (!response.ok) {
+      } else {
+        response = await fetch(targetUrl);
+        if (!response.ok) {
         //   console.log(response+" sdf")
-        throw new ErrorLoadingSpec('url', targetUrl);
+          throw new ErrorLoadingSpec('url', targetUrl);
+        }
       }
     } catch (error) {
       console.log(error);
