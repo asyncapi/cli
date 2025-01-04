@@ -58,6 +58,15 @@ describe('convert', () => {
         expect(ctx.stderr).to.equal('');
         done();
       });
+    test
+      .stderr()
+      .stdout()
+      .command(['convert', 'http://localhost:8080/dummySpec.yml --proxyHost=host --proxyPort=8080'])
+      .it('should throw error when url is passed with proxyHost and proxyPort with invalid host ', (ctx, done) => {
+        expect(ctx.stdout).to.contain('');
+        expect(ctx.stderr).to.equal('error loading AsyncAPI document from url: Failed to download http://localhost:8080/dummySpec.yml --proxyHost=host --proxyPort=8080.\n');
+        done();
+      });
   });
 
   describe('with no arguments', () => {
