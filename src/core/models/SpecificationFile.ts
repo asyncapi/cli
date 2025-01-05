@@ -109,13 +109,12 @@ export class Specification {
           const proxyAgent = new HttpsProxyAgent(proxyUrl);
           fetchOptions.agent = proxyAgent;
           response = await fetch(targetUrl,fetchOptions);
-        } catch (error) {
-          throw new Error(`Invalid proxy URL: ${proxyUrl}`);
+        } catch (err: any) {
+          throw new Error('Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber');
         }
       } else {
         response = await fetch(targetUrl);
         if (!response.ok) {
-        //   console.log(response+" sdf")
           throw new ErrorLoadingSpec('url', targetUrl);
         }
       }

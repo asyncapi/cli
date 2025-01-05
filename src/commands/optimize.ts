@@ -9,6 +9,7 @@ import { promises } from 'fs';
 import { Parser } from '@asyncapi/parser';
 import { optimizeFlags } from '../core/flags/optimize.flags';
 import { proxyFlags } from '../core/flags/proxy.flags';
+
 const { writeFile } = promises;
 
 export enum Optimizations {
@@ -66,13 +67,17 @@ export default class Optimize extends Command {
     }
     try {
       this.specFile = await load(filePath);
-    } catch (err) {
-      this.error(
-        new ValidationError({
-          type: 'invalid-file',
-          filepath: filePath,
-        })
-      );
+    } catch (err:any) {
+      if (err.message.includes('Failed to download')) {
+        throw new Error('Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.');
+      } else {
+        this.error(
+          new ValidationError({
+            type: 'invalid-file',
+            filepath: filePath,
+          })
+        );
+      }
     }
 
     let optimizer: Optimizer;
