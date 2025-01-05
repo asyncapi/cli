@@ -8,6 +8,7 @@ import chalk from 'chalk';
 import { promises } from 'fs';
 import { Parser } from '@asyncapi/parser';
 import { optimizeFlags } from '../core/flags/optimize.flags';
+import { proxyFlags } from '../core/flags/proxy.flags';
 
 const { writeFile } = promises;
 
@@ -42,27 +43,41 @@ export default class Optimize extends Command {
     'asyncapi optimize ./asyncapi.yaml --ignore=schema'
   ];
 
-  static flags = optimizeFlags();
+  static flags = {
+    ...optimizeFlags(),
+    ...proxyFlags(),
+  };
 
   static args = {
     'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
+    proxyHost: Args.string({description: 'Name of the Proxy Host', required: false}),
+    proxyPort: Args.string({description: 'Name of the Port of the ProxyHost', required: false}),
   };
 
   parser = new Parser();
 
   async run() {
     const { args, flags } = await this.parse(Optimize); //NOSONAR
-    const filePath = args['spec-file'];
-
+    let filePath = args['spec-file'];
+    const proxyHost = flags['proxyHost'];
+    const proxyPort = flags['proxyPort'];
+    if (proxyHost && proxyPort) {
+      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
+      filePath = `${filePath}+${proxyUrl}`; // Update filePath with proxyUrl
+    }
     try {
       this.specFile = await load(filePath);
-    } catch (err) {
-      this.error(
-        new ValidationError({
-          type: 'invalid-file',
-          filepath: filePath,
-        })
-      );
+    } catch (err:any) {
+      if (err.message.includes('Failed to download')) {
+        throw new Error('Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.');
+      } else {
+        this.error(
+          new ValidationError({
+            type: 'invalid-file',
+            filepath: filePath,
+          })
+        );
+      }
     }
 
     let optimizer: Optimizer;

@@ -58,6 +58,15 @@ describe('optimize', () => {
         expect(ctx.stderr).to.equal('');
         done();
       });
+    test
+      .stderr()
+      .stdout()
+      .command(['optimize', 'http://localhost:8080/dummySpec.yml --proxyHost=host --proxyPort=8080'])
+      .it('should throw error when url is passed with proxyHost and proxyPort with invalid host ', (ctx, done) => {
+        expect(ctx.stdout).to.contain('');
+        expect(ctx.stderr).to.equal('Error: Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.\n');
+        done();
+      });
   });
 
   describe('with no arguments', () => {
