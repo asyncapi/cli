@@ -3,41 +3,41 @@ title: 'CLI Architecture'
 weight: 40
 ---
 
-The AsyncAPI CLI uses oclif (Open CLI Framework) as its core framework, which allows customers to build powerful and scalable command-line applications. 
+The AsyncAPI CLI uses oclif (Open CLI Framework) as its core framework, which enables developers to build powerful and scalable command-line applications.
 
-**Structure of the Asyncapi CLI**: The CLI mainly divides into two components that is commands and the core part.
+**Structure of the AsyncAPI CLI**: The CLI is primarily divided into two components: commands and the core part.
 
-1. **Command Component** : The Commands contains all the necessary commands that helps to developers to interact with multiple functionality like creating new Asyncapi projects, validating asyncapi file, formatting asyncapi file etc. 
-2. **Core Component**: The Core part of the CLI contains all teh 
+1. **Command Component**: The commands include all the necessary functionalities that help developers interact with features like creating new AsyncAPI projects, validating AsyncAPI files, formatting AsyncAPI files, and more.  
+2. **Core Component**: The core part of the CLI contains various utilities that facilitate the efficient creation of new commands.
 
+---
 
-
-### **Detailed Explanation of Key Directories**
+### **Detailed Explanation of Key Directories in the CLI**
 
 #### **`src/commands/`**
 - **Purpose:** Implements the CLI commands available to the user.
 - **Subdirectories:**
   - `config/`: Stores configuration-related files for commands.
-  - `generate/`: Implements logic for generating AsyncAPI-related artifacts.
+  - `generate/`: Generates typed models or other artifacts like clients, applications, or documentation using AsyncAPI Generator templates.
     - **Files:**
-      - `fromTemplate.ts`: Logic for generating files using templates.
-      - `models.ts`: Defines the models used in generation.
-  - `new/`: Logic for creating new AsyncAPI projects.
+      - `fromTemplate.ts`: Contains logic for generating files using templates.
+      - `models.ts`: Defines the models used during generation.
+  - `new/`: Creates a new AsyncAPI file.
     - **Files:**
       - `file.ts`: Handles file creation logic.
       - `glee.ts`: Related to Glee, a tool for event-driven microservices.
-      - `template.ts`: Deals with templates for new projects.
-  - `start/`: Implements starting functionalities like starting a local server or studio.
+      - `template.ts`: Manages templates for new projects.
+  - `start/`: Implements starting functionalities like launching a local server or studio.
     - **Files:**
       - `studio.ts`: Integrates with the AsyncAPI Studio.
 
 - **Standalone Files:**
-  - `bundle.ts`: Bundles multiple AsyncAPI files.
-  - `convert.ts`: Converts AsyncAPI documents between different formats.
+  - `bundle.ts`: Bundles one or multiple AsyncAPI documents and their references together.
+  - `convert.ts`: Converts AsyncAPI documents from older to newer versions or transforms OpenAPI/Postman-collection documents into AsyncAPI.
   - `diff.ts`: Compares two AsyncAPI documents.
-  - `format.ts`: Formats AsyncAPI documents.
+  - `format.ts`: Converts AsyncAPI documents from any format to YAML, YML, or JSON.
   - `optimize.ts`: Optimizes AsyncAPI documents for performance.
-  - `pretty.ts`: Prettifies AsyncAPI documents.
+  - `pretty.ts`: Beautifies the AsyncAPI spec file (indentation, styling) in place or outputs the formatted spec to a new file.
   - `validate.ts`: Validates AsyncAPI documents for correctness.
 
 ---
@@ -93,6 +93,6 @@ The AsyncAPI CLI uses oclif (Open CLI Framework) as its core framework, which al
 7. **Convert Between Formats:**
    - The `convert` command supports converting AsyncAPI documents between formats like YAML and JSON.
 
-
+---
 
 This structure ensures the CLI is modular, scalable, and easy to maintain. Let me know if you need further clarification or additional details!
