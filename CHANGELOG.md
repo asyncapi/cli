@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 2.15.0
+
+### Minor Changes
+
+- dcfb8c7: fix: Remove unused package lodash.template
+
 ## 2.14.1
 
 ### Patch Changes
