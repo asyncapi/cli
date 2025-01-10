@@ -8,6 +8,7 @@ import chalk from 'chalk';
 import { promises } from 'fs';
 import { Parser } from '@asyncapi/parser';
 import { optimizeFlags } from '../core/flags/optimize.flags';
+import { proxyFlags } from '../core/flags/proxy.flags';
 
 const { writeFile } = promises;
 
@@ -42,27 +43,41 @@ export default class Optimize extends Command {
     'asyncapi optimize ./asyncapi.yaml --ignore=schema'
   ];
 
-  static flags = optimizeFlags();
+  static flags = {
+    ...optimizeFlags(),
+    ...proxyFlags(),
+  };
 
   static args = {
     'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
+    proxyHost: Args.string({description: 'Name of the Proxy Host', required: false}),
+    proxyPort: Args.string({description: 'Name of the Port of the ProxyHost', required: false}),
   };
 
   parser = new Parser();
 
   async run() {
     const { args, flags } = await this.parse(Optimize); //NOSONAR
-    const filePath = args['spec-file'];
-
+    let filePath = args['spec-file'];
+    const proxyHost = flags['proxyHost'];
+    const proxyPort = flags['proxyPort'];
+    if (proxyHost && proxyPort) {
+      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
+      filePath = `${filePath}+${proxyUrl}`; // Update filePath with proxyUrl
+    }
     try {
       this.specFile = await load(filePath);
-    } catch (err) {
-      this.error(
-        new ValidationError({
-          type: 'invalid-file',
-          filepath: filePath,
-        })
-      );
+    } catch (err:any) {
+      if (err.message.includes('Failed to download')) {
+        throw new Error('Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.');
+      } else {
+        this.error(
+          new ValidationError({
+            type: 'invalid-file',
+            filepath: filePath,
+          })
+        );
+      }
     }
 
     let optimizer: Optimizer;
@@ -85,7 +100,7 @@ export default class Optimize extends Command {
     this.metricsMetadata.optimized = false;
 
     if (!(report.moveDuplicatesToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length)) {
-      this.log(`No optimization has been applied since ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} looks optimized!`);
+      this.log(`🎉 Great news! Your file at ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} is already optimized.`);
       return;
     }
 
@@ -120,21 +135,22 @@ export default class Optimize extends Command {
 
       switch (this.outputMethod) {
       case Outputs.TERMINAL:
+        this.log('📄 Here is your optimized AsyncAPI document:\n');
         this.log(optimizedDocument);
         break;
       case Outputs.NEW_FILE:
         await writeFile(newPath, optimizedDocument, { encoding: 'utf8' });
-        this.log(`Created file ${newPath}...`);
+        this.log(`✅ Success! Your optimized file has been created at ${chalk.blue({newPath})}.`);
         break;
       case Outputs.OVERWRITE:
         await writeFile(specPath ?? 'asyncapi.yaml', optimizedDocument, { encoding: 'utf8' });
-        this.log(`Updated file ${specPath}...`);
+        this.log(`✅ Success! Your original file at ${specPath} has been updated.`);
         break;
       }
     } catch (error) {
       throw new ValidationError({
         type: 'parser-error',
-        err: error
+        err: error,
       });
     }
   }
@@ -219,7 +235,7 @@ export default class Optimize extends Command {
       message: 'where do you want to save the result:',
       type: 'list',
       default: 'log to terminal',
-      choices: [{name: 'log to terminal',value: Outputs.TERMINAL}, {name: 'create new file', value: Outputs.NEW_FILE}, {name: 'update original', value: Outputs.OVERWRITE}]
+      choices: [{name: 'log to terminal',value: Outputs.TERMINAL}, {name: 'create new file', value: Outputs.NEW_FILE}, {name: 'update original file', value: Outputs.OVERWRITE}]
     }]);
     this.outputMethod = outputRes.output;
   }

@@ -6,7 +6,8 @@ import yaml from 'js-yaml';
 import { loadContext } from './Context';
 import { ErrorLoadingSpec } from '../errors/specification-file';
 import { MissingContextFileError } from '../errors/context-error';
-
+import { fileFormat } from 'core/flags/format.flags';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 const { readFile, lstat } = fs;
 const allowedFileNames: string[] = [
   'asyncapi.json',
@@ -86,15 +87,43 @@ export class Specification {
 
   static async fromURL(URLpath: string) {
     let response;
+    const delimiter = '+';
+    let targetUrl = URLpath;
+    let proxyUrl = '';
+
+    // Check if URLpath contains a proxy URL
+    if (URLpath.includes(delimiter)) {
+      [targetUrl, proxyUrl] = URLpath.split(delimiter);
+    }
+
     try {
-      response = await fetch(URLpath, { method: 'GET' });
-      if (!response.ok) {
-        throw new ErrorLoadingSpec('url', URLpath);
+    // Validate the target URL
+      new URL(targetUrl);
+
+      const fetchOptions: any = { method: 'GET' };
+
+      // If proxy URL is provided, create a proxy agent
+      if (proxyUrl) {
+        try {
+          new URL(proxyUrl);
+          const proxyAgent = new HttpsProxyAgent(proxyUrl);
+          fetchOptions.agent = proxyAgent;
+          response = await fetch(targetUrl,fetchOptions);
+        } catch (err: any) {
+          throw new Error('Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber');
+        }
+      } else {
+        response = await fetch(targetUrl);
+        if (!response.ok) {
+          throw new ErrorLoadingSpec('url', targetUrl);
+        }
       }
     } catch (error) {
-      throw new ErrorLoadingSpec('url', URLpath);
+      console.log(error);
+      throw new ErrorLoadingSpec('url', targetUrl);
     }
-    return new Specification(await response?.text() as string, { fileURL: URLpath });
+
+    return new Specification(await response?.text() as string, { fileURL: targetUrl });
   }
 }
 
@@ -221,4 +250,40 @@ async function detectSpecFile(): Promise<string | undefined> {
     }
   }));
   return existingFileNames.find(filename => filename !== undefined);
+}
+
+export function retrieveFileFormat(content: string): fileFormat | undefined {
+  try {
+    if (content.trimStart()[0] === '{') {
+      JSON.parse(content);
+      return 'json';
+    }
+    // below yaml.load is not a definitive way to determine if a file is yaml or not.
+    // it is able to load .txt text files also.
+    yaml.load(content);
+    return 'yaml';
+  } catch (err) {
+    return undefined;
+  }
+}
+
+export function convertToYaml(spec: string) {
+  try {
+    // JS object -> YAML string
+    const jsonContent = yaml.load(spec);
+    return yaml.dump(jsonContent);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export function convertToJSON(spec: string) {
+  try {
+    // JSON or YAML String -> JS object
+    const jsonContent = yaml.load(spec);
+    // JS Object -> pretty JSON string
+    return JSON.stringify(jsonContent, null, 2);
+  } catch (err) {
+    console.error(err);
+  }
 }

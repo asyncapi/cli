@@ -9,6 +9,7 @@ const testHelper = new TestHelper();
 const filePath = './test/fixtures/specification.yml';
 const JSONFilePath = './test/fixtures/specification.json';
 const openAPIFilePath = './test/fixtures/openapi.yml';
+const postmanFilePath = './test/fixtures/postman-collection.yml';
 
 describe('convert', () => {
   describe('with file paths', () => {
@@ -55,6 +56,15 @@ describe('convert', () => {
       .it('works when url is passed', (ctx, done) => {
         expect(ctx.stdout).to.contain('The URL http://localhost:8080/dummySpec.yml has been successfully converted to version 3.0.0!!');
         expect(ctx.stderr).to.equal('');
+        done();
+      });
+    test
+      .stderr()
+      .stdout()
+      .command(['convert', 'http://localhost:8080/dummySpec.yml --proxyHost=host --proxyPort=8080'])
+      .it('should throw error when url is passed with proxyHost and proxyPort with invalid host ', (ctx, done) => {
+        expect(ctx.stdout).to.contain('');
+        expect(ctx.stderr).to.equal('error loading AsyncAPI document from url: Failed to download http://localhost:8080/dummySpec.yml --proxyHost=host --proxyPort=8080.\n');
         done();
       });
   });
@@ -238,6 +248,68 @@ describe('convert', () => {
         expect(fs.existsSync('./test/fixtures/openapi_converted_output.yml')).to.equal(true);
         expect(ctx.stderr).to.equal('');
         fs.unlinkSync('./test/fixtures/openapi_converted_output.yml');
+        done();
+      });
+  });
+
+  describe('with Postman input', () => {
+    beforeEach(() => {
+      testHelper.createDummyContextFile();
+    });
+  
+    afterEach(() => {
+      testHelper.deleteDummyContextFile();
+    });
+  
+    test
+      .stderr()
+      .stdout()
+      .command(['convert', postmanFilePath, '-f', 'postman-collection'])
+      .it('works when Postman file path is passed', (ctx, done) => {
+        expect(ctx.stdout).to.contain(`🎉 The ${postmanFilePath} file has been successfully converted to asyncapi of version 3.0.0!!`);
+        expect(ctx.stderr).to.equal('');
+        done();
+      });
+  
+    test
+      .stderr()
+      .stdout()
+      .command(['convert', postmanFilePath, '-f', 'postman-collection', '-p=client'])
+      .it('works when Postman file path is passed with client perspective', (ctx, done) => {
+        expect(ctx.stdout).to.contain(`🎉 The ${postmanFilePath} file has been successfully converted to asyncapi of version 3.0.0!!`);
+        expect(ctx.stderr).to.equal('');
+        done();
+      });
+  
+    test
+      .stderr()
+      .stdout()
+      .command(['convert', postmanFilePath, '-f', 'postman-collection', '-p=server'])
+      .it('works when Postman file path is passed with server perspective', (ctx, done) => {
+        expect(ctx.stdout).to.contain(`🎉 The ${postmanFilePath} file has been successfully converted to asyncapi of version 3.0.0!!`);
+        expect(ctx.stderr).to.equal('');
+        done();
+      });
+  
+    test
+      .stderr()
+      .stdout()
+      .command(['convert', postmanFilePath, '-f', 'postman-collection', '-p=invalid'])
+      .it('should throw error if invalid perspective is passed', (ctx, done) => {
+        expect(ctx.stdout).to.equal('');
+        expect(ctx.stderr).to.contain('Error: Expected --perspective=invalid to be one of: client, server');
+        done();
+      });
+  
+    test
+      .stderr()
+      .stdout()
+      .command(['convert', postmanFilePath, '-f', 'postman-collection', '-o=./test/fixtures/postman_converted_output.yml'])
+      .it('works when Postman file is converted and output is saved', (ctx, done) => {
+        expect(ctx.stdout).to.contain(`🎉 The ${postmanFilePath} file has been successfully converted to asyncapi of version 3.0.0!!`);
+        expect(fs.existsSync('./test/fixtures/postman_converted_output.yml')).to.equal(true);
+        expect(ctx.stderr).to.equal('');
+        fs.unlinkSync('./test/fixtures/postman_converted_output.yml');
         done();
       });
   });

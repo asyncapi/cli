@@ -1,6 +1,6 @@
 import Command from '../../core/base';
 import { load } from '../../core/models/SpecificationFile';
-import { formatOutput, parse } from '../../core/parser';
+import { formatOutput, parse, ValidateOptions } from '../../core/parser';
 import { cancel, intro, isCancel, select, spinner, text } from '@clack/prompts';
 import { green, inverse } from 'picocolors';
 import { generateModels, Languages, ModelinaArgs } from '@asyncapi/modelina-cli';
@@ -31,7 +31,7 @@ export default class Models extends Command {
 
     const inputFile = (await load(file)) || (await load());
 
-    const { document, diagnostics ,status } = await parse(this, inputFile, flags);
+    const { document, diagnostics ,status } = await parse(this, inputFile, flags as ValidateOptions);
 
     if (!document || status === 'invalid') {
       const severityErrors = diagnostics.filter((obj) => obj.severity === 0);
@@ -56,19 +56,29 @@ export default class Models extends Command {
 
     const s = spinner();
     s.start('Generating models...');
-    const generatedModels = await generateModels({...flags, output}, document, logger, language as Languages);
-    if (output !== 'stdout') {
-      const generatedModelStrings = generatedModels.map((model) => { return model.modelName; });
-      s.stop(green(`Successfully generated the following models: ${generatedModelStrings.join(', ')}`));
-      return;
-    }
-    const generatedModelStrings = generatedModels.map((model) => {
-      return `
-## Model name: ${model.modelName}
-${model.result}
-      `;
-    });
-    s.stop(green(`Successfully generated the following models: ${generatedModelStrings.join('\n')}`));
+    try {
+      const generatedModels = await generateModels({...flags, output}, document, logger, language as Languages);
+      if (output !== 'stdout') {
+        const generatedModelStrings = generatedModels.map((model) => { return model.modelName; });
+        s.stop(green(`Successfully generated the following models: ${generatedModelStrings.join(', ')}`));
+        return;
+      }
+      const generatedModelStrings = generatedModels.map((model) => {
+        return `
+  ## Model name: ${model.modelName}
+  ${model.result}
+        `;
+      });
+      s.stop(green(`Successfully generated the following models: ${generatedModelStrings.join('\n')}`));
+    } catch (error) {
+      s.stop(green('Failed to generate models')); 
+
+      if (error instanceof Error) {
+        this.error(error.message);
+      } else {
+        this.error('An unknown error occurred during model generation.');
+      }
+    }    
   }
 
   private async parseArgs(args: Record<string, any>, output?: string) {
