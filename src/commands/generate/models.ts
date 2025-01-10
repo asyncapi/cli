@@ -5,13 +5,19 @@ import { cancel, intro, isCancel, select, spinner, text } from '@clack/prompts';
 import { green, inverse } from 'picocolors';
 import { generateModels, Languages, ModelinaArgs } from '@asyncapi/modelina-cli';
 import { modelsFlags } from '../../core/flags/generate/models.flags';
+import { proxyFlags } from 'core/flags/proxy.flags';
+import { HttpsProxyAgent } from 'https-proxy-agent';
+import fetch, { RequestInit } from 'node-fetch';
 
 export default class Models extends Command {
   static description = 'Generates typed models';
 
   static readonly args = ModelinaArgs as any;
 
-  static flags = modelsFlags();
+  static flags = {
+    ...modelsFlags(),
+    ...proxyFlags(),
+  };
 
   async run() {
     const { args, flags } = await this.parse(Models);
@@ -19,6 +25,14 @@ export default class Models extends Command {
     let { output } = flags;
 
     const interactive = !flags['no-interactive'];
+    const proxyHost = flags['proxyHost'];
+    const proxyPort = flags['proxyPort'];
+    let proxyAgent;
+
+    if (proxyHost && proxyPort) {
+      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
+     proxyAgent = new HttpsProxyAgent(proxyUrl);
+    }
 
     if (!interactive) {
       intro(inverse('AsyncAPI Generate Models'));
@@ -29,6 +43,9 @@ export default class Models extends Command {
       output = parsedArgs.output;
     }
 
+    const customFetch = proxyAgent
+    ? (url: string, options: RequestInit = {}) => fetch(url, { ...options, agent: proxyAgent })
+    : fetch;
     const inputFile = (await load(file)) || (await load());
 
     const { document, diagnostics ,status } = await parse(this, inputFile, flags as ValidateOptions);
