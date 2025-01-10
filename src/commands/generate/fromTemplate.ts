@@ -16,6 +16,8 @@ import { intro, isCancel, spinner, text } from '@clack/prompts';
 import { inverse, yellow, magenta, green, red } from 'picocolors';
 import fetch from 'node-fetch';
 import { fromTemplateFlags } from '../../core/flags/generate/fromTemplate.flags';
+import { proxyFlags } from 'core/flags/proxy.flags';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 interface IMapBaseUrlToFlag {
   url: string,
@@ -57,18 +59,31 @@ export default class Template extends Command {
     'asyncapi generate fromTemplate asyncapi.yaml @asyncapi/html-template --param version=1.0.0 singleFile=true --output ./docs --force-write'
   ];
 
-  static flags = fromTemplateFlags();
+  static flags = {
+    ...fromTemplateFlags(),
+    ...proxyFlags(),
+  };
 
   static args = {
     asyncapi: Args.string({ description: '- Local path, url or context-name pointing to AsyncAPI file', required: true }),
     template: Args.string({ description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true }),
+    proxyHost: Args.string({description: 'Name of the Proxy Host', required: false}),
+    proxyPort: Args.string({description: 'Name of the Port of the ProxyHost', required: false}),
   };
 
   parser = new Parser();
 
   async run() {
-    const { args, flags } = await this.parse(Template); // NOSONAR
+    const { args, flags } = await this.parse(Template); // NOSONAR  
     const interactive = !flags['no-interactive'];
+    const proxyHost = flags['proxyHost'];
+    const proxyPort = flags['proxyPort'];
+
+    let proxyAgent;
+    if (proxyHost && proxyPort) {
+      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
+      proxyAgent = new HttpsProxyAgent(proxyUrl);
+    }
 
     let { asyncapi, template } = args;
     let output = flags.output as string;
@@ -94,7 +109,9 @@ export default class Template extends Command {
         url: flags['registry-url'],
         auth: flags['registry-auth'],
         token: flags['registry-token']
-      }
+      },
+      ...(proxyAgent && { fetchOptions: { agent: proxyAgent } })
+
     };
     const asyncapiInput = (await load(asyncapi)) || (await load());
 
@@ -258,6 +275,9 @@ export default class Template extends Command {
     try {
       specification = await load(asyncapi);
     } catch (err: any) {
+      if (err.message?.includes('Failed to download')) {
+        throw new Error('Proxy Connection Error: Unable to establish a connection to the proxy. Check hostName or PortNumber.');
+      }
       return this.error(
         new ValidationError({
           type: 'invalid-file',
@@ -283,6 +303,9 @@ export default class Template extends Command {
     try {
       specification = await load(asyncapi);
     } catch (err: any) {
+      if (err.message?.includes('Failed to download')) {
+        throw new Error('Proxy Connection Error: Unable to establish a connection to the proxy. Check hostName or PortNumber.');
+      }
       return this.error(
         new ValidationError({
           type: 'invalid-file',
