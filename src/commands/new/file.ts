@@ -37,7 +37,7 @@ export default class NewFile extends Command {
 
   static examples = [
     'asyncapi new\t - start creation of a file in interactive mode',
-    'asyncapi new --file-name=my-asyncapi.yml --example=default-example.yml --no-tty\t - create a new file with a specific name, using one of the examples and without interactive mode'
+    'asyncapi new --file-name=my-asyncapi.yaml --example=default-example.yaml --no-tty\t - create a new file with a specific name, using one of the examples and without interactive mode'
   ];
 
   async run() {
