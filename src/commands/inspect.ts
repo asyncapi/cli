@@ -10,14 +10,14 @@ import { ValidationError } from '../core/errors/validation-error';
 import { numberOfComponents } from '../core/utils/numberOfComponents';
 
 export default class Inspect extends Command {
-    static description = 'Show the number of servers, channels, and components in AsyncAPI files';
+    static readonly description = 'Show the number of servers, channels, and components in AsyncAPI files';
 
-    static flags = {
+    static readonly flags = {
         ...inspectFlags(),
         ...proxyFlags(), // Merge proxyFlags with validateFlags
     };
 
-    static args = {
+    static readonly args = {
         'spec-file': Args.string({ description: 'spec path, url, or context-name', required: false }),
         proxyHost: Args.string({ description: 'Name of the Proxy Host', required: false }),
         proxyPort: Args.string({ description: 'Name of the Port of the ProxyHost', required: false }),
