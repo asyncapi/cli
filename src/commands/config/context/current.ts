@@ -7,6 +7,7 @@ import {
   ContextNotFoundError,
 } from '../../../core/errors/context-error';
 import { helpFlag } from '../../../core/flags/global.flags';
+import { cyan } from 'picocolors';
 
 export default class ContextCurrent extends Command {
   static description = 'Shows the current context that is being used';
@@ -21,27 +22,20 @@ export default class ContextCurrent extends Command {
       if (
         e instanceof (MissingContextFileError || ContextFileWrongFormatError)
       ) {
-        this.log(
-          'You have no context file configured. Run "asyncapi config context init" to initialize it.'
-        );
-        return;
+        this.error(`Unable to show current context. You have no context file configured.\nRun ${cyan('asyncapi config context init')} to initialize it.`);
       } else if (e instanceof ContextFileEmptyError) {
-        this.log(`Context file "${CONTEXT_FILE_PATH}" is empty.`);
-        return;
+        this.error(`Context file ${cyan(CONTEXT_FILE_PATH)} is empty.`);
       } else if (
         e instanceof ContextNotFoundError ||
         (fileContent && !fileContent.current)
       ) {
-        this.log(
-          'No context is set as current. Run "asyncapi config context" to see all available options.'
-        );
-        return;
+        this.error(`No context is set as current.\nRun ${cyan('asyncapi config context')} to see all available options.`);
       }
       throw e;
     }
 
     if (fileContent) {
-      this.log(`${fileContent.current}: ${fileContent.context}`);
+      this.log(`${cyan(fileContent.current)}: ${fileContent.context}`);
     }
   }
 }
