@@ -14,7 +14,7 @@ export default class Inspect extends Command {
 
     static readonly flags = {
         ...inspectFlags(),
-        ...proxyFlags(), // Merge proxyFlags with validateFlags
+        ...proxyFlags(),
     };
 
     static readonly args = {
@@ -25,28 +25,30 @@ export default class Inspect extends Command {
 
     async run() {
         const { args, flags } = await this.parse(Inspect);
+
         let filePath = args['spec-file'];
+
         const proxyHost = flags['proxyHost'];
+
         const proxyPort = flags['proxyPort'];
+
         if (proxyHost && proxyPort) {
             const proxyUrl = `http://${proxyHost}:${proxyPort}`;
-            filePath = `${filePath}+${proxyUrl}`; // Update filePath with proxyUrl
+            filePath = `${filePath}+${proxyUrl}`;
         }
+
         try {
             this.specFile = await load(filePath);
-        } catch (err: any) {
+        }
+        catch (err: any) {
             if (err.message.includes('Failed to download')) {
                 throw new Error('Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.');
-            } else {
-                this.error(
-                    new ValidationError({
-                        type: 'invalid-file',
-                        filepath: filePath,
-                    })
-                );
+            }
+            else {
+                this.error(new ValidationError({type: 'invalid-file',filepath: filePath}));
             }
         }
-        let { document } = await parse(this, this.specFile);
+        const { document } = await parse(this, this.specFile);
         const channels = await numberOfChannels(document);
         const servers = await numberOfServers(document);
         const components = await numberOfComponents(document);
