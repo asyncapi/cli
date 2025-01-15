@@ -32,6 +32,10 @@ export default abstract class extends Command {
     try {
       return await super.catch(err);
     } catch (e: any) {
+      if (e.message.includes('EEXIT: 0')) {
+        process.exitCode = 0;
+        return;
+      }
       if (e instanceof Error) {
         this.logToStderr(`${e.name}: ${e.message}`);
         process.exitCode = 1;
