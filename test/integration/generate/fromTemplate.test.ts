@@ -208,4 +208,55 @@ describe('template', () => {
         }
       );
   });
+  describe('fetch, httpsproxyagent, and proxyflags', () => {
+    test
+      .stdout()
+      .command([
+        ...generalOptions,
+        '--output=./test/docs/proxy',
+        '--force-write',
+        '--proxyHost=localhost',
+        '--proxyPort=8080',
+        nonInteractive
+      ])
+      .it('should use proxy settings when provided', (ctx, done) => {
+        expect(ctx.stdout).to.contain('Check out your shiny new generated files at ./test/docs/proxy');
+        cleanup('./test/docs/proxy');
+        done();
+      });
+
+    test
+      .stdout()
+      .command([
+        'generate:fromTemplate',
+        'https://raw.githubusercontent.com/asyncapi/spec/master/examples/2.0.0/streetlights.yml',
+        '@asyncapi/html-template',
+        '--output=./test/docs/fetch',
+        '--force-write',
+        nonInteractive
+      ])
+      .it('should fetch remote AsyncAPI file', (ctx, done) => {
+        expect(ctx.stdout).to.contain('Check out your shiny new generated files at ./test/docs/fetch');
+        cleanup('./test/docs/fetch');
+        done();
+      });
+
+    test
+      .stdout()
+      .command([
+        'generate:fromTemplate',
+        'https://raw.githubusercontent.com/asyncapi/spec/master/examples/2.0.0/streetlights.yml',
+        '@asyncapi/html-template',
+        '--output=./test/docs/proxy-fetch',
+        '--force-write',
+        '--proxyHost=localhost',
+        '--proxyPort=8080',
+        nonInteractive
+      ])
+      .it('should fetch remote AsyncAPI file using proxy', (ctx, done) => {
+        expect(ctx.stdout).to.contain('Check out your shiny new generated files at ./test/docs/proxy-fetch');
+        cleanup('./test/docs/proxy-fetch');
+        done();
+      });
+  });
 });
