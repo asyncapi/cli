@@ -20,7 +20,6 @@ class preview extends Command {
     const { argv, flags } = await this.parse(preview);
     const AsyncAPIFiles = argv as string[];
 
-    console.log('Got flags: ', flags, argv);
     this.startServer(AsyncAPIFiles, flags);
   }
 
