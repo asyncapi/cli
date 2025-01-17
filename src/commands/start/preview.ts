@@ -18,12 +18,14 @@ class preview extends Command {
 
   async run() {
     const { argv, flags } = await this.parse(preview);
+    const port = flags.port;
+
     const AsyncAPIFiles = argv as string[];
 
-    this.startServer(AsyncAPIFiles, flags);
+    this.startServer(AsyncAPIFiles, flags, port | 3210);
   }
 
-  async startServer(AsyncAPIFiles: string[], flags: any) {
+  async startServer(AsyncAPIFiles: string[], flags: any, port: number) {
     const server = createServer(async (request, response) => {
       const indexLocation = require.resolve(
         '@asyncapi/studio/build/index.html',
