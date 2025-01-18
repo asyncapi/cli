@@ -2,19 +2,17 @@ import Command from '../../core/base';
 import bundle from '@asyncapi/bundler';
 import path from 'path';
 import open from 'open';
-import { bundleFlags } from '../../core/flags/bundle.flags';
 import { createServer } from 'http';
 import serveHandler from 'serve-handler';
 import { version as studioVersion } from '@asyncapi/studio/package.json';
-
-const port = 3210;
+import { previewFlags } from '../../core/flags/start/preview.flags';
 
 class preview extends Command {
   static description =
     'Preview AsyncAPI document with local references in Studio.';
   static strict = false;
 
-  static flags = bundleFlags();
+  static flags = previewFlags();
 
   async run() {
     const { argv, flags } = await this.parse(preview);
@@ -22,7 +20,7 @@ class preview extends Command {
 
     const AsyncAPIFiles = argv as string[];
 
-    this.startServer(AsyncAPIFiles, flags, port | 3210);
+    this.startServer(AsyncAPIFiles, flags, port ? port : 3210);
   }
 
   async startServer(AsyncAPIFiles: string[], flags: any, port: number) {
