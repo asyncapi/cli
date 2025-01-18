@@ -786,10 +786,12 @@ starts a new local instance of Studio
 
 ```
 USAGE
-  $ asyncapi start studio [-h] [-f <value>] [-p <value>]
+  $ asyncapi start studio [SPEC_FILE] [-h] [-p <value>]
+
+ARGUMENTS
+  SPEC-FILE  spec path, url, or context-name
 
 FLAGS
-  -f, --file=<value>  path to the AsyncAPI file to link with Studio
   -h, --help          Show CLI help.
   -p, --port=<value>  port in which to start Studio
 

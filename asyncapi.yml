@@ -1,0 +1,9 @@
+asyncapi: '3.0.0'
+info:
+  title: Welcome to AsyncAPI Studio
+  version: '1.0.0'
+  description: This is a sample AsyncAPI document to help you get started. Define your async APIs, channels, messages, and bindings here.
+  contact:
+    name: AsyncAPI 
+    url: https://www.asyncapi.com
+    email: support@asyncapi.org
