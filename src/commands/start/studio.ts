@@ -9,7 +9,7 @@ export default class StartStudio extends Command {
 
   static flags = studioFlags();
 
-  static args = {
+  static readonly args = {
     'spec-file': Args.string({ description: 'spec path, url, or context-name', required: false }),
   };
 
@@ -22,13 +22,16 @@ export default class StartStudio extends Command {
         filePath = ((await load()).getFilePath());
         this.log(`Loaded specification from: ${filePath}`);
       } catch (error) {
-        this.log('No file specified. Starting with an empty Studio.');
+        filePath = "";
+        this.log('No file specified.');
       }
     }
     try {
       this.specFile = await load(filePath);
     } catch (error) {
-      filePath = "";
+      if(filePath){
+        this.error(error as Error);
+      }
     }
     this.metricsMetadata.port = port;
     startStudio(filePath as string, port);
