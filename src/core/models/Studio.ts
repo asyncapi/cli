@@ -115,8 +115,8 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
     if (filePath) {
       console.log(`Watching changes on file ${filePath}`);
     } else {
-      console.log(
-        'Hint : No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
+      console.warn(
+        'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
       );
     }
     open(url);

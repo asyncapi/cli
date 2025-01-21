@@ -15,7 +15,13 @@ export default class StartStudio extends Command {
 
   async run() {
     const { args, flags } = await this.parse(StartStudio);
-    let filePath = args['spec-file'];
+
+    if (flags.file) {
+      this.warn('The file flag has been removed and is being replaced by the argument spec-file. Please pass the filename directly like `asyncapi start studio asyncapi.yml`');
+    }
+
+    let filePath = args['spec-file'] ?? flags.file;
+
     const port = flags.port;
     if (!filePath) {
       try {
@@ -23,7 +29,7 @@ export default class StartStudio extends Command {
         this.log(`Loaded specification from: ${filePath}`);
       } catch (error) {
         filePath = '';
-        this.log('No file specified.');
+        this.error('No file specified.');
       }
     }
     try {
