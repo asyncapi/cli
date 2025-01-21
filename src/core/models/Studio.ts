@@ -21,30 +21,32 @@ function isValidFilePath(filePath: string): boolean {
 }
 
 export function start(filePath: string, port: number = DEFAULT_PORT): void {
-  if (!isValidFilePath(filePath)) {
+  if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
-  chokidar.watch(filePath).on('all', (event, path) => {
-    switch (event) {
-    case 'add':
-    case 'change':
-      getFileContent(path).then((code:string) => {
+  if (filePath) {
+    chokidar.watch(filePath).on('all', (event, path) => {
+      switch (event) {
+      case 'add':
+      case 'change':
+        getFileContent(path).then((code: string) => {
+          messageQueue.push(JSON.stringify({
+            type: 'file:changed',
+            code,
+          }));
+          sendQueuedMessages();
+        });
+        break;
+      case 'unlink':
         messageQueue.push(JSON.stringify({
-          type: 'file:changed',
-          code,
+          type: 'file:deleted',
+          filePath,
         }));
         sendQueuedMessages();
-      });
-      break;
-    case 'unlink':
-      messageQueue.push(JSON.stringify({
-        type: 'file:deleted',
-        filePath,
-      }));
-      sendQueuedMessages();
-      break;
-    }
-  });
+        break;
+      }
+    });
+  }
 
   const server = createServer((request, response) => {
     //not all CLI users use npm. Some package managers put dependencies in different weird places
@@ -71,18 +73,26 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
 
   wsServer.on('connection', (socket: any) => {
     sockets.push(socket);
-    getFileContent(filePath).then((code: string) => {
+    if (filePath) {
+      getFileContent(filePath).then((code: string) => {
+        messageQueue.push(JSON.stringify({
+          type: 'file:loaded',
+          code,
+        }));
+        sendQueuedMessages();
+      });
+    } else {
       messageQueue.push(JSON.stringify({
         type: 'file:loaded',
-        code,
+        code: '',
       }));
       sendQueuedMessages();
-    });
+    }
 
     socket.on('message', (event: string) => {
       try {
-        const json:any = JSON.parse(event);
-        if (json.type === 'file:update') {
+        const json: any = JSON.parse(event);
+        if (filePath && json.type === 'file:update') {
           saveFileContent(filePath, json.code);
         } else {
           console.warn('Live Server: An unknown event has been received. See details:');
@@ -102,7 +112,13 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
     const url = `http://localhost:${port}?liveServer=${port}&studio-version=${studioVersion}`;
     console.log(`Studio is now running at ${url}.`);
     console.log(`You can open this URL in your web browser, and if needed, press ${gray('Ctrl + C')} to stop the process.`);
-    console.log(`Watching changes on file ${filePath}`);
+    if (filePath) {
+      console.log(`Watching changes on file ${filePath}`);
+    } else {
+      console.log(
+        'Hint : No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
+      );
+    }
     open(url);
   });
 }
