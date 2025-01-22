@@ -7,7 +7,7 @@ import chokidar from 'chokidar';
 import open from 'open';
 import path from 'path';
 import { version as studioVersion } from '@asyncapi/studio/package.json';
-import { gray } from 'picocolors';
+import { blueBright,redBright } from 'picocolors';
 
 const { readFile, writeFile } = fPromises;
 
@@ -110,10 +110,11 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
 
   server.listen(port, () => {
     const url = `http://localhost:${port}?liveServer=${port}&studio-version=${studioVersion}`;
-    console.log(`Studio is now running at ${url}.`);
-    console.log(`You can open this URL in your web browser, and if needed, press ${gray('Ctrl + C')} to stop the process.`);
+    console.log(`🎉 Connected to Live Server running at ${blueBright(url)}.`);
+    console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
+    console.log(`🛑 If needed, press ${redBright('Ctrl + C')} to stop the process.`);
     if (filePath) {
-      console.log(`Watching changes on file ${filePath}`);
+      console.log(`👁️ Watching changes on file ${blueBright(filePath)}`);
     } else {
       console.warn(
         'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
