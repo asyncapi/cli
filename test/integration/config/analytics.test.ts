@@ -42,7 +42,7 @@ describe('config:analytics', () => {
       .stdout()
       .command(['config:analytics'])
       .it('should show informational message when no flags are used', (ctx, done) => {
-        expect(ctx.stdout).to.equal('\nPlease append the "--disable" flag to the command in case you prefer to disable analytics, or use the "--enable" flag if you want to enable analytics back again. In case you do not know the analytics current status, then you can append the "--status" flag to be aware of it.\n\n');
+        expect(ctx.stdout).to.equal('\nPlease append the --disable flag to the command if you prefer to disable analytics, or use the --enable flag if you want to enable analytics again. To check the current analytics status, use the --status flag.\n\n');
         expect(ctx.stderr).to.equal('');
         done();
       });
