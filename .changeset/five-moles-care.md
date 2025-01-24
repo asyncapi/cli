@@ -2,4 +2,4 @@
 "@asyncapi/cli": patch
 ---
 
-Added UI/UX improvements to start command
+implemented new UI/UX improvements in config command

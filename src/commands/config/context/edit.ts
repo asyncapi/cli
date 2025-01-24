@@ -7,6 +7,7 @@ import {
   ContextFileEmptyError,
 } from '../../../core/errors/context-error';
 import { helpFlag } from '../../../core/flags/global.flags';
+import { blueBright } from 'picocolors';
 
 export default class ContextEdit extends Command {
   static description = 'Edit a context in the store';
@@ -23,20 +24,14 @@ export default class ContextEdit extends Command {
 
     try {
       await editContext(contextName, newSpecFilePath);
-      this.log(
-        `Edited context "${contextName}".\n\nYou can set it as your current context: asyncapi config context use ${contextName}\nYou can use this context when needed by passing ${contextName} as a parameter: asyncapi validate ${contextName}`
-      );
+      this.log(`🎉 Context ${blueBright(contextName)} edited successfully!\nYou can set it as your current context:\n  ${blueBright('asyncapi')} ${blueBright('config')} ${blueBright('context')} ${blueBright('use')} ${blueBright(contextName)}\nYou can use this context when needed by passing ${blueBright(contextName)} as a parameter:\n  ${blueBright('asyncapi')} ${blueBright('validate')} ${blueBright(contextName)}`);
     } catch (e) {
       if (
         e instanceof (MissingContextFileError || ContextFileWrongFormatError)
       ) {
-        this.log(
-          'You have no context file configured. Run "asyncapi config context init" to initialize it.'
-        );
-        return;
+        this.error(`Unable to edit context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`);
       } else if (e instanceof ContextFileEmptyError) {
-        this.log(`Context file "${CONTEXT_FILE_PATH}" is empty.`);
-        return;
+        this.error(`Context file ${blueBright(CONTEXT_FILE_PATH)} is empty.`);
       }
       throw e;
     }

@@ -1,5 +1,6 @@
 import Command from '../../core/base';
 import { helpFlag } from '../../core/flags/global.flags';
+import { blueBright, gray } from 'picocolors';
 
 export default class Versions extends Command {
   static description = 'Show versions of AsyncAPI tools used';
@@ -30,7 +31,7 @@ export default class Versions extends Command {
     }
 
     // Showing information available with `--version` flag.
-    this.log(this.config.userAgent);
+    this.log(gray(`\n${this.config.userAgent}\n`));
 
     // Iteration through the array containing all dependencies '@asyncapi/*'
     // along with their versions.
@@ -49,6 +50,6 @@ export default class Versions extends Command {
       }
     }
 
-    this.log(`Repository: ${this.config.pjson.homepage}`);
+    this.log(`Repository: ${blueBright(this.config.pjson.homepage)}`);
   }
 }
