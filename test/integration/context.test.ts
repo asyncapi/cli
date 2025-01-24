@@ -56,7 +56,7 @@ describe('config:context, positive scenario', () => {
       .command(['config:context:add', 'test', './test/integration/specification.yml'])
       .it('should add new context called "test"', (ctx, done) => {
         expect(ctx.stdout).to.equals(
-          'Added context "test".\n\nYou can set it as your current context: asyncapi config context use test\nYou can use this context when needed by passing test as a parameter: asyncapi validate test\n'
+          '🎉 Context test added successfully!\nYou can set it as your current context:\n  asyncapi config context use test\nYou can use this context when needed by passing test as a parameter:\n  asyncapi validate test\n'
         );
         expect(ctx.stderr).to.equals('');
         done();
@@ -86,7 +86,7 @@ describe('config:context, positive scenario', () => {
       .stdout()
       .command(['config:context:edit', 'test', './test/specification2.yml'])
       .it('should edit existing context "test"', (ctx, done) => {
-        expect(ctx.stdout).to.contain('Edited context "test".');
+        expect(ctx.stdout).to.contain('🎉 Context test edited successfully!');
         expect(ctx.stderr).to.equals('');
         done();
       });
@@ -98,7 +98,7 @@ describe('config:context, positive scenario', () => {
       .stdout()
       .command(['config:context:use', 'code'])
       .it('should update the current context', (ctx, done) => {
-        expect(ctx.stdout).to.equals('code is set as current\n');
+        expect(ctx.stdout).to.equals('Context code is now set as current.\n');
         expect(ctx.stderr).to.equals('');
         done();
       });
@@ -114,7 +114,7 @@ describe('config:context, positive scenario', () => {
       .stdout()
       .command(['config:context:remove', 'code'])
       .it('should remove existing context', (ctx, done) => {
-        expect(ctx.stdout).to.equals('code successfully deleted\n');
+        expect(ctx.stdout).to.equals('Context code removed successfully!\n\n');
         expect(ctx.stderr).to.equals('');
         done();
       });
@@ -126,7 +126,7 @@ describe('config:context, positive scenario', () => {
       .stdout()
       .command(['config:context:init'])
       .it('should initialize new empty context file without a switch', (ctx, done) => {
-        expect(ctx.stdout).to.contain('Initialized context');
+        expect(ctx.stdout).to.contain('🎉 Context initialized at');
         expect(ctx.stderr).to.equals('');
         done();
       });
@@ -138,7 +138,7 @@ describe('config:context, positive scenario', () => {
       .stdout()
       .command(['config:context:init', '.'])
       .it('should initialize new empty context file with switch "."', (ctx, done) => {
-        expect(ctx.stdout).to.contain('Initialized context');
+        expect(ctx.stdout).to.contain('🎉 Context initialized at');
         expect(ctx.stderr).to.equals('');
         done();
       });
@@ -150,7 +150,7 @@ describe('config:context, positive scenario', () => {
       .stdout()
       .command(['config:context:init', './'])
       .it('should initialize new empty context file with switch "./"', (ctx, done) => {
-        expect(ctx.stdout).to.contain('Initialized context');
+        expect(ctx.stdout).to.contain('🎉 Context initialized at');
         expect(ctx.stderr).to.equals('');
         done();
       });
@@ -162,7 +162,7 @@ describe('config:context, positive scenario', () => {
       .stdout()
       .command(['config:context:init', '~'])
       .it('should initialize new empty context file with switch "~"', (ctx, done) => {
-        expect(ctx.stdout).to.contain('Initialized context');
+        expect(ctx.stdout).to.contain('🎉 Context initialized at');
         expect(ctx.stderr).to.equals('');
         done();
       });
@@ -279,7 +279,7 @@ describe('config:context, negative scenario', () => {
       .it(
         'should output info message (to stdout, NOT stderr) about absence of context file.',
         (ctx, done) => {
-          expect(ctx.stdout).to.contain('You have no context file configured.');
+          expect(ctx.stdout).to.contain('Unable to list contexts. You have no context file configured.');
           expect(ctx.stderr).to.equals('');
           done();
         }
