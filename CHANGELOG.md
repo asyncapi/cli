@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 2.16.0
+
+### Minor Changes
+
+- a37e124: Deprecate the --file flag in `start studio` command
+
 ## 2.15.0
 
 ### Minor Changes
