@@ -45,10 +45,14 @@ export default class Inspect extends Command {
                 throw new Error('Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.');
             }
             else {
-                this.error(new ValidationError({type: 'invalid-file',filepath: filePath}));
+                this.error(new ValidationError({ type: 'invalid-file', filepath: filePath }));
             }
         }
-        const { document } = await parse(this, this.specFile);
+        const { document, status } = await parse(this, this.specFile);
+        if (!document || status === 'invalid') {
+            this.log('Input is not a correct AsyncAPI document so it cannot be processed.');
+            return;
+        }
         const channels = await numberOfChannels(document);
         const servers = await numberOfServers(document);
         const components = await numberOfComponents(document);
