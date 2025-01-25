@@ -70,11 +70,17 @@ export default class Optimize extends Command {
     } catch (err:any) {
       if (err.message.includes('Failed to download')) {
         throw new Error('Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.');
-      } else {
+      } else if (filePath) {
         this.error(
           new ValidationError({
             type: 'invalid-file',
             filepath: filePath,
+          })
+        );
+      } else {
+        this.error(
+          new ValidationError({
+            type: 'no-spec-found'
           })
         );
       }
@@ -88,8 +94,8 @@ export default class Optimize extends Command {
     } catch (err) {
       this.error(
         new ValidationError({
-          type: 'invalid-file',
-          filepath: filePath,
+          type: 'invalid-syntax-file',
+          filepath: this.specFile.getFilePath(),
         })
       );
     }
