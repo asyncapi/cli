@@ -6,6 +6,7 @@ import {
   ContextFileWrongFormatError,
 } from '../../../core/errors/context-error';
 import { addFlags } from '../../../core/flags/config/context.flags';
+import { blueBright } from 'picocolors';
 
 export default class ContextAdd extends Command {
   static description = 'Add a context to the store';
@@ -24,24 +25,16 @@ export default class ContextAdd extends Command {
 
     try {
       await addContext(contextName, specFilePath);
-      this.log(
-        `Added context "${contextName}".\n\nYou can set it as your current context: asyncapi config context use ${contextName}\nYou can use this context when needed by passing ${contextName} as a parameter: asyncapi validate ${contextName}`
-      );
-
+      this.log(`🎉 Context ${blueBright(contextName)} added successfully!\nYou can set it as your current context:\n  ${blueBright('asyncapi')} ${blueBright('config')} ${blueBright('context')} ${blueBright('use')} ${blueBright(contextName)}\nYou can use this context when needed by passing ${blueBright(contextName)} as a parameter:\n  ${blueBright('asyncapi')} ${blueBright('validate')} ${blueBright(contextName)}`);
       if (setAsCurrent) {
         await setCurrentContext(contextName);
-        this.log(
-          `The newly added context "${contextName}", is set as your current context!`
-        );
+        this.log(`\nThe newly added context, ${blueBright(contextName)}, is set as your current context!`);
       }
     } catch (e) {
       if (
         e instanceof (MissingContextFileError || ContextFileWrongFormatError)
       ) {
-        this.log(
-          'You have no context file configured. Run "asyncapi config context init" to initialize it.'
-        );
-        return;
+        this.error(`Unable to add context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`);
       }
       throw e;
     }
