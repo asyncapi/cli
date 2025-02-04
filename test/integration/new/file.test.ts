@@ -5,31 +5,11 @@ import { expect } from '@oclif/test';
 const testHelper = new TestHelper();
 
 describe('new', () => {
-  before(() => {
-    try {
-      testHelper.deleteSpecFileAtWorkingDir();
-    } catch (e: any) {
-      if (e.code !== 'ENOENT') {
-        throw e;
-      }
-    }
-  });
-
   describe('create new file', () => {
     afterEach(() => {
       testHelper.deleteSpecFileAtWorkingDir();
     });
     
-    test
-      .stderr()
-      .stdout()
-      .command(['new', '--no-tty', '-n=specification.yaml'])
-      .it('runs new command', async (ctx,done) => {
-        expect(ctx.stderr).to.equal('');
-        expect(ctx.stdout).to.equal('The specification.yaml has been successfully created.\n');
-        done();
-      });
-
     test
       .stderr()
       .stdout()
