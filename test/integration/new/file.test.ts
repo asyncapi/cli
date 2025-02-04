@@ -5,6 +5,16 @@ import { expect } from '@oclif/test';
 const testHelper = new TestHelper();
 
 describe('new', () => {
+  before(() => {
+    try {
+      testHelper.deleteSpecFileAtWorkingDir();
+    } catch (e: any) {
+      if (e.code !== 'ENOENT') {
+        throw e;
+      }
+    }
+  });
+  
   describe('create new file', () => {
     afterEach(() => {
       testHelper.deleteSpecFileAtWorkingDir();
