@@ -58,7 +58,7 @@ export default class Models extends Command {
     s.start('Generating models...');
     try {
       const generatedModels = await generateModels({...flags, output}, document, logger, language as Languages);
-      if (output !== 'stdout') {
+      if (output && output !== 'stdout') {
         const generatedModelStrings = generatedModels.map((model) => { return model.modelName; });
         s.stop(green(`Successfully generated the following models: ${generatedModelStrings.join(', ')}`));
         return;
