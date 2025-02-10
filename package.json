@@ -105,6 +105,7 @@
   "oclif": {
     "commands": "./lib/commands",
     "bin": "asyncapi",
+    "additionalVersionFlags": ["-v"],
     "hooks": {
       "command_not_found": [
         "./lib/hooks/command_not_found/myhook"
