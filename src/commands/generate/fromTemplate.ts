@@ -58,7 +58,7 @@ export default class Template extends Command {
     'asyncapi generate fromTemplate asyncapi.yaml @asyncapi/html-template --param version=1.0.0 singleFile=true --output ./docs --force-write'
   ];
 
-  static flags = {
+  static readonly flags = {
     ...fromTemplateFlags(),
     ...proxyFlags()
   };

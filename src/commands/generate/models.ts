@@ -12,7 +12,7 @@ export default class Models extends Command {
 
   static readonly args = ModelinaArgs as any;
 
-  static flags = {
+  static readonly flags = {
     ...modelsFlags(),
     ...proxyFlags(),
   };
