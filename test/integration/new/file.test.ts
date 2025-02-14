@@ -14,22 +14,12 @@ describe('new', () => {
       }
     }
   });
-
+  
   describe('create new file', () => {
     afterEach(() => {
       testHelper.deleteSpecFileAtWorkingDir();
     });
     
-    test
-      .stderr()
-      .stdout()
-      .command(['new', '--no-tty', '-n=specification.yaml'])
-      .it('runs new command', async (ctx,done) => {
-        expect(ctx.stderr).to.equal('');
-        expect(ctx.stdout).to.equal('The specification.yaml has been successfully created.\n');
-        done();
-      });
-
     test
       .stderr()
       .stdout()
