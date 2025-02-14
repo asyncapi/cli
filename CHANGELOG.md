@@ -1,5 +1,13 @@
 # @asyncapi/cli
 
+## 2.16.1
+
+### Patch Changes
+
+- 3ab019f: chore(deps): bump jsonpath-plus and @stoplight/spectral-core
+- 07514e6: implemented new UI/UX improvements in config command
+- a774ae2: fix: starting of studio fixed when using example with new file
+
 ## 2.16.0
 
 ### Minor Changes
