@@ -127,6 +127,7 @@ export default class NewFile extends Command {
     selectedTemplate = selectedTemplate || DEFAULT_ASYNCAPI_TEMPLATE;
 
     await this.createAsyncapiFile(fileName, selectedTemplate);
+    fileName = fileName.includes('.') ? fileName : `${fileName}.yaml`;
     if (openStudio) { startStudio(fileName, flags.port || DEFAULT_PORT);}
   }
 
