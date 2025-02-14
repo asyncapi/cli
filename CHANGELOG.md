@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 2.16.2
+
+### Patch Changes
+
+- 755339a: feat: change the implementation of new command
+
 ## 2.16.1
 
 ### Patch Changes
