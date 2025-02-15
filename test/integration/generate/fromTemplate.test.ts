@@ -69,6 +69,28 @@ describe('template', () => {
       });
   });
 
+  describe('should error out on proxy port', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'generate:fromTemplate',
+        'http://localhost:8080/dummySpec.yml',
+        '@asyncapi/newtemplate',
+        '--output=./test/docs/2',
+        '--force-write',
+        '--proxyHost=host',
+        '--proxyPort=8080',
+        '--use-new-generator',
+      ])
+      .it('should throw error when url is passed with proxyHost and proxyPort with invalid host', (ctx, done) => {
+        expect(ctx.stdout).to.contain('');
+        expect(ctx.stderr).to.equal('error loading AsyncAPI document from url: Failed to download http://localhost:8080/dummySpec.yml.\n');
+        cleanup('./test/docs/2');
+        done();
+      });
+  });
+
   describe('git clash', () => {
     const pathToOutput = './test/docs/2';
     before(() => {
