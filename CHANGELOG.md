@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 2.16.3
+
+### Patch Changes
+
+- cec8081: feat: added Proxy support for the generate commands.
+
 ## 2.16.2
 
 ### Patch Changes
