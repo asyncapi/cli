@@ -17,8 +17,6 @@ export default class Validate extends Command {
 
   static args = {
     'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
-    proxyHost: Args.string({description: 'Name of the Proxy Host', required: false}),
-    proxyPort: Args.string({description: 'Name of the Port of the ProxyHost', required: false}),
   };
 
   async run() {
