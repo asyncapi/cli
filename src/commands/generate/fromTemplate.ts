@@ -16,6 +16,7 @@ import { intro, isCancel, spinner, text } from '@clack/prompts';
 import { inverse, yellow, magenta, green, red } from 'picocolors';
 import fetch from 'node-fetch';
 import { fromTemplateFlags } from '../../core/flags/generate/fromTemplate.flags';
+import { proxyFlags } from '../../core/flags/proxy.flags';
 
 interface IMapBaseUrlToFlag {
   url: string,
@@ -57,7 +58,10 @@ export default class Template extends Command {
     'asyncapi generate fromTemplate asyncapi.yaml @asyncapi/html-template --param version=1.0.0 singleFile=true --output ./docs --force-write'
   ];
 
-  static flags = fromTemplateFlags();
+  static readonly flags = {
+    ...fromTemplateFlags(),
+    ...proxyFlags()
+  };
 
   static args = {
     asyncapi: Args.string({ description: '- Local path, url or context-name pointing to AsyncAPI file', required: true }),
@@ -72,6 +76,7 @@ export default class Template extends Command {
 
     let { asyncapi, template } = args;
     let output = flags.output as string;
+    const {proxyPort,proxyHost} = flags;
     if (interactive) {
       intro(inverse('AsyncAPI Generator'));
 
@@ -96,6 +101,11 @@ export default class Template extends Command {
         token: flags['registry-token']
       }
     };
+    
+    if (proxyHost && proxyPort) {
+      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
+      asyncapi = `${asyncapi}+${proxyUrl}`;
+    }
     const asyncapiInput = (await load(asyncapi)) || (await load());
 
     this.specFile = asyncapiInput;
