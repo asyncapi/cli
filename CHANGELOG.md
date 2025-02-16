@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 2.16.4
+
+### Patch Changes
+
+- 67d7e8f: fix: proxy implementation for optimize validate and convert fixed
+
 ## 2.16.3
 
 ### Patch Changes
