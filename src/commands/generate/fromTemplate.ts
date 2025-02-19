@@ -64,8 +64,8 @@ export default class Template extends Command {
   };
 
   static args = {
-    asyncapi: Args.string({ description: '- Local path, url or context-name pointing to AsyncAPI file', required: true }),
-    template: Args.string({ description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true }),
+    asyncapi: Args.string({ description: '- Local path, url or context-name pointing to AsyncAPI file', required: false }),
+    template: Args.string({ description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: false }),
   };
 
   parser = new Parser();
@@ -73,8 +73,8 @@ export default class Template extends Command {
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
     const interactive = !flags['no-interactive'];
-
-    let { asyncapi, template } = args;
+    let asyncapi = args['asyncapi'] ?? '';
+    let template = args['template'] ?? '';
     let output = flags.output as string;
     const {proxyPort,proxyHost} = flags;
     if (interactive) {
