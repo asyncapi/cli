@@ -1,6 +1,5 @@
-import { AsyncAPIDocumentInterface } from '@asyncapi/parser/cjs/models';
 
-export async function calculateScore(document: AsyncAPIDocumentInterface | undefined) {
+export async function calculateScore(document: any | undefined) {
   let scoreEvaluate = 0;
   if (document?.info().hasDescription()) {
     scoreEvaluate += 0.15;

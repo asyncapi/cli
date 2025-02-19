@@ -11,7 +11,7 @@ import { load, Specification } from '../../core/models/SpecificationFile';
 import { isLocalTemplate, Watcher } from '../../core/utils/generator';
 import { ValidationError } from '../../core/errors/validation-error';
 import { GeneratorError } from '../../core/errors/generator-error';
-import { Parser } from '@asyncapi/parser';
+// import { Parser } from '@asyncapi/parser';
 import { intro, isCancel, spinner, text } from '@clack/prompts';
 import { inverse, yellow, magenta, green, red } from 'picocolors';
 import fetch from 'node-fetch';
@@ -64,7 +64,7 @@ export default class Template extends Command {
     template: Args.string({ description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: true }),
   };
 
-  parser = new Parser();
+  //parser = new Parser();
 
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR

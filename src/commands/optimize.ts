@@ -6,7 +6,6 @@ import { load } from '../core/models/SpecificationFile';
 import * as inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
-import { Parser } from '@asyncapi/parser';
 import { optimizeFlags } from '../core/flags/optimize.flags';
 import { proxyFlags } from '../core/flags/proxy.flags';
 
@@ -53,8 +52,6 @@ export default class Optimize extends Command {
     proxyHost: Args.string({description: 'Name of the Proxy Host', required: false}),
     proxyPort: Args.string({description: 'Name of the Port of the ProxyHost', required: false}),
   };
-
-  parser = new Parser();
 
   async run() {
     const { args, flags } = await this.parse(Optimize); //NOSONAR

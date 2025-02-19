@@ -1,6 +1,6 @@
 import { Command } from '@oclif/core';
-import { MetadataFromDocument, MetricMetadata, NewRelicSink, Recorder, Sink, StdOutSink } from '@smoya/asyncapi-adoption-metrics';
-import { Parser } from '@asyncapi/parser';
+import { MetricMetadata, NewRelicSink, Recorder, Sink, StdOutSink } from '@smoya/asyncapi-adoption-metrics';
+//import { Parser } from '@asyncapi/parser';
 import { Specification } from './models/SpecificationFile';
 import { join, resolve } from 'path';
 import { existsSync } from 'fs-extra';
@@ -18,7 +18,7 @@ class DiscardSink implements Sink {
 
 export default abstract class extends Command {
   recorder = this.recorderFromEnv('asyncapi_adoption');
-  parser = new Parser();
+  //parser = new Parser();
   metricsMetadata: MetricMetadata = {};
   specFile: Specification | undefined;
 
@@ -43,27 +43,27 @@ export default abstract class extends Command {
     }
   }
 
-  async recordActionFinished(action: string, metadata: MetricMetadata = {}, rawDocument?: string) {
-    if (rawDocument !== undefined) {
-      try {
-        const {document} = await this.parser.parse(rawDocument);
-        if (document !== undefined) {
-          // @ts-ignore
-          metadata = MetadataFromDocument(document, metadata);
-        }
-      } catch (e: any) {
-        if (e instanceof Error) {
-          this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
-        }
-      }
-    }
+  // async recordActionFinished(action: string, metadata: MetricMetadata = {}, rawDocument?: string) {
+  //   if (rawDocument !== undefined) {
+  //     try {
+  //       const {document} = await this.parser.parse(rawDocument);
+  //       if (document !== undefined) {
+  //         // @ts-ignore
+  //         metadata = MetadataFromDocument(document, metadata);
+  //       }
+  //     } catch (e: any) {
+  //       if (e instanceof Error) {
+  //         this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
+  //       }
+  //     }
+  //   }
 
-    const callable = async function(recorder: Recorder) {
-      await recorder.recordActionFinished(action, metadata);
-    };
+  //   const callable = async function(recorder: Recorder) {
+  //     await recorder.recordActionFinished(action, metadata);
+  //   };
 
-    await this.recordActionMetric(callable);
-  }
+  //   await this.recordActionMetric(callable);
+  // }
 
   async recordActionInvoked(action: string, metadata?: MetricMetadata) {
     const callable = async function(recorder: Recorder) {
@@ -98,7 +98,7 @@ export default abstract class extends Command {
   async finally(error: Error | undefined): Promise<any> {
     await super.finally(error);
     this.metricsMetadata['success'] = error === undefined;
-    await this.recordActionFinished(this.id as string, this.metricsMetadata, this.specFile?.text());
+    //await this.recordActionFinished(this.id as string, this.metricsMetadata, this.specFile?.text());
   }
 
   async recorderFromEnv(prefix: string): Promise<Recorder> {
