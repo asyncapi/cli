@@ -47,8 +47,8 @@ class StartPreview extends Command {
       for (const [key, value] of Object.entries(obj)) {
         if (
           key === '$ref' &&
-                    typeof value === 'string' &&
-                    (value.startsWith('.') || value.startsWith('./') || value.startsWith('../'))
+          typeof value === 'string' &&
+          (value.startsWith('.') || value.startsWith('./') || value.startsWith('../'))
         ) {
           const { filePath } = this.parseRef(value);
           const resolvedPath = path.resolve(basePath, filePath);
@@ -81,12 +81,13 @@ class StartPreview extends Command {
     try {
       const document = await bundle(AsyncAPIFile);
       const fileContent =
-                outputFormat === '.yaml' || outputFormat === '.yml'
-                  ? document.yml()
-                  : JSON.stringify(document.json());
+        outputFormat === '.yaml' || outputFormat === '.yml'
+          ? document.yml()
+          : JSON.stringify(document.json(), null, 2);
       fs.writeFileSync(bundledFilePath, fileContent, { encoding: 'utf-8' });
+      this.log('Bundled file updated successfully.');
     } catch (error: any) {
-      throw new Error(`Error bundling files: ${error.message}`);
+      this.error(`Error bundling files: ${error.message}`);
     }
   }
 
@@ -94,6 +95,8 @@ class StartPreview extends Command {
     const { args, flags } = await this.parse(StartPreview);
     const port = flags.port;
     const filePath = args['spec-file'];
+
+    this.log('Starting Studio in preview mode...');
 
     this.specFile = await load(filePath);
     this.metricsMetadata.port = port;
@@ -106,9 +109,7 @@ class StartPreview extends Command {
 
     const outputFormat = path.extname(AsyncAPIFile);
     if (!outputFormat) {
-      this.error(
-        'Unable to determine file format from the provided AsyncAPI file.'
-      );
+      this.error('Unable to determine file format from the provided AsyncAPI file.');
     }
 
     const bundledFilePath = `./asyncapi-bundled${outputFormat}`;
@@ -121,29 +122,24 @@ class StartPreview extends Command {
     );
     this.findLocalRefFiles(asyncapiDocument, basePath, filesToWatch);
 
-    const watcher = chokidar.watch(Array.from(filesToWatch), {
-      persistent: true,
-    });
+    const watcher = chokidar.watch(Array.from(filesToWatch), { persistent: true });
 
-    await this.updateBundledFile(
-      AsyncAPIFile,
-      outputFormat,
-      bundledFilePath
-    );
+    await this.updateBundledFile(AsyncAPIFile, outputFormat, bundledFilePath);
 
     watcher.on('change', async (changedPath) => {
       this.log(`File changed: ${changedPath}`);
       try {
-        await this.updateBundledFile(
-          AsyncAPIFile,
-          outputFormat,
-          bundledFilePath
-        );
+        await this.updateBundledFile(AsyncAPIFile, outputFormat, bundledFilePath);
       } catch (error: any) {
         this.error(`Error updating bundled file: ${error.message}`);
       }
     });
 
+    watcher.on('error', (error) => {
+      this.error(`Watcher error: ${error.message}`);
+    });
+
+    this.log(`Starting Studio on port ${port}`);
     startStudio(bundledFilePath, port);
   }
 }
