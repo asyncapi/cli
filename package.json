@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "2.16.0",
+  "version": "2.16.5",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
@@ -105,6 +105,9 @@
   "oclif": {
     "commands": "./lib/commands",
     "bin": "asyncapi",
+    "additionalVersionFlags": [
+      "--v"
+    ],
     "hooks": {
       "command_not_found": [
         "./lib/hooks/command_not_found/myhook"

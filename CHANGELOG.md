@@ -1,5 +1,38 @@
 # @asyncapi/cli
 
+## 2.16.5
+
+### Patch Changes
+
+- f873423: docs: update docs regarding asyncapi new command
+- 2deeb36: fix: print in cli asyncapi generate models without -o flag
+
+## 2.16.4
+
+### Patch Changes
+
+- 67d7e8f: fix: proxy implementation for optimize validate and convert fixed
+
+## 2.16.3
+
+### Patch Changes
+
+- cec8081: feat: added Proxy support for the generate commands.
+
+## 2.16.2
+
+### Patch Changes
+
+- 755339a: feat: change the implementation of new command
+
+## 2.16.1
+
+### Patch Changes
+
+- 3ab019f: chore(deps): bump jsonpath-plus and @stoplight/spectral-core
+- 07514e6: implemented new UI/UX improvements in config command
+- a774ae2: fix: starting of studio fixed when using example with new file
+
 ## 2.16.0
 
 ### Minor Changes
