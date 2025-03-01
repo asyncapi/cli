@@ -1,5 +1,7 @@
 import { Flags } from '@oclif/core';
 
+let x = 100;
+
 export const studioFlags = () => {
   return {
     help: Flags.help({ char: 'h' }),
