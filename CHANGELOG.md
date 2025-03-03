@@ -1,5 +1,18 @@
 # @asyncapi/cli
 
+## 2.16.5
+
+### Patch Changes
+
+- f873423: docs: update docs regarding asyncapi new command
+- 2deeb36: fix: print in cli asyncapi generate models without -o flag
+
+## 2.16.4
+
+### Patch Changes
+
+- 67d7e8f: fix: proxy implementation for optimize validate and convert fixed
+
 ## 2.16.3
 
 ### Patch Changes

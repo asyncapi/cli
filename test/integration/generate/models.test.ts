@@ -24,12 +24,21 @@ describe('models', () => {
       );
       done();
     });
-
+  
+  test
+    .stderr()
+    .stdout()
+    .command([...generalOptions, 'typescript', './test/fixtures/specification.yml'])
+    .it('works when file path is passed without specified output directory', (ctx, done) => {
+      expect(ctx.stdout).to.match(/Successfully generated the following models:\s+## Model name:/);
+      done();
+    });
+  
   test
     .stderr()
     .stdout()
     .command([...generalOptions, 'typescript', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './ts')}`])
-    .it('works when file path is passed', (ctx, done) => {
+    .it('works when file path is passed with specified output directory', (ctx, done) => {
       expect(ctx.stdout).to.contain(
         'Successfully generated the following models: '
       );
