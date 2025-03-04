@@ -45,7 +45,7 @@ describe('optimize', () => {
       .command(['optimize', './test/fixtures/not-found.yml'])
       .it('should throw error if file path is wrong', (ctx, done) => {
         expect(ctx.stdout).to.equal('');
-        expect(ctx.stderr).to.contain('ValidationError');
+        expect(ctx.stderr).to.contain('ValidationError: There is no file or context with name "./test/fixtures/not-found.yml".');
         done();
       });
 
@@ -158,7 +158,7 @@ describe('optimize', () => {
       .stdout()
       .command(['optimize',invalidFile])
       .it('give ValidationError', (ctx, done) => {
-        expect(ctx.stderr).to.contain('ValidationError');
+        expect(ctx.stderr).to.contain(`ValidationError: Syntax Error in "${invalidFile}".`);
         expect(ctx.stdout).to.equal('');
         done();
       });
