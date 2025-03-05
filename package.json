@@ -109,7 +109,7 @@
     ],
     "hooks": {
       "command_not_found": [
-        "./lib/hooks/command_not_found/myhook"
+        "./lib/core/hooks/command_not_found/myhook"
       ]
     },
     "macos": {
