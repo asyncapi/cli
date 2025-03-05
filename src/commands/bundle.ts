@@ -51,13 +51,17 @@ export default class Bundle extends Command {
       const format = path.extname(output);
 
       if (format === '.yml' || format === '.yaml') {
-        await writeFile(path.resolve(process.cwd(), output), document.yml(), {
+        // Fix: Prevent writeFile error if document.yml() returns undefined
+        // Added fallback to empty string to avoid invalid input
+        await writeFile(path.resolve(process.cwd(), output), document.yml() || "" , {
           encoding: 'utf-8',
         });
       }
 
       if (format === '.json') {
-        await writeFile(path.resolve(process.cwd(), output), document.string(), {
+        // Fix: Handle possible undefined return from document.string()
+        // Ensures writeFile always gets a valid value
+        await writeFile(path.resolve(process.cwd(), output), document.string() || "", {
           encoding: 'utf-8',
         });
       }
