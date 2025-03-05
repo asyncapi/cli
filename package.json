@@ -61,7 +61,6 @@
     "@types/rimraf": "^3.0.2",
     "@types/serve-handler": "^6.1.4",
     "@types/uuid": "^9.0.8",
-    "@types/wrap-ansi": "^8.0.1",
     "@types/ws": "^8.18.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
