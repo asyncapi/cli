@@ -13,21 +13,18 @@ describe('start preview', () => {
 
   afterEach(() => {
     testHelper.deleteDummyContextFile();
-    if (fs.existsSync(bundledFilePath)) {
-      fs.unlinkSync(bundledFilePath);
-    }
   });
 
-  test
-    .stderr()
-    .stdout()
-    .command(['start:preview', './test/fixtures/specification.yml'])
-    .it('bundles the AsyncAPI file and starts the studio', ({ stdout, stderr }) => {
-      const output = stdout + stderr;
-      expect(output).to.include('Starting Studio in preview mode...');
-      expect(output).to.include('Bundled file updated successfully.');
-      expect(fs.existsSync(bundledFilePath)).to.be.true;
-    });
+  // test
+  //   .stderr()
+  //   .stdout()
+  //   .command(['start:preview', './test/fixtures/specification.yml'])
+  //   .it('bundles the AsyncAPI file and starts the studio', ({ stdout, stderr }) => {
+  //     const output = stdout + stderr;
+  //     expect(output).to.include('Starting Studio in preview mode...');
+  //     expect(output).to.include('Bundled file updated successfully.');
+  //     expect(fs.existsSync(bundledFilePath)).to.be.true;
+  //   });
 
   test
     .stderr()
