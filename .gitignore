@@ -45,3 +45,5 @@ assets/create-glee-app/templates/tutorial/docs
 
 # Modelina
 test/fixtures/generate/models
+
+sample.yml
