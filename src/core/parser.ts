@@ -107,7 +107,12 @@ function logDiagnostics(
 ): 'valid' | 'invalid' {
   const logDiagnostics = options['log-diagnostics'];
   const failSeverity = options['fail-severity'] ?? 'error';
-  const diagnosticsFormat = options['diagnostics-format'] ?? 'stylish';
+
+  // Ensure the provided diagnostics format is valid
+  // If the format is invalid or unsupported, fallback to 'stylish'
+  const diagnosticsFormat = validFormats.includes(options['diagnostics-format'] || '')
+  ? options['diagnostics-format'] as DiagnosticsFormat : 'stylish';
+
   const sourceString = specFile.toSourceString();
 
   const hasIssues = diagnostics.length > 0;
