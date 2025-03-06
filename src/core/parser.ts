@@ -7,8 +7,10 @@ import { ProtoBuffSchemaParser } from '@asyncapi/protobuf-schema-parser';
 import { getDiagnosticSeverity } from '@stoplight/spectral-core';
 import { OutputFormat } from '@stoplight/spectral-cli/dist/services/config';
 import { html, json, junit, pretty, stylish, teamcity, text } from '@stoplight/spectral-formatters';
-import { red, yellow, green, cyan } from 'chalk';
-
+import cyan  from 'chalk';
+import red from 'chalk';
+import yellow from 'chalk';
+import green from 'chalk';
 import type { Diagnostic } from '@asyncapi/parser/cjs';
 import type Command from './base';
 import type { Specification } from './models/SpecificationFile';
@@ -107,7 +109,12 @@ function logDiagnostics(
 ): 'valid' | 'invalid' {
   const logDiagnostics = options['log-diagnostics'];
   const failSeverity = options['fail-severity'] ?? 'error';
-  const diagnosticsFormat = options['diagnostics-format'] ?? 'stylish';
+
+  // Ensure the provided diagnostics format is valid
+  // If the format is invalid or unsupported, fallback to 'stylish'
+  const diagnosticsFormat = validFormats.includes(options['diagnostics-format'] || '')
+  ? options['diagnostics-format'] as DiagnosticsFormat : 'stylish';
+
   const sourceString = specFile.toSourceString();
 
   const hasIssues = diagnostics.length > 0;

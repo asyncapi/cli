@@ -1,9 +1,10 @@
-import path from 'path';
-import { test } from '@oclif/test';
-import { NO_CONTEXTS_SAVED } from '../../src/core/errors/context-error';
+import * as path from 'path';
+import { describe, before, after, it } from 'mocha';
+import { expect } from 'chai';
+import { runCommand } from '@oclif/test';
 import TestHelper, { createMockServer, stopMockServer } from '../helpers';
 import fs from 'fs-extra';
-import { expect } from '@oclif/test';
+import { NO_CONTEXTS_SAVED } from '../../src/core/errors/context-error';
 
 const testHelper = new TestHelper();
 const filePath = './test/fixtures/specification.yml';
@@ -13,60 +14,39 @@ const postmanFilePath = './test/fixtures/postman-collection.yml';
 
 describe('convert', () => {
   describe('with file paths', () => {
-    beforeEach(() => {
-      testHelper.createDummyContextFile();
-    });
-
-    afterEach(() => {
-      testHelper.deleteDummyContextFile();
-    });
-
     before(() => {
+      testHelper.createDummyContextFile();
       createMockServer();
     });
 
     after(() => {
+      testHelper.deleteDummyContextFile();
       stopMockServer();
     });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', filePath])
-      .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain('The ./test/fixtures/specification.yml file has been successfully converted to version 3.0.0!!');
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
+    it('works when file path is passed', async () => {
+      const { stdout, stderr } = await runCommand(['convert', filePath]);
+      expect(stdout).to.contain('The ./test/fixtures/specification.yml file has been successfully converted to version 3.0.0!!');
+      expect(stderr).to.equal('');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', './test/fixtures/not-found.yml'])
-      .it('should throw error if file path is wrong', (ctx, done) => {
-        expect(ctx.stdout).to.equal('');
-        expect(ctx.stderr).to.equal('error loading AsyncAPI document from file: ./test/fixtures/not-found.yml file does not exist.\n');
-        done();
-      });
+    it('should throw error if file path is wrong', async () => {
+      const { stdout, stderr } = await runCommand(['convert', './test/fixtures/not-found.yml']);
+      expect(stdout).to.equal('');
+      expect(stderr).to.equal('error loading AsyncAPI document from file: ./test/fixtures/not-found.yml file does not exist.\n');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', 'http://localhost:8080/dummySpec.yml'])
-      .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain('The URL http://localhost:8080/dummySpec.yml has been successfully converted to version 3.0.0!!');
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', 'http://localhost:8080/dummySpec.yml --proxyHost=host --proxyPort=8080'])
-      .it('should throw error when url is passed with proxyHost and proxyPort with invalid host ', (ctx, done) => {
-        expect(ctx.stdout).to.contain('');
-        expect(ctx.stderr).to.equal('error loading AsyncAPI document from url: Failed to download http://localhost:8080/dummySpec.yml --proxyHost=host --proxyPort=8080.\n');
-        done();
-      });
+    it('works when url is passed', async () => {
+      const { stdout, stderr } = await runCommand(['convert', 'http://localhost:8080/dummySpec.yml']);
+      expect(stdout).to.contain('The URL http://localhost:8080/dummySpec.yml has been successfully converted to version 3.0.0!!');
+      expect(stderr).to.equal('');
+    });
+
+    it('should throw error when url is passed with proxyHost and proxyPort with invalid host', async () => {
+      const { stdout, stderr } = await runCommand(['convert', 'http://localhost:8080/dummySpec.yml', '--proxyHost=host', '--proxyPort=8080']);
+      expect(stdout).to.equal('');
+      expect(stderr).to.equal('error loading AsyncAPI document from url: Failed to download http://localhost:8080/dummySpec.yml --proxyHost=host --proxyPort=8080.\n');
+    });
   });
 
   describe('with no arguments', () => {
@@ -79,29 +59,19 @@ describe('convert', () => {
       testHelper.deleteDummyContextFile();
     });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['convert'])
-      .it('converts from current context', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`The ${path.resolve(__dirname, '../fixtures/specification.yml')} file has been successfully converted to version 3.0.0!!\n`);
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
+    it('converts from current context', async () => {
+      const { stdout, stderr } = await runCommand(['convert']);
+      expect(stdout).to.contain(`The ${path.resolve(__dirname, '../fixtures/specification.yml')} file has been successfully converted to version 3.0.0!!\n`);
+      expect(stderr).to.equal('');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .do(() => {
-        testHelper.unsetCurrentContext();
-        testHelper.createDummyContextFile();
-      })
-      .command(['convert', '-f', 'asyncapi'])
-      .it('throws error message if no current context', (ctx, done) => {
-        expect(ctx.stdout).to.equal('');
-        expect(ctx.stderr).to.equal('ContextError: No context is set as current, please set a current context.\n');
-        done();
-      });
+    it('throws error message if no current context', async () => {
+      testHelper.unsetCurrentContext();
+      testHelper.createDummyContextFile();
+      const { stdout, stderr } = await runCommand(['convert', '-f', 'asyncapi']);
+      expect(stdout).to.equal('');
+      expect(stderr).to.equal('ContextError: No context is set as current, please set a current context.\n');
+    });
   });
 
   describe('with no context file', () => {
@@ -115,15 +85,11 @@ describe('convert', () => {
       }
     });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', '-f', 'asyncapi'])
-      .it('throws error message if no context file exists', (ctx, done) => {
-        expect(ctx.stdout).to.equal('');
-        expect(ctx.stderr).to.equal(`error locating AsyncAPI document: ${NO_CONTEXTS_SAVED}\n`);
-        done();
-      });
+    it('throws error message if no context file exists', async () => {
+      const { stdout, stderr } = await runCommand(['convert', '-f', 'asyncapi']);
+      expect(stdout).to.equal('');
+      expect(stderr).to.equal(`error locating AsyncAPI document: ${NO_CONTEXTS_SAVED}\n`);
+    });
   });
 
   describe('with target-version flag', () => {
@@ -135,25 +101,17 @@ describe('convert', () => {
       testHelper.deleteDummyContextFile();
     });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', filePath, '-f', 'asyncapi', '-t=2.3.0'])
-      .it('works when supported target-version is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain('asyncapi: 2.3.0');
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
+    it('works when supported target-version is passed', async () => {
+      const { stdout, stderr } = await runCommand(['convert', filePath, '-f', 'asyncapi', '-t=2.3.0']);
+      expect(stdout).to.contain('asyncapi: 2.3.0');
+      expect(stderr).to.equal('');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', filePath, '-f', 'asyncapi', '-t=2.95.0'])
-      .it('should throw error if non-supported target-version is passed', (ctx, done) => {
-        expect(ctx.stdout).to.equal('');
-        expect(ctx.stderr).to.contain('Error: Cannot convert');
-        done();
-      });
+    it('should throw error if non-supported target-version is passed', async () => {
+      const { stdout, stderr } = await runCommand(['convert', filePath, '-f', 'asyncapi', '-t=2.95.0']);
+      expect(stdout).to.equal('');
+      expect(stderr).to.contain('Error: Cannot convert');
+    });
   });
 
   describe('with output flag', () => {
@@ -165,29 +123,21 @@ describe('convert', () => {
       testHelper.deleteDummyContextFile();
     });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', filePath, '-f', 'asyncapi', '-o=./test/fixtures/specification_output.yml'])
-      .it('works when .yml file is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`The ${filePath} file has been successfully converted to version 3.0.0!!`);
-        expect(fs.existsSync('./test/fixtures/specification_output.yml')).to.equal(true);
-        expect(ctx.stderr).to.equal('');
-        fs.unlinkSync('./test/fixtures/specification_output.yml');
-        done();
-      });
+    it('works when .yml file is passed', async () => {
+      const { stdout, stderr } = await runCommand(['convert', filePath, '-f', 'asyncapi', '-o=./test/fixtures/specification_output.yml']);
+      expect(stdout).to.contain(`The ${filePath} file has been successfully converted to version 3.0.0!!`);
+      expect(fs.existsSync('./test/fixtures/specification_output.yml')).to.equal(true);
+      expect(stderr).to.equal('');
+      fs.unlinkSync('./test/fixtures/specification_output.yml');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', JSONFilePath, '-f', 'asyncapi', '-o=./test/fixtures/specification_output.json'])
-      .it('works when .json file is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`The ${JSONFilePath} file has been successfully converted to version 3.0.0!!`);
-        expect(fs.existsSync('./test/fixtures/specification_output.json')).to.equal(true);
-        expect(ctx.stderr).to.equal('');
-        fs.unlinkSync('./test/fixtures/specification_output.json');
-        done();
-      });
+    it('works when .json file is passed', async () => {
+      const { stdout, stderr } = await runCommand(['convert', JSONFilePath, '-f', 'asyncapi', '-o=./test/fixtures/specification_output.json']);
+      expect(stdout).to.contain(`The ${JSONFilePath} file has been successfully converted to version 3.0.0!!`);
+      expect(fs.existsSync('./test/fixtures/specification_output.json')).to.equal(true);
+      expect(stderr).to.equal('');
+      fs.unlinkSync('./test/fixtures/specification_output.json');
+    });
   });
 
   describe('with OpenAPI input', () => {
@@ -199,118 +149,78 @@ describe('convert', () => {
       testHelper.deleteDummyContextFile();
     });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', openAPIFilePath, '-f', 'openapi'])
-      .it('works when OpenAPI file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain('The OpenAPI document has been successfully converted to AsyncAPI version 3.0.0!');
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
+    it('works when OpenAPI file path is passed', async () => {
+      const { stdout, stderr } = await runCommand(['convert', openAPIFilePath, '-f', 'openapi']);
+      expect(stdout).to.contain('The OpenAPI document has been successfully converted to AsyncAPI version 3.0.0!');
+      expect(stderr).to.equal('');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', openAPIFilePath, '-f', 'openapi', '-p=client'])
-      .it('works when OpenAPI file path is passed with client perspective', (ctx, done) => {
-        expect(ctx.stdout).to.contain('The OpenAPI document has been successfully converted to AsyncAPI version 3.0.0!');
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
+    it('works when OpenAPI file path is passed with client perspective', async () => {
+      const { stdout, stderr } = await runCommand(['convert', openAPIFilePath, '-f', 'openapi', '-p=client']);
+      expect(stdout).to.contain('The OpenAPI document has been successfully converted to AsyncAPI version 3.0.0!');
+      expect(stderr).to.equal('');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', openAPIFilePath, '-f', 'openapi','-p=server'])
-      .it('works when OpenAPI file path is passed with server perspective', (ctx, done) => {
-        expect(ctx.stdout).to.contain('The OpenAPI document has been successfully converted to AsyncAPI version 3.0.0!');
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
+    it('works when OpenAPI file path is passed with server perspective', async () => {
+      const { stdout, stderr } = await runCommand(['convert', openAPIFilePath, '-f', 'openapi', '-p=server']);
+      expect(stdout).to.contain('The OpenAPI document has been successfully converted to AsyncAPI version 3.0.0!');
+      expect(stderr).to.equal('');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', openAPIFilePath, '-f', 'openapi', '-p=invalid'])
-      .it('should throw error if invalid perspective is passed', (ctx, done) => {
-        expect(ctx.stdout).to.equal('');
-        expect(ctx.stderr).to.contain('Error: Expected --perspective=invalid to be one of: client, server');
-        done();
-      });
+    it('should throw error if invalid perspective is passed', async () => {
+      const { stdout, stderr } = await runCommand(['convert', openAPIFilePath, '-f', 'openapi', '-p=invalid']);
+      expect(stdout).to.equal('');
+      expect(stderr).to.contain('Error: Expected --perspective=invalid to be one of: client, server');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', openAPIFilePath, '-f', 'openapi', '-o=./test/fixtures/openapi_converted_output.yml'])
-      .it('works when OpenAPI file is converted and output is saved', (ctx, done) => {
-        expect(ctx.stdout).to.contain('🎉 The OpenAPI document has been successfully converted to AsyncAPI version 3.0.0!');
-        expect(fs.existsSync('./test/fixtures/openapi_converted_output.yml')).to.equal(true);
-        expect(ctx.stderr).to.equal('');
-        fs.unlinkSync('./test/fixtures/openapi_converted_output.yml');
-        done();
-      });
+    it('works when OpenAPI file is converted and output is saved', async () => {
+      const { stdout, stderr } = await runCommand(['convert', openAPIFilePath, '-f', 'openapi', '-o=./test/fixtures/openapi_converted_output.yml']);
+      expect(stdout).to.contain('🎉 The OpenAPI document has been successfully converted to AsyncAPI version 3.0.0!');
+      expect(fs.existsSync('./test/fixtures/openapi_converted_output.yml')).to.equal(true);
+      expect(stderr).to.equal('');
+      fs.unlinkSync('./test/fixtures/openapi_converted_output.yml');
+    });
   });
 
   describe('with Postman input', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
     });
-  
+
     afterEach(() => {
       testHelper.deleteDummyContextFile();
     });
-  
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', postmanFilePath, '-f', 'postman-collection'])
-      .it('works when Postman file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`🎉 The ${postmanFilePath} file has been successfully converted to asyncapi of version 3.0.0!!`);
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
-  
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', postmanFilePath, '-f', 'postman-collection', '-p=client'])
-      .it('works when Postman file path is passed with client perspective', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`🎉 The ${postmanFilePath} file has been successfully converted to asyncapi of version 3.0.0!!`);
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
-  
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', postmanFilePath, '-f', 'postman-collection', '-p=server'])
-      .it('works when Postman file path is passed with server perspective', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`🎉 The ${postmanFilePath} file has been successfully converted to asyncapi of version 3.0.0!!`);
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
-  
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', postmanFilePath, '-f', 'postman-collection', '-p=invalid'])
-      .it('should throw error if invalid perspective is passed', (ctx, done) => {
-        expect(ctx.stdout).to.equal('');
-        expect(ctx.stderr).to.contain('Error: Expected --perspective=invalid to be one of: client, server');
-        done();
-      });
-  
-    test
-      .stderr()
-      .stdout()
-      .command(['convert', postmanFilePath, '-f', 'postman-collection', '-o=./test/fixtures/postman_converted_output.yml'])
-      .it('works when Postman file is converted and output is saved', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`🎉 The ${postmanFilePath} file has been successfully converted to asyncapi of version 3.0.0!!`);
-        expect(fs.existsSync('./test/fixtures/postman_converted_output.yml')).to.equal(true);
-        expect(ctx.stderr).to.equal('');
-        fs.unlinkSync('./test/fixtures/postman_converted_output.yml');
-        done();
-      });
+
+    it('works when Postman file path is passed', async () => {
+      const { stdout, stderr } = await runCommand(['convert', postmanFilePath, '-f', 'postman-collection']);
+      expect(stdout).to.contain(`🎉 The ${postmanFilePath} file has been successfully converted to asyncapi of version 3.0.0!!`);
+      expect(stderr).to.equal('');
+    });
+
+    it('works when Postman file path is passed with client perspective', async () => {
+      const { stdout, stderr } = await runCommand(['convert', postmanFilePath, '-f', 'postman-collection', '-p=client']);
+      expect(stdout).to.contain(`🎉 The ${postmanFilePath} file has been successfully converted to asyncapi of version 3.0.0!!`);
+      expect(stderr).to.equal('');
+    });
+
+    it('works when Postman file path is passed with server perspective', async () => {
+      const { stdout, stderr } = await runCommand(['convert', postmanFilePath, '-f', 'postman-collection', '-p=server']);
+      expect(stdout).to.contain(`🎉 The ${postmanFilePath} file has been successfully converted to asyncapi of version 3.0.0!!`);
+      expect(stderr).to.equal('');
+    });
+
+    it('should throw error if invalid perspective is passed', async () => {
+      const { stdout, stderr } = await runCommand(['convert', postmanFilePath, '-f', 'postman-collection', '-p=invalid']);
+      expect(stdout).to.equal('');
+      expect(stderr).to.contain('Error: Expected --perspective=invalid to be one of: client, server');
+    });
+
+    it('works when Postman file is converted and output is saved', async () => {
+      const { stdout, stderr } = await runCommand(['convert', postmanFilePath, '-f', 'postman-collection', '-o=./test/fixtures/postman_converted_output.yml']);
+      expect(stdout).to.contain(`🎉 The ${postmanFilePath} file has been successfully converted to asyncapi of version 3.0.0!!`);
+      expect(fs.existsSync('./test/fixtures/postman_converted_output.yml')).to.equal(true);
+      expect(stderr).to.equal('');
+      fs.unlinkSync('./test/fixtures/postman_converted_output.yml');
+    });
   });
 });

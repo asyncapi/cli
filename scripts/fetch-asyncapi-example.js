@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const fetch = require('node-fetch');
 const fs = require('fs');
 const unzipper = require('unzipper');
 const path = require('path');
@@ -9,6 +8,8 @@ const { Parser } = require('@asyncapi/parser/cjs');
 const { AvroSchemaParser } = require('@asyncapi/avro-schema-parser');
 const { OpenAPISchemaParser } = require('@asyncapi/openapi-schema-parser');
 const { RamlDTSchemaParser } = require('@asyncapi/raml-dt-schema-parser');
+const { Stream } = require('stream');
+const { promisify } = require('util');
 
 const parser = new Parser({
   schemaParsers: [
@@ -18,32 +19,26 @@ const parser = new Parser({
   ]
 });
 
+// stream.pipeline is promisified (for async handling) 
+const pipeline = promisify(Stream.pipeline);
+
+
 const SPEC_EXAMPLES_ZIP_URL = 'https://github.com/asyncapi/spec/archive/refs/heads/master.zip';
 const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
 const TEMP_ZIP_NAME = 'spec-examples.zip';
 
-const fetchAsyncAPIExamplesFromExternalURL = () => {
+const fetchAsyncAPIExamplesFromExternalURL = async () => {
   try {
-    return new Promise((resolve, reject) => {
-      fetch(SPEC_EXAMPLES_ZIP_URL)
-        .then((res) => {
-          if (res.status !== 200) {
-            reject(new Error(`Failed to fetch examples from ${SPEC_EXAMPLES_ZIP_URL}`));
-          }
-          const file = fs.createWriteStream(TEMP_ZIP_NAME);
-          res.body.pipe(file);
-          file.on('close', () => {
-            console.log('Fetched ZIP file');
-            file.close();
-            resolve();
-          }).on('error', (err) => {
-            reject(err);
-          });
-        })
-        .catch(reject); 
-    });
+    const res = await fetch(SPEC_EXAMPLES_ZIP_URL);
+    if (res.status !== 200) {
+      throw new Error(`Failed to fetch examples from ${SPEC_EXAMPLES_ZIP_URL}`);
+    }
+    const file = fs.createWriteStream(TEMP_ZIP_NAME);
+    // Replaced res.body.pipe(file) with pipeline for better compatibility with modern Node.js versions.
+    await pipeline(res.body, file);
+    console.log('Fetched ZIP file');
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching examples:', error);
   }
 };
 
