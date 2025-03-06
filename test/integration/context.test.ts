@@ -1,179 +1,115 @@
-import path from 'path';
-import { expect, test } from '@oclif/test';
-
+import * as path from 'path';
+import { describe, before, after, it } from 'mocha';
+import { expect } from 'chai';
+import { runCommand } from '@oclif/test';
 import TestHelper from '../helpers';
 import { CONTEXT_FILE_PATH } from '../../src/core/models/Context';
 
 const testHelper = new TestHelper();
 
 describe('config:context, positive scenario', () => {
-  after(() => {
-    testHelper.deleteDummyContextFile();
-  });
-
   before(() => {
     testHelper.createDummyContextFile();
   });
 
+  after(() => {
+    testHelper.deleteDummyContextFile();
+  });
+
   describe('config:context:current', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:current'])
-      .it('should show current context', (ctx, done) => {
-        expect(ctx.stdout).to.equals(
-          `${testHelper.context.current}: ${testHelper.context.store['home']}\n`
-        );
-        expect(ctx.stderr).to.equals('');
-        done();
-      });
+    it('should show current context', async () => {
+      const { stdout, stderr } = await runCommand(['config:context:current']);
+      expect(stdout).to.equals(
+        `${testHelper.context.current}: ${testHelper.context.store['home']}\n`
+      );
+      expect(stderr).to.equals('');
+    });
   });
 
   describe('config:context:list', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:list'])
-      .it(
-        'should list contexts prints list if context file is present',
-        (ctx, done) => {
-          expect(ctx.stdout).to.equals(
-            `home: ${path.resolve(
-              __dirname,
-              '../fixtures/specification.yml'
-            )}\ncode: ${path.resolve(__dirname, '../fixtures/specification.yml')}\n`
-          );
-          expect(ctx.stderr).to.equals('');
-          done();
-        }
+    it('should list contexts prints list if context file is present', async () => {
+      const { stdout, stderr } = await runCommand(['config:context:list']);
+      expect(stdout).to.equals(
+        `home: ${path.resolve(
+          __dirname,
+          '../fixtures/specification.yml'
+        )}\ncode: ${path.resolve(__dirname, '../fixtures/specification.yml')}\n`
       );
+      expect(stderr).to.equals('');
+    });
   });
 
   describe('config:context:add', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:add', 'test', './test/integration/specification.yml'])
-      .it('should add new context called "test"', (ctx, done) => {
-        expect(ctx.stdout).to.equals(
-          '🎉 Context test added successfully!\nYou can set it as your current context:\n  asyncapi config context use test\nYou can use this context when needed by passing test as a parameter:\n  asyncapi validate test\n'
-        );
-        expect(ctx.stderr).to.equals('');
-        done();
-      });
-  });
-
-  describe('config:context:add', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:add', 'test', './test/specification.yml'])
-      .it(
-        'should NOT add new context with already existing in context file name "test"',
-        (ctx, done) => {
-          expect(ctx.stdout).to.equals('');
-          expect(ctx.stderr).to.equals(
-            `ContextError: Context with name "test" already exists in context file "${CONTEXT_FILE_PATH}".\n`
-          );
-          done();
-        }
+    it('should add new context called "test"', async () => {
+      const { stdout, stderr } = await runCommand(['config:context:add', 'test', './test/integration/specification.yml']);
+      expect(stdout).to.equals(
+        '🎉 Context test added successfully!\nYou can set it as your current context:\n  asyncapi config context use test\nYou can use this context when needed by passing test as a parameter:\n  asyncapi validate test\n'
       );
+      expect(stderr).to.equals('');
+    });
+
+    it('should NOT add new context with already existing in context file name "test"', async () => {
+      const { stdout, stderr } = await runCommand(['config:context:add', 'test', './test/specification.yml']);
+      expect(stdout).to.equals('');
+      expect(stderr).to.equals(
+        `ContextError: Context with name "test" already exists in context file "${CONTEXT_FILE_PATH}".\n`
+      );
+    });
   });
 
   describe('config:context:edit', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:edit', 'test', './test/specification2.yml'])
-      .it('should edit existing context "test"', (ctx, done) => {
-        expect(ctx.stdout).to.contain('🎉 Context test edited successfully!');
-        expect(ctx.stderr).to.equals('');
-        done();
-      });
+    it('should edit existing context "test"', async () => {
+      const { stdout, stderr } = await runCommand(['config:context:edit', 'test', './test/specification2.yml']);
+      expect(stdout).to.contain('🎉 Context test edited successfully!');
+      expect(stderr).to.equals('');
+    });
   });
 
   describe('config:context:use', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:use', 'code'])
-      .it('should update the current context', (ctx, done) => {
-        expect(ctx.stdout).to.equals('Context code is now set as current.\n');
-        expect(ctx.stderr).to.equals('');
-        done();
-      });
+    it('should update the current context', async () => {
+      const { stdout, stderr } = await runCommand(['config:context:use', 'code']);
+      expect(stdout).to.equals('Context code is now set as current.\n');
+      expect(stderr).to.equals('');
+    });
   });
 
-  // On direct execution of `chmodSync(CONTEXT_FILE_PATH, '444')` context file's
-  // permissions get changed to 'read only' in file system, but `@oclif/test`'s
-  // test still passes. Thus there is no sense in implementation of
-  // `writeFile()` faulty scenario with `@oclif/test` framework.
   describe('config:context:remove', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:remove', 'code'])
-      .it('should remove existing context', (ctx, done) => {
-        expect(ctx.stdout).to.equals('Context code removed successfully!\n\n');
-        expect(ctx.stderr).to.equals('');
-        done();
-      });
+    it('should remove existing context', async () => {
+      const { stdout, stderr } = await runCommand(['config:context:remove', 'code']);
+      expect(stdout).to.equals('Context code removed successfully!\n\n');
+      expect(stderr).to.equals('');
+    });
   });
 
   describe('config:context:init', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:init'])
-      .it('should initialize new empty context file without a switch', (ctx, done) => {
-        expect(ctx.stdout).to.contain('🎉 Context initialized at');
-        expect(ctx.stderr).to.equals('');
-        done();
-      });
-  });
+    it('should initialize new empty context file without a switch', async () => {
+      const { stdout, stderr } = await runCommand(['config:context:init']);
+      expect(stdout).to.contain('🎉 Context initialized at');
+      expect(stderr).to.equals('');
+    });
 
-  describe('config:context:init', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:init', '.'])
-      .it('should initialize new empty context file with switch "."', (ctx, done) => {
-        expect(ctx.stdout).to.contain('🎉 Context initialized at');
-        expect(ctx.stderr).to.equals('');
-        done();
-      });
-  });
+    it('should initialize new empty context file with switch "."', async () => {
+      const { stdout, stderr } = await runCommand(['config:context:init', '.']);
+      expect(stdout).to.contain('🎉 Context initialized at');
+      expect(stderr).to.equals('');
+    });
 
-  describe('config:context:init', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:init', './'])
-      .it('should initialize new empty context file with switch "./"', (ctx, done) => {
-        expect(ctx.stdout).to.contain('🎉 Context initialized at');
-        expect(ctx.stderr).to.equals('');
-        done();
-      });
-  });
+    it('should initialize new empty context file with switch "./"', async () => {
+      const { stdout, stderr } = await runCommand(['config:context:init', './']);
+      expect(stdout).to.contain('🎉 Context initialized at');
+      expect(stderr).to.equals('');
+    });
 
-  describe('config:context:init', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:init', '~'])
-      .it('should initialize new empty context file with switch "~"', (ctx, done) => {
-        expect(ctx.stdout).to.contain('🎉 Context initialized at');
-        expect(ctx.stderr).to.equals('');
-        done();
-      });
+    it('should initialize new empty context file with switch "~"', async () => {
+      const { stdout, stderr } = await runCommand(['config:context:init', '~']);
+      expect(stdout).to.contain('🎉 Context initialized at');
+      expect(stderr).to.equals('');
+    });
   });
 });
 
 describe('config:context, negative scenario', () => {
   before(() => {
-    // Any context file needs to be created before starting test suite,
-    // otherwise a totally legitimate context file will be created automatically
-    // by `addContext()`.
     testHelper.createDummyContextFileWrong('');
   });
 
@@ -182,107 +118,55 @@ describe('config:context, negative scenario', () => {
   });
 
   describe('config:context:add', () => {
-    testHelper.deleteDummyContextFile();
-    testHelper.createDummyContextFileWrong('');
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:add', 'home', './test/specification.yml'])
-      .it(
-        'should throw error on zero-sized file saying that context file has wrong format.',
-        (ctx, done) => {
-          expect(ctx.stdout).to.equals('');
-          expect(ctx.stderr).to.contain(
-            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
-          );
-          done();
-        }
+    it('should throw error on zero-sized file saying that context file has wrong format.', async () => {
+      testHelper.deleteDummyContextFile();
+      testHelper.createDummyContextFileWrong('');
+      const { stdout, stderr } = await runCommand(['config:context:add', 'home', './test/specification.yml']);
+      expect(stdout).to.equals('');
+      expect(stderr).to.contain(
+        `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
       );
-  });
+    });
 
-  describe('config:context:add', () => {
-    testHelper.deleteDummyContextFile();
-    testHelper.createDummyContextFileWrong('{}');
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:add', 'home', './test/specification.yml'])
-      .it(
-        'should throw error on file with empty object saying that context file has wrong format.',
-        (ctx, done) => {
-          expect(ctx.stdout).to.equals('');
-          expect(ctx.stderr).to.contain(
-            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
-          );
-          done();
-        }
+    it('should throw error on file with empty object saying that context file has wrong format.', async () => {
+      testHelper.deleteDummyContextFile();
+      testHelper.createDummyContextFileWrong('{}');
+      const { stdout, stderr } = await runCommand(['config:context:add', 'home', './test/specification.yml']);
+      expect(stdout).to.equals('');
+      expect(stderr).to.contain(
+        `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
       );
-  });
+    });
 
-  describe('config:context:add', () => {
-    testHelper.deleteDummyContextFile();
-    testHelper.createDummyContextFileWrong('[]');
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:add', 'home', './test/specification.yml'])
-      .it(
-        'should throw error on file with empty array saying that context file has wrong format.',
-        (ctx, done) => {
-          expect(ctx.stdout).to.equals('');
-          expect(ctx.stderr).to.contain(
-            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
-          );
-          done();
-        }
+    it('should throw error on file with empty array saying that context file has wrong format.', async () => {
+      testHelper.deleteDummyContextFile();
+      testHelper.createDummyContextFileWrong('[]');
+      const { stdout, stderr } = await runCommand(['config:context:add', 'home', './test/specification.yml']);
+      expect(stdout).to.equals('');
+      expect(stderr).to.contain(
+        `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
       );
-  });
+    });
 
-  // Totally correct (and considered correct by `@oclif/core`) format of the
-  // context file
-  // `{"current":"home","store":{"home":"homeSpecFile","code":"codeSpecFile"}}`
-  // is considered wrong in `@oclif/test`, limiting possibilities of negative
-  // scenarios coding.
-  describe('config:context:add', () => {
-    testHelper.deleteDummyContextFile();
-    testHelper.createDummyContextFileWrong(
-      '{"current":"home","current2":"test","store":{"home":"homeSpecFile","code":"codeSpecFile"}}'
-    );
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:add', 'home', './test/specification.yml'])
-      .it(
-        'should throw error on file with object having three root properties, saying that context file has wrong format.',
-        (ctx, done) => {
-          expect(ctx.stdout).to.equals('');
-          expect(ctx.stderr).to.contain(
-            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
-          );
-          done();
-        }
+    it('should throw error on file with object having three root properties, saying that context file has wrong format.', async () => {
+      testHelper.deleteDummyContextFile();
+      testHelper.createDummyContextFileWrong(
+        '{"current":"home","current2":"test","store":{"home":"homeSpecFile","code":"codeSpecFile"}}'
       );
-  });
-});
-
-describe('config:context, negative scenario', () => {
-  after(() => {
-    testHelper.deleteDummyContextFile();
+      const { stdout, stderr } = await runCommand(['config:context:add', 'home', './test/specification.yml']);
+      expect(stdout).to.equals('');
+      expect(stderr).to.contain(
+        `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
+      );
+    });
   });
 
   describe('config:context:list', () => {
-    testHelper.deleteDummyContextFile();
-    test
-      .stderr()
-      .stdout()
-      .command(['config:context:list'])
-      .it(
-        'should output info message (to stdout, NOT stderr) about absence of context file.',
-        (ctx, done) => {
-          expect(ctx.stdout).to.contain('Unable to list contexts. You have no context file configured.');
-          expect(ctx.stderr).to.equals('');
-          done();
-        }
-      );
+    it('should output info message (to stdout, NOT stderr) about absence of context file.', async () => {
+      testHelper.deleteDummyContextFile();
+      const { stdout, stderr } = await runCommand(['config:context:list']);
+      expect(stdout).to.contain('Unable to list contexts. You have no context file configured.');
+      expect(stderr).to.equals('');
+    });
   });
 });

@@ -1,7 +1,7 @@
-import { test } from '@oclif/test';
 import TestHelper from '../../helpers';
-import { PROJECT_DIRECTORY_PATH } from '../../helpers';
-import { expect } from '@oclif/test';
+import { describe, before, beforeEach, afterEach, it } from 'mocha';
+import { expect } from 'chai';
+import { runCommand } from '@oclif/test';
 
 const testHelper = new TestHelper();
 const successMessage = (projectName: string) =>
@@ -10,7 +10,8 @@ const successMessage = (projectName: string) =>
 const errorMessages = {
   alreadyExists: (projectName: string) =>
     `Unable to create the project because the directory "${projectName}" already exists at "${process.cwd()}/${projectName}".
-To specify a different name for the new project, please run the command below with a unique project name:`};
+To specify a different name for the new project, please run the command below with a unique project name:`
+};
 
 describe('new glee', () => {
   before(() => {
@@ -28,15 +29,13 @@ describe('new glee', () => {
       testHelper.deleteDummyProjectDirectory();
     });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['new:glee', '-n=test-project'])
-      .it('runs new glee command with name flag', async (ctx,done) => {
-        expect(ctx.stderr).to.equal('');
-        expect(ctx.stdout).to.contains(successMessage('test-project'));
-        done();
-      });
+    it('runs new glee command with name flag', async () => {
+      const { stdout, stderr } = await runCommand([
+        'new:glee', '--no-tty', '-n=test-project'
+      ]);
+      expect(stderr).to.equal('');
+      expect(stdout).to.contains(successMessage('test-project'));
+    });
   });
 
   describe('when new project name already exists', () => {
@@ -54,15 +53,12 @@ describe('new glee', () => {
       testHelper.deleteDummyProjectDirectory();
     });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['new:glee', '-n=test-project'])
-      .it('should throw error if name of the new project already exists', async (ctx,done) => {
-        expect(ctx.stderr).to.contains(`Error: ${errorMessages.alreadyExists('test-project')}`);
-        expect(ctx.stdout).to.equal('');
-        done();
-      });
+    it('should throw error if name of the new project already exists', async () => {
+      const { stdout, stderr } = await runCommand([
+        'new:glee', '--no-tty', '-n=test-project'
+      ]);
+      expect(stderr).to.contains(`Error: ${errorMessages.alreadyExists('test-project')}`);
+      expect(stdout).to.equal('');
+    });
   });
 });
-

@@ -1,7 +1,8 @@
-import { test } from '@oclif/test';
-import { NO_CONTEXTS_SAVED } from '../../src/core/errors/context-error';
+import { describe, before, after, it } from 'mocha';
+import { expect } from 'chai';
+import { runCommand } from '@oclif/test';
 import TestHelper, { createMockServer, stopMockServer } from '../helpers';
-import { expect } from '@oclif/test';
+import { NO_CONTEXTS_SAVED } from '../../src/core/errors/context-error';
 
 const testHelper = new TestHelper();
 const yamlFilePath = './test/fixtures/specification.yml';
@@ -12,112 +13,68 @@ const convJSONFilePath = './test/fixtures/specification-conv.json';
 
 describe('format', () => {
   describe('with file paths', () => {
-    beforeEach(() => {
-      testHelper.createDummyContextFile();
-    });
-
-    afterEach(() => {
-      testHelper.deleteDummyContextFile();
-    });
-
     before(() => {
+      testHelper.createDummyContextFile();
       createMockServer();
     });
 
     after(() => {
+      testHelper.deleteDummyContextFile();
       stopMockServer();
     });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['format', yamlFilePath, '-f', 'json'])
-      .it('should log formatted content if no -o is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain(
-          'succesfully logged after formatting to json ✅',
-        );
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
+    it('should log formatted content if no -o is passed', async () => {
+      const { stdout, stderr } = await runCommand(['format', yamlFilePath, '-f', 'json']);
+      expect(stdout).to.contain('succesfully logged after formatting to json ✅');
+      expect(stderr).to.equals('');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['format', './test/fixtures/not-found.yml', '-f', 'json'])
-      .it('should throw error if file path is wrong', (ctx, done) => {
-        expect(ctx.stdout).to.equal('');
-        expect(ctx.stderr).to.equal(
-          'error loading AsyncAPI document from file: ./test/fixtures/not-found.yml file does not exist.\n',
-        );
-        done();
-      });
+    it('should throw error if file path is wrong', async () => {
+      const { stdout, stderr } = await runCommand(['format', './test/fixtures/not-found.yml', '-f', 'json']);
+      expect(stdout).to.equals('');
+      expect(stderr).to.equals('error loading AsyncAPI document from file: ./test/fixtures/not-found.yml file does not exist.\n');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['format', 'http://localhost:8080/dummySpec.yml', '-f', 'json'])
-      .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain(
-          'succesfully logged after formatting to json ✅',
-        );
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
+    it('works when url is passed', async () => {
+      const { stdout, stderr } = await runCommand(['format', 'http://localhost:8080/dummySpec.yml', '-f', 'json']);
+      expect(stdout).to.contain('succesfully logged after formatting to json ✅');
+      expect(stderr).to.equals('');
+    });
   });
 
   describe('with no arguments or required flags', () => {
-    beforeEach(() => {
+    before(() => {
       testHelper.createDummyContextFile();
     });
 
-    afterEach(() => {
+    after(() => {
       testHelper.setCurrentContext('home');
       testHelper.deleteDummyContextFile();
     });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['format', yamlFilePath])
-      .it('should default to json without -f flag', (ctx, done) => {
-        expect(ctx.stdout).to.contain(
-          'succesfully logged after formatting to json ✅',
-        );
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
+    it('should default to json without -f flag', async () => {
+      const { stdout, stderr } = await runCommand(['format', yamlFilePath]);
+      expect(stdout).to.contain('succesfully logged after formatting to json ✅');
+      expect(stderr).to.equals('');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['format', '-f', 'json'])
-      .it('converts from current context', (ctx, done) => {
-        expect(ctx.stdout).to.contain(
-          'succesfully logged after formatting to json ✅',
-        );
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
+    it('converts from current context', async () => {
+      const { stdout, stderr } = await runCommand(['format', '-f', 'json']);
+      expect(stdout).to.contain('succesfully logged after formatting to json ✅');
+      expect(stderr).to.equals('');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .do(() => {
-        testHelper.unsetCurrentContext();
-        testHelper.createDummyContextFile();
-      })
-      .command(['format', '-f', 'json'])
-      .it('throws error message if no current context', (ctx, done) => {
-        expect(ctx.stdout).to.equal('');
-        expect(ctx.stderr).to.equal(
-          'ContextError: No context is set as current, please set a current context.\n',
-        );
-        done();
-      });
+    it('throws error message if no current context', async () => {
+      testHelper.unsetCurrentContext();
+      testHelper.createDummyContextFile();
+      const { stdout, stderr } = await runCommand(['format', '-f', 'json']);
+      expect(stdout).to.equals('');
+      expect(stderr).to.equals('ContextError: No context is set as current, please set a current context.\n');
+    });
   });
 
   describe('with no spec file', () => {
-    beforeEach(() => {
+    before(() => {
       try {
         testHelper.deleteDummyContextFile();
       } catch (e: any) {
@@ -127,82 +84,50 @@ describe('format', () => {
       }
     });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['format', '-f', 'json'])
-      .it('throws error message if no spec file exists', (ctx, done) => {
-        expect(ctx.stdout).to.equal('');
-        expect(ctx.stderr).to.equal(
-          `error locating AsyncAPI document: ${NO_CONTEXTS_SAVED}\n`,
-        );
-        done();
-      });
+    it('throws error message if no spec file exists', async () => {
+      const { stdout, stderr } = await runCommand(['format', '-f', 'json']);
+      expect(stdout).to.equals('');
+      expect(stderr).to.equals(`error locating AsyncAPI document: ${NO_CONTEXTS_SAVED}\n`);
+    });
   });
 
   describe('format with output flag', () => {
-    beforeEach(() => {
+    before(() => {
       testHelper.createDummyContextFile();
     });
 
-    afterEach(() => {
+    after(() => {
       testHelper.deleteDummyContextFile();
     });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['format', yamlFilePath, '-f', 'json', '-o', convJSONFilePath])
-      .it('create file yaml -> json', (ctx, done) => {
-        expect(ctx.stdout).to.contain(
-          `succesfully formatted to json at ${convJSONFilePath} ✅`,
-        );
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
+    it('create file yaml -> json', async () => {
+      const { stdout, stderr } = await runCommand(['format', yamlFilePath, '-f', 'json', '-o', convJSONFilePath]);
+      expect(stdout).to.contain(`succesfully formatted to json at ${convJSONFilePath} ✅`);
+      expect(stderr).to.equals('');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['format', JSONFilePath, '-f', 'yaml', '-o', convYamlFilePath])
-      .it('create file json -> yaml', (ctx, done) => {
-        expect(ctx.stdout).to.contain(
-          `succesfully formatted to yaml at ${convYamlFilePath} ✅`,
-        );
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
+    it('create file json -> yaml', async () => {
+      const { stdout, stderr } = await runCommand(['format', JSONFilePath, '-f', 'yaml', '-o', convYamlFilePath]);
+      expect(stdout).to.contain(`succesfully formatted to yaml at ${convYamlFilePath} ✅`);
+      expect(stderr).to.equals('');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['format', JSONFilePath, '-f', 'yml', '-o', convYmlFilePath])
-      .it('create file json -> yml', (ctx, done) => {
-        expect(ctx.stdout).to.contain(
-          `succesfully formatted to yml at ${convYmlFilePath} ✅`,
-        );
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
+    it('create file json -> yml', async () => {
+      const { stdout, stderr } = await runCommand(['format', JSONFilePath, '-f', 'yml', '-o', convYmlFilePath]);
+      expect(stdout).to.contain(`succesfully formatted to yml at ${convYmlFilePath} ✅`);
+      expect(stderr).to.equals('');
+    });
   });
 
   describe('invalid or redundant format conversions', () => {
-    test
-      .stderr()
-      .stdout()
-      .command(['format', yamlFilePath, '-f', 'yaml'])
-      .it('yaml -> yaml', (ctx, done) => {
-        expect(ctx.stderr).to.contain('Your document is already a YAML');
-        done();
-      });
+    it('yaml -> yaml', async () => {
+      const { stdout, stderr } = await runCommand(['format', yamlFilePath, '-f', 'yaml']);
+      expect(stderr).to.contain('Your document is already a YAML');
+    });
 
-    test
-      .stderr()
-      .stdout()
-      .command(['format', JSONFilePath, '-f', 'json'])
-      .it('json -> json', (ctx, done) => {
-        expect(ctx.stderr).to.contain('Your document is already a JSON');
-        done();
-      });
+    it('json -> json', async () => {
+      const { stdout, stderr } = await runCommand(['format', JSONFilePath, '-f', 'json']);
+      expect(stderr).to.contain('Your document is already a JSON');
+    });
   });
 });
