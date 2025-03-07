@@ -86,8 +86,8 @@ export default class Optimize extends Command {
     } catch (err) {
       this.error(
         new ValidationError({
-          type: 'invalid-file',
-          filepath: filePath,
+          type: 'parser-error', // Use 'parser-error' instead of 'invalid-file'
+          err: err,            // Pass the actual error so buildError can handle it
         })
       );
     }
