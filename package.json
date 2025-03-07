@@ -21,7 +21,7 @@
     "@asyncapi/raml-dt-schema-parser": "^4.0.24",
     "@asyncapi/studio": "^0.23.0",
     "@clack/prompts": "^0.7.0",
-    "@oclif/core": "^4.0.28",
+    "@oclif/core": "^4.2.8",
     "@smoya/asyncapi-adoption-metrics": "^2.4.9",
     "@stoplight/spectral-cli": "6.9.0",
     "chalk": "^4.1.0",
@@ -109,7 +109,7 @@
     ],
     "hooks": {
       "command_not_found": [
-        "./lib/hooks/command_not_found/myhook"
+        "./lib/core/hooks/command_not_found/myhook"
       ]
     },
     "macos": {
