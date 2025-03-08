@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const fetch = require('node-fetch');
 const fs = require('fs');
 const unzipper = require('unzipper');
 const path = require('path');
@@ -9,6 +8,10 @@ const { Parser } = require('@asyncapi/parser/cjs');
 const { AvroSchemaParser } = require('@asyncapi/avro-schema-parser');
 const { OpenAPISchemaParser } = require('@asyncapi/openapi-schema-parser');
 const { RamlDTSchemaParser } = require('@asyncapi/raml-dt-schema-parser');
+const { pipeline } = require('stream');
+const { promisify } = require('util');
+
+const streamPipeline = promisify(pipeline);
 
 const parser = new Parser({
   schemaParsers: [
@@ -26,21 +29,18 @@ const fetchAsyncAPIExamplesFromExternalURL = () => {
   try {
     return new Promise((resolve, reject) => {
       fetch(SPEC_EXAMPLES_ZIP_URL)
-        .then((res) => {
+        .then(async (res) => {
           if (res.status !== 200) {
-            reject(new Error(`Failed to fetch examples from ${SPEC_EXAMPLES_ZIP_URL}`));
+            return reject(new Error(`Failed to fetch examples from ${SPEC_EXAMPLES_ZIP_URL}`));
           }
+
           const file = fs.createWriteStream(TEMP_ZIP_NAME);
-          res.body.pipe(file);
-          file.on('close', () => {
-            console.log('Fetched ZIP file');
-            file.close();
-            resolve();
-          }).on('error', (err) => {
-            reject(err);
-          });
+          await streamPipeline(res.body, file);
+
+          console.log('Fetched ZIP file');
+          resolve();
         })
-        .catch(reject); 
+        .catch(reject);
     });
   } catch (error) {
     console.error(error);
