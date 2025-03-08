@@ -31,13 +31,11 @@ export default class Bundle extends Command {
 
     this.metricsMetadata.files = AsyncAPIFiles.length;
 
-    const document = await bundle(AsyncAPIFiles,
-      {
-        base: flags.base,
-        baseDir: flags.baseDir,
-        xOrigin: flags.xOrigin,
-      }
-    );
+    const document = await this.bundleFiles(AsyncAPIFiles, {
+      base: flags.base,
+      baseDir: flags.baseDir,
+      xOrigin: flags.xOrigin,
+    });
 
     await this.collectMetricsData(document);
 
@@ -65,6 +63,13 @@ export default class Bundle extends Command {
     }
   }
 
+  private async bundleFiles(
+    files: string[],
+    options: { base?: string; baseDir?: string; xOrigin?: boolean }
+  ): Promise<Document> {
+    return await bundle(files, options);
+  }
+
   private async collectMetricsData(document: Document) {
     try {
       // We collect the metadata from the final output so it contains all the files
@@ -74,5 +79,16 @@ export default class Bundle extends Command {
         this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
       }
     }
+  }
+
+  /**
+   * Expose a utility method to bundle and return the bundled document in memory.
+   * Useful for commands like `start preview`.
+   */
+  public static async bundleInMemory(
+    files: string[],
+    options: { base?: string; baseDir?: string; xOrigin?: boolean }
+  ): Promise<Document> {
+    return await bundle(files, options);
   }
 }
