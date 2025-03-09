@@ -15,7 +15,7 @@ import type { Specification } from './models/SpecificationFile';
 import { promises } from 'fs';
 import path from 'path';
 
-type DiagnosticsFormat = 'stylish' | 'json' | 'junit' | 'html' | 'text' | 'teamcity' | 'pretty';
+type DiagnosticsFormat = 'stylish' | 'json' | 'junit' | 'html' | 'text' | 'teamcity' | 'pretty' | 'github-actions' | 'sarif' | 'code-climate' | 'gitlab' | 'markdown';
 
 export type SeverityKind = 'error' | 'warn' | 'info' | 'hint';
 
@@ -31,6 +31,11 @@ const formatExtensions: Record<DiagnosticsFormat, string> = {
   text: '.txt',
   teamcity: '.txt',
   pretty: '.txt',
+  'github-actions': '.log',
+  sarif: '.sarif.json',
+  'code-climate': '.json',
+  gitlab: '.json',
+  markdown: '.md'
 };
 
 const validFormats = ['stylish', 'json', 'junit', 'html', 'text', 'teamcity', 'pretty'];
