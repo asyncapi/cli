@@ -1,7 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { URL } from 'url';
-import fetch from 'node-fetch';
 import yaml from 'js-yaml';
 import { loadContext } from './Context';
 import { ErrorLoadingSpec } from '../errors/specification-file';
