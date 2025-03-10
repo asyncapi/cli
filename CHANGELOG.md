@@ -1,5 +1,12 @@
 # @asyncapi/cli
 
+## 2.16.8
+
+### Patch Changes
+
+- 460c99a: feat: use next.js version of studio
+- 460c99a: Upgrade studio to latest and allow use of next server
+
 ## 2.16.7
 
 ### Patch Changes
