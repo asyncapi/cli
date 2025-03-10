@@ -1,5 +1,17 @@
 # @asyncapi/cli
 
+## 2.16.7
+
+### Patch Changes
+
+- 6ca17b3: fix: update packages to latest stable version
+
+## 2.16.6
+
+### Patch Changes
+
+- 82b441f: fix: resolve error in AsyncAPI optimize
+
 ## 2.16.5
 
 ### Patch Changes
