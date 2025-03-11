@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { test } from '@oclif/test';
-import rimraf from 'rimraf';
+import {rimraf} from 'rimraf';
 import { expect } from '@oclif/test';
 
 const nonInteractive = '--no-interactive';
