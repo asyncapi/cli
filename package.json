@@ -78,23 +78,15 @@
     "globby": "^10.0.2",
     "markdown-toc": "^1.2.0",
     "mocha": "^10.2.0",
-<<<<<<< HEAD
-    "rimraf": "^6.0.1",
-=======
     "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
->>>>>>> parent of 853800f (update rimraf)
     "simple-git": "^3.16.0",
     "ts-node": "^10.9.1",
     "tslib": "^2.3.1",
     "typescript": "^5.8.2"
   },
   "engines": {
-<<<<<<< HEAD
     "node": "18.x"
-=======
-    "node": ">12.16"
->>>>>>> parent of 853800f (update rimraf)
   },
   "files": [
     "/bin",
