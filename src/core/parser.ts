@@ -7,13 +7,15 @@ import { ProtoBuffSchemaParser } from '@asyncapi/protobuf-schema-parser';
 import { getDiagnosticSeverity } from '@stoplight/spectral-core';
 import { OutputFormat } from '@stoplight/spectral-cli/dist/services/config';
 import { html, json, junit, pretty, stylish, teamcity, text } from '@stoplight/spectral-formatters';
-import { red, yellow, green, cyan } from 'chalk';
+import chalk from 'chalk';
 
 import type { Diagnostic } from '@asyncapi/parser/cjs';
 import type Command from './base';
 import type { Specification } from './models/SpecificationFile';
 import { promises } from 'fs';
 import path from 'path';
+
+const { red, yellow, cyan, green } = chalk;
 
 type DiagnosticsFormat = 'stylish' | 'json' | 'junit' | 'html' | 'text' | 'teamcity' | 'pretty';
 
