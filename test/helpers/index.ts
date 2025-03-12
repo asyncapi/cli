@@ -3,7 +3,7 @@ import * as path from 'path';
 import { IContextFile, CONTEXT_FILE_PATH } from '../../src/core/models/Context';
 import SpecificationFile from '../../src/core/models/SpecificationFile';
 import http from 'http';
-import {rimraf} from 'rimraf';
+import rimraf from 'rimraf';
 
 const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'specification.yaml');
 const SERVER_DIRECTORY= path.join(__dirname, '../fixtures/dummyspec');

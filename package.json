@@ -43,10 +43,10 @@
     "oclif": "^4.17.34",
     "open": "^8.4.0",
     "picocolors": "^1.0.0",
-    "unzipper": "^0.12.3",
+    "unzipper": "^0.10.11",
     "uuid": "^11.1.0",
-    "ws": "^8.18.1",
-    "yaml": "^2.7.0"
+    "ws": "^8.2.3",
+    "yaml": "^2.6.1"
   },
   "devDependencies": {
     "@asyncapi/minimaltemplate": "./test/fixtures/minimaltemplate",
@@ -60,27 +60,41 @@
     "@types/js-yaml": "^4.0.5",
     "@types/mocha": "^10.0.2",
     "@types/node": "^22.13.10",
+    "@types/node-fetch": "^2.5.12",
     "@types/rimraf": "^3.0.2",
     "@types/serve-handler": "^6.1.1",
     "@types/uuid": "^10.0.0",
-    "@types/ws": "^8.18.0",
+    "@types/wrap-ansi": "^8.0.1",
+    "@types/ws": "^8.2.0",
     "@typescript-eslint/eslint-plugin": "^5.38.1",
     "@typescript-eslint/parser": "^5.38.1",
+    "acorn": "^8.5.0",
     "chai": "^4.3.6",
     "cross-env": "^7.0.3",
     "eslint": "^8.24.0",
     "eslint-plugin-github": "^4.3.7",
     "eslint-plugin-security": "^1.4.0",
     "eslint-plugin-sonarjs": "^0.15.0",
+    "globby": "^10.0.2",
     "markdown-toc": "^1.2.0",
     "mocha": "^10.2.0",
+<<<<<<< HEAD
     "rimraf": "^6.0.1",
+=======
+    "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+>>>>>>> parent of 853800f (update rimraf)
     "simple-git": "^3.16.0",
     "ts-node": "^10.9.1",
+    "tslib": "^2.3.1",
     "typescript": "^5.8.2"
   },
   "engines": {
+<<<<<<< HEAD
     "node": "18.x"
+=======
+    "node": ">12.16"
+>>>>>>> parent of 853800f (update rimraf)
   },
   "files": [
     "/bin",

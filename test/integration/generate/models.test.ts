@@ -1,6 +1,6 @@
 import { expect, test } from '@oclif/test';
 import path from 'path';
-import {rimraf} from 'rimraf';
+import rimraf from 'rimraf';
 import { createMockServer, stopMockServer } from '../../helpers';
 const generalOptions = ['generate:models'];
 const outputDir = './test/fixtures/generate/models';
