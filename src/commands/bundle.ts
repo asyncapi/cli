@@ -1,12 +1,12 @@
 import Command from '../core/base';
 import bundle from '@asyncapi/bundler';
-import { promises } from 'fs';
+import { promises as fsPromises } from 'fs';
 import path from 'path';
 import { Specification } from '../core/models/SpecificationFile';
 import { Document } from '@asyncapi/bundler/lib/document';
 import { bundleFlags } from '../core/flags/bundle.flags';
 
-const { writeFile } = promises;
+const { writeFile } = fsPromises;
 
 export default class Bundle extends Command {
   static readonly description = 'Bundle one or multiple AsyncAPI Documents and their references together.';

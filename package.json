@@ -172,5 +172,6 @@
     "action:docker:build": "docker build -f github-action/Dockerfile -t asyncapi/github-action-for-cli:latest .",
     "action:test": "cd github-action && make test"
   },
-  "types": "lib/index.d.ts"
+  "types": "lib/index.d.ts",
+  "type": "module"
 }
