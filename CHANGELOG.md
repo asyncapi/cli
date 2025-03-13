@@ -1,5 +1,13 @@
 # @asyncapi/cli
 
+## 2.16.9
+
+### Patch Changes
+
+- 819b585: [Fix]: Json file supported in asyncapi new file command
+- 830fe82: Fix studio not opening in CLI studio command
+- 830fe82: fix: studio command not working
+
 ## 2.16.8
 
 ### Patch Changes
