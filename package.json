@@ -126,7 +126,8 @@
       }
     },
     "plugins": [
-      "@oclif/plugin-warn-if-update-available"
+      "@oclif/plugin-warn-if-update-available",
+      "@oclif/plugin-autocomplete"
     ],
     "warn-if-update-available": {
       "frequency": 24,
