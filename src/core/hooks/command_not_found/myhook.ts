@@ -23,7 +23,7 @@ const hook: Hook.CommandNotFound = async function (opts) {
 
   // now we we return if the command id are not there.
 
-  let binHelp = `${opts.config.bin} help`;
+  let binHelp = `${opts.config.bin} --help`;
 
   const idSplit = opts.id.split(':');
   if (opts.config.findTopic(idSplit[0])) {
