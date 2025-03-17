@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 2.16.10
+
+### Patch Changes
+
+- e11fe05: fix: Wrong Error message in -h command #1725
+
 ## 2.16.9
 
 ### Patch Changes
