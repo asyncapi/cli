@@ -22,7 +22,6 @@
     "@asyncapi/studio": "^0.23.1",
     "@clack/prompts": "^0.7.0",
     "@oclif/core": "^4.2.9",
-    "@oclif/plugin-autocomplete": "^3.2.26",
     "@smoya/asyncapi-adoption-metrics": "^2.4.9",
     "@stoplight/spectral-cli": "6.9.0",
     "chalk": "^4.1.0",
@@ -127,8 +126,7 @@
       }
     },
     "plugins": [
-      "@oclif/plugin-warn-if-update-available",
-      "@oclif/plugin-autocomplete"
+      "@oclif/plugin-warn-if-update-available"
     ],
     "warn-if-update-available": {
       "frequency": 24,
@@ -165,7 +163,6 @@
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",
     "posttest": "rimraf ./test.asyncapi-cli",
-    "postinstall": "node ./scripts/enableAutoComplete.js",
     "test": "npm run test:unit && npm run action:test",
     "test:unit": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/**/*.test.ts\"",
     "test:one": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 100000",
