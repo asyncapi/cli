@@ -1,7 +1,9 @@
-import { spawnSync } from 'child_process';
-import os from 'os';
-import fs from 'fs';
-import path from 'path';
+/* eslint-disable @typescript-eslint/no-var-requires */
+
+const { spawnSync } = require('child_process');
+const os = require('os');
+const fs = require('fs');
+const path = require('path');
 
 const shellConfigs = {
   zsh: {
