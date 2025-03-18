@@ -25,42 +25,6 @@ After installing Node.js and NPM, run the following command to install the Async
 ```sh
 npm install -g @asyncapi/cli
 ```
-## Enabling the autocomplete feature in the AsyncAPI CLI:
-  1. After running `npm install` from the root directory of the CLI.  
-  2. Run the following command in your terminal and follow the steps to enable autocompletion:  
-
-     ```sh
-     asyncapi autocomplete
-     ```  
-
-  3. Then, execute this command in your terminal window:  
-
-     ```sh
-     printf "$(asyncapi autocomplete script zsh)" >> ~/.zshrc; source ~/.zshrc
-     ```  
-
-     This command adds the `ASYNCAPI_AC_ZSH_SETUP_PATH` environment variable to your Zsh configuration file (`.zshrc`) and then sources the file to apply the changes.  
-
-     **Note**: Please verify whether the env is set or not, you may need to add entry of env variable in your machine.
-
-  4. **(Optional) Ensure that you have no permissions conflicts:**  
-
-     ```sh
-     compaudit -D
-     ```  
-
-  5. **Start using autocomplete:**  
-
-     ```sh
-     asyncapi <TAB>                  # Command completion
-     asyncapi command --<TAB>        # Flag completion
-     ```  
-
-     Every time you press `<TAB>`, the autocomplete feature displays a list of commands (or flags if you type `--`), along with their summaries. Enter a letter and then `<TAB>` again to narrow down the list until you find the complete command you want to execute.  
-
-  🎉 **Enjoy using AsyncAPI CLI autocomplete!** 🚀  
-
-
 
 ## Docker
 
