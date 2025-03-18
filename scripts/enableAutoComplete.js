@@ -27,21 +27,26 @@ const shellConfigs = {
     },
   },
   powershell: {
-    detectFile: null, // will be dynamically checked
-    rcFile: null,     // will be dynamically fetched
+    detectFile: null,
+    rcFile: null,
     postMessage: 'Restart PowerShell to apply.',
     action: (output, rcFile) => fs.appendFileSync(rcFile, `\n# AsyncAPI CLI Autocomplete\n${output}\n`),
   },
 };
 
+// Absolute path to powershell executable (default Windows location)
+const POWERSHELL_PATH = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe';
+
 function detectShell() {
   for (const [shell, config] of Object.entries(shellConfigs)) {
     if (shell === 'powershell' && os.platform() === 'win32') {
-      const result = spawnSync('powershell', [
-        '-NoProfile',
-        '-Command',
-        '$PROFILE.CurrentUserAllHosts',
-      ], { encoding: 'utf-8' });
+      const safeEnv = { ...process.env, PATH: 'C:\\Windows\\System32' }; // Restrict PATH
+
+      const result = spawnSync(
+        POWERSHELL_PATH,
+        ['-NoProfile', '-Command', '$PROFILE.CurrentUserAllHosts'],
+        { encoding: 'utf-8', env: safeEnv }
+      );
 
       if (result.status === 0 && result.stdout) {
         const profilePath = result.stdout.trim();
@@ -59,8 +64,13 @@ function detectShell() {
 
 function setupAutocomplete(shell) {
   try {
-    // Avoid shell execution: use spawnSync with arguments
-    const result = spawnSync('./bin/run', ['autocomplete', 'script', shell], { encoding: 'utf-8' });
+    const safeEnv = { ...process.env, PATH: process.env.PATH }; // Optionally sanitize PATH
+
+    const result = spawnSync(
+      path.resolve('./bin/run'), // Absolute path safer
+      ['autocomplete', 'script', shell],
+      { encoding: 'utf-8', env: safeEnv }
+    );
 
     if (result.status !== 0) {
       console.warn(`⚠️ ${shell} autocomplete setup failed:`, result.stderr || 'Unknown error');
@@ -81,6 +91,7 @@ function setupAutocomplete(shell) {
   }
 }
 
+// Detect shell and configure
 const shell = detectShell();
 if (shell) {
   setupAutocomplete(shell);
