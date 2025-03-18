@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
@@ -37,13 +37,19 @@ const shellConfigs = {
 function detectShell() {
   for (const [shell, config] of Object.entries(shellConfigs)) {
     if (shell === 'powershell' && os.platform() === 'win32') {
-      try {
-        const profilePath = execSync('powershell -NoProfile -Command "$PROFILE.CurrentUserAllHosts"', { encoding: 'utf-8' }).trim();
+      const result = spawnSync('powershell', [
+        '-NoProfile',
+        '-Command',
+        '$PROFILE.CurrentUserAllHosts',
+      ], { encoding: 'utf-8' });
+
+      if (result.status === 0 && result.stdout) {
+        const profilePath = result.stdout.trim();
         if (fs.existsSync(profilePath)) {
-          shellConfigs.powershell.rcFile = profilePath; // set dynamically
+          shellConfigs.powershell.rcFile = profilePath;
           return 'powershell';
         }
-      } catch (err) { /* ignore */ }
+      }
     } else if (fs.existsSync(config.detectFile)) {
       return shell;
     }
@@ -53,19 +59,25 @@ function detectShell() {
 
 function setupAutocomplete(shell) {
   try {
-    const cmd = `./bin/run autocomplete script ${shell}`;
-    const output = execSync(cmd, { encoding: 'utf-8' });
+    // Avoid shell execution: use spawnSync with arguments
+    const result = spawnSync('./bin/run', ['autocomplete', 'script', shell], { encoding: 'utf-8' });
 
+    if (result.status !== 0) {
+      console.warn(`⚠️ ${shell} autocomplete setup failed:`, result.stderr || 'Unknown error');
+      return;
+    }
+
+    const output = result.stdout;
     const config = shellConfigs[shell];
+
     if (config && config.rcFile) {
       config.action(output, config.rcFile);
       console.log(`✅ Autocomplete configured for ${shell}. ${config.postMessage}`);
     } else {
       console.log(`⚠️ Unsupported shell: ${shell}`);
     }
-
   } catch (error) {
-    console.warn(`⚠️ ${shell} autocomplete setup failed:`, error.message);
+    console.warn(`⚠️ ${shell} autocomplete setup encountered an error:`, error.message);
   }
 }
 
