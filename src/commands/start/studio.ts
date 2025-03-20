@@ -37,7 +37,7 @@ export default class StartStudio extends Command {
   }
 
   private async getSpecFile(filePath: string | undefined, cancellationMessage: string) {
-    if (filePath) return filePath;
+    if (filePath) { return filePath; }
     
     const response = await confirm({ message: 'Do you want to start AsyncAPI Studio with any reference? [y/n]' });
     if (isCancel(response)) {
@@ -57,8 +57,8 @@ export default class StartStudio extends Command {
       placeholder: 'asyncapi.yaml',
       defaultValue: 'asyncapi.yaml',
       validate: (value) => {
-        if (!value) return 'The path to the AsyncAPI document is required';
-        if (!fs.existsSync(value)) return 'The file does not exist';
+        if (!value) {return 'The path to the AsyncAPI document is required';}
+        if (!fs.existsSync(value)) {return 'The file does not exist';}
       }
     });
     
@@ -69,7 +69,7 @@ export default class StartStudio extends Command {
   }
   
   private async getPort(port: number | undefined, cancellationMessage: string) {
-    if (port) return port;
+    if (port) { return port; }
     
     const portInput = await text({
       message: 'Which port do you want to start AsyncAPI Studio on',
@@ -81,6 +81,6 @@ export default class StartStudio extends Command {
     if (isCancel(portInput)) {
       this.error(cancellationMessage, { exit: 1 });
     }
-    return Number.parseInt(portInput);
+    return Number.parseInt(portInput, 10);
   }
 }
