@@ -1,5 +1,5 @@
 ---
-"@asyncapi/cli": patch
+"@asyncapi/cli": minor
 ---
 
-feat: remove --renderer flag from asyncapi new template command
+Remove `--renderer` flag and make `React` as the de-facto renderer, deprecating `Nunjucks`
