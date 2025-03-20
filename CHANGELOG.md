@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 2.17.0
+
+### Minor Changes
+
+- f0268d4: Remove `--renderer` flag and make `React` as the de-facto renderer, deprecating `Nunjucks`
+
 ## 2.16.10
 
 ### Patch Changes
