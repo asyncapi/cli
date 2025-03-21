@@ -40,15 +40,10 @@ export default class template extends Command {
     const {
       name: projectName,
       template: templateName,
-      renderer: rendererName
     } = flags;
 
     const PROJECT_DIRECTORY = join(process.cwd(), projectName);
-
-    if (rendererName!=='nunjucks' && rendererName!=='react') {
-      this.error('Invalid flag check the flag name of renderer');
-    }
-
+    
     const templateDirectory = resolve(
       __dirname,
       '../../../assets/create-template/templates/',
@@ -81,7 +76,7 @@ export default class template extends Command {
       }
 
       try {
-        await copyAndModify(templateDirectory, PROJECT_DIRECTORY,rendererName, projectName);
+        await copyAndModify(templateDirectory, PROJECT_DIRECTORY, projectName);
         this.log(successMessage(projectName));
       } catch (err) {
         this.error(
@@ -94,7 +89,7 @@ export default class template extends Command {
   }
 }
 
-async function copyAndModify(templateDirectory:string, PROJECT_DIRECTORY:string, rendererName:string, projectName:string) {
+async function copyAndModify(templateDirectory:string, PROJECT_DIRECTORY:string, projectName:string) {
   const packageJsonPath = path.join(templateDirectory, 'package.json');
   try {
     await fs.copy(templateDirectory, PROJECT_DIRECTORY, {
@@ -104,7 +99,7 @@ async function copyAndModify(templateDirectory:string, PROJECT_DIRECTORY:string,
     });
     const packageData = await jsonfile.readFile(packageJsonPath);
     if ((packageData.generator && 'renderer' in packageData.generator)) {
-      packageData.generator.renderer = rendererName;
+      packageData.generator.renderer = 'react';
     }
     if (packageData.name) {
       packageData.name = projectName;
