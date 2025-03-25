@@ -4,7 +4,6 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 
-// Supported shells
 const allowedShells = ['zsh', 'bash'];
 
 const shellConfigs = {
@@ -44,34 +43,28 @@ function detectShell() {
 }
 
 function checkPotentialPath(potentialPath) {
-  let foundPath = null;
   if (potentialPath.includes(path.sep)) {
     if (fs.existsSync(potentialPath)) {
-      foundPath = potentialPath;
+      return potentialPath;
     }
   } else {
-    const whichCommand = os.platform() === 'win32' ? 'where' : 'which';
-    const result = spawnSync(whichCommand, [potentialPath], {
+    const result = spawnSync('/bin/sh', ['-c', `command -v ${potentialPath}`], {
       encoding: 'utf-8',
-      shell: true,
+      stdio: 'pipe',
     });
     if (result.status === 0 && result.stdout) {
-      foundPath = result.stdout.trim().split('\n')[0];
+      return result.stdout.trim().split('\n')[0];
     }
   }
-  return foundPath;
+  return null;
 }
 
 function findCliExecutable() {
   const possiblePaths = [
     path.resolve('./bin/run'),
-    path.resolve('./bin/run.cmd'),
     path.resolve('../bin/run'),
-    path.resolve('../bin/run.cmd'),
     path.resolve('./node_modules/.bin/asyncapi'),
-    path.resolve('./node_modules/.bin/asyncapi.cmd'),
     'asyncapi',
-    'asyncapi.cmd',
   ];
 
   for (const potentialPath of possiblePaths) {
@@ -81,7 +74,9 @@ function findCliExecutable() {
         console.log(`Found CLI executable at: ${foundPath}`);
         return foundPath;
       }
-    } catch (error) {}
+    } catch (error) {
+      // Ignore
+    }
   }
 
   throw new Error('CLI executable not found.');
@@ -91,25 +86,8 @@ function generateAutocompleteScript(shell) {
   const executablePath = findCliExecutable();
   const result = spawnSync(executablePath, ['autocomplete', 'script', shell], {
     encoding: 'utf-8',
-    env: { ...process.env },
     stdio: 'pipe',
-    shell: true,
   });
-
-  console.log('Command output:', {
-    status: result.status,
-    stdout: result.stdout
-      ? `${result.stdout.substring(0, 100)}${
-          result.stdout.length > 100 ? '...' : ''
-        }`
-      : '(no stdout)',
-    stderr: result.stderr
-      ? `${result.stderr.substring(0, 100)}${
-          result.stderr.length > 100 ? '...' : ''
-        }`
-      : '(no stderr)',
-  });
-
   if (result.status !== 0 || result.error) {
     throw new Error(
       `Autocomplete setup for ${shell} failed: ${
@@ -117,7 +95,6 @@ function generateAutocompleteScript(shell) {
       }`
     );
   }
-
   const output = result.stdout;
   if (!output || output.trim() === '') {
     throw new Error(`No autocomplete script generated for ${shell}.`);
@@ -130,14 +107,13 @@ function setupAutocomplete(shell) {
     throw new Error(`Unsupported shell: ${shell}`);
   }
   const config = getShellConfig(shell);
-
   console.log(`Generating autocomplete script for ${shell}...`);
   const output = generateAutocompleteScript(shell);
-
   config.action(output, config.rcFile);
   console.log(`✅ Autocomplete configured for ${shell}. ${config.postMessage}`);
 }
 
+// Start
 const shells = detectShell();
 if (shells.length) {
   for (const shell of shells) {
