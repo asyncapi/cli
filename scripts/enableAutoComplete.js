@@ -27,7 +27,7 @@ const shellConfigs = {
 
 function getShellConfig(shell) {
   if (!allowedShells.includes(shell)) {
-    throw new Error(`Unsupported shell: ${shell}`);
+    throw new Error(`Unsupported shell: ${shell}. Autocomplete only supports zsh and bash.`);
   }
   return shellConfigs[shell];
 }
@@ -75,11 +75,11 @@ function findCliExecutable() {
         return foundPath;
       }
     } catch (error) {
-      // Ignore
+      console.warn(`⚠️ Ignored error while checking path ${potentialPath}: ${error.message}`);
     }
   }
 
-  throw new Error('CLI executable not found.');
+  throw new Error('CLI executable not found. Ensure AsyncAPI CLI is installed.');
 }
 
 function generateAutocompleteScript(shell) {
@@ -90,9 +90,7 @@ function generateAutocompleteScript(shell) {
   });
   if (result.status !== 0 || result.error) {
     throw new Error(
-      `Autocomplete setup for ${shell} failed: ${
-        result.stderr || result.error?.message || 'Unknown error'
-      }`
+      `Autocomplete setup for ${shell} failed: ${result.stderr || result.error?.message || 'Unknown error'}`
     );
   }
   const output = result.stdout;
@@ -104,25 +102,27 @@ function generateAutocompleteScript(shell) {
 
 function setupAutocomplete(shell) {
   if (!allowedShells.includes(shell)) {
-    throw new Error(`Unsupported shell: ${shell}`);
+    console.error(`❌ Autocomplete only supports zsh and bash. Skipping setup for ${shell}.`);
+    return;
   }
-  const config = getShellConfig(shell);
-  console.log(`Generating autocomplete script for ${shell}...`);
-  const output = generateAutocompleteScript(shell);
-  config.action(output, config.rcFile);
-  console.log(`✅ Autocomplete configured for ${shell}. ${config.postMessage}`);
+
+  try {
+    const config = getShellConfig(shell);
+    console.log(`🔧 Generating autocomplete script for ${shell}...`);
+    const output = generateAutocompleteScript(shell);
+    config.action(output, config.rcFile);
+    console.log(`✅ Autocomplete configured for ${shell}. ${config.postMessage}`);
+  } catch (error) {
+    console.error(`❌ Failed to setup autocomplete for ${shell}: ${error.message}`);
+  }
 }
 
 // Start
 const shells = detectShell();
 if (shells.length) {
   for (const shell of shells) {
-    try {
-      setupAutocomplete(shell);
-    } catch (error) {
-      console.warn(error.message);
-    }
+    setupAutocomplete(shell);
   }
 } else {
-  console.log('⚠️ Shell not detected or unsupported. Skipping autocomplete setup.');
+  console.log('⚠️ Shell not detected or unsupported. Autocomplete setup skipped.');
 }
