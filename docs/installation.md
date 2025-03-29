@@ -25,6 +25,7 @@ After installing Node.js and NPM, run the following command to install the Async
 ```sh
 npm install -g @asyncapi/cli
 ```
+
 ## Docker
 
 Install [Docker](https://docs.docker.com/get-docker/) first, then use docker to build the image using the following command :
