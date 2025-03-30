@@ -6,8 +6,20 @@ const path = require('path');
 
 const allowedShells = ['zsh', 'bash'];
 
+// Helper function to find the first existing file among a list of paths
+function findExistingFile(possibleFiles) {
+  for (const file of possibleFiles) {
+    const fullPath = path.join(os.homedir(), file);
+    if (fs.existsSync(fullPath)) {
+      return fullPath;
+    }
+  }
+  return null;
+}
+
 const shellConfigs = {
   zsh: {
+    // For zsh we still only check ~/.zshrc
     rcFile: path.join(os.homedir(), '.zshrc'),
     detectFile: path.join(os.homedir(), '.zshrc'),
     postMessage: 'Run: source ~/.zshrc',
@@ -16,9 +28,12 @@ const shellConfigs = {
     },
   },
   bash: {
-    rcFile: path.join(os.homedir(), '.bashrc'),
-    detectFile: path.join(os.homedir(), '.bashrc'),
-    postMessage: 'Run: source ~/.bashrc',
+    // Check multiple bash configuration files in order of preference.
+    // You can adjust the order depending on which file you want to use.
+    rcFile: findExistingFile(['.bashrc', '.bash_profile', '.profile']) || path.join(os.homedir(), '.bashrc'),
+    // Use the same detection logic for existing file
+    detectFile: findExistingFile(['.bashrc', '.bash_profile', '.profile']),
+    postMessage: 'Run: source ~/.bashrc (or your active bash configuration file)',
     action: (output, rcFile) => {
       fs.appendFileSync(rcFile, `\n# AsyncAPI CLI Autocomplete\n${output}\n`);
     },
