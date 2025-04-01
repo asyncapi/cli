@@ -1,5 +1,5 @@
 ---
-title: 'AutoCompleteEnabled Guide'
+title: 'Auto-complete setup'
 weight: 30
 ---
 
