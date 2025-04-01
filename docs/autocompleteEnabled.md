@@ -46,7 +46,7 @@ If the automatic setup does not work or if you need to enable autocomplete manua
 
 2. **Run the autocomplete command manually:**
    ```sh
-   ./bin/run autocomplete  # Run this from the project root
+   ./bin/run autocomplete  # Run this from the project root folder
    ```
 
 3. **Locate the AsyncAPI CLI executable:**
