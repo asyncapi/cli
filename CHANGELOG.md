@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 3.0.0
+
+### Major Changes
+
+- b6f8b82: feat: add autocomplete feature in cli
+
 ## 2.17.0
 
 ### Minor Changes
