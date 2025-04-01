@@ -1,5 +1,5 @@
 ---
-"@asyncapi/cli": minor
+"@asyncapi/cli": major
 ---
 
-Remove `--renderer` flag and make `React` as the de-facto renderer, deprecating `Nunjucks`
+feat: add autocomplete feature in cli 
