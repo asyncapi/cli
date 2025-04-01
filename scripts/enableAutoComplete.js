@@ -19,26 +19,43 @@ function findExistingFile(possibleFiles) {
 
 const shellConfigs = {
   zsh: {
-    // For zsh we still only check ~/.zshrc
     rcFile: path.join(os.homedir(), '.zshrc'),
     detectFile: path.join(os.homedir(), '.zshrc'),
     postMessage: 'Run: source ~/.zshrc',
     action: (output, rcFile) => {
-      fs.appendFileSync(rcFile, `\n# AsyncAPI CLI Autocomplete\n${output}\n`);
+      const configContent = fs.existsSync(rcFile) ? fs.readFileSync(rcFile, 'utf-8') : '';
+
+      if (configContent.includes(output.trim())) {
+        console.log(`✅ Autocomplete is already configured in ${rcFile}. Skipping addition.`);
+      } else {
+        fs.appendFileSync(rcFile, `\n# AsyncAPI CLI Autocomplete\n${output}\n`);
+        console.log(`✅ Autocomplete configuration added to ${rcFile}.`);
+      }
     },
   },
   bash: {
-    // Check multiple bash configuration files in order of preference.
-    // You can adjust the order depending on which file you want to use.
     rcFile: findExistingFile(['.bashrc', '.bash_profile', '.profile']) || path.join(os.homedir(), '.bashrc'),
-    // Use the same detection logic for existing file
     detectFile: findExistingFile(['.bashrc', '.bash_profile', '.profile']),
-    postMessage: 'Run: source ~/.bashrc (or your active bash configuration file)',
+    postMessage: '', // This will be set dynamically later
     action: (output, rcFile) => {
-      fs.appendFileSync(rcFile, `\n# AsyncAPI CLI Autocomplete\n${output}\n`);
+      const configContent = fs.existsSync(rcFile) ? fs.readFileSync(rcFile, 'utf-8') : '';
+
+      if (configContent.includes(output.trim())) {
+        console.log(`✅ Autocomplete is already configured in ${rcFile}. Skipping addition.`);
+      } else {
+        fs.appendFileSync(rcFile, `\n# AsyncAPI CLI Autocomplete\n${output}\n`);
+        console.log(`✅ Autocomplete configuration added to ${rcFile}.`);
+      }
     },
   },
 };
+
+// Set correct postMessage dynamically
+if (shellConfigs.bash.detectFile) {
+  shellConfigs.bash.postMessage = `Run: source ${shellConfigs.bash.detectFile}`;
+} else {
+  shellConfigs.bash.postMessage = 'Run: source ~/.bashrc';
+}
 
 function getShellConfig(shell) {
   if (!allowedShells.includes(shell)) {
