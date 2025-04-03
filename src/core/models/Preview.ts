@@ -14,6 +14,7 @@ import { version as studioVersion } from '@asyncapi/studio/package.json';
 const sockets: any[] = [];
 const messageQueue: string[] = [];
 const filePathsToWatch: Set<string> = new Set<string>();
+let bundleError = true;
 
 export const DEFAULT_PORT = 3210;
 
@@ -27,7 +28,12 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT):void {
     throw new SpecificationFileNotFound(filePath);
   }
 
-  // Locate @asyncapi/studio package
+  bundle(filePath).then((doc) => {
+    if (doc) {
+      bundleError = false;
+    }
+  });
+
   const studioPath = path.dirname(require.resolve('@asyncapi/studio/package.json'));
   const app = next({
     dev: false,
@@ -129,7 +135,9 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT):void {
           'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
         );
       }
-      open(url);
+      if (!bundleError) {
+        open(url);
+      }
     });
   });
 }
