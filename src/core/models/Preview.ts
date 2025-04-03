@@ -144,6 +144,8 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT,base:st
       if (!bundleError) {
         open(url);
       }
+    }).on('error', (error) => {
+      console.error(`Failed to start server on port ${port}:`, error.message);
     });
   });
 }
