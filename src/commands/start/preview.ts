@@ -5,7 +5,7 @@ import { load } from '../../core/models/SpecificationFile';
 import { startPreview } from '../../core/models/Preview';
 
 export default class PreviewStudio extends Command {
-  static readonly description = 'starts a new local instance of AsyncAPI studio in readOnly state with minimal UI and no editing';
+  static readonly description = 'starts a new local instance of Studio in minimal state bundling all the refs of the schema file and with no editing allowed.';
 
   static readonly flags = previewFlags();
 
