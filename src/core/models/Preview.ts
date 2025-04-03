@@ -135,8 +135,6 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT):void {
 }
 
 function sendQueuedMessages() {
-  console.log(sockets);
-  console.log(messageQueue);
   while (messageQueue.length && sockets.length) {
     const nextMessage = messageQueue.shift();
     for (const socket of sockets) {
