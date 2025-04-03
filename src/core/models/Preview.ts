@@ -68,36 +68,31 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT):void {
       chokidar.watch([...filePathsToWatch]).on('all',(event) => {
         switch (event) {
         case 'add':
-          bundle(filePath).then((document) => {
+          bundle(filePath).then((intitalDocument) => {
             messageQueue.push(JSON.stringify({
               type: 'preview:file:added',
               code: (path.extname(filePath) === '.yaml' || path.extname(filePath) === '.yml') ? 
-                document.yml() : document.json()
+                intitalDocument.yml() : intitalDocument.json()
             }));
             sendQueuedMessages();
-          }).catch((error) => {
-            console.log('An error occured while bundling files. Please check console for error logs');
-            console.log(error);
+          }).catch((e) => {
+            console.log('An error occured while bundling files.\n',e);
           });
-
           break;
         case 'change':
-
-          bundle(filePath).then((document) => {
+          bundle(filePath).then((modifiedDocument) => {
             messageQueue.push(JSON.stringify({
               type: 'preview:file:changed',
               code: (path.extname(filePath) === '.yaml' || path.extname(filePath) === '.yml') ? 
-                document.yml() : document.json()
+                modifiedDocument.yml() : modifiedDocument.json()
             }));
             sendQueuedMessages();
           }).catch((error) => {
-            console.log('An error occured while bundling files. Please check console for error logs');
+            console.log('An error occured while bundling the modified files. \n');
             console.log(error);
           });
-
           break;      
         case 'unlink':
-
           messageQueue.push(JSON.stringify({
             type: 'preview:file:deleted',
             filePath,
@@ -111,7 +106,7 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT):void {
 
     server.on('upgrade', (request, socket, head) => {
       if (request.url === '/preview-server') { // can add request.headers['origin'] !== 'http://localhost:3210' check also
-        console.log('🔗 WebSocket connection established.');
+        console.log('🔗 WebSocket connection established for the preview.');
         wsServer.handleUpgrade(request, socket, head, (sock: any) => {
           wsServer.emit('connection', sock, request);
         });
@@ -124,7 +119,7 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT):void {
       const url = `http://localhost:${port}?previewServer=${port}&studio-version=${studioVersion}`;
       console.log(`🎉 Connected to Preview Server running at ${blueBright(url)}.`);
       console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
-      console.log(`🛑 If needed, press ${redBright('Ctrl + C')} to stop the process.`);
+      console.log(`🛑 If needed, press ${redBright('Ctrl + C')} to stop the server.`);
       
       if (filePath) {
         for (const entry of filePathsToWatch) {
