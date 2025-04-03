@@ -25,7 +25,7 @@ function isValidFilePath(filePath: string): boolean {
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export function startPreview(filePath:string,port: number = DEFAULT_PORT,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,detailedLog:boolean|undefined):void {
+export function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,detailedLog:boolean|undefined,port: number = DEFAULT_PORT):void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }

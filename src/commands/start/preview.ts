@@ -25,7 +25,6 @@ export default class PreviewStudio extends Command {
         filePath = ((await load()).getFilePath());
         this.log(`Loaded the specification from: ${filePath}`);
       } catch (error) {
-        filePath = '';
         this.error('No file specified in the arguments. Please specify a file path.');
       }
     }
@@ -37,6 +36,6 @@ export default class PreviewStudio extends Command {
       }
     }
     this.metricsMetadata.port = previewPort;
-    startPreview(filePath as string,previewPort,flags.base,flags.baseDir,flags.xOrigin,flags.detailedLog);
+    startPreview(filePath as string,flags.base,flags.baseDir,flags.xOrigin,flags.detailedLog,previewPort);
   }
 }
