@@ -14,6 +14,7 @@ import { version as studioVersion } from '@asyncapi/studio/package.json';
 const sockets: any[] = [];
 const messageQueue: string[] = [];
 const filePathsToWatch: Set<string> = new Set<string>();
+
 let bundleError = true;
 
 export const DEFAULT_PORT = 3210;
@@ -27,7 +28,8 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT):void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
-
+  
+  const baseDir = path.dirname(path.resolve(filePath));
   bundle(filePath).then((doc) => {
     if (doc) {
       bundleError = false;
@@ -63,16 +65,20 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT):void {
         code: 'Preview server connected'
       }));
       sendQueuedMessages();
-      findPathsToWatchFromSchemaRef(filePath);
-      filePathsToWatch.add(filePath);
+      findPathsToWatchFromSchemaRef(filePath,baseDir);
+      filePathsToWatch.add(path.resolve(baseDir, filePath));
       chokidar.watch([...filePathsToWatch]).on('all',(event) => {
         switch (event) {
         case 'add':
-          bundle(filePath).then((intitalDocument) => {
+          bundle([filePath],{
+            base: undefined,
+            baseDir: undefined,
+            xOrigin: undefined,
+          }).then((intitalDocument) => {
             messageQueue.push(JSON.stringify({
               type: 'preview:file:added',
               code: (path.extname(filePath) === '.yaml' || path.extname(filePath) === '.yml') ? 
-                intitalDocument.yml() : intitalDocument.json()
+                intitalDocument.yml() : intitalDocument.string()
             }));
             sendQueuedMessages();
           }).catch((e) => {
@@ -80,11 +86,15 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT):void {
           });
           break;
         case 'change':
-          bundle(filePath).then((modifiedDocument) => {
+          bundle([filePath],{
+            base: undefined,
+            baseDir: undefined,
+            xOrigin: undefined,
+          }).then((modifiedDocument) => {
             messageQueue.push(JSON.stringify({
               type: 'preview:file:changed',
               code: (path.extname(filePath) === '.yaml' || path.extname(filePath) === '.yml') ? 
-                modifiedDocument.yml() : modifiedDocument.json()
+                modifiedDocument.yml() : modifiedDocument.string()
             }));
             sendQueuedMessages();
           }).catch((error) => {
@@ -153,11 +163,10 @@ function isLocalRefAPath(key: string, value: any): boolean {
     value.startsWith('../') || !value.startsWith('#')));
 }
 
-function findPathsToWatchFromSchemaRef(filePath: string) {
+function findPathsToWatchFromSchemaRef(filePath: string,baseDir:string) {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
-  const baseDir = path.dirname(path.resolve(filePath));
   const document = yaml.load(readFileSync(filePath,'utf-8'));
   const stack:object[] = [document as object];
 
