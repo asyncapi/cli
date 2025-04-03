@@ -21,12 +21,8 @@ export default class PreviewStudio extends Command {
     const previewPort = flags.port;
 
     if (!filePath) {
-      try {
-        filePath = ((await load()).getFilePath());
-        this.log(`Loaded the specification from: ${filePath}`);
-      } catch (error) {
-        this.error('No file specified in the arguments. Please specify a file path.');
-      }
+      filePath = ((await load()).getFilePath());
+      this.log(`Loaded the specification from: ${filePath}`);
     }
     try {
       this.specFile = await load(filePath);
