@@ -37,6 +37,6 @@ export default class PreviewStudio extends Command {
       }
     }
     this.metricsMetadata.port = previewPort;
-    startPreview(filePath as string,previewPort,flags.base,flags.baseDir,flags.xOrigin);
+    startPreview(filePath as string,previewPort,flags.base,flags.baseDir,flags.xOrigin,flags.detailedLog);
   }
 }

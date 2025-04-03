@@ -14,6 +14,7 @@ import { version as studioVersion } from '@asyncapi/studio/package.json';
 const sockets: any[] = [];
 const messageQueue: string[] = [];
 const filePathsToWatch: Set<string> = new Set<string>();
+const defaultErrorMessage = 'error occured while bundling files. use --detailedLog or -l flag to get more details.';
 
 let bundleError = true;
 
@@ -24,7 +25,7 @@ function isValidFilePath(filePath: string): boolean {
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export function startPreview(filePath:string,port: number = DEFAULT_PORT,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined):void {
+export function startPreview(filePath:string,port: number = DEFAULT_PORT,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,detailedLog:boolean|undefined):void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
@@ -34,6 +35,11 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT,base:st
     if (doc) {
       bundleError = false;
     }
+  }).catch((err) => {
+    if (detailedLog) {
+      console.log(err);
+    }
+    console.log(defaultErrorMessage);
   });
 
   const studioPath = path.dirname(require.resolve('@asyncapi/studio/package.json'));
@@ -59,7 +65,7 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT,base:st
   });
 
   app.prepare().then(() => {
-    if (filePath) {
+    if (filePath && !bundleError) {
       messageQueue.push(JSON.stringify({
         type: 'preview:connected',
         code: 'Preview server connected'
@@ -82,7 +88,10 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT,base:st
             }));
             sendQueuedMessages();
           }).catch((e) => {
-            console.log('An error occured while bundling files.\n',e);
+            if (detailedLog) {
+              console.log(e);
+            }
+            console.log(defaultErrorMessage);
           });
           break;
         case 'change':
@@ -98,8 +107,10 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT,base:st
             }));
             sendQueuedMessages();
           }).catch((error) => {
-            console.log('An error occured while bundling the modified files. \n');
-            console.log(error);
+            if (detailedLog) {
+              console.log(error);
+            }
+            console.log(defaultErrorMessage);
           });
           break;      
         case 'unlink':
@@ -125,28 +136,30 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT,base:st
         socket.destroy();
       }
     });
-  
-    server.listen(port, () => {
-      const url = `http://localhost:${port}?previewServer=${port}&studio-version=${studioVersion}`;
-      console.log(`🎉 Connected to Preview Server running at ${blueBright(url)}.`);
-      console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
-      console.log(`🛑 If needed, press ${redBright('Ctrl + C')} to stop the server.`);
-      
-      if (filePath) {
-        for (const entry of filePathsToWatch) {
-          console.log(`👁️ Watching changes on file ${blueBright(entry)}`);
+    
+    if (!bundleError) {
+      server.listen(port, () => {
+        const url = `http://localhost:${port}?previewServer=${port}&studio-version=${studioVersion}`;
+        console.log(`🎉 Connected to Preview Server running at ${blueBright(url)}.`);
+        console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
+        console.log(`🛑 If needed, press ${redBright('Ctrl + C')} to stop the server.`);
+        
+        if (filePath) {
+          for (const entry of filePathsToWatch) {
+            console.log(`👁️ Watching changes on file ${blueBright(entry)}`);
+          }
+        } else {
+          console.warn(
+            'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
+          );
         }
-      } else {
-        console.warn(
-          'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
-        );
-      }
-      if (!bundleError) {
-        open(url);
-      }
-    }).on('error', (error) => {
-      console.error(`Failed to start server on port ${port}:`, error.message);
-    });
+        if (!bundleError) {
+          open(url);
+        }
+      }).on('error', (error) => {
+        console.error(`Failed to start server on port ${port}:`, error.message);
+      }); 
+    }
   });
 }
 
