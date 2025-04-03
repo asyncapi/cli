@@ -105,12 +105,13 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT):void {
     const server = createServer((req, res) => handle(req, res));
 
     server.on('upgrade', (request, socket, head) => {
-      if (request.url === '/preview-server') { // can add request.headers['origin'] !== 'http://localhost:3210' check also
+      if (request.url === '/preview-server' && request.headers['origin'] === `http://localhost:${port}`) {
         console.log('🔗 WebSocket connection established for the preview.');
         wsServer.handleUpgrade(request, socket, head, (sock: any) => {
           wsServer.emit('connection', sock, request);
         });
       } else {
+        console.log('🔗 WebSocket connection not established.');
         socket.destroy();
       }
     });
