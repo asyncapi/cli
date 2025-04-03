@@ -10,15 +10,11 @@ export default class PreviewStudio extends Command {
   static readonly flags = previewFlags();
 
   static readonly args = {
-    'spec-file': Args.string({ description: 'spec path, url, or context-name', required: false }),
+    'spec-file': Args.string({ description: 'the path to the file to be opened with studio or context name', required: true }),
   };
 
   async run () {
     const {args,flags} = await this.parse(PreviewStudio);
-
-    if (flags.file) {
-      this.warn('The file flag has been removed and is being replaced by the argument spec-file. Please pass the filename directly like `asyncapi start studio asyncapi.yml`');
-    }
     
     let filePath : string | undefined = args['spec-file'] ?? flags.file;
     
@@ -41,6 +37,6 @@ export default class PreviewStudio extends Command {
       }
     }
     this.metricsMetadata.port = previewPort;
-    startPreview(filePath as string,previewPort);
+    startPreview(filePath as string,previewPort,flags.base,flags.baseDir,flags.xOrigin);
   }
 }

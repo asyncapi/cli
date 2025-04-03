@@ -24,7 +24,7 @@ function isValidFilePath(filePath: string): boolean {
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export function startPreview(filePath:string,port: number = DEFAULT_PORT):void {
+export function startPreview(filePath:string,port: number = DEFAULT_PORT,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined):void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
@@ -71,9 +71,9 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT):void {
         switch (event) {
         case 'add':
           bundle([filePath],{
-            base: undefined,
-            baseDir: undefined,
-            xOrigin: undefined,
+            base,
+            baseDir: baseDirectory,
+            xOrigin,
           }).then((intitalDocument) => {
             messageQueue.push(JSON.stringify({
               type: 'preview:file:added',
@@ -87,9 +87,9 @@ export function startPreview(filePath:string,port: number = DEFAULT_PORT):void {
           break;
         case 'change':
           bundle([filePath],{
-            base: undefined,
-            baseDir: undefined,
-            xOrigin: undefined,
+            base,
+            baseDir: baseDirectory,
+            xOrigin,
           }).then((modifiedDocument) => {
             messageQueue.push(JSON.stringify({
               type: 'preview:file:changed',
