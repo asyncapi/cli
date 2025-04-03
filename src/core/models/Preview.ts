@@ -25,7 +25,7 @@ function isValidFilePath(filePath: string): boolean {
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,detailedLog:boolean|undefined,port: number = DEFAULT_PORT):void {
+export function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,suppressLogs:boolean|undefined,port: number = DEFAULT_PORT):void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
@@ -36,10 +36,11 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
       bundleError = false;
     }
   }).catch((err) => {
-    if (detailedLog) {
+    if (suppressLogs) {
+      console.log(defaultErrorMessage);
+    } else {
       console.log(err);
     }
-    console.log(defaultErrorMessage);
   });
 
   const studioPath = path.dirname(require.resolve('@asyncapi/studio/package.json'));
@@ -88,10 +89,11 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
             }));
             sendQueuedMessages();
           }).catch((e) => {
-            if (detailedLog) {
+            if (suppressLogs) {
+              console.log(defaultErrorMessage);
+            } else {
               console.log(e);
             }
-            console.log(defaultErrorMessage);
           });
           break;
         case 'change':
@@ -107,10 +109,11 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
             }));
             sendQueuedMessages();
           }).catch((error) => {
-            if (detailedLog) {
+            if (suppressLogs) {
+              console.log(defaultErrorMessage);
+            } else {
               console.log(error);
             }
-            console.log(defaultErrorMessage);
           });
           break;      
         case 'unlink':
