@@ -93,6 +93,7 @@
     "/bin",
     "/lib",
     "/assets",
+    "/scripts",
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
   ],
