@@ -1,5 +1,12 @@
 # @asyncapi/cli
 
+## 3.0.1
+
+### Patch Changes
+
+- 1b62a66: - Fixes script detection issue in version 3.0.0
+  - Fixes testing by testing the github action with local CLI
+
 ## 3.0.0
 
 ### Major Changes
