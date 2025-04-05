@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 3.1.0
+
+### Minor Changes
+
+- d17aa54: feat: new command `asyncapi start preview` has been added
+
 ## 3.0.1
 
 ### Patch Changes
