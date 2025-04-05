@@ -49,12 +49,78 @@ async function renameTar({version, name, sha}) {
   await checkAndRenameFile(generatedPath, newPath);
 }
 
+// async function renameWindows({version, name, sha, arch}) {
+//   const dist = 'dist/win32';
+
+//   const generatedPath = path.resolve(dist, `${name}-v${version}-${sha}-${arch}.exe`);
+//   const newPath = path.resolve(dist, `asyncapi.${arch}.exe`);
+//   await checkAndRenameFile(generatedPath, newPath);
+// }
+
 async function renameWindows({version, name, sha, arch}) {
   const dist = 'dist/win32';
 
+  // Ensure directory exists
+  await createDirectory(dist);
+
   const generatedPath = path.resolve(dist, `${name}-v${version}-${sha}-${arch}.exe`);
   const newPath = path.resolve(dist, `asyncapi.${arch}.exe`);
-  await checkAndRenameFile(generatedPath, newPath);
+  
+  try {
+    console.log(`Checking for Windows installer at: ${generatedPath}`);
+    
+    // Create Windows-specific configuration
+    const configDir = path.resolve('dist', 'config');
+    await createDirectory(configDir);
+    
+    // Create installer configuration to use shorter paths
+    const winConfig = {
+      installPath: 'C:\\AsyncAPI',
+      shortPaths: true,
+      useShortDirectoryNames: true,
+      maxPathLength: 200  // Set a safe path limit
+    };
+    
+    fs.writeFileSync(
+      path.resolve(configDir, 'win-install-config.json'), 
+      JSON.stringify(winConfig, null, 2)
+    );
+    
+    // Create nsis custom script to handle long paths
+    const nsisScript = `
+!include LogicLib.nsh
+!include FileFunc.nsh
+
+Function HandleLongPaths
+  ${If} $INSTDIR == ""
+    StrCpy $INSTDIR "C:\\AsyncAPI"
+  ${EndIf}
+  
+  ; Enable long paths in registry
+  WriteRegDWORD HKLM "SYSTEM\\CurrentControlSet\\Control\\FileSystem" "LongPathsEnabled" 1
+FunctionEnd
+
+!define USE_LONG_PATHS
+!define MUI_CUSTOMFUNCTION_GUIINIT HandleLongPaths
+`;
+
+    fs.writeFileSync(
+      path.resolve(configDir, 'windows-longpaths.nsh'), 
+      nsisScript
+    );
+    
+    // Rename the installer if it exists
+    if (await fileExists(generatedPath)) {
+      console.log(`Found Windows installer, renaming to: ${newPath}`);
+      await rename(generatedPath, newPath);
+      return true;
+    } 
+    console.warn(`Warning: Windows installer not found at ${generatedPath}`);
+    return false;
+  } catch (err) {
+    console.error(`Error processing Windows installer: ${err.message}`);
+    return false;
+  }
 }
 
 async function renamePkg({version, name, sha, arch}) {
