@@ -1,7 +1,5 @@
 import { Args } from '@oclif/core';
 import Command from '../../core/base';
-// eslint-disable-next-line
-// @ts-ignore
 import AsyncAPIGenerator from '@asyncapi/generator';
 import AsyncAPINewGenerator from 'generator-v2';
 import path from 'path';
