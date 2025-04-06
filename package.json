@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "2.16.5",
+  "version": "3.1.0",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
@@ -13,15 +13,16 @@
     "@asyncapi/converter": "^1.6.2",
     "@asyncapi/diff": "^0.5.0",
     "@asyncapi/generator": "^1.17.25",
-    "@asyncapi/modelina-cli": "^4.0.0-next.48",
+    "@asyncapi/modelina-cli": "^4.0.4",
     "@asyncapi/openapi-schema-parser": "^3.0.24",
     "@asyncapi/optimizer": "^1.0.4",
     "@asyncapi/parser": "^3.3.0",
-    "@asyncapi/protobuf-schema-parser": "^3.4.0",
+    "@asyncapi/protobuf-schema-parser": "^3.5.1",
     "@asyncapi/raml-dt-schema-parser": "^4.0.24",
-    "@asyncapi/studio": "^0.20.0",
+    "@asyncapi/studio": "^0.24.2",
     "@clack/prompts": "^0.7.0",
-    "@oclif/core": "^4.0.28",
+    "@oclif/core": "^4.2.9",
+    "@oclif/plugin-autocomplete": "^3.2.26",
     "@smoya/asyncapi-adoption-metrics": "^2.4.9",
     "@stoplight/spectral-cli": "6.9.0",
     "chalk": "^4.1.0",
@@ -32,15 +33,16 @@
     "https-proxy-agent": "^7.0.6",
     "inquirer": "^8.2.0",
     "js-yaml": "^4.1.0",
+    "next": "^14.2.24",
     "node-fetch": "^2.0.0",
-    "oclif": "^4.2.0",
+    "oclif": "^4.17.34",
     "open": "^8.4.0",
     "picocolors": "^1.0.0",
     "reflect-metadata": "^0.1.13",
     "serve-handler": "^6.1.3",
     "strip-ansi": "^6.0.0",
     "unzipper": "^0.10.11",
-    "uuid": "^9.0.1",
+    "uuid": "^11.1.0",
     "ws": "^8.2.3",
     "yaml": "^2.6.1"
   },
@@ -56,11 +58,11 @@
     "@types/inquirer": "^8.1.3",
     "@types/js-yaml": "^4.0.5",
     "@types/mocha": "^10.0.2",
-    "@types/node": "^10.17.60",
+    "@types/node": "^22.13.10",
     "@types/node-fetch": "^2.5.12",
     "@types/rimraf": "^3.0.2",
     "@types/serve-handler": "^6.1.1",
-    "@types/uuid": "^9.0.8",
+    "@types/uuid": "^10.0.0",
     "@types/wrap-ansi": "^8.0.1",
     "@types/ws": "^8.2.0",
     "@typescript-eslint/eslint-plugin": "^5.38.1",
@@ -78,13 +80,11 @@
     "markdown-toc": "^1.2.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0",
     "rimraf": "^3.0.2",
     "simple-git": "^3.16.0",
     "ts-node": "^10.9.1",
     "tslib": "^2.3.1",
-    "typescript": "^4.6.4"
+    "typescript": "^5.8.2"
   },
   "engines": {
     "node": ">12.16"
@@ -93,6 +93,7 @@
     "/bin",
     "/lib",
     "/assets",
+    "/scripts",
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
   ],
@@ -110,7 +111,7 @@
     ],
     "hooks": {
       "command_not_found": [
-        "./lib/hooks/command_not_found/myhook"
+        "./lib/core/hooks/command_not_found/myhook"
       ]
     },
     "macos": {
@@ -127,7 +128,8 @@
       }
     },
     "plugins": [
-      "@oclif/plugin-warn-if-update-available"
+      "@oclif/plugin-warn-if-update-available",
+      "@oclif/plugin-autocomplete"
     ],
     "warn-if-update-available": {
       "frequency": 24,
@@ -164,6 +166,7 @@
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",
     "posttest": "rimraf ./test.asyncapi-cli",
+    "postinstall": "node ./scripts/enableAutoComplete.js",
     "test": "npm run test:unit && npm run action:test",
     "test:unit": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/**/*.test.ts\"",
     "test:one": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 100000",
@@ -171,7 +174,7 @@
     "createhook": "oclif generate hook myhook --event=command_not_found",
     "createhookinit": "oclif generate hook inithook --event=init",
     "action:docker:build": "docker build -f github-action/Dockerfile -t asyncapi/github-action-for-cli:latest .",
-    "action:test": "cd github-action && make test"
+    "action:test": "npm run build && cd github-action && make test"
   },
   "types": "lib/index.d.ts"
 }

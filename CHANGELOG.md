@@ -1,5 +1,63 @@
 # @asyncapi/cli
 
+## 3.1.0
+
+### Minor Changes
+
+- d17aa54: feat: new command `asyncapi start preview` has been added
+
+## 3.0.1
+
+### Patch Changes
+
+- 1b62a66: - Fixes script detection issue in version 3.0.0
+  - Fixes testing by testing the github action with local CLI
+
+## 3.0.0
+
+### Major Changes
+
+- b6f8b82: feat: add autocomplete feature in cli
+
+## 2.17.0
+
+### Minor Changes
+
+- f0268d4: Remove `--renderer` flag and make `React` as the de-facto renderer, deprecating `Nunjucks`
+
+## 2.16.10
+
+### Patch Changes
+
+- e11fe05: fix: Wrong Error message in -h command #1725
+
+## 2.16.9
+
+### Patch Changes
+
+- 819b585: [Fix]: Json file supported in asyncapi new file command
+- 830fe82: Fix studio not opening in CLI studio command
+- 830fe82: fix: studio command not working
+
+## 2.16.8
+
+### Patch Changes
+
+- 460c99a: feat: use next.js version of studio
+- 460c99a: Upgrade studio to latest and allow use of next server
+
+## 2.16.7
+
+### Patch Changes
+
+- 6ca17b3: fix: update packages to latest stable version
+
+## 2.16.6
+
+### Patch Changes
+
+- 82b441f: fix: resolve error in AsyncAPI optimize
+
 ## 2.16.5
 
 ### Patch Changes
