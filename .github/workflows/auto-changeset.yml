@@ -31,8 +31,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: gh pr checkout ${{ github.event.pull_request.number }}
 
-      - name: Install dependencies
-        run: npm install read-package-up
+      - name: Install specific package in temp dir
+        run: |
+          mkdir temp-install
+          cd temp-install
+          npm init -y
+          npm install read-package-up@11.0.0
+          cp -r node_modules ../node_modules
+          cd ..
+          rm -rf temp-install
 
       - name: Get changeset contents
         id: get_changeset_contents
