@@ -97,7 +97,7 @@ const getChangesetContents = async (pullRequest, github) => {
  * If it is already created, it updates the comment with the new changeset.
  */
 const commentWorkflow = async (pullRequest, github, changesetContents) => {
-  const body = `#### Changeset has been generated for this PR as part of auto-changeset workflow.\n\n<details><summary>Please review the changeset before merging the PR.</summary>\n\n\`\`\`\n${changesetContents}\`\`\`\n\n</details>\n\n[If you are a maintainer or the author of the PR, you can change the changeset by clicking here](https://github.com/${pullRequest.head.repo.full_name}/edit/${pullRequest.head.ref}/.changeset/${pullRequest.number}.md)`
+  const body = `#### Changeset has been generated for this PR as part of auto-changeset workflow.\n\n<details><summary>Please review the changeset before merging the PR.</summary>\n\n\`\`\`\n${changesetContents}\`\`\`\n\n</details>\n\n[If you are a maintainer or the author of the PR, you can change the changeset by clicking here](https://github.com/${pullRequest.head.repo.full_name}/edit/${pullRequest.head.ref}/.changeset/${pullRequest.number}.md)\n\n> [!TIP] If you don't want auto-changeset to run on this PR, you can add the label \`skip-changeset\` to the PR.`
 
   const comments = await github.rest.issues.listComments({
     owner: pullRequest.base.repo.owner.login,
