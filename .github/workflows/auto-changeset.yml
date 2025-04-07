@@ -31,6 +31,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: gh pr checkout ${{ github.event.pull_request.number }}
 
+      # This step has been added in such a way because
+      # - Using simple `npm install` will install all the packages in the repo, which takes a lot of time.
+      # - Using `npm install` doesn't work with all repositories, as some of them have a different structure/package manager.
+      # - Global installation also doesn't work as can't be imported in the script.
       - name: Install specific package in temp dir
         run: |
           mkdir temp-install
