@@ -71,12 +71,16 @@ const getChangesetContents = async (pullRequest, github) => {
   switch (releaseType) {
     case 'fix':
       releaseVersion = 'patch';
+      break;
     case 'feat':
       releaseVersion = 'minor';
+      break;
     case 'fix!':
       releaseVersion = 'major';
+      break;
     case 'feat!':
       releaseVersion = 'major';
+      break;
     default:
       releaseVersion = 'patch';
   }
