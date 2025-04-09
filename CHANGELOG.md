@@ -1,5 +1,13 @@
 # @asyncapi/cli
 
+## 3.1.1
+
+### Patch Changes
+
+- 152c272: feat: made the start studio command interactive along with addition of…
+
+  - 0e8e3c1: feat: made the start studio command inteactive along with addition of a flag to disable prompt.
+
 ## 3.1.0
 
 ### Minor Changes
