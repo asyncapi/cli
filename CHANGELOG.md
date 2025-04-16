@@ -1,5 +1,26 @@
 # @asyncapi/cli
 
+## 3.1.1
+
+### Patch Changes
+
+- 152c272: feat: made the start studio command interactive along with addition of…
+
+  - 0e8e3c1: feat: made the start studio command inteactive along with addition of a flag to disable prompt.
+
+## 3.1.0
+
+### Minor Changes
+
+- d17aa54: feat: new command `asyncapi start preview` has been added
+
+## 3.0.1
+
+### Patch Changes
+
+- 1b62a66: - Fixes script detection issue in version 3.0.0
+  - Fixes testing by testing the github action with local CLI
+
 ## 3.0.0
 
 ### Major Changes

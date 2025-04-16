@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "3.0.0",
+  "version": "3.1.1",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
@@ -19,7 +19,7 @@
     "@asyncapi/parser": "^3.3.0",
     "@asyncapi/protobuf-schema-parser": "^3.5.1",
     "@asyncapi/raml-dt-schema-parser": "^4.0.24",
-    "@asyncapi/studio": "^0.23.1",
+    "@asyncapi/studio": "^0.24.2",
     "@clack/prompts": "^0.7.0",
     "@oclif/core": "^4.2.9",
     "@oclif/plugin-autocomplete": "^3.2.26",
@@ -174,7 +174,7 @@
     "createhook": "oclif generate hook myhook --event=command_not_found",
     "createhookinit": "oclif generate hook inithook --event=init",
     "action:docker:build": "docker build -f github-action/Dockerfile -t asyncapi/github-action-for-cli:latest .",
-    "action:test": "cd github-action && make test"
+    "action:test": "npm run build && cd github-action && make test"
   },
   "types": "lib/index.d.ts"
 }
