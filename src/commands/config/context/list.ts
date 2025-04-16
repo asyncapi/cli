@@ -9,6 +9,7 @@ import {
   ContextFileWrongFormatError,
 } from '../../../core/errors/context-error';
 import { helpFlag } from '../../../core/flags/global.flags';
+import { blueBright } from 'picocolors';
 
 export default class ContextList extends Command {
   static description = 'List all the stored contexts in the store';
@@ -19,7 +20,7 @@ export default class ContextList extends Command {
       const fileContent = await loadContextFile();
 
       if (await isContextFileEmpty(fileContent)) {
-        this.log(`Context file "${CONTEXT_FILE_PATH}" is empty.`);
+        this.log(`Context file ${blueBright(CONTEXT_FILE_PATH)} is empty.`);
         return;
       }
 
@@ -27,16 +28,14 @@ export default class ContextList extends Command {
         for (const [contextName, filePath] of Object.entries(
           fileContent.store
         )) {
-          this.log(`${contextName}: ${filePath}`);
+          this.log(`${blueBright(contextName)}: ${filePath}`);
         }
       }
     } catch (e) {
       if (
         e instanceof (MissingContextFileError || ContextFileWrongFormatError)
       ) {
-        this.log(
-          'You have no context file configured. Run "asyncapi config context init" to initialize it.'
-        );
+        this.log(`Unable to list contexts. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.\n`);
         return;
       }
       throw e;

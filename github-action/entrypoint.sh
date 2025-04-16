@@ -26,7 +26,18 @@ PARAMETERS="$7"
 CUSTOM_COMMAND="$8"
 
 echo "::group::Debug information"
-if [ -n "$CLI_VERSION" ] && [ ! "$CLI_VERSION" == "latest" ]; then
+# Check if currently running in Developer environment by checking for presence of ./bin/run or ../bin/run and set alias asyncapi= PATH_TO_BIN/RUN
+if [ -f "$workdir/bin/run" ]; then
+  echo -e "${BLUE}Running in developer environment...${NC}"
+  echo -e "${BLUE}Setting alias for asyncapi:${NC}" "$workdir/bin/run"
+  shopt -s expand_aliases
+  alias asyncapi="$workdir/bin/run"
+elif [ -f "$workdir/../bin/run" ]; then
+  echo -e "${BLUE}Running in developer environment...${NC}"
+  echo -e "${BLUE}Setting alias for asyncapi:${NC}" "$workdir/../bin/run"
+  shopt -s expand_aliases
+  alias asyncapi="$workdir/../bin/run"
+elif [ -n "$CLI_VERSION" ] && [ ! "$CLI_VERSION" == "latest" ]; then
   echo -e "${BLUE}CLI version:${NC}" "$CLI_VERSION"
   # Check if the CLI version is already installed or not
   if [ -z $(command -v -- asyncapi) ]; then

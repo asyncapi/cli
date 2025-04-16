@@ -7,6 +7,7 @@ import {
   ContextFileEmptyError,
 } from '../../../core/errors/context-error';
 import { helpFlag } from '../../../core/flags/global.flags';
+import { blueBright } from 'picocolors';
 
 export default class ContextRemove extends Command {
   static description = 'Delete a context from the store';
@@ -22,18 +23,14 @@ export default class ContextRemove extends Command {
 
     try {
       await removeContext(contextName);
-      this.log(`${contextName} successfully deleted`);
+      this.log(`Context ${blueBright(contextName)} removed successfully!\n`);
     } catch (e) {
       if (
         e instanceof (MissingContextFileError || ContextFileWrongFormatError)
       ) {
-        this.log(
-          'You have no context file configured. Run "asyncapi config context init" to initialize it.'
-        );
-        return;
+        this.error(`Unable to remove context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`);
       } else if (e instanceof ContextFileEmptyError) {
-        this.log(`Context file "${CONTEXT_FILE_PATH}" is empty.`);
-        return;
+        this.error(`Context file ${blueBright(CONTEXT_FILE_PATH)} is empty.`);
       }
       throw e;
     }

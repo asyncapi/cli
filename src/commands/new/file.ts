@@ -9,7 +9,8 @@ import { fileFlags } from '../../core/flags/new/file.flags';
 
 const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
-const DEFAULT_ASYNCAPI_TEMPLATE = 'default-example.yaml';
+const DEFAULT_ASYNCAPI_YAML_TEMPLATE = 'default-example.yaml';
+const DEFAULT_ASYNCAPI_JSON_TEMPLATE = 'default-example.json';
 
 interface IExample{
   name: string,
@@ -49,7 +50,14 @@ export default class NewFile extends Command {
     }
 
     const fileName = flags['file-name'] || DEFAULT_ASYNCAPI_FILE_NAME;
-    const template = flags['example'] || DEFAULT_ASYNCAPI_TEMPLATE;
+    // Determine template based on file extension
+    let default_template;
+    if (fileName.endsWith('.json')) {
+      default_template = DEFAULT_ASYNCAPI_JSON_TEMPLATE;
+    } else {
+      default_template = DEFAULT_ASYNCAPI_YAML_TEMPLATE;
+    }
+    const template = flags['example'] || default_template;
 
     await this.createAsyncapiFile(fileName, template);
 
@@ -124,9 +132,17 @@ export default class NewFile extends Command {
     }
 
     fileName = fileName || DEFAULT_ASYNCAPI_FILE_NAME;
-    selectedTemplate = selectedTemplate || DEFAULT_ASYNCAPI_TEMPLATE;
+    // Determine template based on file extension
+    let default_template;
+    if (fileName.endsWith('.json')) {
+      default_template = DEFAULT_ASYNCAPI_JSON_TEMPLATE;
+    } else {
+      default_template = DEFAULT_ASYNCAPI_YAML_TEMPLATE;
+    }
+    selectedTemplate = selectedTemplate || default_template;
 
     await this.createAsyncapiFile(fileName, selectedTemplate);
+    fileName = fileName.includes('.') ? fileName : `${fileName}.yaml`;
     if (openStudio) { startStudio(fileName, flags.port || DEFAULT_PORT);}
   }
 

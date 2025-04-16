@@ -1,13 +1,13 @@
 import { existsSync, promises as fPromises } from 'fs';
 import { SpecificationFileNotFound } from '../errors/specification-file';
 import { createServer } from 'http';
-import serveHandler from 'serve-handler';
 import { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
 import open from 'open';
+import next from 'next';
 import path from 'path';
 import { version as studioVersion } from '@asyncapi/studio/package.json';
-import { gray } from 'picocolors';
+import { blueBright, redBright } from 'picocolors';
 
 const { readFile, writeFile } = fPromises;
 
@@ -21,68 +21,46 @@ function isValidFilePath(filePath: string): boolean {
 }
 
 export function start(filePath: string, port: number = DEFAULT_PORT): void {
-  if (!isValidFilePath(filePath)) {
+  if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
-  chokidar.watch(filePath).on('all', (event, path) => {
-    switch (event) {
-    case 'add':
-    case 'change':
-      getFileContent(path).then((code:string) => {
-        messageQueue.push(JSON.stringify({
-          type: 'file:changed',
-          code,
-        }));
-        sendQueuedMessages();
-      });
-      break;
-    case 'unlink':
-      messageQueue.push(JSON.stringify({
-        type: 'file:deleted',
-        filePath,
-      }));
-      sendQueuedMessages();
-      break;
-    }
+
+  // Locate @asyncapi/studio package
+  const studioPath = path.dirname(require.resolve('@asyncapi/studio/package.json'));
+  const app = next({
+    dev: false,
+    dir: studioPath,
+    conf: {
+      distDir: 'build',
+    } as any,
   });
 
-  const server = createServer((request, response) => {
-    //not all CLI users use npm. Some package managers put dependencies in different weird places
-    //this is why we need to first figure out where exactly is the index.html located
-    //and then strip index.html from the path to point to directory with the rest of the studio
-    const indexLocation = require.resolve('@asyncapi/studio/build/index.html');
-    const hostFolder = indexLocation.substring(0, indexLocation.lastIndexOf(path.sep));
-    return serveHandler(request, response, {
-      public: hostFolder,
-    });
-  });
-
-  server.on('upgrade', (request, socket, head) => {
-    if (request.url === '/live-server') {
-      wsServer.handleUpgrade(request, socket, head, (sock: any) => {
-        wsServer.emit('connection', sock, request);
-      });
-    } else {
-      socket.destroy();
-    }
-  });
+  const handle = app.getRequestHandler();
 
   const wsServer = new WebSocketServer({ noServer: true });
 
   wsServer.on('connection', (socket: any) => {
     sockets.push(socket);
-    getFileContent(filePath).then((code: string) => {
+    if (filePath) {
+      getFileContent(filePath).then((code: string) => {
+        messageQueue.push(JSON.stringify({
+          type: 'file:loaded',
+          code,
+        }));
+        sendQueuedMessages();
+      });
+    } else {
       messageQueue.push(JSON.stringify({
         type: 'file:loaded',
-        code,
+        code: '',
       }));
       sendQueuedMessages();
-    });
+    }
 
     socket.on('message', (event: string) => {
       try {
-        const json:any = JSON.parse(event);
-        if (json.type === 'file:update') {
+        const json: any = JSON.parse(event);
+        if (filePath && json.type === 'file:update') {
           saveFileContent(filePath, json.code);
         } else {
           console.warn('Live Server: An unknown event has been received. See details:');
@@ -98,12 +76,58 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
     sockets.splice(sockets.findIndex(s => s === socket));
   });
 
-  server.listen(port, () => {
-    const url = `http://localhost:${port}?liveServer=${port}&studio-version=${studioVersion}`;
-    console.log(`Studio is now running at ${url}.`);
-    console.log(`You can open this URL in your web browser, and if needed, press ${gray('Ctrl + C')} to stop the process.`);
-    console.log(`Watching changes on file ${filePath}`);
-    open(url);
+  app.prepare().then(() => {
+    if (filePath) {
+      chokidar.watch(filePath).on('all', (event, path) => {
+        switch (event) {
+        case 'add':
+        case 'change':
+          getFileContent(path).then((code: string) => {
+            messageQueue.push(JSON.stringify({
+              type: 'file:changed',
+              code,
+            }));
+            sendQueuedMessages();
+          });
+          break;
+        case 'unlink':
+          messageQueue.push(JSON.stringify({
+            type: 'file:deleted',
+            filePath,
+          }));
+          sendQueuedMessages();
+          break;
+        }
+      });
+    }
+
+    const server = createServer((req, res) => handle(req, res));
+
+    server.on('upgrade', (request, socket, head) => {
+      if (request.url === '/live-server') {
+        console.log('🔗 WebSocket connection established.');
+        wsServer.handleUpgrade(request, socket, head, (sock: any) => {
+          wsServer.emit('connection', sock, request);
+        });
+      } else {
+        socket.destroy();
+      }
+    });
+
+    server.listen(port, () => {
+      const url = `http://localhost:${port}?liveServer=${port}&studio-version=${studioVersion}`;
+      console.log(`🎉 Connected to Live Server running at ${blueBright(url)}.`);
+      console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
+      console.log(`🛑 If needed, press ${redBright('Ctrl + C')} to stop the process.`);
+      if (filePath) {
+        console.log(`👁️ Watching changes on file ${blueBright(filePath)}`);
+      } else {
+        console.warn(
+          'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
+        );
+      }
+      open(url);
+    });
   });
 }
 

@@ -50,8 +50,6 @@ export default class Optimize extends Command {
 
   static args = {
     'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
-    proxyHost: Args.string({description: 'Name of the Proxy Host', required: false}),
-    proxyPort: Args.string({description: 'Name of the Port of the ProxyHost', required: false}),
   };
 
   parser = new Parser();
@@ -70,11 +68,17 @@ export default class Optimize extends Command {
     } catch (err:any) {
       if (err.message.includes('Failed to download')) {
         throw new Error('Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.');
-      } else {
+      } else if (filePath) {
         this.error(
           new ValidationError({
             type: 'invalid-file',
             filepath: filePath,
+          })
+        );
+      } else {
+        this.error(
+          new ValidationError({
+            type: 'no-spec-found'
           })
         );
       }
@@ -88,8 +92,8 @@ export default class Optimize extends Command {
     } catch (err) {
       this.error(
         new ValidationError({
-          type: 'invalid-file',
-          filepath: filePath,
+          type: 'invalid-syntax-file',
+          filepath: this.specFile.getFilePath(),
         })
       );
     }

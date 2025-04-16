@@ -5,18 +5,23 @@ import { cancel, intro, isCancel, select, spinner, text } from '@clack/prompts';
 import { green, inverse } from 'picocolors';
 import { generateModels, Languages, ModelinaArgs } from '@asyncapi/modelina-cli';
 import { modelsFlags } from '../../core/flags/generate/models.flags';
+import { proxyFlags } from '../../core/flags/proxy.flags';
 
 export default class Models extends Command {
   static description = 'Generates typed models';
 
   static readonly args = ModelinaArgs as any;
 
-  static flags = modelsFlags();
+  static readonly flags = {
+    ...modelsFlags(),
+    ...proxyFlags(),
+  };
 
   async run() {
     const { args, flags } = await this.parse(Models);
-    let { language, file } = args;
+    let { language, file} = args;
     let { output } = flags;
+    const {proxyPort,proxyHost} = flags;
 
     const interactive = !flags['no-interactive'];
 
@@ -29,6 +34,10 @@ export default class Models extends Command {
       output = parsedArgs.output;
     }
 
+    if (proxyHost && proxyPort) {
+      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
+      file = `${file}+${proxyUrl}`;
+    }
     const inputFile = (await load(file)) || (await load());
 
     const { document, diagnostics ,status } = await parse(this, inputFile, flags as ValidateOptions);
@@ -58,7 +67,7 @@ export default class Models extends Command {
     s.start('Generating models...');
     try {
       const generatedModels = await generateModels({...flags, output}, document, logger, language as Languages);
-      if (output !== 'stdout') {
+      if (output && output !== 'stdout') {
         const generatedModelStrings = generatedModels.map((model) => { return model.modelName; });
         s.stop(green(`Successfully generated the following models: ${generatedModelStrings.join(', ')}`));
         return;

@@ -11,7 +11,8 @@
 /yarn.lock
 /assets/examples/**
 !assets/examples/default-example.yaml
-!assets/examples/tutorial.yml
+!assets/examples/tutorial.yml'
+!assets/examples/default-example.json
 node_modules
 /test/integration/generate/models/
 test.asyncapi-cli
