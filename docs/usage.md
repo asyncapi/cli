@@ -785,7 +785,7 @@ DESCRIPTION
   starts a new local instance of Studio in minimal state bundling all the refs of the schema file and with no editing allowed. 
 ```
 
-_See code: [src/commands/start/preview.ts](https://github.com/asyncapi/cli/blob/v2.16.4/src/commands/start/preview.ts)_
+_See code: [src/commands/start/preview.ts](https://github.com/asyncapi/cli/blob/master/src/commands/start/preview.ts)_
 
 
 ## `asyncapi validate [SPEC-FILE]`
