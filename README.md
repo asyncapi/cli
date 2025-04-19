@@ -12,6 +12,7 @@ CLI to work with your AsyncAPI files. Currently under development, we are workin
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [Architecture](#architecture)
 - [Github Action](#github-action)
 - [Contributing](#contributing)
   * [Set up development environment](#set-up-development-environment)
@@ -25,6 +26,9 @@ Learn how to install the AsyncAPI CLI by following the instructions in the [inst
 
 ## Usage
 The [usage guide](/docs/usage.md) provides information about different ways to use the CLI.
+
+## Architecture
+The [architecture guide](/docs/architecture.md) provides information about the architecture.
 
 ## Github Action
 
