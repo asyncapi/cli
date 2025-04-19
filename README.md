@@ -27,6 +27,9 @@ Learn how to install the AsyncAPI CLI by following the instructions in the [inst
 ## Usage
 The [usage guide](/docs/usage.md) provides information about different ways to use the CLI.
 
+## Architecture
+The [usage guide](/docs/architecture.md) provides information about the architecture.
+
 ## Github Action
 
 The AsyncAPI CLI can be used as a GitHub Action. You can find more information in the [GitHub Action guide](https://www.asyncapi.com/docs/tools/cli/github-action).
