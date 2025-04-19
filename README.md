@@ -12,6 +12,7 @@ CLI to work with your AsyncAPI files. Currently under development, we are workin
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [Architecture](#architecture)
 - [Github Action](#github-action)
 - [Contributing](#contributing)
   * [Set up development environment](#set-up-development-environment)
