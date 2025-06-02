@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "2.16.8",
+  "version": "3.1.1",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
@@ -19,9 +19,10 @@
     "@asyncapi/parser": "^3.3.0",
     "@asyncapi/protobuf-schema-parser": "^3.5.1",
     "@asyncapi/raml-dt-schema-parser": "^4.0.24",
-    "@asyncapi/studio": "^0.23.0",
+    "@asyncapi/studio": "^0.24.2",
     "@clack/prompts": "^0.7.0",
     "@oclif/core": "^4.2.9",
+    "@oclif/plugin-autocomplete": "^3.2.26",
     "@smoya/asyncapi-adoption-metrics": "^2.4.9",
     "@stoplight/spectral-cli": "6.9.0",
     "chalk": "^4.1.0",
@@ -32,7 +33,7 @@
     "https-proxy-agent": "^7.0.6",
     "inquirer": "^8.2.0",
     "js-yaml": "^4.1.0",
-    "next": "^14.2.24",
+    "next": "^15.2.4",
     "node-fetch": "^2.0.0",
     "oclif": "^4.17.34",
     "open": "^8.4.0",
@@ -92,6 +93,7 @@
     "/bin",
     "/lib",
     "/assets",
+    "/scripts",
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
   ],
@@ -126,7 +128,8 @@
       }
     },
     "plugins": [
-      "@oclif/plugin-warn-if-update-available"
+      "@oclif/plugin-warn-if-update-available",
+      "@oclif/plugin-autocomplete"
     ],
     "warn-if-update-available": {
       "frequency": 24,
@@ -163,6 +166,7 @@
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",
     "posttest": "rimraf ./test.asyncapi-cli",
+    "postinstall": "node ./scripts/enableAutoComplete.js",
     "test": "npm run test:unit && npm run action:test",
     "test:unit": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/**/*.test.ts\"",
     "test:one": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 100000",
@@ -170,7 +174,7 @@
     "createhook": "oclif generate hook myhook --event=command_not_found",
     "createhookinit": "oclif generate hook inithook --event=init",
     "action:docker:build": "docker build -f github-action/Dockerfile -t asyncapi/github-action-for-cli:latest .",
-    "action:test": "cd github-action && make test"
+    "action:test": "npm run build && cd github-action && make test"
   },
   "types": "lib/index.d.ts",
   "type": "module"
