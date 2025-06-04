@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { promises as fPromises } from 'fs';
 import { Args } from '@oclif/core';
 import Command from '../core/base';
@@ -9,7 +8,6 @@ import { convert, convertOpenAPI, convertPostman } from '@asyncapi/converter';
 import type { AsyncAPIConvertVersion, OpenAPIConvertVersion } from '@asyncapi/converter';
 import { cyan, green } from 'picocolors';
 import { proxyFlags } from '../core/flags/proxy.flags';
-// @ts-ignore
 import specs from '@asyncapi/specs';
 import { convertFlags } from '../core/flags/convert.flags';
 
