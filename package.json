@@ -22,6 +22,7 @@
     "@asyncapi/studio": "^0.24.2",
     "@clack/prompts": "^0.7.0",
     "@oclif/core": "^4.2.9",
+    "@oclif/plugin-autocomplete": "^3.2.26",
     "@smoya/asyncapi-adoption-metrics": "^2.4.9",
     "@stoplight/spectral-cli": "6.9.0",
     "chalk": "^4.1.0",
