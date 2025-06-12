@@ -1,4 +1,4 @@
-export { run } from '@oclif/core';
+import { run } from '@oclif/core';
 
 /**
  * For NodeJS < 15, unhandled rejections are treated as warnings.
