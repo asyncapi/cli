@@ -194,6 +194,7 @@ DESCRIPTION
 _See code: [src/commands/config/context/current.ts](https://github.com/asyncapi/cli/blob/v2.16.4/src/commands/config/context/current.ts)_
 
 ## `asyncapi config context edit CONTEXT-NAME NEW-SPEC-FILE-PATH`
+## `asyncapi config context edit CONTEXT-NAME NEW-SPEC-FILE-PATH --use-new-generator`
 
 Edit a context in the store
 
