@@ -77,3 +77,29 @@ When you submit changes, your submissions are understood to be under the same [A
 
 ## References
 This document was adapted from the open-source contribution guidelines for [Facebook's Draft](https://github.com/facebook/draft-js/blob/master/CONTRIBUTING.md).
+
+
+## Maintainers
+
+Maintainers are responsible for overseeing the project’s overall health and progress. Their duties include managing and assigning issues, reviewing pull requests, and ensuring consistent development.
+
+The project is organized into distinct scopes, whith each maintainer assigned to one or more scopes they are resposible for managing and overseeing. 
+
+During triaging, maintainers are responsible for assigning scope labels to issues, ensuring they are directed to the appropriate maintainer for further investigation and action.
+
+Maintainers are encouraged to hold weekly or bi-weekly meetings to engage with contributors and the community, providing updates on ongoing work and fostering collaboration around open issues.
+
+As of now we are diving the project scope to:
+
+- core
+- commands
+- docs
+- server-api
+- GitHub Actions
+- ci/cd
+
+
+## Contributors
+
+If a contributor is assigned to an issue but doesn't start work or provide any updates within a week, they may be unassigned so the issue can be made available to others. While we don't expect contributors to complete the work within a week, claiming an issue and then going inactive without communication can hinder project progress.
+
