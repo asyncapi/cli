@@ -35,7 +35,7 @@ npx lefthook install
 
 This project uses [Lefthook](https://github.com/evilmartians/lefthook) to enforce code quality and commit standards:
 
-- **Pre-commit:** Runs `lint-staged`, `npm run lint`, and `npm run test:unit` before every commit.
+- **Pre-commit:** `npm run lint`, and `npm run test:unit` before every commit.
 - **Commit message:** Uses [commitlint](https://commitlint.js.org/) to enforce [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
 ## Running tests
