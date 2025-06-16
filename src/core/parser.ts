@@ -40,7 +40,8 @@ const parser = new Parser({
     resolver: {
       cache: false,
     }
-  }
+  },
+  
 });
 
 parser.registerSchemaParser(AvroSchemaParser());
@@ -86,10 +87,42 @@ export interface ValidateOptions {
   'diagnostics-format'?: `${OutputFormat}`;
   'fail-severity'?: SeverityKind;
   'output'?: string;
+  xSuppressWarnings?: string[];
 }
 
-export async function validate(command: Command, specFile: Specification, options: ValidateOptions = {}) {
-  const diagnostics = await parser.validate(specFile.text(), { source: specFile.getSource() });
+export async function validate(
+  command: Command,
+  specFile: Specification,
+  options: ValidateOptions = {}
+) {
+  const suppressedWarnings = options.xSuppressWarnings ?? [];
+  // If no custom rules, use global parser
+  const activeParser =
+    suppressedWarnings.length === 0
+      ? parser
+      : new Parser({
+        ruleset: {
+          extends: [],
+          rules: Object.fromEntries(suppressedWarnings.map(rule => [rule, 'off'])),
+        },
+        __unstable: {
+          resolver: {
+            cache: false,
+          },
+        },
+      });
+
+  if (suppressedWarnings.length > 0) {
+    activeParser.registerSchemaParser(AvroSchemaParser());
+    activeParser.registerSchemaParser(OpenAPISchemaParser());
+    activeParser.registerSchemaParser(RamlDTSchemaParser());
+    activeParser.registerSchemaParser(ProtoBuffSchemaParser());
+  }
+
+  const diagnostics = await activeParser.validate(specFile.text(), {
+    source: specFile.getSource(),
+  });
+
   return logDiagnostics(diagnostics, command, specFile, options);
 }
 

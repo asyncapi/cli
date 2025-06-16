@@ -796,7 +796,7 @@ validate asyncapi file
 USAGE
   $ asyncapi validate [SPEC-FILE] [-h] [-w] [--log-diagnostics] [--diagnostics-format
     json|stylish|junit|html|text|teamcity|pretty] [--fail-severity error|warn|info|hint] [-o <value>] [--score]
-    [--proxyHost <value>] [--proxyPort <value>]
+    [--proxyHost <value>] [--proxyPort <value>] [--x-suppress-warnings <value>...]
 
 ARGUMENTS
   SPEC-FILE  spec path, url, or context-name
@@ -815,10 +815,15 @@ FLAGS
       --proxyPort=<value>            Port number number for the proxyHost.
       --score                        Compute the score of the AsyncAPI document. Scoring is based on whether the
                                      document has description, license, server and/or channels.
+      --x-suppress-warnings=<value>  One or more warning codes to suppress from diagnostics output. Can be passed
+                                     multiple times.
 
 DESCRIPTION
   validate asyncapi file
-```
 
-_See code: [src/commands/validate.ts](https://github.com/asyncapi/cli/blob/v2.16.4/src/commands/validate.ts)_
+EXAMPLES
+  $ asyncapi validate ./asyncapi.yml
+  $ asyncapi validate ./asyncapi.yml --x-suppress-warnings asyncapi-id --x-suppress-warnings info-description
+
+See code: [src/commands/validate.ts](https://github.com/asyncapi/cli/blob/v2.16.4/src/commands/validate.ts)_
 <!-- commandsstop -->

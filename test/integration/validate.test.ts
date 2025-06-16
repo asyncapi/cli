@@ -273,4 +273,51 @@ describe('validate', () => {
         done();
       });
   });
+
+  describe('validate command and suppression of the single warning', () => {
+    test
+      .stdout()
+      .command([
+        'validate',
+        path.join('test', 'fixtures', 'asyncapi_v1.yml'),
+        '--x-suppress-warnings',
+        'asyncapi-id'
+      ])
+      .it('should suppress specified warnings and still validate correctly', (ctx, done) => {
+        expect(ctx.stdout).to.include('asyncapi_v1.yml');
+        expect(ctx.stdout).to.match(/is valid/i); // General validity check
+        expect(ctx.stdout).to.not.include('asyncapi-id'); // Ensure warning is suppressed
+        done();
+      });
+  });
+  describe('validate command and suppression of multiple warnings', () => {
+    test
+      .stdout()
+      .command([
+        'validate',
+        path.join('test', 'fixtures', 'asyncapi_v1.yml'),
+        '--x-suppress-warnings',
+        'asyncapi-id',
+        '--x-suppress-warnings',
+        'asyncapi2-tags'
+      ])
+      .it('should suppress multiple specified warnings and still validate correctly', (ctx, done) => {
+        expect(ctx.stdout).to.not.include('asyncapi-id'); // Suppressed warning #1
+        expect(ctx.stdout).to.not.include('asyncapi2-tags'); // Suppressed warning #2
+        done();
+      });
+  });
+
+  describe('validate command without suppression', () => {
+    test
+      .stdout()
+      .command([
+        'validate',
+        path.join('test', 'fixtures', 'asyncapi_v1.yml'),
+      ])
+      .it('should include the asyncapi-id warning when not suppressed', (ctx, done) => {
+        expect(ctx.stdout).to.include('asyncapi-id'); // Should show up if not suppressed
+        done();
+      });
+  });
 });

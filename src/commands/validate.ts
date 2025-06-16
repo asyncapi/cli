@@ -16,7 +16,7 @@ export default class Validate extends Command {
   };
 
   static args = {
-    'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
+    'spec-file': Args.string({ description: 'spec path, url, or context-name', required: false }),
   };
 
   async run() {
@@ -24,20 +24,31 @@ export default class Validate extends Command {
     let filePath = args['spec-file'];
     const proxyHost = flags['proxyHost'];
     const proxyPort = flags['proxyPort'];
+
     if (proxyHost && proxyPort) {
       const proxyUrl = `http://${proxyHost}:${proxyPort}`;
       filePath = `${filePath}+${proxyUrl}`; // Update filePath with proxyUrl
     }
+
     this.specFile = await load(filePath);
     const watchMode = flags.watch;
+
     if (flags['score']) {
-      const { document } = await parse(this,this.specFile);
+      const { document } = await parse(this, this.specFile);
       this.log(`The score of the asyncapi document is ${await calculateScore(document)}`);
     }
+
     if (watchMode) {
       specWatcher({ spec: this.specFile, handler: this, handlerName: 'validate' });
     }
-    const result = await validate(this, this.specFile, flags as ValidateOptions);
+
+    // Prepare validate options
+    const validateOptions: ValidateOptions = {
+      ...flags,
+      xSuppressWarnings: flags['x-suppress-warnings'],
+    };
+
+    const result = await validate(this, this.specFile, validateOptions);
     this.metricsMetadata.validation_result = result;
 
     if (result === ValidationStatus.INVALID) {
