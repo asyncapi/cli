@@ -5,10 +5,11 @@ pre-commit:
       run: npm run lint
     test:
       run: npm run test:unit
-    lint-staged:
-      run: npx lint-staged
+
 commit-msg:
   parallel: true
-  scripts:
+  commands:
     commitlint:
-      runner: npx commitlint --edit {1}
+      run: npx commitlint --edit {1}
+    echo-test:
+      run: echo "Lefthook commit-msg hook running"

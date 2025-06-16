@@ -21,6 +21,23 @@ After cloning the repository, you should setup the fork properly and configure t
 npm install
 ```
 
+3. **Set up Git hooks with Lefthook:**
+
+Lefthook is used to run pre-commit and commit message checks automatically.  
+After installing dependencies, Lefthook hooks are set up automatically if you have the `"prepare": "lefthook install"` script in your `package.json`.  
+If you ever need to re-install hooks, run:
+
+```bash
+npx lefthook install
+```
+
+## Pre-commit and commit message hooks
+
+This project uses [Lefthook](https://github.com/evilmartians/lefthook) to enforce code quality and commit standards:
+
+- **Pre-commit:** Runs `lint-staged`, `npm run lint`, and `npm run test:unit` before every commit.
+- **Commit message:** Uses [commitlint](https://commitlint.js.org/) to enforce [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+
 ## Running tests
 
 ### Local testing
