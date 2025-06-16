@@ -47,6 +47,7 @@
     "@asyncapi/newtemplate": "./test/fixtures/newtemplate",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "@evilmartians/lefthook": "^1.11.14",
     "@oclif/test": "^2",
     "@swc/core": "^1.3.2",
     "@types/chai": "^4.3.6",
@@ -69,7 +70,6 @@
     "eslint-plugin-github": "^4.3.7",
     "eslint-plugin-security": "^1.4.0",
     "eslint-plugin-sonarjs": "^0.15.0",
-    "husky": "^8.0.0",
     "lint-staged": "^15.5.2",
     "markdown-toc": "^1.2.0",
     "mocha": "^10.2.0",
@@ -78,9 +78,6 @@
     "simple-git": "^3.16.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.8.2"
-  },
-  "lint-staged": {
-    "*.{js,ts}": "eslint --fix"
   },
   "engines": {
     "node": ">12.16"
@@ -158,7 +155,7 @@
     "pack:tarballs": "oclif pack tarballs -t linux-x64 && npm run pack:rename",
     "pack:windows": "oclif pack win && npm run pack:rename",
     "pack:rename": "node scripts/releasePackagesRename.js",
-    "prepare": "husky",
+    "prepare": "lefthook install",
     "prepublishOnly": "npm run build",
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",
