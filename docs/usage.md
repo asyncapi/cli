@@ -823,7 +823,7 @@ DESCRIPTION
 
 EXAMPLES
   $ asyncapi validate ./asyncapi.yml
-  $ asyncapi validate ./asyncapi.yml --x-suppress-warnings asyncapi-id --x-suppress-warnings info-description
+  $ asyncapi validate ./asyncapi.yml --x-suppress-warnings asyncapi-id asyncapi-info-contact
 
 See code: [src/commands/validate.ts](https://github.com/asyncapi/cli/blob/v2.16.4/src/commands/validate.ts)_
 <!-- commandsstop -->

@@ -320,4 +320,36 @@ describe('validate', () => {
         done();
       });
   });
+  describe('validate command with an invalid suppression rule', () => {
+    test
+      .stdout()
+      .command([
+        'validate',
+        path.join('test', 'fixtures', 'asyncapi_v1.yml'),
+        '--x-suppress-warnings',
+        'non-existing-rule'
+      ])
+      .it('should warn about the unknown rule and not suppress anything', (ctx, done) => {
+        expect(ctx.stdout).to.contains('Warning: \'non-existing-rule\' is not a known rule and will be ignored.');
+        expect(ctx.stdout).to.include('asyncapi-id'); 
+        done();
+      });
+  });
+  describe('validate command with mixed valid and invalid suppressed warnings', () => {
+    test
+      .stdout()
+      .command([
+        'validate',
+        path.join('test', 'fixtures', 'asyncapi_v1.yml'),
+        '--x-suppress-warnings',
+        'asyncapi-id',
+        '--x-suppress-warnings',
+        'foobar'
+      ])
+      .it('should suppress valid rules and warn about invalid ones', (ctx, done) => {
+        expect(ctx.stdout).to.not.include('asyncapi-id'); 
+        expect(ctx.stdout).to.contains('Warning: \'foobar\' is not a known rule'); 
+        done();
+      });
+  });
 });
