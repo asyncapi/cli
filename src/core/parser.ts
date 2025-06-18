@@ -87,7 +87,7 @@ export interface ValidateOptions {
   'diagnostics-format'?: `${OutputFormat}`;
   'fail-severity'?: SeverityKind;
   'output'?: string;
-  xSuppressWarnings?: string[];
+  suppressWarnings?: string[];
 }
 
 export async function validate(
