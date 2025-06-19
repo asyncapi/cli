@@ -280,7 +280,7 @@ describe('validate', () => {
       .command([
         'validate',
         path.join('test', 'fixtures', 'asyncapi_v1.yml'),
-        '--x-suppress-warnings',
+        '--suppressWarnings',
         'asyncapi-id'
       ])
       .it('should suppress specified warnings and still validate correctly', (ctx, done) => {
@@ -296,9 +296,9 @@ describe('validate', () => {
       .command([
         'validate',
         path.join('test', 'fixtures', 'asyncapi_v1.yml'),
-        '--x-suppress-warnings',
+        '--suppressWarnings',
         'asyncapi-id',
-        '--x-suppress-warnings',
+        'suppressWarnings',
         'asyncapi2-tags'
       ])
       .it('should suppress multiple specified warnings and still validate correctly', (ctx, done) => {
@@ -326,7 +326,7 @@ describe('validate', () => {
       .command([
         'validate',
         path.join('test', 'fixtures', 'asyncapi_v1.yml'),
-        '--x-suppress-warnings',
+        '--suppressWarnings',
         'non-existing-rule'
       ])
       .it('should warn about the unknown rule and not suppress anything', (ctx, done) => {
@@ -341,9 +341,9 @@ describe('validate', () => {
       .command([
         'validate',
         path.join('test', 'fixtures', 'asyncapi_v1.yml'),
-        '--x-suppress-warnings',
+        '--suppressWarnings',
         'asyncapi-id',
-        '--x-suppress-warnings',
+        '--suppressWarnings',
         'foobar'
       ])
       .it('should suppress valid rules and warn about invalid ones', (ctx, done) => {

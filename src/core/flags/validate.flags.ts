@@ -12,10 +12,15 @@ export const validateFlags = () => {
       required: false,
       default: false,
     }),
-    'suppress-warnings': Flags.string({
+    suppressWarnings: Flags.string({
       description: 'List of warning codes to suppress from the validation output.',
       required: false,
       multiple: true,
+    }),
+    suppressAllWarnings: Flags.boolean({
+      description: 'Suppress all warnings from the validation output.',
+      required: false,
+      default: false,
     }),
   };
 };

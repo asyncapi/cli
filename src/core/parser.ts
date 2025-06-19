@@ -88,6 +88,7 @@ export interface ValidateOptions {
   'fail-severity'?: SeverityKind;
   'output'?: string;
   suppressWarnings?: string[];
+  suppressAllWarnings?: boolean;
 }
 
 export async function validate(
@@ -95,10 +96,11 @@ export async function validate(
   specFile: Specification,
   options: ValidateOptions = {}
 ) {
-  const suppressedWarnings = options.xSuppressWarnings ?? [];
+  const suppressAllWarnings = options.suppressAllWarnings ?? false;
+  const suppressedWarnings = options.suppressWarnings ?? [];
   let activeParser: Parser;
 
-  // Helper to build a parser with given rules
+  // Helper to build a parser with given rules turned off
   const buildCustomParser = (rulesToSuppress: string[]) =>
     new Parser({
       ruleset: {
@@ -112,7 +114,16 @@ export async function validate(
       },
     });
 
-  if (suppressedWarnings.length === 0) {
+  if (suppressAllWarnings) {
+    // Run the default parser to discover all rule codes
+    const diagnostics = await parser.validate(specFile.text(), {
+      source: specFile.getSource(),
+    });
+    const allRuleNames = Array.from(
+      new Set(diagnostics.map(d => d.code).filter((c): c is string => typeof c === 'string'))
+    );
+    activeParser = buildCustomParser(allRuleNames);
+  } else if (suppressedWarnings.length === 0) {
     activeParser = parser;
   } else {
     try {
@@ -128,15 +139,16 @@ export async function validate(
         const validRules = suppressedWarnings.filter(rule => !invalidRules.includes(rule));
         activeParser = buildCustomParser(validRules);
       } else {
-        throw e; 
+        throw e;
       }
     }
-
-    activeParser.registerSchemaParser(AvroSchemaParser());
-    activeParser.registerSchemaParser(OpenAPISchemaParser());
-    activeParser.registerSchemaParser(RamlDTSchemaParser());
-    activeParser.registerSchemaParser(ProtoBuffSchemaParser());
   }
+
+  // Register schema parsers
+  activeParser.registerSchemaParser(AvroSchemaParser());
+  activeParser.registerSchemaParser(OpenAPISchemaParser());
+  activeParser.registerSchemaParser(RamlDTSchemaParser());
+  activeParser.registerSchemaParser(ProtoBuffSchemaParser());
 
   const diagnostics = await activeParser.validate(specFile.text(), {
     source: specFile.getSource(),

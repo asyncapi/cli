@@ -45,7 +45,8 @@ export default class Validate extends Command {
     // Prepare validate options
     const validateOptions: ValidateOptions = {
       ...flags,
-      xSuppressWarnings: flags['x-suppress-warnings'],
+      suppressWarnings: flags['suppressWarnings'],
+      suppressAllWarnings: flags['suppressAllWarnings'],
     };
 
     const result = await validate(this, this.specFile, validateOptions);
