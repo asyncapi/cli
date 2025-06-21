@@ -8,13 +8,14 @@ import { getDiagnosticSeverity } from '@stoplight/spectral-core';
 import { OutputFormat } from '@stoplight/spectral-cli/dist/services/config';
 import { html, json, junit, pretty, stylish, teamcity, text } from '@stoplight/spectral-formatters';
 import { red, yellow, green, cyan } from 'chalk';
-
 import type { Diagnostic } from '@asyncapi/parser/cjs';
 import type Command from './base';
 import type { Specification } from './models/SpecificationFile';
 import { promises } from 'fs';
 import path from 'path';
-
+import os from 'os';
+import fs from 'fs';
+import micromatch from 'micromatch';
 type DiagnosticsFormat = 'stylish' | 'json' | 'junit' | 'html' | 'text' | 'teamcity' | 'pretty';
 
 export type SeverityKind = 'error' | 'warn' | 'info' | 'hint';
@@ -35,13 +36,73 @@ const formatExtensions: Record<DiagnosticsFormat, string> = {
 
 const validFormats = ['stylish', 'json', 'junit', 'html', 'text', 'teamcity', 'pretty'];
 
+type AuthEntry = {
+  pattern: string;
+  token: string;
+};
+
+const CONFIG_FILE = path.join(os.homedir(), '.asyncapi', 'config.json');
+
+function loadAuthEntries(): AuthEntry[] {
+  if (!fs.existsSync(CONFIG_FILE)) { return [];}
+  const content = fs.readFileSync(CONFIG_FILE, 'utf8');
+  try {
+    const parsed = JSON.parse(content);
+    return Array.isArray(parsed?.auth) ? parsed.auth : [];
+  } catch (e) {
+    console.error('❌ Invalid JSON in config file:', e);
+    return [];
+  }
+}
+
+function normalizeRawGitUrl(uri: URI): string {
+  // Converts: raw.githubusercontent.com/org/repo/branch/path → https://github.com/org/repo/tree/branch
+  const segments = uri.path().split('/').filter(Boolean); // Remove empty segments
+  if (segments.length < 3) { return uri.toString(); }
+
+  const [org, repo, branch] = segments;
+  return `https://github.com/${org}/${repo}/tree/${branch}`;
+}
+
+const customResolver = {
+  schema: 'https',
+  order: 1,
+
+  canRead: (uri: URI) => uri.hostname() === 'raw.githubusercontent.com',
+
+  read: async (uri: URI) => {
+    const url = uri.toString();
+    const normalized = normalizeRawGitUrl(uri);
+    const entries = loadAuthEntries();
+    const matched = entries.find(entry =>
+      micromatch.isMatch(normalized, entry.pattern)
+    );
+
+    const headers: Record<string, string> = {};
+    if (matched) {
+      const token = matched.token.startsWith('$')
+        ? process.env[matched.token.slice(1)] || ''
+        : matched.token;
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      throw new Error(`Failed to fetch: ${url} - ${res.statusText}`);
+    }
+
+    return await res.text();
+  }
+};
+
+// Parser setup
 const parser = new Parser({
   __unstable: {
     resolver: {
       cache: false,
+      resolvers: [customResolver],
     }
-  },
-  
+  }
 });
 
 parser.registerSchemaParser(AvroSchemaParser());
@@ -110,6 +171,7 @@ export async function validate(
       __unstable: {
         resolver: {
           cache: false,
+          resolvers: [customResolver],
         },
       },
     });
