@@ -273,4 +273,83 @@ describe('validate', () => {
         done();
       });
   });
+
+  describe('validate command and suppression of the single warning', () => {
+    test
+      .stdout()
+      .command([
+        'validate',
+        path.join('test', 'fixtures', 'asyncapi_v1.yml'),
+        '--suppressWarnings',
+        'asyncapi-id'
+      ])
+      .it('should suppress specified warnings and still validate correctly', (ctx, done) => {
+        expect(ctx.stdout).to.include('asyncapi_v1.yml');
+        expect(ctx.stdout).to.match(/is valid/i); // General validity check
+        expect(ctx.stdout).to.not.include('asyncapi-id'); // Ensure warning is suppressed
+        done();
+      });
+  });
+  describe('validate command and suppression of multiple warnings', () => {
+    test
+      .stdout()
+      .command([
+        'validate',
+        path.join('test', 'fixtures', 'asyncapi_v1.yml'),
+        '--suppressWarnings',
+        'asyncapi-id',
+        'suppressWarnings',
+        'asyncapi2-tags'
+      ])
+      .it('should suppress multiple specified warnings and still validate correctly', (ctx, done) => {
+        expect(ctx.stdout).to.not.include('asyncapi-id'); // Suppressed warning #1
+        expect(ctx.stdout).to.not.include('asyncapi2-tags'); // Suppressed warning #2
+        done();
+      });
+  });
+
+  describe('validate command without suppression', () => {
+    test
+      .stdout()
+      .command([
+        'validate',
+        path.join('test', 'fixtures', 'asyncapi_v1.yml'),
+      ])
+      .it('should include the asyncapi-id warning when not suppressed', (ctx, done) => {
+        expect(ctx.stdout).to.include('asyncapi-id'); // Should show up if not suppressed
+        done();
+      });
+  });
+  describe('validate command with an invalid suppression rule', () => {
+    test
+      .stdout()
+      .command([
+        'validate',
+        path.join('test', 'fixtures', 'asyncapi_v1.yml'),
+        '--suppressWarnings',
+        'non-existing-rule'
+      ])
+      .it('should warn about the unknown rule and not suppress anything', (ctx, done) => {
+        expect(ctx.stdout).to.contains('Warning: \'non-existing-rule\' is not a known rule and will be ignored.');
+        expect(ctx.stdout).to.include('asyncapi-id'); 
+        done();
+      });
+  });
+  describe('validate command with mixed valid and invalid suppressed warnings', () => {
+    test
+      .stdout()
+      .command([
+        'validate',
+        path.join('test', 'fixtures', 'asyncapi_v1.yml'),
+        '--suppressWarnings',
+        'asyncapi-id',
+        '--suppressWarnings',
+        'foobar'
+      ])
+      .it('should suppress valid rules and warn about invalid ones', (ctx, done) => {
+        expect(ctx.stdout).to.not.include('asyncapi-id'); 
+        expect(ctx.stdout).to.contains('Warning: \'foobar\' is not a known rule'); 
+        done();
+      });
+  });
 });
