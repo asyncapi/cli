@@ -40,7 +40,8 @@ const parser = new Parser({
     resolver: {
       cache: false,
     }
-  }
+  },
+  
 });
 
 parser.registerSchemaParser(AvroSchemaParser());
@@ -86,10 +87,73 @@ export interface ValidateOptions {
   'diagnostics-format'?: `${OutputFormat}`;
   'fail-severity'?: SeverityKind;
   'output'?: string;
+  suppressWarnings?: string[];
+  suppressAllWarnings?: boolean;
 }
 
-export async function validate(command: Command, specFile: Specification, options: ValidateOptions = {}) {
-  const diagnostics = await parser.validate(specFile.text(), { source: specFile.getSource() });
+export async function validate(
+  command: Command,
+  specFile: Specification,
+  options: ValidateOptions = {}
+) {
+  const suppressAllWarnings = options.suppressAllWarnings ?? false;
+  const suppressedWarnings = options.suppressWarnings ?? [];
+  let activeParser: Parser;
+
+  // Helper to build a parser with given rules turned off
+  const buildCustomParser = (rulesToSuppress: string[]) =>
+    new Parser({
+      ruleset: {
+        extends: [],
+        rules: Object.fromEntries(rulesToSuppress.map(rule => [rule, 'off'])),
+      },
+      __unstable: {
+        resolver: {
+          cache: false,
+        },
+      },
+    });
+
+  if (suppressAllWarnings) {
+    // Run the default parser to discover all rule codes
+    const diagnostics = await parser.validate(specFile.text(), {
+      source: specFile.getSource(),
+    });
+    const allRuleNames = Array.from(
+      new Set(diagnostics.map(d => d.code).filter((c): c is string => typeof c === 'string'))
+    );
+    activeParser = buildCustomParser(allRuleNames);
+  } else if (suppressedWarnings.length === 0) {
+    activeParser = parser;
+  } else {
+    try {
+      activeParser = buildCustomParser(suppressedWarnings);
+    } catch (e: any) {
+      const msg = e.message || '';
+      const matches = [...msg.matchAll(/Cannot extend non-existing rule: "([^"]+)"/g)];
+      const invalidRules = matches.map(m => m[1]);
+      if (invalidRules.length > 0) {
+        for (const rule of invalidRules) {
+          command.log(`Warning: '${rule}' is not a known rule and will be ignored.`);
+        }
+        const validRules = suppressedWarnings.filter(rule => !invalidRules.includes(rule));
+        activeParser = buildCustomParser(validRules);
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  // Register schema parsers
+  activeParser.registerSchemaParser(AvroSchemaParser());
+  activeParser.registerSchemaParser(OpenAPISchemaParser());
+  activeParser.registerSchemaParser(RamlDTSchemaParser());
+  activeParser.registerSchemaParser(ProtoBuffSchemaParser());
+
+  const diagnostics = await activeParser.validate(specFile.text(), {
+    source: specFile.getSource(),
+  });
+
   return logDiagnostics(diagnostics, command, specFile, options);
 }
 
