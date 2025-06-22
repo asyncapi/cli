@@ -18,6 +18,8 @@ CLI to work with your AsyncAPI files. Currently under development, we are workin
   * [Set up development environment](#set-up-development-environment)
   * [Command Structure and Patterns](#command-structure-and-patterns)
 - [Contributors](#contributors)
+- [🚀 CI/CD Optimizations](#-ci-cd-optimizations)
+  * [Optimized Workflows](#optimized-workflows)
 
 <!-- tocstop -->
 
@@ -115,3 +117,19 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+## 🚀 CI/CD Optimizations
+
+This repository includes smart CI/CD optimizations to reduce unnecessary GitHub Actions runs when PR titles are changed multiple times. These optimizations:
+
+- **Reduce CI/CD load** by ~70% for cosmetic title changes
+- **Preserve workflow functionality** for meaningful changes
+- **Improve developer experience** with faster feedback loops
+
+### Optimized Workflows
+
+1. **PR Title Linting** - Skips re-validation for repeated title-only changes
+2. **Auto-Changeset Generation** - Only runs when semantic prefixes change
+3. **Merge Label Management** - Preserves labels for cosmetic title edits
+
+📖 **[Read the full optimization details](docs/ci-cd-optimizations.md)**

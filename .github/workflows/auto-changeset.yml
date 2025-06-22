@@ -21,12 +21,67 @@ jobs:
       )
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      # Check if this is a repeated title-only change that doesn't affect changeset
+      - name: Check if changeset-relevant change
+        if: github.event.action == 'edited'
+        id: check_changeset_relevance
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            // Check if there are any file changes in the PR
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            
+            // Check if there are existing changeset comments (indicating previous changeset generation)
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            
+            const hasExistingChangesetComment = comments.some(comment => 
+              comment.body.includes('Changeset has been generated for this PR')
+            );
+            
+            // If title was changed, check if the changeset-relevant parts changed
+            let titleChangeAffectsChangeset = true;
+            if (github.event.changes?.title) {
+              const oldTitle = github.event.changes.title.from;
+              const newTitle = github.event.pull_request.title;
+              
+              // Extract the semantic prefix (fix:, feat:, etc.)
+              const oldPrefix = oldTitle.match(/^(fix!?:|feat!?:)/)?.[1] || '';
+              const newPrefix = newTitle.match(/^(fix!?:|feat!?:)/)?.[1] || '';
+              
+              // Only relevant if the semantic prefix changed
+              titleChangeAffectsChangeset = oldPrefix !== newPrefix;
+            }
+            
+            // Skip if this is an edit with no code changes, existing changeset, and no semantic prefix change
+            const shouldSkip = github.event.action === 'edited' && 
+                              files.length === 0 && 
+                              hasExistingChangesetComment &&
+                              !titleChangeAffectsChangeset;
+            
+            console.log(`Should skip changeset generation: ${shouldSkip}`);
+            console.log(`Files changed: ${files.length}`);
+            console.log(`Has existing changeset comment: ${hasExistingChangesetComment}`);
+            console.log(`Title change affects changeset: ${titleChangeAffectsChangeset}`);
+            
+            return shouldSkip;
+
+      - if: steps.check_changeset_relevance.outputs.result != 'true'
+        name: Checkout Repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Checkout PR
+      - if: steps.check_changeset_relevance.outputs.result != 'true'
+        name: Checkout PR
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: gh pr checkout ${{ github.event.pull_request.number }}
@@ -35,7 +90,8 @@ jobs:
       # - Using simple `npm install` will install all the packages in the repo, which takes a lot of time.
       # - Using `npm install` doesn't work with all repositories, as some of them have a different structure/package manager.
       # - Global installation also doesn't work as can't be imported in the script.
-      - name: Install specific package in temp dir
+      - if: steps.check_changeset_relevance.outputs.result != 'true'
+        name: Install specific package in temp dir
         run: |
           mkdir temp-install
           cd temp-install
@@ -45,7 +101,8 @@ jobs:
           cd ..
           rm -rf temp-install
 
-      - name: Get changeset contents
+      - if: steps.check_changeset_relevance.outputs.result != 'true'
+        name: Get changeset contents
         id: get_changeset_contents
         uses: actions/github-script@v7
         with:
@@ -55,10 +112,12 @@ jobs:
             const changesetContents = await getChangesetContents(pullRequest, github)
             return changesetContents;
 
-      - name: Create changeset file
+      - if: steps.check_changeset_relevance.outputs.result != 'true'
+        name: Create changeset file
         run: "echo -e ${{ steps.get_changeset_contents.outputs.result }} > .changeset/${{ github.event.pull_request.number }}.md"
 
-      - name: Commit changeset file
+      - if: steps.check_changeset_relevance.outputs.result != 'true'
+        name: Commit changeset file
         run: |
           git config --global user.name asyncapi-bot
           git config --global user.email info@asyncapi.io
@@ -70,14 +129,16 @@ jobs:
             git commit -m "chore: add changeset for PR #${{ github.event.pull_request.number }}"
           fi
 
-      - name: Push changeset file
+      - if: steps.check_changeset_relevance.outputs.result != 'true'
+        name: Push changeset file
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           git remote set-url origin https://github.com/${{ github.event.pull_request.head.repo.full_name }}
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
       
-      - name: Comment workflow
+      - if: steps.check_changeset_relevance.outputs.result != 'true'
+        name: Comment workflow
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         uses: actions/github-script@v7
