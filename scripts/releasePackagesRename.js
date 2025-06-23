@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+import { rename, access, mkdir } from 'fs/promises';
+import packageJson from '../package.json';
+import path from 'path';
+import simpleGit from 'simple-git';
 
-const { rename, access, mkdir } = require('fs').promises;
-const packageJson = require('../package.json');
-const path = require('path');
-const simpleGit = require('simple-git');
-const git = simpleGit({baseDir: process.cwd()});
+const git = simpleGit({ baseDir: process.cwd() });
 
 async function fileExists(checkPath) {
   try {
@@ -28,7 +27,7 @@ async function createDirectory(directoryPath) {
   }
 }
 
-async function renameDeb({version, name, sha}) {
+async function renameDeb({ version, name, sha }) {
   const dist = 'dist/deb';
 
   // deb package naming convention: https://github.com/oclif/oclif/blob/fb5da961f925fa0eba5c5b05c8cee0c9bd156c00/src/upload-util.ts#L51
@@ -37,7 +36,7 @@ async function renameDeb({version, name, sha}) {
   await checkAndRenameFile(generatedPath, newPath);
 }
 
-async function renameTar({version, name, sha}) {
+async function renameTar({ version, name, sha }) {
   const dist = 'dist';
 
   const generatedPath = path.resolve(dist, `${name}-v${version}-${sha}-linux-x64.tar.gz`);
@@ -49,7 +48,7 @@ async function renameTar({version, name, sha}) {
   await checkAndRenameFile(generatedPath, newPath);
 }
 
-async function renameWindows({version, name, sha, arch}) {
+async function renameWindows({ version, name, sha, arch }) {
   const dist = 'dist/win32';
 
   const generatedPath = path.resolve(dist, `${name}-v${version}-${sha}-${arch}.exe`);
@@ -57,7 +56,7 @@ async function renameWindows({version, name, sha, arch}) {
   await checkAndRenameFile(generatedPath, newPath);
 }
 
-async function renamePkg({version, name, sha, arch}) {
+async function renamePkg({ version, name, sha, arch }) {
   const dist = 'dist/macos';
 
   const generatedPath = path.resolve(dist, `${name}-v${version}-${sha}-${arch}.pkg`);
@@ -69,12 +68,12 @@ async function renamePackages() {
   const version = packageJson.version;
   const name = 'asyncapi';
   const sha = await git.revparse(['--short', 'HEAD']);
-  await renameDeb({version: version.split('-')[0], name, sha});
-  await renamePkg({version, name, sha, arch: 'x64'});
-  await renamePkg({version, name, sha, arch: 'arm64'});
-  await renameWindows({version, name, sha, arch: 'x64'});
-  await renameWindows({version, name, sha, arch: 'x86'});
-  await renameTar({version, name, sha});
+  await renameDeb({ version: version.split('-')[0], name, sha });
+  await renamePkg({ version, name, sha, arch: 'x64' });
+  await renamePkg({ version, name, sha, arch: 'arm64' });
+  await renameWindows({ version, name, sha, arch: 'x64' });
+  await renameWindows({ version, name, sha, arch: 'x86' });
+  await renameTar({ version, name, sha });
 }
 
 renamePackages();
