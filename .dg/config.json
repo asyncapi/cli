@@ -1,0 +1,28 @@
+{
+  "version": "0.1.0",
+  "project": "asyncapi/cli",
+  "outputDir": ".dg",
+  "updated": "2025-07-09T06:43:14.271Z",
+  "casts": [
+    {
+      "name": "asyncapicli",
+      "title": "asyncapi/cli",
+      "created": "2025-07-04T09:13:26.091Z",
+      "updated": "2025-07-04T09:13:26.091Z",
+      "interactive": true,
+      "validation": {
+        "mode": "manual-only"
+      }
+    },
+    {
+      "name": "asyncapicli-demo",
+      "title": "asyncapi/cli-demo",
+      "created": "2025-07-09T06:43:14.269Z",
+      "updated": "2025-07-09T06:43:14.269Z",
+      "interactive": true,
+      "validation": {
+        "mode": "manual-only"
+      }
+    }
+  ]
+}
