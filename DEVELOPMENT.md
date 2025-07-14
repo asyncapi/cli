@@ -23,7 +23,7 @@ npm install
 
 3. **Set up Git hooks with Lefthook:**
 
-Lefthook is used to run tests and commit message checks automatically.  
+Lefthook is used to run tests and commit message checks automatically on each and every commit.  
 After installing dependencies, Lefthook hooks are set up automatically.
 If you ever need to re-install hooks, run:
 
