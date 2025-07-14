@@ -70,7 +70,6 @@
     "eslint-plugin-security": "^1.4.0",
     "eslint-plugin-sonarjs": "^0.15.0",
     "lefthook": "^1.12.2",
-    "lint-staged": "^16.1.2",
     "markdown-toc": "^1.2.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
