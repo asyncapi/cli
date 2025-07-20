@@ -25,7 +25,7 @@ function isValidFilePath(filePath: string): boolean {
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,suppressLogs:boolean|undefined,port: number = DEFAULT_PORT):void {
+export function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,suppressLogs:boolean|undefined,port: number = DEFAULT_PORT, noBrowser: boolean):void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
@@ -156,7 +156,7 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
             'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
           );
         }
-        if (!bundleError) {
+        if (!bundleError && !noBrowser) {
           open(url);
         }
       }).on('error', (error) => {

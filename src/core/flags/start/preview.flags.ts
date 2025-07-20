@@ -7,6 +7,7 @@ export const previewFlags = () => {
     base: Flags.string({ char: 'b', description: 'Path to the file which will act as a base. This is required when some properties need to be overwritten while bundling with the file.' }),
     baseDir: Flags.string({ char: 'd', description: 'One relative/absolute path to directory relative to which paths to AsyncAPI Documents that should be bundled will be resolved.' }),
     xOrigin: Flags.boolean({ char: 'x', description: 'Pass this switch to generate properties "x-origin" that will contain historical values of dereferenced "$ref"s.' }),
-    suppressLogs: Flags.boolean({char: 'l',description: 'Pass this to suppress the detiled error logs.',default: false})
+    suppressLogs: Flags.boolean({char: 'l',description: 'Pass this to suppress the detiled error logs.',default: false}),
+    noBrowser: Flags.boolean({char: 'B', description: 'Pass this to not open browser automatically upon running the command', default: false})
   };
 };

@@ -20,7 +20,7 @@ function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
 }
 
-export function start(filePath: string, port: number = DEFAULT_PORT): void {
+export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser:boolean): void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
@@ -126,7 +126,9 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
           'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
         );
       }
-      open(url);
+      if (!noBrowser) {
+        open(url);
+      }
     });
   });
 }
