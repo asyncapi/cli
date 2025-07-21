@@ -150,7 +150,7 @@
   },
   "repository": "asyncapi/cli",
   "scripts": {
-    "build": "rimraf lib && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
+    "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
     "bump:github-action": "cd github-action/lib/ && node bump-action-version.js",
     "bump:version": "npx -p @changesets/cli@2.27.7 changeset version && npm run bump:github-action",
     "dev": "tsc --watch",
