@@ -126,7 +126,23 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
         }
       });
     }
-    const server = createServer((req, res) => handle(req, res));
+
+    const server = createServer((req, res) => {
+      if (req.url === '/close') {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('Shutting down server');
+        for (const socket of wsServer.clients) {
+          socket.close();
+        }
+        // Close the server
+        server.close(() => {
+          // eslint-disable-next-line no-process-exit
+          process.exit(0);
+        });
+        return;
+      }
+      handle(req, res);
+    });
 
     server.on('upgrade', (request, socket, head) => {
       if (request.url === '/preview-server' && request.headers['origin'] === `http://localhost:${port}`) {
