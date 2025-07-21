@@ -7,6 +7,17 @@
     "lib": [
       "esnext",
     ],
+    "paths": {
+      "@/*": ["*"],
+      "@src/*": ["*"],
+      "@cli/*": ["adapters/cli/*"],
+      "@api/*": ["adapters/api/*"],
+      "@services/*": ["domains/services/*"],
+      "@models/*": ["domains/models/*"],
+      "@utils/*": ["utils/*"],
+      "@errors/*": ["errors/*"],
+      "@interfaces/*": ["interfaces/*"],
+    },
     "declaration": true,
     "importHelpers": true,
     "allowJs": true,
@@ -21,6 +32,6 @@
     "isolatedModules": true,
   },
   "include": [
-    "src"
-  ]
+    "src",
+  ],
 }

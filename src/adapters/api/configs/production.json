@@ -1,0 +1,16 @@
+{
+  "env": "production",
+  "log": {
+      "format": "combined",
+      "dir": "../logs"
+  },
+  "cors": {
+      "origin": true,
+      "credentials": false
+  },
+  "request": {
+    "body": {
+      "limit": "5mb"
+    }
+  }
+}

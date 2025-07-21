@@ -1,0 +1,16 @@
+{
+  "env": "development",
+  "log": {
+      "format": "dev",
+      "dir": "../logs"
+  },
+  "cors": {
+      "origin": true,
+      "credentials": false
+  },
+  "request": {
+    "body": {
+      "limit": "5mb"
+    }
+  }
+}
