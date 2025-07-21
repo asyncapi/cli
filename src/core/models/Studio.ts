@@ -20,7 +20,7 @@ function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
 }
 
-export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser:boolean): void {
+export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:boolean): void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
