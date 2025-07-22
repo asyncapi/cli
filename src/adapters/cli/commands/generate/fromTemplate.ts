@@ -3,24 +3,19 @@ import Command from '@cli/internal/base';
 // eslint-disable-next-line
 // @ts-ignore
 import AsyncAPIGenerator from '@asyncapi/generator';
-import AsyncAPINewGenerator from 'generator-v2';
 import path from 'path';
-import os from 'os';
 import fs from 'fs';
 import { load, Specification } from '@models/SpecificationFile';
 import { isLocalTemplate, Watcher } from '@/utils/fileWatcher';
 import { ValidationError } from '@errors/validation-error';
 import { GeneratorError } from '@errors/generator-error';
 import { Parser } from '@asyncapi/parser';
-import { intro, isCancel, spinner, text } from '@clack/prompts';
+import { intro, isCancel, text } from '@clack/prompts';
 import { inverse, yellow, magenta, green, red } from 'picocolors';
 import { fromTemplateFlags } from '@cli/internal/flags/generate/fromTemplate.flags';
 import { proxyFlags } from '@cli/internal/flags/proxy.flags';
-
-interface IMapBaseUrlToFlag {
-  url: string,
-  folder: string
-}
+import { IMapBaseUrlToFlag } from '@/interfaces';
+import { GeneratorService } from '@services/generator.service';
 
 interface ParsedFlags {
   params: Record<string, string>,
@@ -28,31 +23,9 @@ interface ParsedFlags {
   mapBaseUrlToFolder: IMapBaseUrlToFlag
 }
 
-const templatesNotSupportingV3: Record<string, string> = {
-  '@asyncapi/minimaltemplate': 'some link', // For testing purpose
-  '@asyncapi/dotnet-nats-template': 'https://github.com/asyncapi/dotnet-nats-template/issues/384',
-  '@asyncapi/ts-nats-template': 'https://github.com/asyncapi/ts-nats-template/issues/545',
-  '@asyncapi/python-paho-template': 'https://github.com/asyncapi/python-paho-template/issues/189',
-  '@asyncapi/nodejs-ws-template': 'https://github.com/asyncapi/nodejs-ws-template/issues/294',
-  '@asyncapi/java-spring-cloud-stream-template': 'https://github.com/asyncapi/java-spring-cloud-stream-template/issues/336',
-  '@asyncapi/go-watermill-template': 'https://github.com/asyncapi/go-watermill-template/issues/243',
-  '@asyncapi/java-spring-template': 'https://github.com/asyncapi/java-spring-template/issues/308',
-  '@asyncapi/php-template': 'https://github.com/asyncapi/php-template/issues/191'
-};
-
-/**
- * Verify that a given template support v3, if not, return the link to the issue that needs to be solved.
- */
-function verifyTemplateSupportForV3(template: string) {
-  if (templatesNotSupportingV3[`${template}`] !== undefined) {
-    return templatesNotSupportingV3[`${template}`];
-  }
-  return undefined;
-}
-
 export default class Template extends Command {
   static description = 'Generates whatever you want using templates compatible with AsyncAPI Generator.';
-
+  private generatorService = new GeneratorService(true);
   static examples = [
     'asyncapi generate fromTemplate asyncapi.yaml @asyncapi/html-template --param version=1.0.0 singleFile=true --output ./docs --force-write'
   ];
@@ -116,16 +89,32 @@ export default class Template extends Command {
       genOption.resolve = { resolve: this.getMapBaseUrlToFolderResolver(parsedFlags.mapBaseUrlToFolder) };
     }
 
-    if (asyncapiInput.isAsyncAPI3()) {
-      const v3IssueLink = verifyTemplateSupportForV3(template);
-      if (v3IssueLink !== undefined) {
-        this.error(`${template} template does not support AsyncAPI v3 documents, please checkout ${v3IssueLink}`);
-      }
+    let specification: Specification;
+    try {
+      specification = await load(asyncapi);
+    } catch (err: any) {
+      return this.error(
+        new ValidationError({
+          type: 'invalid-file',
+          filepath: asyncapi,
+        }),
+        { exit: 1 },
+      );
     }
+
     if (flags['use-new-generator']) {
-      await this.generateUsingNewGenerator(asyncapi, template, output, options, genOption);
+      this.log('Generation in progress. Keep calm and wait a bit');
+      const result = await this.generatorService.generateUsingNewGenerator(specification, template, output, options, genOption);
+      if (!result.success) {
+        throw new GeneratorError(new Error(result.error));
+      } else {
+        this.log(result.data?.logs?.join('\n'));
+      }
     } else {
-      await this.generate(asyncapi, template, output, options, genOption, interactive);
+      const result = await this.generatorService.generate(specification, template, output, options, genOption, interactive);
+      if (!result.success) {
+        throw new GeneratorError(new Error(result.error));
+      }
     }
     if (watchTemplate) {
       const watcherHandler = this.watcherHandler(asyncapi, template, output, options, genOption, interactive);
@@ -186,6 +175,22 @@ export default class Template extends Command {
     return { asyncapi, template, output };
   }
 
+  private disableHooksParser(inputs?: string[]) {
+    if (!inputs) { return {}; }
+    const disableHooks: Record<string, any> = {};
+    
+    for (const input of inputs) {
+      const [hookType, hookNames] = input.split(/=/);
+      if (!hookType) { throw new Error('Invalid --disable-hook flag. It must be in the format of: --disable-hook <hookType> or --disable-hook <hookType>=<hookName1>,<hookName2>,...'); }
+      if (hookNames) {
+        disableHooks[String(hookType)] = hookNames.split(',');
+      } else {
+        disableHooks[String(hookType)] = true;
+      }
+    }
+    return disableHooks;
+  }
+
   private parseFlags(disableHooks?: string[], params?: string[], mapBaseUrl?: string, registryUrl?: string, registryAuth?: string, registryToken?: string): ParsedFlags {
     return {
       params: this.paramParser(params),
@@ -226,22 +231,6 @@ export default class Template extends Command {
     return params;
   }
 
-  private disableHooksParser(inputs?: string[]) {
-    if (!inputs) { return {}; }
-    const disableHooks: Record<string, any> = {};
-
-    for (const input of inputs) {
-      const [hookType, hookNames] = input.split(/=/);
-      if (!hookType) { throw new Error('Invalid --disable-hook flag. It must be in the format of: --disable-hook <hookType> or --disable-hook <hookType>=<hookName1>,<hookName2>,...'); }
-      if (hookNames) {
-        disableHooks[String(hookType)] = hookNames.split(',');
-      } else {
-        disableHooks[String(hookType)] = true;
-      }
-    }
-    return disableHooks;
-  }
-
   private mapBaseURLParser(input?: string) {
     if (!input) { return; }
     const mapBaseURLToFolder: any = {};
@@ -260,55 +249,6 @@ export default class Template extends Command {
     }
 
     return mapBaseURLToFolder;
-  }
-
-  private async generate(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any, interactive = true) {
-    let specification: Specification;
-    try {
-      specification = await load(asyncapi);
-    } catch (err: any) {
-      return this.error(
-        new ValidationError({
-          type: 'invalid-file',
-          filepath: asyncapi,
-        }),
-        { exit: 1 },
-      );
-    }
-    const generator = new AsyncAPIGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
-    const s = interactive ? spinner() : { start: () => null, stop: (string: string) => console.log(string) };
-    s.start('Generation in progress. Keep calm and wait a bit');
-    try {
-      await generator.generateFromString(specification.text(), { ...genOption, path: asyncapi });
-    } catch (err: any) {
-      s.stop('Generation failed');
-      throw new GeneratorError(err);
-    }
-    s.stop(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
-  }
-
-  private async generateUsingNewGenerator(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any) {
-    let specification: Specification;
-    try {
-      specification = await load(asyncapi);
-    } catch (err: any) {
-      return this.error(
-        new ValidationError({
-          type: 'invalid-file',
-          filepath: asyncapi,
-        }),
-        { exit: 1 },
-      );
-    }
-    const generator = new AsyncAPINewGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
-    this.log('Generation in progress. Keep calm and wait a bit');
-    try {
-      await generator.generateFromString(specification.text(), { ...genOption, path: asyncapi });
-    } catch (err: any) {
-      this.log('Generation failed');
-      throw new GeneratorError(err);
-    }
-    this.log(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
   }
 
   private async runWatchMode(asyncapi: string | undefined, template: string, output: string, watchHandler: ReturnType<typeof this.watcherHandler>) {
@@ -372,8 +312,25 @@ export default class Template extends Command {
         }
         this.log(`\t${magenta(value.path)} was ${eventText}`);
       }
+
+      let specification: Specification;
       try {
-        await this.generate(asyncapi, template, output, options, genOption, interactive);
+        specification = await load(asyncapi);
+      } catch (err: any) {
+        return this.error(
+          new ValidationError({
+            type: 'invalid-file',
+            filepath: asyncapi,
+          }),
+          { exit: 1 },
+        );
+      }
+
+      try {
+        const result = await this.generatorService.generate(specification, template, output, options, genOption, interactive);
+        if (!result.success) {
+          throw new GeneratorError(new Error(result.error));
+        }
       } catch (err: any) {
         throw new GeneratorError(err);
       }

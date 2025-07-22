@@ -419,6 +419,7 @@ components:
           type: string
           description: Template name to be generated.
           enum:
+            # TODO add more templates
             - "@asyncapi/dotnet-nats-template"
             - "@asyncapi/go-watermill-template"
             - "@asyncapi/html-template"
@@ -430,6 +431,11 @@ components:
             - "@asyncapi/nodejs-ws-template"
             - "@asyncapi/python-paho-template"
             - "@asyncapi/ts-nats-template"
+        use-fallback-generator:
+          type: boolean
+          description: Use generator version 1.17.25
+          default: false
+        # TODO parameter validation
         parameters:
           type: object
           description: |

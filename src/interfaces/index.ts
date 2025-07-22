@@ -76,28 +76,6 @@ export interface ConversionResult {
   originalFormat: string;
 }
 
-export interface GenerationOptions {
-  template: string;
-  output: string;
-  parameters?: Record<string, any>;
-  forceWrite?: boolean;
-  install?: boolean;
-  debug?: boolean;
-  disableHooks?: string[];
-  mapBaseUrl?: string;
-  registry?: {
-    url?: string;
-    auth?: string;
-    token?: string;
-  };
-}
-
-export interface GenerationResult {
-  success: boolean;
-  outputPath: string;
-  template: string;
-}
-
 export interface BundleOptions {
   base?: string;
   baseDir?: string;
@@ -138,10 +116,28 @@ export interface DiffResult {
   hasBreakingChanges: boolean;
 }
 
-export interface ModelGenerationOptions {
-  language: string;
-  output?: string;
-  packageName?: string;
-  namespace?: string;
-  [key: string]: any; // For language-specific options
+export interface IMapBaseUrlToFlag {
+  url: string,
+  folder: string
+}
+
+export interface GenerationOptions {
+  templateParams?: Record<string, any>;
+  forceWrite?: boolean;
+  install?: boolean;
+  debug?: boolean;
+  noOverwriteGlobs?: string[];
+  disabledHooks?: Record<string, string>;
+  mapBaseUrl?: IMapBaseUrlToFlag;
+  registry?: {
+    url?: string;
+    auth?: string;
+    token?: string;
+  };
+}
+
+export interface GenerationResult {
+  success: boolean;
+  outputPath: string;
+  logs?: string[];
 }
