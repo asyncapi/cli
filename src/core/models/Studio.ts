@@ -103,11 +103,11 @@ export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:
 
     const server = createServer((req, res) => {
       if (req.url === '/close') {
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('Server shutting down...');
         for (const socket of wsServer.clients) {
           socket.close();
         }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Server is shutting down' }));
         // Close the server
         server.close(() => {
           // eslint-disable-next-line no-process-exit
