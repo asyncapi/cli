@@ -431,6 +431,8 @@ components:
             - "@asyncapi/nodejs-ws-template"
             - "@asyncapi/python-paho-template"
             - "@asyncapi/ts-nats-template"
+            - "@asyncapi/minimaltemplate"
+            - "@asyncapi/dotnet-rabbitmq-template"
         use-fallback-generator:
           type: boolean
           description: Use generator version 1.17.25

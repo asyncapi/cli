@@ -39,7 +39,6 @@ export class GenerateController implements Controller {
       const options: GenerationOptions = {
         forceWrite: true,
         templateParams: parameters,
-        install: true,
       };
 
       const generateFunc = req.body['use-fallback-generator'] 
