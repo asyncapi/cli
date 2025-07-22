@@ -3,12 +3,16 @@
 import path from 'path';
 import { test } from '@oclif/test';
 import { NO_CONTEXTS_SAVED } from '../../src/core/errors/context-error';
-import TestHelper, { createMockServer, stopMockServer } from '../helpers';
+import TestHelper, { closeStudioServer, createMockServer, stopMockServer } from '../helpers';
 import { expect } from '@oclif/test';
 
 const testHelper = new TestHelper();
 
 describe('validate', () => {
+  after(async () => {
+    await closeStudioServer();
+    await closeStudioServer(4321);
+  });
   describe('with file paths', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();

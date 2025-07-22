@@ -18,7 +18,7 @@ const defaultErrorMessage = 'error occured while bundling files. use --detailedL
 
 let bundleError = true;
 
-export const DEFAULT_PORT = 3210;
+export const DEFAULT_PORT = 4321;
 
 function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
