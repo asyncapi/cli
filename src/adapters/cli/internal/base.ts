@@ -48,6 +48,7 @@ export default abstract class extends Command {
       try {
         const {document} = await this.parser.parse(rawDocument);
         if (document !== undefined) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           metadata = MetadataFromDocument(document, metadata);
         }
