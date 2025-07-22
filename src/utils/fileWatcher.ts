@@ -115,22 +115,22 @@ export class Watcher {
     let newEventType = currentEventType;
     //Change the naming of the event type
     switch (newEventType) {
-      case 'unlink':
-      case 'unlinkDir':
-        newEventType = 'removed';
-        break;
-      case 'addDir':
-      case 'add':
-        newEventType = 'added';
-        break;
-      case 'change':
-        newEventType = 'changed';
-        break;
-      case 'rename':
-        newEventType = 'renamed';
-        break;
-      default:
-        newEventType = `unknown (${currentEventType})`;
+    case 'unlink':
+    case 'unlinkDir':
+      newEventType = 'removed';
+      break;
+    case 'addDir':
+    case 'add':
+      newEventType = 'added';
+      break;
+    case 'change':
+      newEventType = 'changed';
+      break;
+    case 'rename':
+      newEventType = 'renamed';
+      break;
+    default:
+      newEventType = `unknown (${currentEventType})`;
     }
     return newEventType;
   }

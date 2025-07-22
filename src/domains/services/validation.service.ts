@@ -329,22 +329,22 @@ export class ValidationService extends BaseService {
     };
 
     switch (format) {
-      case 'stylish':
-        return this.formatStylish(diagnostics, options);
-      case 'json':
-        return json(diagnostics, options);
-      case 'junit':
-        return junit(diagnostics, options);
-      case 'html':
-        return html(diagnostics, options);
-      case 'text':
-        return text(diagnostics, options);
-      case 'teamcity':
-        return teamcity(diagnostics, options);
-      case 'pretty':
-        return pretty(diagnostics, options);
-      default:
-        return stylish(diagnostics, options);
+    case 'stylish':
+      return this.formatStylish(diagnostics, options);
+    case 'json':
+      return json(diagnostics, options);
+    case 'junit':
+      return junit(diagnostics, options);
+    case 'html':
+      return html(diagnostics, options);
+    case 'text':
+      return text(diagnostics, options);
+    case 'teamcity':
+      return teamcity(diagnostics, options);
+    case 'pretty':
+      return pretty(diagnostics, options);
+    default:
+      return stylish(diagnostics, options);
     }
   }
 
@@ -379,16 +379,16 @@ export class ValidationService extends BaseService {
    */
   private getSeverityTitle(severity: DiagnosticSeverity): string {
     switch (severity) {
-      case DiagnosticSeverity.Error:
-        return red('Errors');
-      case DiagnosticSeverity.Warning:
-        return yellow('Warnings');
-      case DiagnosticSeverity.Information:
-        return cyan('Information');
-      case DiagnosticSeverity.Hint:
-        return green('Hints');
-      default:
-        return 'Unknown';
+    case DiagnosticSeverity.Error:
+      return red('Errors');
+    case DiagnosticSeverity.Warning:
+      return yellow('Warnings');
+    case DiagnosticSeverity.Information:
+      return cyan('Information');
+    case DiagnosticSeverity.Hint:
+      return green('Hints');
+    default:
+      return 'Unknown';
     }
   }
 }

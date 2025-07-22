@@ -90,69 +90,69 @@ export function startPreview(
       filePathsToWatch.add(path.resolve(baseDir, filePath));
       chokidar.watch([...filePathsToWatch]).on('all', (event) => {
         switch (event) {
-          case 'add':
-            bundle([filePath], {
-              base,
-              baseDir: baseDirectory,
-              xOrigin,
-            })
-              .then((intitalDocument) => {
-                messageQueue.push(
-                  JSON.stringify({
-                    type: 'preview:file:added',
-                    code:
+        case 'add':
+          bundle([filePath], {
+            base,
+            baseDir: baseDirectory,
+            xOrigin,
+          })
+            .then((intitalDocument) => {
+              messageQueue.push(
+                JSON.stringify({
+                  type: 'preview:file:added',
+                  code:
                       path.extname(filePath) === '.yaml' ||
                       path.extname(filePath) === '.yml'
                         ? intitalDocument.yml()
                         : intitalDocument.string(),
-                  }),
-                );
-                sendQueuedMessages();
-              })
-              .catch((e) => {
-                if (suppressLogs) {
-                  console.log(defaultErrorMessage);
-                } else {
-                  console.log(e);
-                }
-              });
-            break;
-          case 'change':
-            bundle([filePath], {
-              base,
-              baseDir: baseDirectory,
-              xOrigin,
+                }),
+              );
+              sendQueuedMessages();
             })
-              .then((modifiedDocument) => {
-                messageQueue.push(
-                  JSON.stringify({
-                    type: 'preview:file:changed',
-                    code:
+            .catch((e) => {
+              if (suppressLogs) {
+                console.log(defaultErrorMessage);
+              } else {
+                console.log(e);
+              }
+            });
+          break;
+        case 'change':
+          bundle([filePath], {
+            base,
+            baseDir: baseDirectory,
+            xOrigin,
+          })
+            .then((modifiedDocument) => {
+              messageQueue.push(
+                JSON.stringify({
+                  type: 'preview:file:changed',
+                  code:
                       path.extname(filePath) === '.yaml' ||
                       path.extname(filePath) === '.yml'
                         ? modifiedDocument.yml()
                         : modifiedDocument.string(),
-                  }),
-                );
-                sendQueuedMessages();
-              })
-              .catch((error) => {
-                if (suppressLogs) {
-                  console.log(defaultErrorMessage);
-                } else {
-                  console.log(error);
-                }
-              });
-            break;
-          case 'unlink':
-            messageQueue.push(
-              JSON.stringify({
-                type: 'preview:file:deleted',
-                filePath,
-              }),
-            );
-            sendQueuedMessages();
-            break;
+                }),
+              );
+              sendQueuedMessages();
+            })
+            .catch((error) => {
+              if (suppressLogs) {
+                console.log(defaultErrorMessage);
+              } else {
+                console.log(error);
+              }
+            });
+          break;
+        case 'unlink':
+          messageQueue.push(
+            JSON.stringify({
+              type: 'preview:file:deleted',
+              filePath,
+            }),
+          );
+          sendQueuedMessages();
+          break;
         }
       });
     }

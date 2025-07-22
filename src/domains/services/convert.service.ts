@@ -24,30 +24,30 @@ export class ConversionService extends BaseService {
   ): Promise<ServiceResult<ConversionResult>> {
     let convertedDocument: string;
     switch (options.format) {
-      case 'asyncapi':
-        convertedDocument = convert(
-          specFile.text() ?? '',
-          options['target-version'] || '3.0.0',
-        );
-        break;
-      case 'openapi':
-        convertedDocument = convertOpenAPI(
-          specFile.text() ?? '',
+    case 'asyncapi':
+      convertedDocument = convert(
+        specFile.text() ?? '',
+        options['target-version'] || '3.0.0',
+      );
+      break;
+    case 'openapi':
+      convertedDocument = convertOpenAPI(
+        specFile.text() ?? '',
           specFile.toJson().openapi as OpenAPIConvertVersion,
           {
             perspective: options.perspective,
           },
-        );
-        break;
-      case 'postman-collection':
-        convertedDocument = convertPostman(specFile.text() ?? '', '3.0.0', {
-          perspective: options.perspective,
-        });
-        break;
-      default:
-        return this.createErrorResult(
-          `Unsupported conversion format: ${options.format}`,
-        );
+      );
+      break;
+    case 'postman-collection':
+      convertedDocument = convertPostman(specFile.text() ?? '', '3.0.0', {
+        perspective: options.perspective,
+      });
+      break;
+    default:
+      return this.createErrorResult(
+        `Unsupported conversion format: ${options.format}`,
+      );
     }
 
     return this.createSuccessResult<ConversionResult>({

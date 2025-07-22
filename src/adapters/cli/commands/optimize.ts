@@ -163,24 +163,24 @@ export default class Optimize extends Command {
       }
 
       switch (this.outputMethod) {
-        case Outputs.TERMINAL:
-          this.log('📄 Here is your optimized AsyncAPI document:\n');
-          this.log(optimizedDocument);
-          break;
-        case Outputs.NEW_FILE:
-          await writeFile(newPath, optimizedDocument, { encoding: 'utf8' });
-          this.log(
-            `✅ Success! Your optimized file has been created at ${chalk.blue({ newPath })}.`,
-          );
-          break;
-        case Outputs.OVERWRITE:
-          await writeFile(specPath ?? 'asyncapi.yaml', optimizedDocument, {
-            encoding: 'utf8',
-          });
-          this.log(
-            `✅ Success! Your original file at ${specPath} has been updated.`,
-          );
-          break;
+      case Outputs.TERMINAL:
+        this.log('📄 Here is your optimized AsyncAPI document:\n');
+        this.log(optimizedDocument);
+        break;
+      case Outputs.NEW_FILE:
+        await writeFile(newPath, optimizedDocument, { encoding: 'utf8' });
+        this.log(
+          `✅ Success! Your optimized file has been created at ${chalk.blue({ newPath })}.`,
+        );
+        break;
+      case Outputs.OVERWRITE:
+        await writeFile(specPath ?? 'asyncapi.yaml', optimizedDocument, {
+          encoding: 'utf8',
+        });
+        this.log(
+          `✅ Success! Your original file at ${specPath} has been updated.`,
+        );
+        break;
       }
     } catch (error) {
       throw new ValidationError({

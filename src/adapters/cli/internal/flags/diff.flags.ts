@@ -28,7 +28,7 @@ export const diffFlags = () => {
       description: 'path to JSON file containing the override properties',
     }),
     'no-error': Flags.boolean({
-      description: "don't show error on breaking changes",
+      description: 'don\'t show error on breaking changes',
     }),
     watch: watchFlag(),
     ...parserFlags({ logDiagnostics: false }),

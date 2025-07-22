@@ -73,9 +73,9 @@ export class HelpController implements Controller {
         if (commands.length === 0) {
           const routes = isKeyValid('paths', openapiSpec)
             ? Object.keys(openapiSpec.paths).map((path) => ({
-                command: path.replace(/^\//, ''),
-                url: `${this.basepath}${path}`,
-              }))
+              command: path.replace(/^\//, ''),
+              url: `${this.basepath}${path}`,
+            }))
             : [];
           return res.json(routes);
         }

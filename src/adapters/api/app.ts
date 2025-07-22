@@ -76,13 +76,13 @@ export class App {
           directives: {
             // for `/docs` path - we need to fetch redoc component from unpkg.com domain and hash for inline script
             'script-src': [
-              "'self'",
+              '\'self\'',
               'unpkg.com',
-              "'sha256-HoDNcNPq7PEOgc6zsff39t5lZ/S65RY7Zl4hI67unp0='",
+              '\'sha256-HoDNcNPq7PEOgc6zsff39t5lZ/S65RY7Zl4hI67unp0=\'',
             ],
             // for schemas
-            'connect-src': ["'self'", 'http:'],
-            'worker-src': ["'self' blob:"],
+            'connect-src': ['\'self\'', 'http:'],
+            'worker-src': ['\'self\' blob:'],
           },
         },
         // for `/docs` path

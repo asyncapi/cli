@@ -55,20 +55,20 @@ export default class Analytics extends Command {
       }
     } catch (e: any) {
       switch (e.code) {
-        case 'ENOENT':
-          this.error(
-            `Unable to access the analytics configuration file. We tried to access the ${blueBright('.asyncapi-analytics')} file in the path "${blueBright(analyticsConfigFile)}" but the file could not be found.`,
-          );
-          break;
-        case 'EEXIST':
-          this.error(
-            `Unable to update the analytics configuration file. We tried to update your ".asyncapi-analytics" file in the path "${blueBright(analyticsConfigFile)}" but the file does not exist.`,
-          );
-          break;
-        default:
-          this.error(
-            `Unable to change your analytics configuration. Please check the following message for further info about the error:\n\n${redBright(e)}`,
-          );
+      case 'ENOENT':
+        this.error(
+          `Unable to access the analytics configuration file. We tried to access the ${blueBright('.asyncapi-analytics')} file in the path "${blueBright(analyticsConfigFile)}" but the file could not be found.`,
+        );
+        break;
+      case 'EEXIST':
+        this.error(
+          `Unable to update the analytics configuration file. We tried to update your ".asyncapi-analytics" file in the path "${blueBright(analyticsConfigFile)}" but the file does not exist.`,
+        );
+        break;
+      default:
+        this.error(
+          `Unable to change your analytics configuration. Please check the following message for further info about the error:\n\n${redBright(e)}`,
+        );
       }
     }
   }
