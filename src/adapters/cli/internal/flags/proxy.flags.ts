@@ -4,12 +4,11 @@ export const proxyFlags = () => {
   return {
     proxyHost: Flags.string({
       description: 'Name of the ProxyHost',
-      required: false
+      required: false,
     }),
     proxyPort: Flags.string({
       description: 'Port number number for the proxyHost.',
-      required: false
-    })
+      required: false,
+    }),
   };
 };
-

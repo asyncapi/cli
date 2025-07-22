@@ -26,7 +26,7 @@ export default class ContextList extends Command {
 
       if (fileContent) {
         for (const [contextName, filePath] of Object.entries(
-          fileContent.store
+          fileContent.store,
         )) {
           this.log(`${blueBright(contextName)}: ${filePath}`);
         }
@@ -35,7 +35,9 @@ export default class ContextList extends Command {
       if (
         e instanceof (MissingContextFileError || ContextFileWrongFormatError)
       ) {
-        this.log(`Unable to list contexts. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.\n`);
+        this.log(
+          `Unable to list contexts. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.\n`,
+        );
         return;
       }
       throw e;

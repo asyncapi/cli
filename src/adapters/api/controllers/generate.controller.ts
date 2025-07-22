@@ -41,18 +41,22 @@ export class GenerateController implements Controller {
         templateParams: parameters,
       };
 
-      const generateFunc = req.body['use-fallback-generator'] 
+      const generateFunc = req.body['use-fallback-generator']
         ? this.generatorService.generate.bind(this.generatorService)
-        : this.generatorService.generateUsingNewGenerator.bind(this.generatorService);
+        : this.generatorService.generateUsingNewGenerator.bind(
+            this.generatorService,
+          );
 
       try {
         const result = await generateFunc(
-          new Specification(typeof asyncapi === 'object' ? JSON.stringify(asyncapi) : asyncapi),
+          new Specification(
+            typeof asyncapi === 'object' ? JSON.stringify(asyncapi) : asyncapi,
+          ),
           template,
           tmpDir,
           options,
           {},
-          true
+          true,
         );
 
         if (!result.success) {
@@ -62,7 +66,7 @@ export class GenerateController implements Controller {
               title: 'Generation Error',
               status: 500,
               detail: result.error || 'An error occurred during generation.',
-            })
+            }),
           );
         }
       } catch (genErr: unknown) {
@@ -72,7 +76,7 @@ export class GenerateController implements Controller {
             title: 'Internal Generator error',
             status: 500,
             detail: (genErr as Error).message,
-          })
+          }),
         );
       }
 
@@ -88,7 +92,7 @@ export class GenerateController implements Controller {
           title: 'Internal server error',
           status: 500,
           detail: (err as Error).message,
-        })
+        }),
       );
     } finally {
       if (tmpDir) {
@@ -137,8 +141,8 @@ export class GenerateController implements Controller {
     let validate = this.ajv.getSchema(templateName);
     if (!validate) {
       this.ajv.addSchema(
-        await this.serializeTemplateParameters(templateName) || {},
-        templateName
+        (await this.serializeTemplateParameters(templateName)) || {},
+        templateName,
       );
       validate = this.ajv.getSchema(templateName);
     }
@@ -149,15 +153,15 @@ export class GenerateController implements Controller {
    * Serialize template parameters. Read all parameters from template's package.json and create a proper JSON Schema for validating parameters.
    */
   public async serializeTemplateParameters(
-    templateName: string
+    templateName: string,
   ): Promise<object | undefined> {
     const pathToPackageJSON = path.join(
       __dirname,
-      `../../../../node_modules/${templateName}/package.json`
+      `../../../../node_modules/${templateName}/package.json`,
     );
     const packageJSONContent = await fs.promises.readFile(
       pathToPackageJSON,
-      'utf-8'
+      'utf-8',
     );
     const packageJSON = JSON.parse(packageJSONContent);
     if (!packageJSON) {
@@ -206,7 +210,7 @@ export class GenerateController implements Controller {
         method: 'post',
         documents: ['asyncapi'],
       }),
-      this.generate.bind(this)
+      this.generate.bind(this),
     );
 
     return router;

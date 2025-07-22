@@ -12,12 +12,13 @@ export class ValidateController implements Controller {
 
   private async validate(req: Request, res: Response) {
     if (req.asyncapi?.parsedDocuments?.length) {
-      const results = req.asyncapi.validationResults?.map(result => ({
-        status: result.status,
-        asyncapi: result.document,
-        diagnostics: result.diagnostics,
-        score: result.score,
-      })) || [];
+      const results =
+        req.asyncapi.validationResults?.map((result) => ({
+          status: result.status,
+          asyncapi: result.document,
+          diagnostics: result.diagnostics,
+          score: result.score,
+        })) || [];
       res.status(200).json({
         results,
       });
@@ -36,12 +37,12 @@ export class ValidateController implements Controller {
 
     router.post(
       `${this.basepath}`,
-      await validationMiddleware({ 
-        path: this.basepath, 
+      await validationMiddleware({
+        path: this.basepath,
         method: 'post',
         documents: ['asyncapi'],
       }),
-      this.validate.bind(this)
+      this.validate.bind(this),
     );
 
     return router;

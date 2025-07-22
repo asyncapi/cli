@@ -4,15 +4,18 @@ export abstract class BaseService {
   protected createSuccessResult<T>(data: T): ServiceResult<T> {
     return {
       success: true,
-      data
+      data,
     };
   }
 
-  protected createErrorResult(error: string, diagnostics?: any[]): ServiceResult {
+  protected createErrorResult(
+    error: string,
+    diagnostics?: any[],
+  ): ServiceResult {
     return {
       success: false,
       error,
-      diagnostics
+      diagnostics,
     };
   }
 

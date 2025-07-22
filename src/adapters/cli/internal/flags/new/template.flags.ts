@@ -15,8 +15,7 @@ export const templateFlags = () => {
     }),
     file: Flags.string({
       char: 'f',
-      description:
-        'The path to the AsyncAPI file for generating a template.',
+      description: 'The path to the AsyncAPI file for generating a template.',
     }),
     'force-write': Flags.boolean({
       default: false,

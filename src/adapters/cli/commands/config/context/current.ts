@@ -22,14 +22,18 @@ export default class ContextCurrent extends Command {
       if (
         e instanceof (MissingContextFileError || ContextFileWrongFormatError)
       ) {
-        this.error(`Unable to show current context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`);
+        this.error(
+          `Unable to show current context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`,
+        );
       } else if (e instanceof ContextFileEmptyError) {
         this.error(`Context file ${blueBright(CONTEXT_FILE_PATH)} is empty.`);
       } else if (
         e instanceof ContextNotFoundError ||
         (fileContent && !fileContent.current)
       ) {
-        this.error(`No context is set as current.\nRun ${blueBright('asyncapi config context')} to see all available options.`);
+        this.error(
+          `No context is set as current.\nRun ${blueBright('asyncapi config context')} to see all available options.`,
+        );
       }
       throw e;
     }

@@ -5,7 +5,9 @@ export interface ValidationFlagsOptions {
   logDiagnostics?: boolean;
 }
 
-export function parserFlags({ logDiagnostics = true }: ValidationFlagsOptions = {}) {
+export function parserFlags({
+  logDiagnostics = true,
+}: ValidationFlagsOptions = {}) {
   return {
     'log-diagnostics': Flags.boolean({
       description: 'log validation diagnostics or not',
@@ -18,13 +20,15 @@ export function parserFlags({ logDiagnostics = true }: ValidationFlagsOptions = 
       default: OutputFormat.STYLISH,
     })(),
     'fail-severity': Flags.option({
-      description: 'diagnostics of this level or above will trigger a failure exit code',
+      description:
+        'diagnostics of this level or above will trigger a failure exit code',
       options: ['error', 'warn', 'info', 'hint'] as const,
       default: 'error',
     })(),
     output: Flags.string({
-      description: 'The output file name. Omitting this flag the result will be printed in the console.',
-      char: 'o' 
-    })
+      description:
+        'The output file name. Omitting this flag the result will be printed in the console.',
+      char: 'o',
+    }),
   };
 }

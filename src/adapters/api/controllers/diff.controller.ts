@@ -22,7 +22,7 @@ export class DiffController implements Controller {
           title: 'Internal Diff error',
           status: 500,
           detail: (err as Error).message,
-        })
+        }),
       );
     }
   }
@@ -37,7 +37,7 @@ export class DiffController implements Controller {
         method: 'post',
         documents: ['asyncapis'],
       }),
-      this.diff.bind(this)
+      this.diff.bind(this),
     );
 
     return router;

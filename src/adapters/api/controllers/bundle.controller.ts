@@ -24,7 +24,7 @@ export class BundleController implements Controller {
           title: 'Internal Bundler error',
           status: 500,
           detail: (err as Error).message,
-        })
+        }),
       );
     }
   }
@@ -39,7 +39,7 @@ export class BundleController implements Controller {
         method: 'post',
         documents: ['asyncapis', 'base'],
       }),
-      this.bundle.bind(this)
+      this.bundle.bind(this),
     );
 
     return router;

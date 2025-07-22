@@ -11,7 +11,10 @@ export default class StartStudio extends Command {
   static flags = studioFlags();
 
   static readonly args = {
-    'spec-file': Args.string({ description: 'spec path, url, or context-name', required: false }),
+    'spec-file': Args.string({
+      description: 'spec path, url, or context-name',
+      required: false,
+    }),
   };
 
   async run() {
@@ -22,7 +25,9 @@ export default class StartStudio extends Command {
     let port = flags.port;
 
     if (flags.file) {
-      this.warn('The file flag has been removed and is being replaced by the argument spec-file. Please pass the filename directly like `asyncapi start studio asyncapi.yml`');
+      this.warn(
+        'The file flag has been removed and is being replaced by the argument spec-file. Please pass the filename directly like `asyncapi start studio asyncapi.yml`',
+      );
     }
 
     const isInteractive = !flags['no-interactive'];
@@ -30,12 +35,12 @@ export default class StartStudio extends Command {
     if (isInteractive && !filePath) {
       const parsedArgs = await this.parseArgs({ filePath }, port?.toString());
       filePath = parsedArgs.filePath;
-      port = parseInt(parsedArgs.port,10);
+      port = parseInt(parsedArgs.port, 10);
     }
 
     if (!filePath) {
       try {
-        filePath = ((await load()).getFilePath());
+        filePath = (await load()).getFilePath();
         this.log(`Loaded specification from: ${filePath}`);
       } catch (error) {
         filePath = '';
@@ -53,17 +58,19 @@ export default class StartStudio extends Command {
     startStudio(filePath as string, port);
   }
 
-  private async parseArgs(args:Record<string,any>,port?:string) {
+  private async parseArgs(args: Record<string, any>, port?: string) {
     const operationCancelled = 'Operation cancelled by the user.';
     let askForPort = false;
-    let {filePath} = args;
+    let { filePath } = args;
     if (!filePath) {
       filePath = await text({
         message: 'Enter the path to the AsyncAPI document',
         defaultValue: 'asyncapi.yaml',
         placeholder: 'asyncapi.yaml',
         validate: (value) => {
-          if (!value) {return 'The path to the AsyncAPI document is required';}
+          if (!value) {
+            return 'The path to the AsyncAPI document is required';
+          }
         },
       });
       askForPort = true;
@@ -75,12 +82,13 @@ export default class StartStudio extends Command {
     }
 
     if (!port && askForPort) {
-      port = await text({
+      port = (await text({
         message: 'Enter the port in which to start Studio',
         defaultValue: '3210',
         placeholder: '3210',
-        validate: (value) => (!value ? 'The port number is required' : undefined),
-      }) as string;
+        validate: (value) =>
+          !value ? 'The port number is required' : undefined,
+      })) as string;
     }
 
     if (isCancel(port)) {

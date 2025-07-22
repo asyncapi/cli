@@ -1,7 +1,14 @@
 import { AsyncAPIDocumentInterface } from '@asyncapi/parser/cjs';
 import { OutputFormat } from '@stoplight/spectral-cli/dist/services/config';
 
-export type DiagnosticsFormat = 'stylish' | 'json' | 'junit' | 'html' | 'text' | 'teamcity' | 'pretty';
+export type DiagnosticsFormat =
+  | 'stylish'
+  | 'json'
+  | 'junit'
+  | 'html'
+  | 'text'
+  | 'teamcity'
+  | 'pretty';
 export type SeverityKind = 'error' | 'warn' | 'info' | 'hint';
 
 export type Adapter = 'cli' | 'api';
@@ -53,7 +60,7 @@ export interface ValidationOptions {
   'log-diagnostics'?: boolean;
   'diagnostics-format'?: `${OutputFormat}`;
   'fail-severity'?: SeverityKind;
-  'output'?: string;
+  output?: string;
   suppressWarnings?: string[];
   suppressAllWarnings?: boolean;
 }
@@ -117,8 +124,8 @@ export interface DiffResult {
 }
 
 export interface IMapBaseUrlToFlag {
-  url: string,
-  folder: string
+  url: string;
+  folder: string;
 }
 
 export interface GenerationOptions {

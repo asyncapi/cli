@@ -18,13 +18,18 @@ const logger = winston.createLogger({
       format: 'YYYY-MM-DD HH:mm:ss',
     }),
     // Define log format
-    winston.format.printf(({ timestamp, level, message }) => `${timestamp} ${level}: ${message}`),
+    winston.format.printf(
+      ({ timestamp, level, message }) => `${timestamp} ${level}: ${message}`,
+    ),
   ),
 });
 
 logger.add(
   new winston.transports.Console({
-    format: winston.format.combine(winston.format.splat(), winston.format.colorize()),
+    format: winston.format.combine(
+      winston.format.splat(),
+      winston.format.colorize(),
+    ),
   }),
 );
 

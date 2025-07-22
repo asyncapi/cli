@@ -1,4 +1,3 @@
-
 export class GeneratorError extends Error {
   constructor(err: Error) {
     super();

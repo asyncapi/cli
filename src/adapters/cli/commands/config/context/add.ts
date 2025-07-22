@@ -13,8 +13,14 @@ export default class ContextAdd extends Command {
   static flags = addFlags();
 
   static args = {
-    'context-name': Args.string({description: 'context name', required: true}),
-    'spec-file-path': Args.string({description: 'file path of the spec file', required: true}),
+    'context-name': Args.string({
+      description: 'context name',
+      required: true,
+    }),
+    'spec-file-path': Args.string({
+      description: 'file path of the spec file',
+      required: true,
+    }),
   };
 
   async run() {
@@ -25,16 +31,22 @@ export default class ContextAdd extends Command {
 
     try {
       await addContext(contextName, specFilePath);
-      this.log(`🎉 Context ${blueBright(contextName)} added successfully!\nYou can set it as your current context:\n  ${blueBright('asyncapi')} ${blueBright('config')} ${blueBright('context')} ${blueBright('use')} ${blueBright(contextName)}\nYou can use this context when needed by passing ${blueBright(contextName)} as a parameter:\n  ${blueBright('asyncapi')} ${blueBright('validate')} ${blueBright(contextName)}`);
+      this.log(
+        `🎉 Context ${blueBright(contextName)} added successfully!\nYou can set it as your current context:\n  ${blueBright('asyncapi')} ${blueBright('config')} ${blueBright('context')} ${blueBright('use')} ${blueBright(contextName)}\nYou can use this context when needed by passing ${blueBright(contextName)} as a parameter:\n  ${blueBright('asyncapi')} ${blueBright('validate')} ${blueBright(contextName)}`,
+      );
       if (setAsCurrent) {
         await setCurrentContext(contextName);
-        this.log(`\nThe newly added context, ${blueBright(contextName)}, is set as your current context!`);
+        this.log(
+          `\nThe newly added context, ${blueBright(contextName)}, is set as your current context!`,
+        );
       }
     } catch (e) {
       if (
         e instanceof (MissingContextFileError || ContextFileWrongFormatError)
       ) {
-        this.error(`Unable to add context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`);
+        this.error(
+          `Unable to add context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`,
+        );
       }
       throw e;
     }

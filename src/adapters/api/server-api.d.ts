@@ -7,6 +7,6 @@ declare module 'express' {
       parsedDocuments?: Array<AsyncAPIDocument>;
       validationResults?: Array<ValidationResult>;
       validationResult?: ValidationResult;
-    },
+    };
   }
 }

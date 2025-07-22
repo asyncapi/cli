@@ -1,12 +1,12 @@
 {
   "env": "production",
   "log": {
-      "format": "combined",
-      "dir": "../logs"
+    "format": "combined",
+    "dir": "../logs"
   },
   "cors": {
-      "origin": true,
-      "credentials": false
+    "origin": true,
+    "credentials": false
   },
   "request": {
     "body": {

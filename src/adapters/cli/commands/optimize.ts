@@ -13,20 +13,20 @@ import { proxyFlags } from '@cli/internal/flags/proxy.flags';
 const { writeFile } = promises;
 
 export enum Optimizations {
-  REMOVE_COMPONENTS='remove-components',
-  REUSE_COMPONENTS='reuse-components',
-  MOVE_DUPLICATES_TO_COMPONENTS='move-duplicates-to-components',
-  MOVE_ALL_TO_COMPONENTS='move-all-to-components',
+  REMOVE_COMPONENTS = 'remove-components',
+  REUSE_COMPONENTS = 'reuse-components',
+  MOVE_DUPLICATES_TO_COMPONENTS = 'move-duplicates-to-components',
+  MOVE_ALL_TO_COMPONENTS = 'move-all-to-components',
 }
 
 export enum DisableOptimizations {
-  SCHEMA='schema'
+  SCHEMA = 'schema',
 }
 
 export enum Outputs {
-  TERMINAL='terminal',
-  NEW_FILE='new-file',
-  OVERWRITE='overwrite'
+  TERMINAL = 'terminal',
+  NEW_FILE = 'new-file',
+  OVERWRITE = 'overwrite',
 }
 export default class Optimize extends Command {
   static description = 'optimize asyncapi specification file';
@@ -40,7 +40,7 @@ export default class Optimize extends Command {
     'asyncapi optimize ./asyncapi.yaml --no-tty',
     'asyncapi optimize ./asyncapi.yaml --optimization=remove-components --optimization=reuse-components --optimization=move-all-to-components --no-tty',
     'asyncapi optimize ./asyncapi.yaml --optimization=remove-components --output=terminal --no-tty',
-    'asyncapi optimize ./asyncapi.yaml --ignore=schema'
+    'asyncapi optimize ./asyncapi.yaml --ignore=schema',
   ];
 
   static flags = {
@@ -49,7 +49,10 @@ export default class Optimize extends Command {
   };
 
   static args = {
-    'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
+    'spec-file': Args.string({
+      description: 'spec path, url, or context-name',
+      required: false,
+    }),
   };
 
   parser = new Parser();
@@ -65,21 +68,23 @@ export default class Optimize extends Command {
     }
     try {
       this.specFile = await load(filePath);
-    } catch (err:any) {
+    } catch (err: any) {
       if (err.message.includes('Failed to download')) {
-        throw new Error('Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.');
+        throw new Error(
+          'Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.',
+        );
       } else if (filePath) {
         this.error(
           new ValidationError({
             type: 'invalid-file',
             filepath: filePath,
-          })
+          }),
         );
       } else {
         this.error(
           new ValidationError({
-            type: 'no-spec-found'
-          })
+            type: 'no-spec-found',
+          }),
         );
       }
     }
@@ -94,7 +99,7 @@ export default class Optimize extends Command {
         new ValidationError({
           type: 'invalid-syntax-file',
           filepath: this.specFile.getFilePath(),
-        })
+        }),
       );
     }
     this.isInteractive = !flags['no-tty'];
@@ -103,8 +108,16 @@ export default class Optimize extends Command {
     this.outputMethod = flags.output as Outputs;
     this.metricsMetadata.optimized = false;
 
-    if (!(report.moveDuplicatesToComponents?.length || report.removeComponents?.length || report.reuseComponents?.length)) {
-      this.log(`🎉 Great news! Your file at ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} is already optimized.`);
+    if (
+      !(
+        report.moveDuplicatesToComponents?.length ||
+        report.removeComponents?.length ||
+        report.reuseComponents?.length
+      )
+    ) {
+      this.log(
+        `🎉 Great news! Your file at ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} is already optimized.`,
+      );
       return;
     }
 
@@ -114,16 +127,28 @@ export default class Optimize extends Command {
     }
 
     try {
-      const optimizedDocument = optimizer.getOptimizedDocument({rules: {
-        moveDuplicatesToComponents: this.selectedOptimizations.includes(Optimizations.MOVE_DUPLICATES_TO_COMPONENTS),
-        moveAllToComponents: this.selectedOptimizations.includes(Optimizations.MOVE_ALL_TO_COMPONENTS),
-        removeComponents: this.selectedOptimizations.includes(Optimizations.REMOVE_COMPONENTS),
-        reuseComponents: this.selectedOptimizations.includes(Optimizations.REUSE_COMPONENTS)
-      },
-      disableOptimizationFor: {
-        schema: this.disableOptimizations.includes(DisableOptimizations.SCHEMA)
-      },
-      output: Output.YAML});
+      const optimizedDocument = optimizer.getOptimizedDocument({
+        rules: {
+          moveDuplicatesToComponents: this.selectedOptimizations.includes(
+            Optimizations.MOVE_DUPLICATES_TO_COMPONENTS,
+          ),
+          moveAllToComponents: this.selectedOptimizations.includes(
+            Optimizations.MOVE_ALL_TO_COMPONENTS,
+          ),
+          removeComponents: this.selectedOptimizations.includes(
+            Optimizations.REMOVE_COMPONENTS,
+          ),
+          reuseComponents: this.selectedOptimizations.includes(
+            Optimizations.REUSE_COMPONENTS,
+          ),
+        },
+        disableOptimizationFor: {
+          schema: this.disableOptimizations.includes(
+            DisableOptimizations.SCHEMA,
+          ),
+        },
+        output: Output.YAML,
+      });
 
       this.collectMetricsData(report);
 
@@ -132,24 +157,30 @@ export default class Optimize extends Command {
 
       if (specPath) {
         const pos = specPath.lastIndexOf('.');
-        newPath = `${specPath.substring(0,pos) }_optimized.${ specPath.substring(pos+1)}`;
+        newPath = `${specPath.substring(0, pos)}_optimized.${specPath.substring(pos + 1)}`;
       } else {
         newPath = 'optimized-asyncapi.yaml';
       }
 
       switch (this.outputMethod) {
-      case Outputs.TERMINAL:
-        this.log('📄 Here is your optimized AsyncAPI document:\n');
-        this.log(optimizedDocument);
-        break;
-      case Outputs.NEW_FILE:
-        await writeFile(newPath, optimizedDocument, { encoding: 'utf8' });
-        this.log(`✅ Success! Your optimized file has been created at ${chalk.blue({newPath})}.`);
-        break;
-      case Outputs.OVERWRITE:
-        await writeFile(specPath ?? 'asyncapi.yaml', optimizedDocument, { encoding: 'utf8' });
-        this.log(`✅ Success! Your original file at ${specPath} has been updated.`);
-        break;
+        case Outputs.TERMINAL:
+          this.log('📄 Here is your optimized AsyncAPI document:\n');
+          this.log(optimizedDocument);
+          break;
+        case Outputs.NEW_FILE:
+          await writeFile(newPath, optimizedDocument, { encoding: 'utf8' });
+          this.log(
+            `✅ Success! Your optimized file has been created at ${chalk.blue({ newPath })}.`,
+          );
+          break;
+        case Outputs.OVERWRITE:
+          await writeFile(specPath ?? 'asyncapi.yaml', optimizedDocument, {
+            encoding: 'utf8',
+          });
+          this.log(
+            `✅ Success! Your original file at ${specPath} has been updated.`,
+          );
+          break;
       }
     } catch (error) {
       throw new ValidationError({
@@ -166,10 +197,14 @@ export default class Optimize extends Command {
 
     for (let i = 0; i < elements.length; i++) {
       const element = elements[+i];
-      if (element.action==='move') {
-        this.log(`${chalk.green('move')} ${element.path} to ${element.target} and reference it.`);
-      } else if (element.action==='reuse') {
-        this.log(`${chalk.green('reuse')} ${element.target} in ${element.path}.`);
+      if (element.action === 'move') {
+        this.log(
+          `${chalk.green('move')} ${element.path} to ${element.target} and reference it.`,
+        );
+      } else if (element.action === 'reuse') {
+        this.log(
+          `${chalk.green('reuse')} ${element.target} in ${element.path}.`,
+        );
       } else if (element.action === 'remove') {
         this.log(`${chalk.red('remove')} ${element.path}.`);
       }
@@ -186,68 +221,118 @@ export default class Optimize extends Command {
     const choices = [];
 
     if (canMoveAll) {
-      const totalMove = report.moveAllToComponents?.filter((e: ReportElement) => e.action === 'move').length;
-      this.log(`${chalk.green(totalMove)} components can be moved to the components sections.\nthe following changes will be made:`);
+      const totalMove = report.moveAllToComponents?.filter(
+        (e: ReportElement) => e.action === 'move',
+      ).length;
+      this.log(
+        `${chalk.green(totalMove)} components can be moved to the components sections.\nthe following changes will be made:`,
+      );
       this.showOptimizations(report.moveAllToComponents);
-      choices.push({name: 'move all $refs to components section', value: Optimizations.MOVE_ALL_TO_COMPONENTS});
+      choices.push({
+        name: 'move all $refs to components section',
+        value: Optimizations.MOVE_ALL_TO_COMPONENTS,
+      });
     }
     if (canMoveDuplicates) {
-      const totalMove = report.moveDuplicatesToComponents?.filter((e: ReportElement) => e.action === 'move').length;
-      this.log(`\n${chalk.green(totalMove)} components can be moved to the components sections.\nthe following changes will be made:`);
+      const totalMove = report.moveDuplicatesToComponents?.filter(
+        (e: ReportElement) => e.action === 'move',
+      ).length;
+      this.log(
+        `\n${chalk.green(totalMove)} components can be moved to the components sections.\nthe following changes will be made:`,
+      );
       this.showOptimizations(report.moveDuplicatesToComponents);
-      choices.push({name: 'move to components section', value: Optimizations.MOVE_DUPLICATES_TO_COMPONENTS});
+      choices.push({
+        name: 'move to components section',
+        value: Optimizations.MOVE_DUPLICATES_TO_COMPONENTS,
+      });
     }
     if (canRemove) {
       const totalMove = report.removeComponents?.length;
-      this.log(`${chalk.green(totalMove)} unused components can be removed.\nthe following changes will be made:`);
+      this.log(
+        `${chalk.green(totalMove)} unused components can be removed.\nthe following changes will be made:`,
+      );
       this.showOptimizations(report.removeComponents);
-      choices.push({name: 'remove components', value: Optimizations.REMOVE_COMPONENTS});
+      choices.push({
+        name: 'remove components',
+        value: Optimizations.REMOVE_COMPONENTS,
+      });
     }
     if (canReuse) {
       const totalMove = report.reuseComponents?.length;
-      this.log(`${chalk.green(totalMove)} components can be reused.\nthe following changes will be made:`);
+      this.log(
+        `${chalk.green(totalMove)} components can be reused.\nthe following changes will be made:`,
+      );
       this.showOptimizations(report.reuseComponents);
-      choices.push({name: 'reuse components', value: Optimizations.REUSE_COMPONENTS});
+      choices.push({
+        name: 'reuse components',
+        value: Optimizations.REUSE_COMPONENTS,
+      });
     }
 
     if (this.disableOptimizations?.includes(DisableOptimizations.SCHEMA)) {
-      choices.push({name: 'Do not ignore schema', value: DisableOptimizations.SCHEMA});
+      choices.push({
+        name: 'Do not ignore schema',
+        value: DisableOptimizations.SCHEMA,
+      });
     } else {
-      choices.push({name: 'Ignore schema', value: DisableOptimizations.SCHEMA});
+      choices.push({
+        name: 'Ignore schema',
+        value: DisableOptimizations.SCHEMA,
+      });
     }
 
-    const optimizationRes = await inquirer.prompt([{
-      name: 'optimization',
-      message: 'select the type of optimization that you want to apply:',
-      type: 'checkbox',
-      default: 'all',
-      choices
-    }]);
+    const optimizationRes = await inquirer.prompt([
+      {
+        name: 'optimization',
+        message: 'select the type of optimization that you want to apply:',
+        type: 'checkbox',
+        default: 'all',
+        choices,
+      },
+    ]);
 
     if (optimizationRes.optimization.includes('schema')) {
       if (this.disableOptimizations?.includes(DisableOptimizations.SCHEMA)) {
-        this.disableOptimizations = this.disableOptimizations?.filter(opt => opt !== DisableOptimizations.SCHEMA);
+        this.disableOptimizations = this.disableOptimizations?.filter(
+          (opt) => opt !== DisableOptimizations.SCHEMA,
+        );
       } else {
-        this.disableOptimizations = [...(this.disableOptimizations || []), DisableOptimizations.SCHEMA];
+        this.disableOptimizations = [
+          ...(this.disableOptimizations || []),
+          DisableOptimizations.SCHEMA,
+        ];
       }
     }
 
     this.selectedOptimizations = optimizationRes.optimization;
 
-    const outputRes = await inquirer.prompt([{
-      name: 'output',
-      message: 'where do you want to save the result:',
-      type: 'list',
-      default: 'log to terminal',
-      choices: [{name: 'log to terminal',value: Outputs.TERMINAL}, {name: 'create new file', value: Outputs.NEW_FILE}, {name: 'update original file', value: Outputs.OVERWRITE}]
-    }]);
+    const outputRes = await inquirer.prompt([
+      {
+        name: 'output',
+        message: 'where do you want to save the result:',
+        type: 'list',
+        default: 'log to terminal',
+        choices: [
+          { name: 'log to terminal', value: Outputs.TERMINAL },
+          { name: 'create new file', value: Outputs.NEW_FILE },
+          { name: 'update original file', value: Outputs.OVERWRITE },
+        ],
+      },
+    ]);
     this.outputMethod = outputRes.output;
   }
 
   private collectMetricsData(report: Report) {
     for (const availableOptimization in report) {
-      const availableOptimizationKebabCase = availableOptimization.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase(); // optimization flags are kebab case
-      if (availableOptimization.length && this.selectedOptimizations?.includes(availableOptimizationKebabCase as Optimizations)) {
+      const availableOptimizationKebabCase = availableOptimization
+        .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+        .toLowerCase(); // optimization flags are kebab case
+      if (
+        availableOptimization.length &&
+        this.selectedOptimizations?.includes(
+          availableOptimizationKebabCase as Optimizations,
+        )
+      ) {
         this.metricsMetadata[`optimization_${availableOptimization}`] = true;
         this.metricsMetadata.optimized = true;
       }

@@ -11,7 +11,10 @@ import {
 } from '@models/SpecificationFile';
 import { SpecificationWrongFileFormat } from '@errors/specification-file';
 import { cyan, green } from 'picocolors';
-import { convertFormatFlags, fileFormat } from '@cli/internal/flags/format.flags';
+import {
+  convertFormatFlags,
+  fileFormat,
+} from '@cli/internal/flags/format.flags';
 
 export default class Convert extends Command {
   static specFile: any;

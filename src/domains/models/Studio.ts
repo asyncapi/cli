@@ -27,7 +27,9 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
   }
 
   // Locate @asyncapi/studio package
-  const studioPath = path.dirname(require.resolve('@asyncapi/studio/package.json'));
+  const studioPath = path.dirname(
+    require.resolve('@asyncapi/studio/package.json'),
+  );
   const app = next({
     dev: false,
     dir: studioPath,
@@ -44,17 +46,21 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
     sockets.push(socket);
     if (filePath) {
       getFileContent(filePath).then((code: string) => {
-        messageQueue.push(JSON.stringify({
-          type: 'file:loaded',
-          code,
-        }));
+        messageQueue.push(
+          JSON.stringify({
+            type: 'file:loaded',
+            code,
+          }),
+        );
         sendQueuedMessages();
       });
     } else {
-      messageQueue.push(JSON.stringify({
-        type: 'file:loaded',
-        code: '',
-      }));
+      messageQueue.push(
+        JSON.stringify({
+          type: 'file:loaded',
+          code: '',
+        }),
+      );
       sendQueuedMessages();
     }
 
@@ -64,40 +70,48 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
         if (filePath && json.type === 'file:update') {
           saveFileContent(filePath, json.code);
         } else {
-          console.warn('Live Server: An unknown event has been received. See details:');
+          console.warn(
+            'Live Server: An unknown event has been received. See details:',
+          );
           console.log(json);
         }
       } catch (e) {
-        console.error(`Live Server: An invalid event has been received. See details:\n${event}`);
+        console.error(
+          `Live Server: An invalid event has been received. See details:\n${event}`,
+        );
       }
     });
   });
 
   wsServer.on('close', (socket: any) => {
-    sockets.splice(sockets.findIndex(s => s === socket));
+    sockets.splice(sockets.findIndex((s) => s === socket));
   });
 
   app.prepare().then(() => {
     if (filePath) {
       chokidar.watch(filePath).on('all', (event, path) => {
         switch (event) {
-        case 'add':
-        case 'change':
-          getFileContent(path).then((code: string) => {
-            messageQueue.push(JSON.stringify({
-              type: 'file:changed',
-              code,
-            }));
+          case 'add':
+          case 'change':
+            getFileContent(path).then((code: string) => {
+              messageQueue.push(
+                JSON.stringify({
+                  type: 'file:changed',
+                  code,
+                }),
+              );
+              sendQueuedMessages();
+            });
+            break;
+          case 'unlink':
+            messageQueue.push(
+              JSON.stringify({
+                type: 'file:deleted',
+                filePath,
+              }),
+            );
             sendQueuedMessages();
-          });
-          break;
-        case 'unlink':
-          messageQueue.push(JSON.stringify({
-            type: 'file:deleted',
-            filePath,
-          }));
-          sendQueuedMessages();
-          break;
+            break;
         }
       });
     }
@@ -119,12 +133,14 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
       const url = `http://localhost:${port}?liveServer=${port}&studio-version=${studioVersion}`;
       console.log(`🎉 Connected to Live Server running at ${blueBright(url)}.`);
       console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
-      console.log(`🛑 If needed, press ${redBright('Ctrl + C')} to stop the process.`);
+      console.log(
+        `🛑 If needed, press ${redBright('Ctrl + C')} to stop the process.`,
+      );
       if (filePath) {
         console.log(`👁️ Watching changes on file ${blueBright(filePath)}`);
       } else {
         console.warn(
-          'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
+          'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.',
         );
       }
       open(url);
@@ -152,6 +168,5 @@ function getFileContent(filePath: string): Promise<string> {
 }
 
 function saveFileContent(filePath: string, fileContent: string): void {
-  writeFile(filePath, fileContent, { encoding: 'utf8' })
-    .catch(console.error);
+  writeFile(filePath, fileContent, { encoding: 'utf8' }).catch(console.error);
 }

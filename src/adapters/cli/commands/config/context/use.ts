@@ -14,7 +14,10 @@ export default class ContextUse extends Command {
   static flags = helpFlag();
 
   static args = {
-    'context-name': Args.string({description: 'name of the saved context', required: true}),
+    'context-name': Args.string({
+      description: 'name of the saved context',
+      required: true,
+    }),
   };
 
   async run() {
@@ -28,7 +31,9 @@ export default class ContextUse extends Command {
       if (
         e instanceof (MissingContextFileError || ContextFileWrongFormatError)
       ) {
-        this.error(`Unable to set the current context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`);
+        this.error(
+          `Unable to set the current context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`,
+        );
       } else if (e instanceof ContextFileEmptyError) {
         this.error(`Context file ${blueBright(CONTEXT_FILE_PATH)} is empty.`);
         return;

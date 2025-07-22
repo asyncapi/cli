@@ -19,19 +19,25 @@ export class ConvertController implements Controller {
   private async convert(req: Request, res: Response, next: NextFunction) {
     try {
       const options = req.body as ConvertDTO;
-      const specFile = new Specification(typeof options.source === 'string' ? options.source : JSON.stringify(options.source));
+      const specFile = new Specification(
+        typeof options.source === 'string'
+          ? options.source
+          : JSON.stringify(options.source),
+      );
       const result = await this.conversionService.convertDocument(
         specFile,
-        options
+        options,
       );
 
       if (!result.success) {
-        return next(new ProblemException({
-          type: 'conversion-error',
-          title: 'Conversion failed',
-          status: 400,
-          detail: result.error,
-        }));
+        return next(
+          new ProblemException({
+            type: 'conversion-error',
+            title: 'Conversion failed',
+            status: 400,
+            detail: result.error,
+          }),
+        );
       }
 
       res.status(200).json({
@@ -43,12 +49,14 @@ export class ConvertController implements Controller {
         return next(err);
       }
 
-      return next(new ProblemException({
-        type: 'internal-server-error',
-        title: 'Internal server error',
-        status: 500,
-        detail: (err as Error).message,
-      }));
+      return next(
+        new ProblemException({
+          type: 'internal-server-error',
+          title: 'Internal server error',
+          status: 500,
+          detail: (err as Error).message,
+        }),
+      );
     }
   }
 
@@ -57,16 +65,16 @@ export class ConvertController implements Controller {
 
     router.post(
       this.basepath,
-      await validationMiddleware({ 
-        path: this.basepath, 
+      await validationMiddleware({
+        path: this.basepath,
         method: 'post',
         documents: ['source'],
         condition: (req: Request) => {
           const body = req.body as ConvertDTO;
           return body.format === 'asyncapi';
-        }
+        },
       }),
-      this.convert.bind(this)
+      this.convert.bind(this),
     );
 
     return router;

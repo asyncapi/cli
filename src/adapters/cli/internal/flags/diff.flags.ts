@@ -18,16 +18,17 @@ export const diffFlags = () => {
       options: ['breaking', 'non-breaking', 'unclassified', 'all'],
     }),
     markdownSubtype: Flags.string({
-      description: 'the format of changes made to AsyncAPI document. It works only when diff is generated using md type. For example, when you specify subtype as json, then diff information in markdown is dumped as json structure.',
+      description:
+        'the format of changes made to AsyncAPI document. It works only when diff is generated using md type. For example, when you specify subtype as json, then diff information in markdown is dumped as json structure.',
       default: undefined,
-      options: ['json', 'yaml', 'yml']
+      options: ['json', 'yaml', 'yml'],
     }),
     overrides: Flags.string({
       char: 'o',
       description: 'path to JSON file containing the override properties',
     }),
     'no-error': Flags.boolean({
-      description: 'don\'t show error on breaking changes',
+      description: "don't show error on breaking changes",
     }),
     watch: watchFlag(),
     ...parserFlags({ logDiagnostics: false }),

@@ -25,13 +25,17 @@ export class ArchiverService {
     archive.directory(from, to);
   }
 
-  public appendAsyncAPIDocument(archive: Archiver, asyncapi: string, fileName = 'asyncapi') {
+  public appendAsyncAPIDocument(
+    archive: Archiver,
+    asyncapi: string,
+    fileName = 'asyncapi',
+  ) {
     asyncapi = JSON.stringify(asyncapi);
     const language = retrieveLangauge(asyncapi);
     if (language === 'yaml') {
       archive.append(asyncapi, { name: `${fileName}.yml` });
     } else {
-      archive.append(asyncapi, { name: `${fileName}.json`});
+      archive.append(asyncapi, { name: `${fileName}.json` });
     }
   }
 

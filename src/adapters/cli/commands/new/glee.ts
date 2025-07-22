@@ -55,13 +55,13 @@ export default class NewGlee extends Command {
     ]);
 
     return servers.filter(
-      (server) => !localServers.LOCAL_SERVERS.includes(server)
+      (server) => !localServers.LOCAL_SERVERS.includes(server),
     );
   }
   async createTemporaryFile(
     asyncapiInput: Specification,
     filteredRemoteServers: string[],
-    file: any
+    file: any,
   ) {
     const asyncapiObject = asyncapiInput.toJson();
     asyncapiObject['x-remoteServers'] = filteredRemoteServers;
@@ -85,7 +85,7 @@ export default class NewGlee extends Command {
 
       if (!validExtensions.includes(fileExtension)) {
         throw new Error(
-          'CLI Support only yml, yaml, and json extension for file'
+          'CLI Support only yml, yaml, and json extension for file',
         );
       }
 
@@ -104,7 +104,7 @@ export default class NewGlee extends Command {
     file: any,
     CURRENT_GLEE_TEMPLATE: any,
     projectName: string,
-    forceWrite: boolean
+    forceWrite: boolean,
   ) {
     const PROJECT_DIRECTORY = path.join(process.cwd(), projectName);
     await this.validateFile(file, projectName, PROJECT_DIRECTORY);
@@ -125,36 +125,36 @@ export default class NewGlee extends Command {
         await this.createTemporaryFile(
           asyncapiInput,
           filteredRemoteServers,
-          temporaryFileDirectory
+          temporaryFileDirectory,
         );
 
       const generator = new Generator(
         CURRENT_GLEE_TEMPLATE,
         PROJECT_DIRECTORY,
-        { forceWrite }
+        { forceWrite },
       );
       await generator.generateFromString(updatedAsyncApiContent);
       fs.unlinkSync(currentFileDirectory);
 
       this.log(
-        `Success! Created ${projectName} at ${PROJECT_DIRECTORY}\n\nNext steps:\n\n  cd ${projectName}\n  npm install --ignore-scripts\n\nImplement the function in functions and auth folder and run the project with:\n  npm run dev`
+        `Success! Created ${projectName} at ${PROJECT_DIRECTORY}\n\nNext steps:\n\n  cd ${projectName}\n  npm install --ignore-scripts\n\nImplement the function in functions and auth folder and run the project with:\n  npm run dev`,
       );
     } catch (err: any) {
       switch (err.code) {
-      case 'EACCES':
-        this.error(
-          `Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`
-        );
-        break;
-      case 'EPERM':
-        this.error(
-          `Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`
-        );
-        break;
-      default:
-        this.error(
-          `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`
-        );
+        case 'EACCES':
+          this.error(
+            `Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`,
+          );
+          break;
+        case 'EPERM':
+          this.error(
+            `Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`,
+          );
+          break;
+        default:
+          this.error(
+            `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`,
+          );
       }
     }
   }
@@ -173,7 +173,7 @@ export default class NewGlee extends Command {
     const GLEE_TEMPLATES_DIRECTORY = resolve(
       __dirname,
       '../../../../../assets/create-glee-app/templates/',
-      templateName
+      templateName,
     );
 
     const CURRENT_GLEE_TEMPLATE =
@@ -189,7 +189,7 @@ export default class NewGlee extends Command {
         file,
         CURRENT_GLEE_TEMPLATE,
         projectName,
-        forceWrite
+        forceWrite,
       );
       this.specFile = await load(flags.file);
       this.metricsMetadata.template = flags.template;
@@ -198,23 +198,23 @@ export default class NewGlee extends Command {
         await fPromises.mkdir(PROJECT_DIRECTORY);
       } catch (err: any) {
         switch (err.code) {
-        case 'EEXIST':
-          this.error(errorMessages.alreadyExists(projectName));
-          break;
-        case 'EACCES':
-          this.error(
-            `Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`
-          );
-          break;
-        case 'EPERM':
-          this.error(
-            `Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`
-          );
-          break;
-        default:
-          this.error(
-            `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`
-          );
+          case 'EEXIST':
+            this.error(errorMessages.alreadyExists(projectName));
+            break;
+          case 'EACCES':
+            this.error(
+              `Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`,
+            );
+            break;
+          case 'EPERM':
+            this.error(
+              `Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`,
+            );
+            break;
+          default:
+            this.error(
+              `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`,
+            );
         }
       }
 
@@ -222,20 +222,20 @@ export default class NewGlee extends Command {
         await fs.copy(GLEE_TEMPLATES_DIRECTORY, PROJECT_DIRECTORY);
         await fPromises.rename(
           `${PROJECT_DIRECTORY}/env`,
-          `${PROJECT_DIRECTORY}/.env`
+          `${PROJECT_DIRECTORY}/.env`,
         );
         await fPromises.rename(
           `${PROJECT_DIRECTORY}/gitignore`,
-          `${PROJECT_DIRECTORY}/.gitignore`
+          `${PROJECT_DIRECTORY}/.gitignore`,
         );
         await fPromises.rename(
           `${PROJECT_DIRECTORY}/README-template.md`,
-          `${PROJECT_DIRECTORY}/README.md`
+          `${PROJECT_DIRECTORY}/README.md`,
         );
         this.log(successMessage(projectName));
       } catch (err) {
         this.error(
-          `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`
+          `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`,
         );
       }
       this.specFile = await load(`${GLEE_TEMPLATES_DIRECTORY}/asyncapi.yaml`);

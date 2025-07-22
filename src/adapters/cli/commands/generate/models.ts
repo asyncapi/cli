@@ -2,11 +2,18 @@ import Command from '@cli/internal/base';
 import { load, Specification } from '@models/SpecificationFile';
 import { cancel, intro, isCancel, select, spinner, text } from '@clack/prompts';
 import { green, inverse } from 'picocolors';
-import { generateModels, Languages, ModelinaArgs } from '@asyncapi/modelina-cli';
+import {
+  generateModels,
+  Languages,
+  ModelinaArgs,
+} from '@asyncapi/modelina-cli';
 import { modelsFlags } from '@cli/internal/flags/generate/models.flags';
 import { proxyFlags } from '@cli/internal/flags/proxy.flags';
 import { ValidationOptions } from '@/interfaces';
-import { ValidationService, ValidationStatus } from '@/domains/services/validation.service';
+import {
+  ValidationService,
+  ValidationStatus,
+} from '@/domains/services/validation.service';
 import { Diagnostic } from '@asyncapi/parser/cjs';
 
 export default class Models extends Command {
@@ -21,9 +28,9 @@ export default class Models extends Command {
 
   async run() {
     const { args, flags } = await this.parse(Models);
-    let { language, file} = args;
+    let { language, file } = args;
     let { output } = flags;
-    const {proxyPort,proxyHost} = flags;
+    const { proxyPort, proxyHost } = flags;
 
     const interactive = !flags['no-interactive'];
 
@@ -42,23 +49,43 @@ export default class Models extends Command {
     }
     const inputFile = (await load(file)) || (await load());
 
-    const result = await this.validationService.parseDocument(inputFile, {}, flags as ValidationOptions);
+    const result = await this.validationService.parseDocument(
+      inputFile,
+      {},
+      flags as ValidationOptions,
+    );
     if (!result.success) {
-      this.error(`Failed to parse the AsyncAPI document: ${result.error}`, { exit: 1 });
+      this.error(`Failed to parse the AsyncAPI document: ${result.error}`, {
+        exit: 1,
+      });
     } else if (!result.data) {
-      this.error('No data returned from parsing the AsyncAPI document.', { exit: 1 });
+      this.error('No data returned from parsing the AsyncAPI document.', {
+        exit: 1,
+      });
     }
 
     const { document, diagnostics, status } = result.data;
 
     if (!document || status === 'invalid') {
       const severityErrors = diagnostics.filter((obj) => obj.severity === 0);
-      this.log(`Input is not a correct AsyncAPI document so it cannot be processed.${this.validationService.formatDiagnosticsOutput(severityErrors,'stylish','error')}`);
+      this.log(
+        `Input is not a correct AsyncAPI document so it cannot be processed.${this.validationService.formatDiagnosticsOutput(severityErrors, 'stylish', 'error')}`,
+      );
       return;
     }
     if (flags['log-diagnostics'] && inputFile) {
-      this.handleGovernanceMessage(inputFile, diagnostics, status as ValidationStatus);
-      this.log(this.validationService.formatDiagnosticsOutput(diagnostics, flags['diagnostics-format'], flags['fail-severity']));
+      this.handleGovernanceMessage(
+        inputFile,
+        diagnostics,
+        status as ValidationStatus,
+      );
+      this.log(
+        this.validationService.formatDiagnosticsOutput(
+          diagnostics,
+          flags['diagnostics-format'],
+          flags['fail-severity'],
+        ),
+      );
     }
 
     const logger = {
@@ -79,10 +106,21 @@ export default class Models extends Command {
     const s = spinner();
     s.start('Generating models...');
     try {
-      const generatedModels = await generateModels({...flags, output}, document, logger, language as Languages);
+      const generatedModels = await generateModels(
+        { ...flags, output },
+        document,
+        logger,
+        language as Languages,
+      );
       if (output && output !== 'stdout') {
-        const generatedModelStrings = generatedModels.map((model) => { return model.modelName; });
-        s.stop(green(`Successfully generated the following models: ${generatedModelStrings.join(', ')}`));
+        const generatedModelStrings = generatedModels.map((model) => {
+          return model.modelName;
+        });
+        s.stop(
+          green(
+            `Successfully generated the following models: ${generatedModelStrings.join(', ')}`,
+          ),
+        );
         return;
       }
       const generatedModelStrings = generatedModels.map((model) => {
@@ -91,16 +129,20 @@ export default class Models extends Command {
   ${model.result}
         `;
       });
-      s.stop(green(`Successfully generated the following models: ${generatedModelStrings.join('\n')}`));
+      s.stop(
+        green(
+          `Successfully generated the following models: ${generatedModelStrings.join('\n')}`,
+        ),
+      );
     } catch (error) {
-      s.stop(green('Failed to generate models')); 
+      s.stop(green('Failed to generate models'));
 
       if (error instanceof Error) {
         this.error(error.message);
       } else {
         this.error('An unknown error occurred during model generation.');
       }
-    }    
+    }
   }
 
   private async parseArgs(args: Record<string, any>, output?: string) {
@@ -110,9 +152,11 @@ export default class Models extends Command {
     if (!language) {
       language = await select({
         message: 'Select the language you want to generate models for',
-        options: Object.keys(Languages).map((key) =>
-          ({ value: key, label: key, hint: Languages[key as keyof typeof Languages] })
-        ),
+        options: Object.keys(Languages).map((key) => ({
+          value: key,
+          label: key,
+          hint: Languages[key as keyof typeof Languages],
+        })),
       });
 
       askForOutput = true;
@@ -139,11 +183,11 @@ export default class Models extends Command {
     }
 
     if (!output && askForOutput) {
-      output = await text({
+      output = (await text({
         message: 'Enter the output directory or stdout to write the models to',
         defaultValue: 'stdout',
         placeholder: 'stdout',
-      }) as string;
+      })) as string;
     }
 
     if (isCancel(output)) {
@@ -162,13 +206,13 @@ export default class Models extends Command {
     const sourceString = document.toSourceString();
     const hasIssues = diagnostics && diagnostics.length > 0;
     const isFailSeverity = status === ValidationStatus.INVALID;
-  
+
     const governanceMessage = this.validationService.generateGovernanceMessage(
       sourceString,
       hasIssues,
-      isFailSeverity
+      isFailSeverity,
     );
-  
+
     if (isFailSeverity) {
       this.logToStderr(governanceMessage);
     } else {

@@ -31,26 +31,26 @@ export class SpecificationURLNotFound extends SpecificationFileError {
   }
 }
 
-type From = 'file' | 'url' | 'context' | 'invalid file'
+type From = 'file' | 'url' | 'context' | 'invalid file';
 
 export class ErrorLoadingSpec extends Error {
   private readonly errorMessages = {
-    default: NO_CONTEXTS_SAVED
+    default: NO_CONTEXTS_SAVED,
   };
   constructor(from?: From, param?: string) {
     super();
     if (from === 'file') {
       this.name = 'error loading AsyncAPI document from file';
       this.message = `${param} file does not exist.`;
-    } 
+    }
     if (from === 'url') {
       this.name = 'error loading AsyncAPI document from url';
       this.message = `Failed to download ${param}.`;
-    } 
+    }
     if (from === 'context') {
       this.name = 'error loading AsyncAPI document from context';
       this.message = `${param} context name does not exist.`;
-    } 
+    }
     if (from === 'invalid file') {
       this.name = 'Invalid AsyncAPI file type';
       this.message = 'cli only supports yml ,yaml ,json extension';

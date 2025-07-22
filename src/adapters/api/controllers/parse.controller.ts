@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { validationMiddleware } from '../middlewares/validation.middleware';
-import { Controller} from '@/interfaces';
+import { Controller } from '@/interfaces';
 
 /**
  * Controller which exposes the Parser functionality, to parse the AsyncAPI document.
@@ -20,12 +20,12 @@ export class ParseController implements Controller {
 
     router.post(
       `${this.basepath}`,
-      await validationMiddleware({ 
-        path: this.basepath, 
+      await validationMiddleware({
+        path: this.basepath,
         method: 'post',
         documents: ['asyncapi'],
       }),
-      this.parse.bind(this)
+      this.parse.bind(this),
     );
 
     return router;

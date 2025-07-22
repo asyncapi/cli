@@ -2,12 +2,13 @@ import { Args } from '@oclif/core';
 import { promises as fs } from 'fs';
 import * as yaml from 'yaml';
 import Command from '@cli/internal/base';
-import { load , retrieveFileFormat} from '@models/SpecificationFile';
+import { load, retrieveFileFormat } from '@models/SpecificationFile';
 import { ValidationError } from '@errors/validation-error';
 import { prettyFlags } from '@cli/internal/flags/pretty.flags';
 
 export default class Pretty extends Command {
-  static readonly description = 'Beautify the AsyncAPI spec file (indentation, styling) in place or output the formatted spec to a new file.';
+  static readonly description =
+    'Beautify the AsyncAPI spec file (indentation, styling) in place or output the formatted spec to a new file.';
 
   static readonly examples = [
     'asyncapi pretty ./asyncapi.yaml',
@@ -17,13 +18,16 @@ export default class Pretty extends Command {
   static readonly flags = prettyFlags();
 
   static readonly args = {
-    'spec-file': Args.string({description: 'spec path, url, or context-name', required: true}),
+    'spec-file': Args.string({
+      description: 'spec path, url, or context-name',
+      required: true,
+    }),
   };
 
   async run() {
     const { args, flags } = await this.parse(Pretty);
     const filePath = args['spec-file'];
-    const outputPath = flags.output; 
+    const outputPath = flags.output;
 
     try {
       this.specFile = await load(filePath);
@@ -32,7 +36,7 @@ export default class Pretty extends Command {
         new ValidationError({
           type: 'invalid-file',
           filepath: filePath,
-        })
+        }),
       );
     }
 
@@ -44,11 +48,11 @@ export default class Pretty extends Command {
       if (fileFormat === 'yaml' || fileFormat === 'yml') {
         const yamlDoc = yaml.parseDocument(content);
         formatted = yamlDoc.toString({
-          lineWidth: 0, 
+          lineWidth: 0,
         });
       } else if (fileFormat === 'json') {
-        const jsonObj = JSON.parse(content); 
-        formatted = JSON.stringify(jsonObj, null, 2); 
+        const jsonObj = JSON.parse(content);
+        formatted = JSON.stringify(jsonObj, null, 2);
       } else {
         throw new Error('Unsupported file format');
       }

@@ -11,7 +11,7 @@ const { readFile, lstat } = fs;
 const allowedFileNames: string[] = [
   'asyncapi.json',
   'asyncapi.yml',
-  'asyncapi.yaml'
+  'asyncapi.yaml',
 ];
 const TYPE_CONTEXT_NAME = 'context-name';
 const TYPE_FILE_PATH = 'file-path';
@@ -23,7 +23,10 @@ export class Specification {
   private readonly fileURL?: string;
   private readonly kind?: 'file' | 'url';
 
-  constructor(spec: string, options: { filepath?: string, fileURL?: string } = {}) {
+  constructor(
+    spec: string,
+    options: { filepath?: string; fileURL?: string } = {},
+  ) {
     this.spec = spec;
     if (options.filepath) {
       this.filePath = options.filepath;
@@ -41,7 +44,7 @@ export class Specification {
 
   toJson(): Record<string, any> {
     try {
-      return yaml.load(this.spec, {json: true}) as Record<string, any>;
+      return yaml.load(this.spec, { json: true }) as Record<string, any>;
     } catch (e) {
       return JSON.parse(this.spec);
     }
@@ -96,7 +99,7 @@ export class Specification {
     }
 
     try {
-    // Validate the target URL
+      // Validate the target URL
       new URL(targetUrl);
 
       const fetchOptions: any = { method: 'GET' };
@@ -107,9 +110,11 @@ export class Specification {
           new URL(proxyUrl);
           const proxyAgent = new HttpsProxyAgent(proxyUrl);
           fetchOptions.agent = proxyAgent;
-          response = await fetch(targetUrl,fetchOptions);
+          response = await fetch(targetUrl, fetchOptions);
         } catch (err: any) {
-          throw new Error('Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber');
+          throw new Error(
+            'Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber',
+          );
         }
       } else {
         response = await fetch(targetUrl);
@@ -122,7 +127,9 @@ export class Specification {
       throw new ErrorLoadingSpec('url', targetUrl);
     }
 
-    return new Specification(await response?.text() as string, { fileURL: targetUrl });
+    return new Specification((await response?.text()) as string, {
+      fileURL: targetUrl,
+    });
   }
 }
 
@@ -143,18 +150,28 @@ export default class SpecificationFile {
 }
 
 interface LoadType {
-  file?: boolean
-  url?: boolean
-  context?: boolean
+  file?: boolean;
+  url?: boolean;
+  context?: boolean;
 }
 
 /* eslint-disable sonarjs/cognitive-complexity */
-export async function load(filePathOrContextName?: string, loadType?: LoadType): Promise<Specification> { // NOSONAR
+export async function load(
+  filePathOrContextName?: string,
+  loadType?: LoadType,
+): Promise<Specification> {
+  // NOSONAR
   try {
     if (filePathOrContextName) {
-      if (loadType?.file) { return Specification.fromFile(filePathOrContextName); }
-      if (loadType?.context) { return loadFromContext(filePathOrContextName); }
-      if (loadType?.url) { return Specification.fromURL(filePathOrContextName); }
+      if (loadType?.file) {
+        return Specification.fromFile(filePathOrContextName);
+      }
+      if (loadType?.context) {
+        return loadFromContext(filePathOrContextName);
+      }
+      if (loadType?.url) {
+        return Specification.fromURL(filePathOrContextName);
+      }
 
       const type = await nameType(filePathOrContextName);
       if (type === TYPE_CONTEXT_NAME) {
@@ -195,7 +212,9 @@ export async function nameType(name: string): Promise<string> {
     }
     return TYPE_CONTEXT_NAME;
   } catch (e) {
-    if (await isURL(name)) { return TYPE_URL; }
+    if (await isURL(name)) {
+      return TYPE_URL;
+    }
     return TYPE_CONTEXT_NAME;
   }
 }
@@ -217,10 +236,10 @@ export async function fileExists(name: string): Promise<boolean> {
 
     const extension = name.split('.')[1];
 
-    const allowedExtenstion=['yml','yaml','json'];
+    const allowedExtenstion = ['yml', 'yaml', 'json'];
 
     if (!allowedExtenstion.includes(extension)) {
-      throw new ErrorLoadingSpec('invalid file',name);
+      throw new ErrorLoadingSpec('invalid file', name);
     }
 
     throw new ErrorLoadingSpec('file', name);
@@ -234,21 +253,25 @@ async function loadFromContext(contextName?: string): Promise<Specification> {
     const context = await loadContext(contextName);
     return Specification.fromFile(context);
   } catch (error) {
-    if (error instanceof MissingContextFileError) {throw new ErrorLoadingSpec();}
+    if (error instanceof MissingContextFileError) {
+      throw new ErrorLoadingSpec();
+    }
     throw error;
   }
 }
 
 async function detectSpecFile(): Promise<string | undefined> {
-  const existingFileNames = await Promise.all(allowedFileNames.map(async filename => {
-    try {
-      const exists = await fileExists(path.resolve(process.cwd(), filename));
-      return exists ? filename : undefined;
-    } catch (e) {
-      // We did our best...
-    }
-  }));
-  return existingFileNames.find(filename => filename !== undefined);
+  const existingFileNames = await Promise.all(
+    allowedFileNames.map(async (filename) => {
+      try {
+        const exists = await fileExists(path.resolve(process.cwd(), filename));
+        return exists ? filename : undefined;
+      } catch (e) {
+        // We did our best...
+      }
+    }),
+  );
+  return existingFileNames.find((filename) => filename !== undefined);
 }
 
 export function retrieveFileFormat(content: string): fileFormat | undefined {

@@ -40,8 +40,19 @@ export class Watcher {
    * @param {*} errorCallback Calback to call when it is no longer possible to watch a file.
    */
   initiateWatchOnPath(path: string, changeCallback: any, errorCallback: any) {
-    const watcher = chokidar.watch(path, {ignoreInitial: true, ignored: this.ignorePaths});
-    watcher.on('all', (eventType, changedPath) => this.fileChanged(path, changedPath, eventType, changeCallback, errorCallback));
+    const watcher = chokidar.watch(path, {
+      ignoreInitial: true,
+      ignored: this.ignorePaths,
+    });
+    watcher.on('all', (eventType, changedPath) =>
+      this.fileChanged(
+        path,
+        changedPath,
+        eventType,
+        changeCallback,
+        errorCallback,
+      ),
+    );
     this.watchers[String(path)] = watcher;
   }
 
@@ -64,13 +75,24 @@ export class Watcher {
    * @param {*} changeCallback Callback to call when changed occur.
    * @param {*} errorCallback Calback to call when it is no longer possible to watch a file.
    */
-  fileChanged(listenerPath: string, changedPath: string, eventType: string, changeCallback: any, errorCallback: any) {
+  fileChanged(
+    listenerPath: string,
+    changedPath: string,
+    eventType: string,
+    changeCallback: any,
+    errorCallback: any,
+  ) {
     try {
       if (fs.existsSync(listenerPath)) {
         const newEventType = this.convertEventType(eventType);
-        this.filesChanged[String(changedPath)] = { eventType: newEventType, path: changedPath};
+        this.filesChanged[String(changedPath)] = {
+          eventType: newEventType,
+          path: changedPath,
+        };
         // Since multiple changes can occur at the same time, lets wait a bit before processing.
-        if (this.fsWait) {return;}
+        if (this.fsWait) {
+          return;
+        }
         this.fsWait = setTimeout(async () => {
           await changeCallback(this.filesChanged);
           this.filesChanged = {};
@@ -93,22 +115,22 @@ export class Watcher {
     let newEventType = currentEventType;
     //Change the naming of the event type
     switch (newEventType) {
-    case 'unlink':
-    case 'unlinkDir':
-      newEventType = 'removed';
-      break;
-    case 'addDir':
-    case 'add':
-      newEventType = 'added';
-      break;
-    case 'change':
-      newEventType = 'changed';
-      break;
-    case 'rename':
-      newEventType = 'renamed';
-      break;
-    default:
-      newEventType = `unknown (${currentEventType})`;
+      case 'unlink':
+      case 'unlinkDir':
+        newEventType = 'removed';
+        break;
+      case 'addDir':
+      case 'add':
+        newEventType = 'added';
+        break;
+      case 'change':
+        newEventType = 'changed';
+        break;
+      case 'rename':
+        newEventType = 'renamed';
+        break;
+      default:
+        newEventType = `unknown (${currentEventType})`;
     }
     return newEventType;
   }
@@ -155,4 +177,3 @@ export class Watcher {
     }
   }
 }
-

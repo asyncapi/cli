@@ -1,12 +1,12 @@
 {
   "env": "test",
   "log": {
-      "format": "dev",
-      "dir": "../logs"
+    "format": "dev",
+    "dir": "../logs"
   },
   "cors": {
-      "origin": true,
-      "credentials": false
+    "origin": true,
+    "credentials": false
   },
   "request": {
     "body": {

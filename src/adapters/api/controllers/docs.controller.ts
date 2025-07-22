@@ -10,7 +10,7 @@ export class DocsController implements Controller {
 
   public boot(): Router {
     const router = Router();
-    
+
     router.get(`${this.basepath}/openapi.yaml`, (_, res) => {
       res.sendFile('openapi.yaml', { root: '.' });
     });
@@ -19,10 +19,10 @@ export class DocsController implements Controller {
       this.basepath,
       redoc({
         title: 'OpenAPI Documentation',
-        specUrl: `/${API_VERSION}${this.basepath}/openapi.yaml`
+        specUrl: `/${API_VERSION}${this.basepath}/openapi.yaml`,
       }),
     );
-    
+
     return router;
   }
 }

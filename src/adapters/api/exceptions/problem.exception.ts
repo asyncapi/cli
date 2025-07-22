@@ -7,4 +7,6 @@ export interface ProblemExceptionProps {
 
 const typePrefix = 'https://api.asyncapi.com/problem';
 
-export class ProblemException extends ProblemMixin<ProblemExceptionProps>({ typePrefix }) {}
+export class ProblemException extends ProblemMixin<ProblemExceptionProps>({
+  typePrefix,
+}) {}

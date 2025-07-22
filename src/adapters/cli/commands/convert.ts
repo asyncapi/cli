@@ -15,16 +15,19 @@ const latestVersion = Object.keys(specs.schemas).pop() as string;
 export default class Convert extends Command {
   static specFile: any;
   static metricsMetadata: any = {};
-  static description = 'Convert asyncapi documents older to newer versions or OpenAPI/postman-collection documents to AsyncAPI';
+  static description =
+    'Convert asyncapi documents older to newer versions or OpenAPI/postman-collection documents to AsyncAPI';
   private conversionService = new ConversionService();
   static flags = {
     ...convertFlags(latestVersion),
-    ...proxyFlags()
-
+    ...proxyFlags(),
   };
 
   static args = {
-    'spec-file': Args.string({description: 'spec path, url, or context-name', required: false}),
+    'spec-file': Args.string({
+      description: 'spec path, url, or context-name',
+      required: false,
+    }),
   };
 
   async run() {
@@ -44,22 +47,31 @@ export default class Convert extends Command {
       this.metricsMetadata.to_version = flags['target-version'];
       const conversionOptions = {
         format: flags.format as 'asyncapi' | 'openapi' | 'postman-collection',
-        'target-version': (flags['target-version'] || latestVersion) as AsyncAPIConvertVersion,
-        perspective: flags['perspective'] as 'client' | 'server'
+        'target-version': (flags['target-version'] ||
+          latestVersion) as AsyncAPIConvertVersion,
+        perspective: flags['perspective'] as 'client' | 'server',
       };
 
-      const result = await this.conversionService.convertDocument(this.specFile, conversionOptions);
-      
+      const result = await this.conversionService.convertDocument(
+        this.specFile,
+        conversionOptions,
+      );
+
       if (!result.success || !result.data) {
         this.error(result.error || 'Conversion failed', { exit: 1 });
       }
 
       this.metricsMetadata.conversion_result = result;
 
-      this.log(this.conversionService.handleLogging(this.specFile, conversionOptions));
+      this.log(
+        this.conversionService.handleLogging(this.specFile, conversionOptions),
+      );
 
       if (flags['output']) {
-        await this.conversionService.handleOutput(flags['output'], result.data.convertedDocument);
+        await this.conversionService.handleOutput(
+          flags['output'],
+          result.data.convertedDocument,
+        );
       } else {
         this.log(result.data.convertedDocument);
       }
@@ -71,12 +83,16 @@ export default class Convert extends Command {
   // Helper function to handle errors
   private handleError(err: any, filePath: string, flags: any) {
     if (err instanceof SpecificationFileNotFound) {
-      this.error(new ValidationError({
-        type: 'invalid-file',
-        filepath: filePath
-      }));
+      this.error(
+        new ValidationError({
+          type: 'invalid-file',
+          filepath: filePath,
+        }),
+      );
     } else if (this.specFile?.toJson().asyncapi > flags['target-version']) {
-      this.error(`The ${cyan(filePath)} file cannot be converted to an older version. Downgrading is not supported.`);
+      this.error(
+        `The ${cyan(filePath)} file cannot be converted to an older version. Downgrading is not supported.`,
+      );
     } else {
       this.error(err as Error);
     }

@@ -9,7 +9,8 @@ import { bundleFlags } from '@cli/internal/flags/bundle.flags';
 const { writeFile } = promises;
 
 export default class Bundle extends Command {
-  static readonly description = 'Bundle one or multiple AsyncAPI Documents and their references together.';
+  static readonly description =
+    'Bundle one or multiple AsyncAPI Documents and their references together.';
   static strict = false;
 
   static examples = [
@@ -31,13 +32,11 @@ export default class Bundle extends Command {
 
     this.metricsMetadata.files = AsyncAPIFiles.length;
 
-    const document = await bundle(AsyncAPIFiles,
-      {
-        base: flags.base,
-        baseDir: flags.baseDir,
-        xOrigin: flags.xOrigin,
-      }
-    );
+    const document = await bundle(AsyncAPIFiles, {
+      base: flags.base,
+      baseDir: flags.baseDir,
+      xOrigin: flags.xOrigin,
+    });
 
     await this.collectMetricsData(document);
 
@@ -51,15 +50,23 @@ export default class Bundle extends Command {
       const format = path.extname(output);
 
       if (format === '.yml' || format === '.yaml') {
-        await writeFile(path.resolve(process.cwd(), output), document.yml() || '', {
-          encoding: 'utf-8',
-        });
+        await writeFile(
+          path.resolve(process.cwd(), output),
+          document.yml() || '',
+          {
+            encoding: 'utf-8',
+          },
+        );
       }
 
       if (format === '.json') {
-        await writeFile(path.resolve(process.cwd(), output), document.string() || '', {
-          encoding: 'utf-8',
-        });
+        await writeFile(
+          path.resolve(process.cwd(), output),
+          document.string() || '',
+          {
+            encoding: 'utf-8',
+          },
+        );
       }
       this.log(`Check out your shiny new bundled files at ${output}`);
     }
@@ -71,7 +78,9 @@ export default class Bundle extends Command {
       this.specFile = new Specification(document.string() ?? '');
     } catch (e: any) {
       if (e instanceof Error) {
-        this.log(`Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`);
+        this.log(
+          `Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`,
+        );
       }
     }
   }

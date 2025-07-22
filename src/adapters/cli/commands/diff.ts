@@ -17,7 +17,10 @@ import { specWatcher } from '@cli/internal/globals';
 
 import type { SpecWatcherParams } from '@cli/internal/globals';
 import { diffFlags } from '@cli/internal/flags/diff.flags';
-import { ValidationService, ValidationStatus } from '@/domains/services/validation.service';
+import {
+  ValidationService,
+  ValidationStatus,
+} from '@/domains/services/validation.service';
 import { Diagnostic } from '@asyncapi/parser/cjs';
 
 const { readFile } = fs;
@@ -28,8 +31,14 @@ export default class Diff extends Command {
   static flags = diffFlags();
 
   static args = {
-    old: Args.string({description: 'old spec path, URL or context-name', required: true}),
-    new: Args.string({description: 'new spec path, URL or context-name', required: true}),
+    old: Args.string({
+      description: 'old spec path, URL or context-name',
+      required: true,
+    }),
+    new: Args.string({
+      description: 'new spec path, URL or context-name',
+      required: true,
+    }),
   };
 
   /* eslint-disable sonarjs/cognitive-complexity */
@@ -47,7 +56,10 @@ export default class Diff extends Command {
     let firstDocument: Specification, secondDocument: Specification;
 
     checkAndWarnFalseFlag(outputFormat, markdownSubtype);
-    markdownSubtype = setDefaultMarkdownSubtype(outputFormat, markdownSubtype) as string;
+    markdownSubtype = setDefaultMarkdownSubtype(
+      outputFormat,
+      markdownSubtype,
+    ) as string;
 
     this.metricsMetadata.output_format = outputFormat;
     this.metricsMetadata.output_type = outputType;
@@ -71,7 +83,7 @@ export default class Diff extends Command {
           new ValidationError({
             type: 'invalid-file',
             filepath: firstDocumentPath,
-          })
+          }),
         );
       }
       this.error(err as Error);
@@ -93,7 +105,7 @@ export default class Diff extends Command {
           new ValidationError({
             type: 'invalid-file',
             filepath: secondDocumentPath,
-          })
+          }),
         );
       }
       this.error(err as Error);
@@ -109,7 +121,12 @@ export default class Diff extends Command {
     }
 
     try {
-      const parsed = await this.parseDocuments(this, firstDocument, secondDocument, flags);
+      const parsed = await this.parseDocuments(
+        this,
+        firstDocument,
+        secondDocument,
+        flags,
+      );
       if (!parsed) {
         return;
       }
@@ -120,8 +137,8 @@ export default class Diff extends Command {
         {
           override: overrides,
           outputType: outputFormat as diff.OutputType, // NOSONAR
-          markdownSubtype: markdownSubtype as diff.MarkdownSubtype
-        }
+          markdownSubtype: markdownSubtype as diff.MarkdownSubtype,
+        },
       );
 
       if (outputFormat === 'json') {
@@ -132,16 +149,19 @@ export default class Diff extends Command {
         this.outputMarkdown(diffOutput, outputType);
       } else {
         this.log(
-          `The output format ${outputFormat} is not supported at the moment.`
+          `The output format ${outputFormat} is not supported at the moment.`,
         );
       }
       if (!noError) {
         throwOnBreakingChange(diffOutput, outputFormat);
       }
     } catch (error) {
-      if (error instanceof DiffBreakingChangeError || error instanceof TypeError) {
+      if (
+        error instanceof DiffBreakingChangeError ||
+        error instanceof TypeError
+      ) {
         this.error(error);
-      } 
+      }
       throw new ValidationError({
         type: 'parser-error',
         err: error,
@@ -171,35 +191,87 @@ export default class Diff extends Command {
     this.log(genericOutput(diffOutput, outputType) as string);
   }
 
-  async parseDocuments(command: Command, firstDocument: Specification, secondDocument: Specification, flags: Record<string, any>) {
-    const firstResult = await this.validationService.parseDocument(firstDocument, {}, flags);
-    const secondResult = await this.validationService.parseDocument(secondDocument, {}, flags);
+  async parseDocuments(
+    command: Command,
+    firstDocument: Specification,
+    secondDocument: Specification,
+    flags: Record<string, any>,
+  ) {
+    const firstResult = await this.validationService.parseDocument(
+      firstDocument,
+      {},
+      flags,
+    );
+    const secondResult = await this.validationService.parseDocument(
+      secondDocument,
+      {},
+      flags,
+    );
 
     if (!firstResult.success || !secondResult.success) {
-      this.error(new ValidationError({
-        type: 'invalid-file',
-        filepath: firstDocument.getFilePath() || secondDocument.getFilePath(),
-        err: firstResult.error || secondResult.error,
-      }));
+      this.error(
+        new ValidationError({
+          type: 'invalid-file',
+          filepath: firstDocument.getFilePath() || secondDocument.getFilePath(),
+          err: firstResult.error || secondResult.error,
+        }),
+      );
     }
 
     if (!firstResult.data || !secondResult.data) {
       return;
     }
 
-    const { document: firstDocumentParsed, status: firstDocumentStatus, diagnostics: firstDiagnostics } = firstResult.data;
-    const { document: secondDocumentParsed, status: secondDocumentStatus, diagnostics: secondDiagnostics } = secondResult.data;
+    const {
+      document: firstDocumentParsed,
+      status: firstDocumentStatus,
+      diagnostics: firstDiagnostics,
+    } = firstResult.data;
+    const {
+      document: secondDocumentParsed,
+      status: secondDocumentStatus,
+      diagnostics: secondDiagnostics,
+    } = secondResult.data;
 
     if (flags['log-diagnostics']) {
-      this.log(`Diagnostics for ${firstDocument.getFilePath() || firstDocument.getFileURL()}:`);
-      this.handleGovernanceMessage(firstDocument, firstDiagnostics, firstDocumentStatus as ValidationStatus);
-      this.log(this.validationService.formatDiagnosticsOutput(firstDiagnostics, flags['diagnostics-format'], flags['fail-severity']));
-      this.log(`Diagnostics for ${secondDocument.getFilePath() || secondDocument.getFileURL()}:`);
-      this.handleGovernanceMessage(secondDocument, secondDiagnostics, secondDocumentStatus as ValidationStatus);
-      this.log(this.validationService.formatDiagnosticsOutput(secondDiagnostics, flags['diagnostics-format'], flags['fail-severity']));
+      this.log(
+        `Diagnostics for ${firstDocument.getFilePath() || firstDocument.getFileURL()}:`,
+      );
+      this.handleGovernanceMessage(
+        firstDocument,
+        firstDiagnostics,
+        firstDocumentStatus as ValidationStatus,
+      );
+      this.log(
+        this.validationService.formatDiagnosticsOutput(
+          firstDiagnostics,
+          flags['diagnostics-format'],
+          flags['fail-severity'],
+        ),
+      );
+      this.log(
+        `Diagnostics for ${secondDocument.getFilePath() || secondDocument.getFileURL()}:`,
+      );
+      this.handleGovernanceMessage(
+        secondDocument,
+        secondDiagnostics,
+        secondDocumentStatus as ValidationStatus,
+      );
+      this.log(
+        this.validationService.formatDiagnosticsOutput(
+          secondDiagnostics,
+          flags['diagnostics-format'],
+          flags['fail-severity'],
+        ),
+      );
     }
 
-    if (!firstDocumentParsed || !secondDocumentParsed || firstDocumentStatus === 'invalid' || secondDocumentStatus === 'invalid') {
+    if (
+      !firstDocumentParsed ||
+      !secondDocumentParsed ||
+      firstDocumentStatus === 'invalid' ||
+      secondDocumentStatus === 'invalid'
+    ) {
       return;
     }
 
@@ -218,7 +290,7 @@ export default class Diff extends Command {
     const governanceMessage = this.validationService.generateGovernanceMessage(
       sourceString,
       hasIssues,
-      isFailSeverity
+      isFailSeverity,
     );
 
     if (isFailSeverity) {
@@ -237,11 +309,16 @@ export default class Diff extends Command {
  */
 function genericOutput(diffOutput: AsyncAPIDiff, outputType: string) {
   switch (outputType) {
-  case 'breaking': return diffOutput.breaking();
-  case 'non-breaking': return diffOutput.nonBreaking();
-  case 'unclassified': return diffOutput.unclassified();
-  case 'all': return diffOutput.getOutput();
-  default: return `The output type ${outputType} is not supported at the moment.`;
+    case 'breaking':
+      return diffOutput.breaking();
+    case 'non-breaking':
+      return diffOutput.nonBreaking();
+    case 'unclassified':
+      return diffOutput.unclassified();
+    case 'all':
+      return diffOutput.getOutput();
+    default:
+      return `The output type ${outputType} is not supported at the moment.`;
   }
 }
 
@@ -282,7 +359,8 @@ function throwOnBreakingChange(diffOutput: AsyncAPIDiff, outputFormat: string) {
   const breakingChanges = diffOutput.breaking();
   if (
     (outputFormat === 'json' && breakingChanges.length !== 0) ||
-    ((outputFormat === 'yaml' || outputFormat === 'yml') && breakingChanges !== '[]\n')
+    ((outputFormat === 'yaml' || outputFormat === 'yml') &&
+      breakingChanges !== '[]\n')
   ) {
     throw new DiffBreakingChangeError();
   }
@@ -291,9 +369,14 @@ function throwOnBreakingChange(diffOutput: AsyncAPIDiff, outputFormat: string) {
 /**
  * Checks and warns user about providing unnecessary markdownSubtype option.
  */
-function checkAndWarnFalseFlag(format: string, markdownSubtype: string | undefined) {
-  if (format !== 'md' && typeof (markdownSubtype) !== 'undefined') {
-    const warningMessage = chalk.yellowBright(`Warning: The given markdownSubtype flag will not work with the given format.\nProvided flag markdownSubtype: ${markdownSubtype}`);
+function checkAndWarnFalseFlag(
+  format: string,
+  markdownSubtype: string | undefined,
+) {
+  if (format !== 'md' && typeof markdownSubtype !== 'undefined') {
+    const warningMessage = chalk.yellowBright(
+      `Warning: The given markdownSubtype flag will not work with the given format.\nProvided flag markdownSubtype: ${markdownSubtype}`,
+    );
     console.log(warningMessage);
   }
 }
@@ -301,8 +384,11 @@ function checkAndWarnFalseFlag(format: string, markdownSubtype: string | undefin
 /**
  * Sets the default markdownSubtype option in case user doesn't provide one.
  */
-function setDefaultMarkdownSubtype(format: string, markdownSubtype: string | undefined) {
-  if (format === 'md' && typeof (markdownSubtype) === 'undefined') {
+function setDefaultMarkdownSubtype(
+  format: string,
+  markdownSubtype: string | undefined,
+) {
+  if (format === 'md' && typeof markdownSubtype === 'undefined') {
     return 'yaml';
   }
   return markdownSubtype;

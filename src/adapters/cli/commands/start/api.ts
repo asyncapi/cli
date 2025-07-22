@@ -12,13 +12,13 @@ export default class Api extends Command {
 
   static readonly args = {};
 
-  async run () {
+  async run() {
     const { flags } = await this.parse(Api);
 
     const app = new App(
       CONTROLLERS,
       flags.port || 3000, // Default port if not specified
-      flags.mode
+      flags.mode,
     );
 
     await app.init();

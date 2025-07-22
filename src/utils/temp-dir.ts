@@ -11,8 +11,12 @@ export function createTempDirectory() {
 
 export async function removeTempDirectory(tmpDir: string) {
   try {
-    tmpDir && fs.existsSync(tmpDir) && await fsp.rm(tmpDir, { recursive: true });
+    tmpDir &&
+      fs.existsSync(tmpDir) &&
+      (await fsp.rm(tmpDir, { recursive: true }));
   } catch (e) {
-    logger.error(`An error has occurred while removing the temp folder at ${tmpDir}. Please remove it manually. Error: ${e}`);
+    logger.error(
+      `An error has occurred while removing the temp folder at ${tmpDir}. Please remove it manually. Error: ${e}`,
+    );
   }
 }

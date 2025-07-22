@@ -14,8 +14,14 @@ export default class ContextEdit extends Command {
   static flags = helpFlag();
 
   static args = {
-    'context-name': Args.string({description: 'context name', required: true}),
-    'new-spec-file-path': Args.string({description: 'file path of the spec file', required: true}),
+    'context-name': Args.string({
+      description: 'context name',
+      required: true,
+    }),
+    'new-spec-file-path': Args.string({
+      description: 'file path of the spec file',
+      required: true,
+    }),
   };
   async run() {
     const { args } = await this.parse(ContextEdit);
@@ -24,12 +30,16 @@ export default class ContextEdit extends Command {
 
     try {
       await editContext(contextName, newSpecFilePath);
-      this.log(`🎉 Context ${blueBright(contextName)} edited successfully!\nYou can set it as your current context:\n  ${blueBright('asyncapi')} ${blueBright('config')} ${blueBright('context')} ${blueBright('use')} ${blueBright(contextName)}\nYou can use this context when needed by passing ${blueBright(contextName)} as a parameter:\n  ${blueBright('asyncapi')} ${blueBright('validate')} ${blueBright(contextName)}`);
+      this.log(
+        `🎉 Context ${blueBright(contextName)} edited successfully!\nYou can set it as your current context:\n  ${blueBright('asyncapi')} ${blueBright('config')} ${blueBright('context')} ${blueBright('use')} ${blueBright(contextName)}\nYou can use this context when needed by passing ${blueBright(contextName)} as a parameter:\n  ${blueBright('asyncapi')} ${blueBright('validate')} ${blueBright(contextName)}`,
+      );
     } catch (e) {
       if (
         e instanceof (MissingContextFileError || ContextFileWrongFormatError)
       ) {
-        this.error(`Unable to edit context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`);
+        this.error(
+          `Unable to edit context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`,
+        );
       } else if (e instanceof ContextFileEmptyError) {
         this.error(`Context file ${blueBright(CONTEXT_FILE_PATH)} is empty.`);
       }

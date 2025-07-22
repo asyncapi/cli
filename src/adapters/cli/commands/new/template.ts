@@ -37,17 +37,14 @@ export default class template extends Command {
   async run() {
     const { flags } = await this.parse(template); // NOSONAR
 
-    const {
-      name: projectName,
-      template: templateName,
-    } = flags;
+    const { name: projectName, template: templateName } = flags;
 
     const PROJECT_DIRECTORY = join(process.cwd(), projectName);
-    
+
     const templateDirectory = resolve(
       __dirname,
       '../../../../../assets/create-template/templates/',
-      templateName
+      templateName,
     );
 
     {
@@ -55,23 +52,23 @@ export default class template extends Command {
         await fPromises.mkdir(PROJECT_DIRECTORY);
       } catch (err: any) {
         switch (err.code) {
-        case 'EEXIST':
-          this.error(errorMessages.alreadyExists(projectName));
-          break;
-        case 'EACCES':
-          this.error(
-            `Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`
-          );
-          break;
-        case 'EPERM':
-          this.error(
-            `Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`
-          );
-          break;
-        default:
-          this.error(
-            `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`
-          );
+          case 'EEXIST':
+            this.error(errorMessages.alreadyExists(projectName));
+            break;
+          case 'EACCES':
+            this.error(
+              `Unable to create the project. We tried to access the "${PROJECT_DIRECTORY}" directory but it was not possible due to file access permissions. Please check the write permissions of your current working directory ("${process.cwd()}").`,
+            );
+            break;
+          case 'EPERM':
+            this.error(
+              `Unable to create the project. We tried to create the "${PROJECT_DIRECTORY}" directory but the operation requires elevated privileges. Please check the privileges for your current user.`,
+            );
+            break;
+          default:
+            this.error(
+              `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`,
+            );
         }
       }
 
@@ -80,7 +77,7 @@ export default class template extends Command {
         this.log(successMessage(projectName));
       } catch (err) {
         this.error(
-          `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`
+          `Unable to create the project. Please check the following message for further info about the error:\n\n${err}`,
         );
       }
       this.specFile = await load(`${templateDirectory}/asyncapi.yaml`);
@@ -89,23 +86,29 @@ export default class template extends Command {
   }
 }
 
-async function copyAndModify(templateDirectory:string, PROJECT_DIRECTORY:string, projectName:string) {
+async function copyAndModify(
+  templateDirectory: string,
+  PROJECT_DIRECTORY: string,
+  projectName: string,
+) {
   const packageJsonPath = path.join(templateDirectory, 'package.json');
   try {
     await fs.copy(templateDirectory, PROJECT_DIRECTORY, {
       filter: (src) => {
         return !src.endsWith('package.json');
-      }
+      },
     });
     const packageData = await jsonfile.readFile(packageJsonPath);
-    if ((packageData.generator && 'renderer' in packageData.generator)) {
+    if (packageData.generator && 'renderer' in packageData.generator) {
       packageData.generator.renderer = 'react';
     }
     if (packageData.name) {
       packageData.name = projectName;
     }
 
-    await fs.writeJSON(`${PROJECT_DIRECTORY}/package.json`, packageData, { spaces: 2 });
+    await fs.writeJSON(`${PROJECT_DIRECTORY}/package.json`, packageData, {
+      spaces: 2,
+    });
   } catch (err) {
     console.error('Error:', err);
   }

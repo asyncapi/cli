@@ -31,7 +31,7 @@ const DEFAULT_CONTEXT_FILENAME = '.asyncapi-cli';
 const DEFAULT_CONTEXT_FILE_LOCATION = os.homedir();
 export const DEFAULT_CONTEXT_FILE_PATH = path.resolve(
   DEFAULT_CONTEXT_FILE_LOCATION,
-  DEFAULT_CONTEXT_FILENAME
+  DEFAULT_CONTEXT_FILENAME,
 );
 
 const CONTEXT_FILENAME =
@@ -230,7 +230,7 @@ export async function loadContextFile(): Promise<IContextFile> {
   // 'ContextFileWrongFormatError' error.
   try {
     fileContent = JSON.parse(
-      await readFile(CONTEXT_FILE_PATH, { encoding: 'utf8' })
+      await readFile(CONTEXT_FILE_PATH, { encoding: 'utf8' }),
     );
   } catch (e) {
     // https://stackoverflow.com/questions/29797946/handling-bad-json-parse-in-node-safely
@@ -254,7 +254,7 @@ async function saveContextFile(fileContent: IContextFile) {
         current: fileContent.current,
         store: fileContent.store,
       }),
-      { encoding: 'utf8' }
+      { encoding: 'utf8' },
     );
   } catch (e) {
     throw new ContextFileWriteError(CONTEXT_FILE_PATH);
@@ -330,7 +330,7 @@ async function getContextFilePath(): Promise<string | null> {
       // file indeed.
       const fileContent = JSON.parse(
         //we do not use await readFile because getContextFilePath cannot be called inside async function
-        readFileSync(currentPathString, {encoding: 'utf8'})
+        readFileSync(currentPathString, { encoding: 'utf8' }),
       );
       if (
         fileContent &&
@@ -352,16 +352,16 @@ async function isContextFileValid(fileContent: IContextFile): Promise<boolean> {
     [1, 2].includes(Object.keys(fileContent).length) &&
     fileContent.hasOwnProperty.call(fileContent, 'store') &&
     !Array.from(Object.keys(fileContent.store)).find(
-      (elem) => typeof elem !== 'string'
+      (elem) => typeof elem !== 'string',
     ) &&
     !Array.from(Object.values(fileContent.store)).find(
-      (elem) => typeof elem !== 'string'
+      (elem) => typeof elem !== 'string',
     )
   );
 }
 
 export async function isContextFileEmpty(
-  fileContent: IContextFile
+  fileContent: IContextFile,
 ): Promise<boolean> {
   // If context file contains only one empty property `store` then the whole
   // context file is considered empty.

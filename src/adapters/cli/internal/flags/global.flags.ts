@@ -10,7 +10,6 @@ export const watchFlag = (description?: string) => {
 
 export const helpFlag = () => {
   return {
-    help: Flags.help({ char: 'h' })
+    help: Flags.help({ char: 'h' }),
   };
 };
-

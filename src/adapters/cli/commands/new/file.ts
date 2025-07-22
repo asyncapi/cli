@@ -12,17 +12,20 @@ const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
 const DEFAULT_ASYNCAPI_YAML_TEMPLATE = 'default-example.yaml';
 const DEFAULT_ASYNCAPI_JSON_TEMPLATE = 'default-example.json';
 
-interface IExample{
-  name: string,
-  value: string,
+interface IExample {
+  name: string;
+  value: string;
 }
 
-function loadExampleFile (): IExample[] {
-  const exampleFiles = readFileSync(resolve(__dirname, '../../../../../assets/examples/examples.json'), { encoding: 'utf8' });
+function loadExampleFile(): IExample[] {
+  const exampleFiles = readFileSync(
+    resolve(__dirname, '../../../../../assets/examples/examples.json'),
+    { encoding: 'utf8' },
+  );
   return JSON.parse(exampleFiles);
 }
 
-function getExamplesFlagDescription (): string {
+function getExamplesFlagDescription(): string {
   const examples = loadExampleFile();
   let description = 'name of the example to use. Available examples are:';
   for (const example of examples) {
@@ -38,7 +41,7 @@ export default class NewFile extends Command {
 
   static examples = [
     'asyncapi new\t - start creation of a file in interactive mode',
-    'asyncapi new --file-name=my-asyncapi.yaml --example=default-example.yaml --no-tty\t - create a new file with a specific name, using one of the examples and without interactive mode'
+    'asyncapi new --file-name=my-asyncapi.yaml --example=default-example.yaml --no-tty\t - create a new file with a specific name, using one of the examples and without interactive mode',
   ];
 
   async run() {
@@ -65,13 +68,16 @@ export default class NewFile extends Command {
       if (isTTY) {
         startStudio(fileName, flags.port || DEFAULT_PORT);
       } else {
-        this.warn('Warning: --studio flag was passed but the terminal is not interactive. Ignoring...');
+        this.warn(
+          'Warning: --studio flag was passed but the terminal is not interactive. Ignoring...',
+        );
       }
     }
   }
 
   /* eslint-disable sonarjs/cognitive-complexity */
-  async runInteractive() { // NOSONAR
+  async runInteractive() {
+    // NOSONAR
     const { flags } = await this.parse(NewFile); // NOSONAR
     let fileName = flags['file-name'];
     let selectedTemplate = flags['example'];
@@ -90,7 +96,10 @@ export default class NewFile extends Command {
     }
 
     try {
-      const exampleFiles = await readFile(resolve(__dirname, '../../assets/examples/examples.json'), { encoding: 'utf8' });
+      const exampleFiles = await readFile(
+        resolve(__dirname, '../../assets/examples/examples.json'),
+        { encoding: 'utf8' },
+      );
       examples = JSON.parse(exampleFiles);
     } catch (error) {
       // no examples found
@@ -99,7 +108,8 @@ export default class NewFile extends Command {
     if (!selectedTemplate && examples.length > 0) {
       questions.push({
         name: 'use-example',
-        message: 'would you like to start your new file from one of our examples?',
+        message:
+          'would you like to start your new file from one of our examples?',
         type: 'confirm',
         default: true,
       });
@@ -126,9 +136,15 @@ export default class NewFile extends Command {
     if (questions.length) {
       const answers: any = await inquirer.prompt(questions);
 
-      if (!fileName) {fileName = answers.filename as string;}
-      if (!selectedTemplate) {selectedTemplate = answers.selectedTemplate as string;}
-      if (openStudio === undefined) {openStudio = answers.studio;}
+      if (!fileName) {
+        fileName = answers.filename as string;
+      }
+      if (!selectedTemplate) {
+        selectedTemplate = answers.selectedTemplate as string;
+      }
+      if (openStudio === undefined) {
+        openStudio = answers.studio;
+      }
     }
 
     fileName = fileName || DEFAULT_ASYNCAPI_FILE_NAME;
@@ -143,21 +159,26 @@ export default class NewFile extends Command {
 
     await this.createAsyncapiFile(fileName, selectedTemplate);
     fileName = fileName.includes('.') ? fileName : `${fileName}.yaml`;
-    if (openStudio) { startStudio(fileName, flags.port || DEFAULT_PORT);}
+    if (openStudio) {
+      startStudio(fileName, flags.port || DEFAULT_PORT);
+    }
   }
 
-  async createAsyncapiFile(fileName:string, selectedTemplate:string) {
-    const asyncApiFile = await readFile(resolve(__dirname, '../../../../../assets/examples/', selectedTemplate), { encoding: 'utf8' });
+  async createAsyncapiFile(fileName: string, selectedTemplate: string) {
+    const asyncApiFile = await readFile(
+      resolve(__dirname, '../../../../../assets/examples/', selectedTemplate),
+      { encoding: 'utf8' },
+    );
 
     let fileNameToWriteToDisk;
 
     if (!fileName.includes('.')) {
-      fileNameToWriteToDisk=`${fileName}.yaml`;
+      fileNameToWriteToDisk = `${fileName}.yaml`;
     } else {
-      const extension=fileName.split('.')[1];
+      const extension = fileName.split('.')[1];
 
-      if (extension==='yml'||extension==='yaml'||extension==='json') {
-        fileNameToWriteToDisk=fileName;
+      if (extension === 'yml' || extension === 'yaml' || extension === 'json') {
+        fileNameToWriteToDisk = fileName;
       } else {
         console.log('CLI Support only yml, yaml and json extension for file');
 
@@ -166,18 +187,24 @@ export default class NewFile extends Command {
     }
 
     try {
-      const content = await readFile(fileNameToWriteToDisk, { encoding: 'utf8' });
+      const content = await readFile(fileNameToWriteToDisk, {
+        encoding: 'utf8',
+      });
       if (content !== undefined) {
-        console.log(`A file named ${fileNameToWriteToDisk} already exists. Please choose a different name.`);
+        console.log(
+          `A file named ${fileNameToWriteToDisk} already exists. Please choose a different name.`,
+        );
         return;
       }
-    } catch (e:any) {
+    } catch (e: any) {
       if (e.code === 'EACCES') {
         this.error('Permission has been denied to access the file.');
       }
     }
     await writeFile(fileNameToWriteToDisk, asyncApiFile, { encoding: 'utf8' });
-    console.log(`The ${cyan(fileNameToWriteToDisk)} has been successfully created.`);
+    console.log(
+      `The ${cyan(fileNameToWriteToDisk)} has been successfully created.`,
+    );
     this.specFile = await load(fileNameToWriteToDisk);
     this.metricsMetadata.selected_template = selectedTemplate;
   }

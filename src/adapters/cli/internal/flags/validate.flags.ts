@@ -8,12 +8,14 @@ export const validateFlags = () => {
     watch: watchFlag(),
     ...parserFlags(),
     score: Flags.boolean({
-      description: 'Compute the score of the AsyncAPI document. Scoring is based on whether the document has description, license, server and/or channels.',
+      description:
+        'Compute the score of the AsyncAPI document. Scoring is based on whether the document has description, license, server and/or channels.',
       required: false,
       default: false,
     }),
     suppressWarnings: Flags.string({
-      description: 'List of warning codes to suppress from the validation output.',
+      description:
+        'List of warning codes to suppress from the validation output.',
       required: false,
       multiple: true,
     }),

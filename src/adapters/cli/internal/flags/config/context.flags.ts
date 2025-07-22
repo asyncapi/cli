@@ -8,7 +8,6 @@ export const addFlags = () => {
       description: 'Set context being added as the current context',
       default: false,
       required: false,
-    })
+    }),
   };
 };
-

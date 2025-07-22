@@ -40,7 +40,7 @@ async function compileAjv(options: ValidationMiddlewareOptions) {
   const path = paths[String(pathName)];
   if (!path) {
     throw new Error(
-      `Path "${pathName}" doesn't exist in the OpenAPI document.`
+      `Path "${pathName}" doesn't exist in the OpenAPI document.`,
     );
   }
 
@@ -48,7 +48,7 @@ async function compileAjv(options: ValidationMiddlewareOptions) {
   const method = path[String(methodName)];
   if (!method) {
     throw new Error(
-      `Method "${methodName}" for "${pathName}" path doesn't exist in the OpenAPI document.`
+      `Method "${methodName}" for "${pathName}" path doesn't exist in the OpenAPI document.`,
     );
   }
 
@@ -107,21 +107,23 @@ async function validateSingleDocument(
 
   const specFile = new Specification(asyncapi, { fileURL: path });
 
-  return validationService.validateDocument(specFile, {
-    'fail-severity': 'error',
-    suppressAllWarnings: false,
-  }).then((result) => {
-    if (!result.success || result.data?.status !== 'valid') {
-      throw new ProblemException({
-        type: 'invalid-asyncapi-document',
-        title: 'Invalid AsyncAPI Document',
-        status: 422,
-        detail: result.error || 'The provided AsyncAPI document is invalid.',
-        diagnostics: result.diagnostics || result.data?.diagnostics,
-      });
-    }
-    return result.data;
-  });
+  return validationService
+    .validateDocument(specFile, {
+      'fail-severity': 'error',
+      suppressAllWarnings: false,
+    })
+    .then((result) => {
+      if (!result.success || result.data?.status !== 'valid') {
+        throw new ProblemException({
+          type: 'invalid-asyncapi-document',
+          title: 'Invalid AsyncAPI Document',
+          status: 422,
+          detail: result.error || 'The provided AsyncAPI document is invalid.',
+          diagnostics: result.diagnostics || result.data?.diagnostics,
+        });
+      }
+      return result.data;
+    });
 }
 
 async function validateListDocuments(
@@ -131,7 +133,11 @@ async function validateListDocuments(
 ) {
   const validationResults: Array<ValidationResult> = [];
   for (const asyncapi of asyncapis) {
-    const parsed = await validateSingleDocument(asyncapi, path, validationService);
+    const parsed = await validateSingleDocument(
+      asyncapi,
+      path,
+      validationService,
+    );
     if (parsed) {
       validationResults.push(parsed);
     } else {
@@ -150,7 +156,7 @@ async function validateListDocuments(
  * Validate RequestBody and sent AsyncAPI document(s) for given path and method based on the OpenAPI Document.
  */
 export async function validationMiddleware(
-  options: ValidationMiddlewareOptions
+  options: ValidationMiddlewareOptions,
 ) {
   options.version = options.version || 'v1';
   const validate = await compileAjv(options);
@@ -159,7 +165,7 @@ export async function validationMiddleware(
   return async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     // Check if the condition is met
     if (options.condition && !options.condition(req)) {
@@ -189,7 +195,7 @@ export async function validationMiddleware(
           title: 'Internal Server Error',
           status: 500,
           detail: `An unexpected error occurred during request validation: ${(error as Error).message ?? 'Unknown error'}`,
-        })
+        }),
       );
     }
 
@@ -197,34 +203,44 @@ export async function validationMiddleware(
       __unstable: {
         resolver: {
           resolvers: [
-            // @TODO: Add Cookie Based Resolvers after migration and understanding some 
+            // @TODO: Add Cookie Based Resolvers after migration and understanding some
             // details about how to use them in the new parser-js version.
-          ]
+          ],
         },
       },
     };
 
     const validationService = new ValidationService(parserConfig);
-    const resolveURL = req.header('x-asyncapi-resolve-url') ||
+    const resolveURL =
+      req.header('x-asyncapi-resolve-url') ||
       req.header('referer') ||
-      req.header('origin') || '';
+      req.header('origin') ||
+      '';
 
     try {
       req.asyncapi = req.asyncapi || {};
       for (const field of documents) {
         const body = req.body[String(field)];
         if (Array.isArray(body)) {
-          const results = await validateListDocuments(body, resolveURL, validationService);
+          const results = await validateListDocuments(
+            body,
+            resolveURL,
+            validationService,
+          );
           const parsedDocuments = results.map((result) => result.document);
           req.asyncapi.parsedDocuments = parsedDocuments;
           req.asyncapi.validationResults = results;
         } else {
-          const result = await validateSingleDocument(body, resolveURL, validationService);
+          const result = await validateSingleDocument(
+            body,
+            resolveURL,
+            validationService,
+          );
           req.asyncapi.parsedDocument = result?.document;
           req.asyncapi.validationResult = result;
         }
       }
-      
+
       next();
     } catch (err: unknown) {
       return next(err);
@@ -253,7 +269,10 @@ function retrieveStatusCode(type: string): number {
 /**
  * Merges fields from ParserError to ProblemException.
  */
-function mergeParserError(error: ProblemException, parserError: any): ProblemException {
+function mergeParserError(
+  error: ProblemException,
+  parserError: any,
+): ProblemException {
   if (parserError.detail) {
     error.set('detail', parserError.detail);
   }
@@ -276,7 +295,7 @@ function mergeParserError(error: ProblemException, parserError: any): ProblemExc
 function tryConvertToProblemException(err: any) {
   const typeName = err.type.replace(
     'https://github.com/asyncapi/parser-js/',
-    ''
+    '',
   );
   const error = new ProblemException({
     type: typeName,
