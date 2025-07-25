@@ -85,6 +85,7 @@
     "eslint-plugin-sonarjs": "^0.15.0",
     "markdown-toc": "^1.2.0",
     "mocha": "^10.2.0",
+    "nodemon": "^3.1.10",
     "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
     "simple-git": "^3.16.0",
@@ -156,6 +157,7 @@
     "bump:github-action": "cd github-action/lib/ && node bump-action-version.js",
     "bump:version": "npx -p @changesets/cli@2.27.7 changeset version && npm run bump:github-action",
     "dev": "tsc --watch",
+    "dev:api": "cross-env NODE_ENV=development PORT=3000 nodemon",
     "docker:build": "docker build -t asyncapi/cli:latest .",
     "generate:readme:create": "node -e \"const fs = require('fs'); fs.writeFileSync('scripts/README.md', '# Usage\\n\\n<!-- usage -->\\n\\n# Commands\\n\\n<!-- commands -->\\n');\"",
     "generate:readme:commands": "npm run build && cd scripts && cross-env DEBUG=* oclif readme",
@@ -181,7 +183,9 @@
     "createhook": "oclif generate hook myhook --event=command_not_found",
     "createhookinit": "oclif generate hook inithook --event=init",
     "action:docker:build": "docker build -f github-action/Dockerfile -t asyncapi/github-action-for-cli:latest .",
-    "action:test": "npm run build && cd github-action && make test"
+    "action:test": "npm run build && cd github-action && make test",
+    "api:build": "",
+    "api:test": ""
   },
   "types": "lib/index.d.ts"
 }
