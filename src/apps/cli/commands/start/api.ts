@@ -2,8 +2,8 @@ process.env['NODE_CONFIG_DIR'] = `${__dirname}/../../../api/configs`;
 
 import Command from '@cli/internal/base';
 import { apiFlags } from '../../internal/flags/start/api.flags';
-import { App } from '@/adapters/api/app';
-import { CONTROLLERS } from '@/adapters/api';
+import { App } from '@/apps/api/app';
+import { CONTROLLERS } from '@/apps/api';
 
 export default class Api extends Command {
   static readonly description = 'starts the AsyncAPI server API.';

@@ -10,8 +10,8 @@
     "paths": {
       "@/*": ["*"],
       "@src/*": ["*"],
-      "@cli/*": ["adapters/cli/*"],
-      "@api/*": ["adapters/api/*"],
+      "@cli/*": ["apps/cli/*"],
+      "@api/*": ["apps/api/*"],
       "@services/*": ["domains/services/*"],
       "@models/*": ["domains/models/*"],
       "@utils/*": ["utils/*"],

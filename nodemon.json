@@ -8,5 +8,5 @@
     "src/**/*.spec.ts",
     "src/**/*.test.ts"
   ],
-  "exec": "ts-node --require tsconfig-paths/register --transpile-only src/adapters/api/server.ts"
+  "exec": "ts-node --require tsconfig-paths/register --transpile-only src/apps/api/server.ts"
 }

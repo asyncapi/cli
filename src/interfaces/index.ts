@@ -83,46 +83,6 @@ export interface ConversionResult {
   originalFormat: string;
 }
 
-export interface BundleOptions {
-  base?: string;
-  baseDir?: string;
-  xOrigin?: boolean;
-  output?: string;
-}
-
-export interface BundleResult {
-  bundledDocument: any;
-  format: 'yaml' | 'json';
-}
-
-export interface OptimizationOptions {
-  optimizations?: string[];
-  disableOptimizations?: string[];
-  output?: 'terminal' | 'new-file' | 'overwrite';
-  interactive?: boolean;
-}
-
-export interface OptimizationResult {
-  optimizedDocument: string;
-  report: any;
-  outputMethod: string;
-}
-
-export interface DiffOptions {
-  format?: 'json' | 'yaml' | 'yml' | 'markdown';
-  type?: 'breaking' | 'non-breaking' | 'unclassified' | 'all';
-  markdownSubtype?: 'json' | 'yaml' | 'yml';
-  overrides?: string;
-  noError?: boolean;
-  watch?: boolean;
-}
-
-export interface DiffResult {
-  diff: any;
-  format: string;
-  hasBreakingChanges: boolean;
-}
-
 export interface IMapBaseUrlToFlag {
   url: string;
   folder: string;
