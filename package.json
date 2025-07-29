@@ -106,6 +106,7 @@
     "macos": {
       "identifier": "com.asyncapi.cli"
     },
+    "nsisCustomization": "./scripts/nsisCustomization.nsi",
     "topicSeparator": " ",
     "topics": {
       "config:context": {},
