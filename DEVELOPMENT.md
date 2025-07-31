@@ -27,7 +27,7 @@ npm install
 
 To run all tests locally:
 
-- Unit tests: `npm run test:unit`
+- CLI tests: `npm run cli:test`
 - Github action tests: `npm run action:test`
 
 ### Adding tests
