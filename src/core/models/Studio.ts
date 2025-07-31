@@ -8,6 +8,7 @@ import next from 'next';
 import path from 'path';
 import { version as studioVersion } from '@asyncapi/studio/package.json';
 import { blueBright, redBright } from 'picocolors';
+import { findAvailablePort } from '../utils/studioHelpers';
 
 const { readFile, writeFile } = fPromises;
 
@@ -20,9 +21,18 @@ function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
 }
 
-export function start(filePath: string, port: number = DEFAULT_PORT): void {
+export async function start(filePath: string, port: number = DEFAULT_PORT): Promise<void> {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
+  }
+
+  let finalPort: number;
+  try {
+    finalPort = await findAvailablePort(port);
+  } catch (error: any) {
+    console.error(redBright('Error:'), error.message);
+    // eslint-disable-next-line no-process-exit
+    process.exit(1);
   }
 
   // Locate @asyncapi/studio package
@@ -114,8 +124,8 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
       }
     });
 
-    server.listen(port, () => {
-      const url = `http://localhost:${port}?liveServer=${port}&studio-version=${studioVersion}`;
+    server.listen(finalPort, () => {
+      const url = `http://localhost:${finalPort}?liveServer=${finalPort}&studio-version=${studioVersion}`;
       console.log(`🎉 Connected to Live Server running at ${blueBright(url)}.`);
       console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
       console.log(`🛑 If needed, press ${redBright('Ctrl + C')} to stop the process.`);
