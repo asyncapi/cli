@@ -18,14 +18,14 @@ const defaultErrorMessage = 'error occured while bundling files. use --detailedL
 
 let bundleError = true;
 
-export const DEFAULT_PORT = 3210;
+export const DEFAULT_PORT = 4321;
 
 function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,suppressLogs:boolean|undefined,port: number = DEFAULT_PORT):void {
+export function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,suppressLogs:boolean|undefined,port: number = DEFAULT_PORT, noBrowser?: boolean):void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
@@ -126,7 +126,23 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
         }
       });
     }
-    const server = createServer((req, res) => handle(req, res));
+
+    const server = createServer((req, res) => {
+      if (req.url === '/close') {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('Shutting down server');
+        for (const socket of wsServer.clients) {
+          socket.close();
+        }
+        // Close the server
+        server.close(() => {
+          // eslint-disable-next-line no-process-exit
+          process.exit(0);
+        });
+        return;
+      }
+      handle(req, res);
+    });
 
     server.on('upgrade', (request, socket, head) => {
       if (request.url === '/preview-server' && request.headers['origin'] === `http://localhost:${port}`) {
@@ -156,7 +172,7 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
             'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
           );
         }
-        if (!bundleError) {
+        if (!bundleError && !noBrowser) {
           open(url);
         }
       }).on('error', (error) => {

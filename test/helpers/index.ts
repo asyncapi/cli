@@ -4,6 +4,8 @@ import { IContextFile, CONTEXT_FILE_PATH } from '../../src/core/models/Context';
 import SpecificationFile from '../../src/core/models/SpecificationFile';
 import http from 'http';
 import rimraf from 'rimraf';
+import puppeteer from 'puppeteer';
+import { version as studioVersion } from '@asyncapi/studio/package.json';
 
 const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'specification.yaml');
 const SERVER_DIRECTORY= path.join(__dirname, '../fixtures/dummyspec');
@@ -77,6 +79,49 @@ export function fileCleanup(filepath: string) {
   unlinkSync(filepath);
 }
 
+export async function testStudio(){
+  const browser = await puppeteer.launch({
+    args: ['--no-sandbox']
+  });
+  const page = await browser.newPage();
+
+  await page.goto(`http://localhost:3210?liveServer=3210&studio-version=${studioVersion}`);
+  await page.setViewport({width: 1080, height: 1024});
+
+  const logo = await page.locator('body > div:nth-child(1) > div > div > div > div > img').waitHandle()
+  const sideBar = await page.locator('#sidebar').waitHandle()
+  const navigationPannel = await page.locator('#navigation-panel').waitHandle()
+  const editor = await page.locator('#editor').waitHandle()
+
+  const logoTitle = await logo?.evaluate((e:any) => e.title)
+  const sideBarId = await sideBar?.evaluate((e:any)=> e.id)
+  const navigationPannelId = await navigationPannel?.evaluate((e:any)=> e.id)
+  const editorId = await editor?.evaluate((e:any)=> e.id)
+  await browser.close();
+  return {logoTitle,sideBarId,navigationPannelId,editorId}
+}
+
+export async function testPreview(){
+  const browser = await puppeteer.launch({
+    args: ['--no-sandbox']
+  });
+  const page = await browser.newPage();
+
+  await page.goto(`http://localhost:4321?previewServer=4321&studio-version=${studioVersion}`);
+  await page.setViewport({width: 1080, height: 1024});
+
+  const logo = await page.locator('body > div:nth-child(1) > div > div > div > div > img').waitHandle()
+  const introductionSection = await page.locator('#introduction').waitHandle()
+  // const sideBarPannel = await page.locator('#navigation-#html-preview > section > div > div.hidden.sidebar.relative.w-64.max-h-screen.h-full.bg-gray-200.shadow.z-20 > div > div').waitHandle()
+  // const editor = await page.locator('#editor').waitHandle()
+
+  const logoTitle = await logo?.evaluate((e:any) => e.title)
+  const introductionSectionId = await introductionSection?.evaluate((e:any)=> e.id)
+  // const sideBarPannelId = await sideBarPannel?.evaluate((e:any)=> e.class)
+  // const editorId = await editor?.evaluate((e:any)=> e.id)
+  await browser.close();
+  return {logoTitle,introductionSectionId}
+}
 export function createMockServer (port = 8080) {
   server = http.createServer(async (req,res) => {
     if (req.method ==='GET') {
@@ -101,6 +146,19 @@ export function createMockServer (port = 8080) {
 
 export function stopMockServer() {
   server.close();
+}
+
+export async function closeStudioServer(port = 3210): Promise<void> {
+  try {
+    const response = await fetch(`http://localhost:${port}/close`);
+    if (response.ok) {
+      const text = await response.text();
+    } else {
+      console.log(`Failed to close server. Status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error closing studio server:', error);
+  }
 }
 
 function getContentType(filePath:string):string {
