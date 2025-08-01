@@ -71,6 +71,7 @@ export default class Template extends Command {
 
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
+    const compile = flags['compile'];
     const interactive = !flags['no-interactive'];
     let asyncapi = args['asyncapi'] ?? '';
     let template = args['template'] ?? '';
@@ -123,7 +124,7 @@ export default class Template extends Command {
       }
     }
     if (flags['use-new-generator']) {
-      await this.generateUsingNewGenerator(asyncapi, template, output, options, genOption);
+      await this.generateUsingNewGenerator(asyncapi, template, output, options, genOption, compile);
     } else {
       await this.generate(asyncapi, template, output, options, genOption, interactive);
     }
@@ -287,7 +288,8 @@ export default class Template extends Command {
     s.stop(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
   }
 
-  private async generateUsingNewGenerator(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any) {
+  private async generateUsingNewGenerator(asyncapi: string | undefined, template: string, output: string, options: any, genOption: any, compile: boolean) {
+    console.log('⚙️ compile flag is:', compile);
     let specification: Specification;
     try {
       specification = await load(asyncapi);
@@ -300,7 +302,7 @@ export default class Template extends Command {
         { exit: 1 },
       );
     }
-    const generator = new AsyncAPINewGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
+    const generator = new AsyncAPINewGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), { ...options, compile });
     this.log('Generation in progress. Keep calm and wait a bit');
     try {
       await generator.generateFromString(specification.text(), { ...genOption, path: asyncapi });
