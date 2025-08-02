@@ -6,6 +6,7 @@ import { specWatcher } from '../core/globals';
 import { validateFlags } from '../core/flags/validate.flags';
 import { proxyFlags } from '../core/flags/proxy.flags';
 import { calculateScore } from '../core/utils/scoreCalculator';
+import avro from 'avsc';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
@@ -49,9 +50,36 @@ export default class Validate extends Command {
       suppressAllWarnings: flags['suppressAllWarnings'],
     };
 
-    const result = await validate(this, this.specFile, validateOptions);
+    let result = await validate(this, this.specFile, validateOptions);
+    
+    // I have added avro validation below from line 56 to 80
+    try {
+      const parseResult = await parse(this, this.specFile);
+      const document = parseResult?.document;
+      
+      if (document) {
+        const messages = document.json().components?.messages || {};
+        
+        for (const [name, msg] of Object.entries(messages)) {
+          const schemaFormat = msg.payload?.schemaFormat || msg.schemaFormat;
+          const schema = msg.payload?.schema || msg.schema;
+          
+          if (schemaFormat?.startsWith('application/vnd.apache.avro')) {
+            try {
+              avro.Type.forSchema(schema); 
+            } catch (e) {
+              this.log(`Invalid Avro schema in message '${name}': ${(e as Error).message}`);
+              result = ValidationStatus.INVALID;
+              process.exitCode = 1;
+            }
+          }
+        }
+      }
+    } catch (e: any) {
+      this.log(`Error parsing for Avro validation: ${e.message}`);
+    }
     this.metricsMetadata.validation_result = result;
-
+    
     if (result === ValidationStatus.INVALID) {
       process.exitCode = 1;
     }

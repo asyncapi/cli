@@ -35,6 +35,11 @@ export const fromTemplateFlags = () => {
       default: false,
       description: 'Force writing of the generated files to given directory even if it is a git repo with unstaged files or not empty dir (defaults to false)'
     }),
+    compile: Flags.boolean({
+      description: 'Compile the template before generating. Set to false to skip.',
+      default: true,
+      allowNo: true,
+    }),
     watch: watchFlag(
       'Watches the template directory and the AsyncAPI document, and re-generate the files when changes occur. Ignores the output directory.'
     ),
