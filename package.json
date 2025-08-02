@@ -25,6 +25,7 @@
     "@oclif/plugin-autocomplete": "^3.2.26",
     "@smoya/asyncapi-adoption-metrics": "^2.4.9",
     "@stoplight/spectral-cli": "6.9.0",
+    "avsc": "^5.7.9",
     "chalk": "^4.1.0",
     "chokidar": "^3.5.2",
     "fast-levenshtein": "^3.0.0",
