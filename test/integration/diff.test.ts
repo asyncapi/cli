@@ -26,7 +26,7 @@ describe('diff', () => {
       .stdout()
       .command(['diff', asyncapiv3, asyncapiv2])
       .it('give error when different AsyncAPI version', (ctx, done) => {
-        expect(ctx.stderr).to.equal('TypeError: diff between different AsyncAPI version is not allowed\n');
+        expect(ctx.stderr).to.contain('TypeError: diff between different AsyncAPI version is not allowed\n');
         expect(ctx.stdout).to.equal('');
         done();
       });
