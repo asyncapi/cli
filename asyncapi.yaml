@@ -1,0 +1,34 @@
+asyncapi: '2.6.0'
+info:
+  title: Streetlights API
+  version: '1.0.0'
+  description: |
+    The Smartylighting Streetlights API allows you to remotely manage streetlights.
+    You can turn them on/off, change their brightness and color.
+servers:
+  production:
+    url: mqtt://smartylighting.com
+    protocol: mqtt
+defaultContentType: application/json
+channels:
+  light/measured:
+    description: The topic on which light measurements are sent.
+    subscribe:
+      summary: Receive information about environmental lighting conditions of a particular streetlight.
+      message:
+        name: lightMeasured
+        payload:
+          type: object
+          properties:
+            id:
+              type: integer
+              minimum: 0
+              description: Id of the streetlight.
+            lumens:
+              type: integer
+              minimum: 0
+              description: Light intensity measured in lumens.
+            sentAt:
+              type: string
+              format: date-time
+              description: Date and time when the message was sent.
