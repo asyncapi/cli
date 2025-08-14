@@ -4,7 +4,7 @@ pre-commit:
     lint:
       run: npm run lint
     test:
-      run: npm run test:unit
+      run: npm run test
 
 commit-msg:
   parallel: true
