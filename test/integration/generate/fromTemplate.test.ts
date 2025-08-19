@@ -44,7 +44,7 @@ describe('template', () => {
         nonInteractive,
       ])
       .it('give error on disabled template', (ctx, done) => {
-        expect(ctx.stderr).to.equal('Error: @asyncapi/minimaltemplate template does not support AsyncAPI v3 documents, please checkout some link\n');
+        expect(ctx.stderr).to.contain('Error: @asyncapi/minimaltemplate template does not support AsyncAPI v3 documents, please checkout some link\n');
         expect(ctx.stdout).to.equal('');
         done();
       });

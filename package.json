@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
@@ -17,6 +17,7 @@
     "@asyncapi/openapi-schema-parser": "^3.0.24",
     "@asyncapi/optimizer": "^1.0.4",
     "@asyncapi/parser": "^3.3.0",
+    "@asyncapi/problem": "^1.0.0",
     "@asyncapi/protobuf-schema-parser": "^3.5.1",
     "@asyncapi/raml-dt-schema-parser": "^4.0.24",
     "@asyncapi/studio": "^0.24.2",
@@ -25,20 +26,29 @@
     "@oclif/plugin-autocomplete": "^3.2.26",
     "@smoya/asyncapi-adoption-metrics": "^2.4.9",
     "@stoplight/spectral-cli": "6.9.0",
+    "archiver": "^7.0.1",
+    "body-parser": "^2.2.0",
     "chalk": "^4.1.0",
     "chokidar": "^3.5.2",
+    "compression": "^1.8.0",
+    "config": "^4.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
     "fast-levenshtein": "^3.0.0",
     "fs-extra": "^11.1.0",
-    "generator-v2": "npm:@asyncapi/generator@^2.4.1",
+    "generator-v2": "npm:@asyncapi/generator@2.4.1",
+    "helmet": "^8.1.0",
     "https-proxy-agent": "^7.0.6",
     "inquirer": "^8.2.0",
     "js-yaml": "^4.1.0",
     "next": "^15.2.4",
     "oclif": "^4.17.34",
     "open": "^8.4.0",
-    "picocolors": "^1.0.0",
+    "picocolors": "^1.1.0",
+    "redoc-express": "^2.1.0",
     "unzipper": "^0.10.11",
     "uuid": "^11.1.0",
+    "winston": "^3.17.0",
     "ws": "^8.2.3",
     "yaml": "^2.6.1"
   },
@@ -49,7 +59,13 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@oclif/test": "^2",
     "@swc/core": "^1.3.2",
+    "@types/archiver": "^6.0.3",
+    "@types/body-parser": "^1.19.6",
     "@types/chai": "^4.3.6",
+    "@types/compression": "^1.8.1",
+    "@types/config": "^3.3.5",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
     "@types/fast-levenshtein": "^0.0.2",
     "@types/fs-extra": "^11.0.1",
     "@types/inquirer": "^8.1.3",
@@ -72,10 +88,13 @@
     "lefthook": "^1.12.2",
     "markdown-toc": "^1.2.0",
     "mocha": "^10.2.0",
+    "nodemon": "^3.1.10",
     "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
     "simple-git": "^3.16.0",
     "ts-node": "^10.9.1",
+    "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.2"
   },
   "engines": {
@@ -96,14 +115,14 @@
   "license": "Apache-2.0",
   "main": "lib/index.js",
   "oclif": {
-    "commands": "./lib/commands",
+    "commands": "./lib/apps/cli/commands",
     "bin": "asyncapi",
     "additionalVersionFlags": [
       "--v"
     ],
     "hooks": {
       "command_not_found": [
-        "./lib/core/hooks/command_not_found/myhook"
+        "./lib/apps/cli/internal/hooks/command_not_found/myhook"
       ]
     },
     "macos": {
@@ -137,7 +156,7 @@
   },
   "repository": "asyncapi/cli",
   "scripts": {
-    "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && tsc && oclif manifest && echo \"Build Completed\"",
+    "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
     "bump:github-action": "cd github-action/lib/ && node bump-action-version.js",
     "bump:version": "npx -p @changesets/cli@2.27.7 changeset version && npm run bump:github-action",
     "dev": "tsc --watch",
@@ -160,14 +179,17 @@
     "pretest:coverage": "npm run build",
     "posttest": "rimraf ./test.asyncapi-cli",
     "postinstall": "node ./scripts/enableAutoComplete.js",
-    "test": "npm run test:unit && npm run action:test",
-    "test:unit": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/**/*.test.ts\"",
-    "test:one": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" nyc --extension .ts mocha --require ts-node/register --require test/helpers/init.js --reporter spec --timeout 100000",
+    "test": "npm run cli:test && npm run action:test",
+    "cli:test": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" nyc --extension .ts mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/**/*.test.ts\"",
+    "test:one": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" nyc --extension .ts mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000",
     "get-version": "echo $npm_package_version",
     "createhook": "oclif generate hook myhook --event=command_not_found",
     "createhookinit": "oclif generate hook inithook --event=init",
     "action:docker:build": "docker build -f github-action/Dockerfile -t asyncapi/github-action-for-cli:latest .",
-    "action:test": "npm run build && cd github-action && make test"
+    "action:test": "npm run build && cd github-action && make test",
+    "api:dev": "cross-env NODE_ENV=development PORT=3000 nodemon",
+    "api:build": "",
+    "api:test": ""
   },
   "types": "lib/index.d.ts"
 }
