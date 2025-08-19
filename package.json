@@ -106,6 +106,7 @@
     "/assets",
     "/scripts",
     "/npm-shrinkwrap.json",
+    "/openapi.yaml",
     "/oclif.manifest.json"
   ],
   "homepage": "https://github.com/asyncapi/cli",
