@@ -16,7 +16,7 @@ import {
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
-  private validationService = new ValidationService();
+  private validationService = new ValidationService({}, true);
 
   static flags = {
     ...validateFlags(),

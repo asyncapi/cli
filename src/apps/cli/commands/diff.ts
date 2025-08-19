@@ -27,7 +27,7 @@ const { readFile } = fs;
 
 export default class Diff extends Command {
   static description = 'Find diff between two asyncapi files';
-  private validationService = new ValidationService();
+  private validationService = new ValidationService({}, true);
   static flags = diffFlags();
 
   static args = {

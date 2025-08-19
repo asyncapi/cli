@@ -18,7 +18,7 @@ import { Diagnostic } from '@asyncapi/parser/cjs';
 
 export default class Models extends Command {
   static description = 'Generates typed models';
-  private validationService = new ValidationService();
+  private validationService = new ValidationService({}, true);
   static readonly args = ModelinaArgs as any;
 
   static readonly flags = {
