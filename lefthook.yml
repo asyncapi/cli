@@ -1,0 +1,15 @@
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      run: npm run lint
+    test:
+      run: npm run test
+
+commit-msg:
+  parallel: true
+  commands:
+    commitlint:
+      run: npx commitlint --edit {1}
+    echo-test:
+      run: echo "Lefthook running"
