@@ -23,7 +23,7 @@ test/fixtures/specification-conv.yml
 test/fixtures/specification-conv.yaml
 test/fixtures/specification-conv.json
 .vscode
-src/core/models/generate/ClientLanguages.ts
+src/domains/models/generate/ClientLanguages.ts
 
 /action/
 /github-action/output/
