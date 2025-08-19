@@ -18,6 +18,7 @@ node_modules
 test.asyncapi-cli
 asyncapi.json
 test/fixtures/minimaltemplate/__transpiled
+test/fixtures/newtemplate/__transpiled
 test/fixtures/specification-conv.yml
 test/fixtures/specification-conv.yaml
 test/fixtures/specification-conv.json
