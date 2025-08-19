@@ -2,7 +2,7 @@ import path from 'path';
 import { expect, test } from '@oclif/test';
 
 import TestHelper from '../helpers';
-import { CONTEXT_FILE_PATH } from '../../src/core/models/Context';
+import { CONTEXT_FILE_PATH } from '../../src/domains/models/Context';
 
 const testHelper = new TestHelper();
 
