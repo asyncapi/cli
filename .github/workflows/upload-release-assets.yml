@@ -99,7 +99,7 @@ jobs:
         run: |
           npm run ${{ matrix.npm_script }}
           if [[ "${{ matrix.alpine }}" == "true" ]]; then
-            npm run pack:tarballs:alpine
+            npm run pack:rename alpine
           else
             npm run pack:rename
           fi
