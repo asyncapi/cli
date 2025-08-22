@@ -10,7 +10,6 @@ import path from 'path';
 import yaml from 'js-yaml';
 import { blueBright, redBright } from 'picocolors';
 import { version as studioVersion } from '@asyncapi/studio/package.json';
-import { findAvailablePort } from '@utils/studioHelpers';
 
 const sockets: any[] = [];
 const messageQueue: string[] = [];
@@ -19,7 +18,7 @@ const defaultErrorMessage = 'error occured while bundling files. use --detailedL
 
 let bundleError = true;
 
-export const DEFAULT_PORT = 3210;
+export const DEFAULT_PORT = 0;
 
 function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
@@ -29,15 +28,6 @@ function isValidFilePath(filePath: string): boolean {
 export async function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,suppressLogs:boolean|undefined,port: number = DEFAULT_PORT):Promise<void> {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
-  }
-  
-  let finalPort: number;
-  try {
-    finalPort = await findAvailablePort(port);
-  } catch (error: any) {
-    console.error(redBright('Error:'), error.message);
-    // eslint-disable-next-line no-process-exit
-    process.exit(1);
   }
 
   const baseDir = path.dirname(path.resolve(filePath));
@@ -139,7 +129,7 @@ export async function startPreview(filePath:string,base:string | undefined,baseD
     const server = createServer((req, res) => handle(req, res));
 
     server.on('upgrade', (request, socket, head) => {
-      if (request.url === '/preview-server' && request.headers['origin'] === `http://localhost:${finalPort}`) {
+      if (request.url === '/preview-server' && request.headers['origin'] === `http://localhost:${port}`) {
         console.log('🔗 WebSocket connection established for the preview.');
         wsServer.handleUpgrade(request, socket, head, (sock: any) => {
           wsServer.emit('connection', sock, request);
@@ -151,8 +141,10 @@ export async function startPreview(filePath:string,base:string | undefined,baseD
     });
     
     if (!bundleError) {
-      server.listen(finalPort, () => {
-        const url = `http://localhost:${finalPort}?previewServer=${finalPort}&studio-version=${studioVersion}`;
+      server.listen(port, () => {
+        const previewServerAddr = server.address();
+        const currentPort = (previewServerAddr && typeof previewServerAddr === 'object' && 'port' in previewServerAddr) ? (previewServerAddr as any).port : port;
+        const url = `http://localhost:${currentPort}?previewServer=${currentPort}&studio-version=${studioVersion}`;
         console.log(`🎉 Connected to Preview Server running at ${blueBright(url)}.`);
         console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
         console.log(`🛑 If needed, press ${redBright('Ctrl + C')} to stop the server.`);
@@ -172,12 +164,11 @@ export async function startPreview(filePath:string,base:string | undefined,baseD
       }).on('error', (error) => {
         if (error.message.includes('EADDRINUSE')) {
           console.log(error);
-          console.error(redBright(`Error: Port ${finalPort} is already in use.`));
-          // throw new Error('Please try a different port using the --port flag.');
+          console.error(redBright(`Error: Port ${port} is already in use.`));
           // eslint-disable-next-line no-process-exit
           process.exit(1);
         } else {
-          console.error(`Failed to start server on port ${finalPort}:`, 'cause',error.cause, '\n', 'name', error.name , '\n' , 'stack' , error.stack , '\n', 'message',error.message);
+          console.error(`Failed to start server on port ${port}:`, 'cause',error.cause, '\n', 'name', error.name , '\n' , 'stack' , error.stack , '\n', 'message',error.message);
         }
       }); 
     }

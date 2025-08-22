@@ -8,14 +8,13 @@ import next from 'next';
 import path from 'path';
 import { version as studioVersion } from '@asyncapi/studio/package.json';
 import { blueBright, redBright } from 'picocolors';
-import { findAvailablePort } from '@utils/studioHelpers';
 
 const { readFile, writeFile } = fPromises;
 
 const sockets: any[] = [];
 const messageQueue: string[] = [];
 
-export const DEFAULT_PORT = 3210;
+export const DEFAULT_PORT = 0;
 
 function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
@@ -24,15 +23,6 @@ function isValidFilePath(filePath: string): boolean {
 export async function start(filePath: string, port: number = DEFAULT_PORT): Promise<void> {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
-  }
-
-  let finalPort: number;
-  try {
-    finalPort = await findAvailablePort(port);
-  } catch (error: any) {
-    console.error(redBright('Error:'), error.message);
-    // eslint-disable-next-line no-process-exit
-    process.exit(1);
   }
 
   // Locate @asyncapi/studio package
@@ -138,8 +128,10 @@ export async function start(filePath: string, port: number = DEFAULT_PORT): Prom
       }
     });
 
-    server.listen(finalPort, () => {
-      const url = `http://localhost:${finalPort}?liveServer=${finalPort}&studio-version=${studioVersion}`;
+    server.listen(port, () => {
+      const addr = server.address();
+      const listenPort = (addr && typeof addr === 'object' && 'port' in addr) ? (addr as any).port : port;
+      const url = `http://localhost:${listenPort}?liveServer=${listenPort}&studio-version=${studioVersion}`;
       console.log(`🎉 Connected to Live Server running at ${blueBright(url)}.`);
       console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
       console.log(
@@ -153,6 +145,15 @@ export async function start(filePath: string, port: number = DEFAULT_PORT): Prom
         );
       }
       open(url);
+    }).on('error', (error) => {
+      if (error.message.includes('EADDRINUSE')) {
+        console.log(error);
+        console.error(redBright(`Error: Port ${port} is already in use.`));
+        // eslint-disable-next-line no-process-exit
+        process.exit(2);
+      } else {
+        console.error(`Failed to start server on port ${port}`);
+      }
     });
   });
 }

@@ -22,7 +22,7 @@ export default class StartStudio extends Command {
 
     let filePath = args['spec-file'] ?? flags.file;
 
-    let port = flags.port;
+    let port = parseInt(flags.port ?? '0',10);
 
     if (flags.file) {
       this.warn(

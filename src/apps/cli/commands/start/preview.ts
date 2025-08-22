@@ -23,7 +23,9 @@ export default class PreviewStudio extends Command {
 
     let filePath: string | undefined = args['spec-file'] ?? flags.file;
 
-    const previewPort = flags.port;
+    const previewPort = parseInt(flags.port ?? '0',10);
+
+    // to add : add check here
 
     if (!filePath) {
       filePath = (await load()).getFilePath();
