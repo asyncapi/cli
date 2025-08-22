@@ -1,5 +1,14 @@
 # @asyncapi/cli
 
+## 3.4.0
+
+### Minor Changes
+
+- 6b00166: feat: asyncapi release for alpine distros
+
+  - 54ba750: feat: asyncapi on alpine distros
+  - 44d72c3: fix: rename the scripts to use rename instead of tarballs
+
 ## 3.3.0
 
 ### Minor Changes
