@@ -25,7 +25,7 @@ export type AvailableLanguageType = typeof availableLanguages[number];
 export const getDefaultLanguage = (): AvailableLanguageType => availableLanguages[0];
 `;
 
-  const outputPath = path.join(__dirname, '../src/core/models/generate/ClientLanguages.ts');
+  const outputPath = path.join(__dirname, '../src/domains/models/generate/ClientLanguages.ts');
   await writeFile(outputPath, fileContent);
 
   console.log('✅ ClientLanguages.ts generated');
