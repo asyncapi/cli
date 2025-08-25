@@ -20,6 +20,7 @@ function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
 }
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export async function start(filePath: string, port: number = DEFAULT_PORT): Promise<void> {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);

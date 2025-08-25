@@ -25,8 +25,6 @@ export default class PreviewStudio extends Command {
 
     const previewPort = parseInt(flags.port ?? '0',10);
 
-    // to add : add check here
-
     if (!filePath) {
       filePath = (await load()).getFilePath();
       this.log(`Loaded the specification from: ${filePath}`);
