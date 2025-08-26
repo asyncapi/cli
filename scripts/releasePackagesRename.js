@@ -37,7 +37,7 @@ async function renameDeb({version, name, sha}) {
   await checkAndRenameFile(generatedPath, newPath);
 }
 
-async function renameTar({version, name, sha}) {
+async function renameTar({version, name, sha, isAlpine}) {
   const dist = 'dist';
 
   const generatedPath = path.resolve(dist, `${name}-v${version}-${sha}-linux-x64.tar.gz`);
@@ -45,7 +45,9 @@ async function renameTar({version, name, sha}) {
   // Creates a new `tar` directory(`dist/tar`), and moves the generated tarball inside that directory.
   const tarDirectory = path.resolve(dist, 'tar');
   await createDirectory(tarDirectory);
-  const newPath = path.resolve(tarDirectory, 'asyncapi.tar.gz');
+
+  const fileName = isAlpine ? 'asyncapi-alpine.tar.gz' : 'asyncapi.tar.gz';
+  const newPath = path.resolve(tarDirectory, fileName);
   await checkAndRenameFile(generatedPath, newPath);
 }
 
@@ -69,12 +71,18 @@ async function renamePackages() {
   const version = packageJson.version;
   const name = 'asyncapi';
   const sha = await git.revparse(['--short', 'HEAD']);
-  await renameDeb({version: version.split('-')[0], name, sha});
-  await renamePkg({version, name, sha, arch: 'x64'});
-  await renamePkg({version, name, sha, arch: 'arm64'});
-  await renameWindows({version, name, sha, arch: 'x64'});
-  await renameWindows({version, name, sha, arch: 'x86'});
-  await renameTar({version, name, sha});
+  const isAlpine = process.argv.includes('alpine');
+
+  if (isAlpine) {
+    await renameTar({version, name, sha, isAlpine: true});
+  } else {
+    await renameDeb({version: version.split('-')[0], name, sha});
+    await renamePkg({version, name, sha, arch: 'x64'});
+    await renamePkg({version, name, sha, arch: 'arm64'});
+    await renameWindows({version, name, sha, arch: 'x64'});
+    await renameWindows({version, name, sha, arch: 'x86'});
+    await renameTar({version, name, sha, isAlpine: false});
+  }
 }
 
 renamePackages();
