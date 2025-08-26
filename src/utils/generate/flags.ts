@@ -1,4 +1,4 @@
-import { ParsedFlags } from '../../../domains/models/generate/Flags';
+import { ParsedFlags } from '../../domains/models/generate/Flags';
 import {
   paramParser,
   disableHooksParser,

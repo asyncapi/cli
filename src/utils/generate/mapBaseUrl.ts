@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { IMapBaseUrlToFlag } from '../../../domains/models/generate/Flags';
+import { IMapBaseUrlToFlag } from '../../domains/models/generate/Flags';
 
 export function getMapBaseUrlToFolderResolver(urlToFolder: IMapBaseUrlToFlag) {
   return {

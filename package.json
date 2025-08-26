@@ -36,7 +36,7 @@
     "express": "^4.17.1",
     "fast-levenshtein": "^3.0.0",
     "fs-extra": "^11.1.0",
-    "generator-v2": "npm:@asyncapi/generator@2.4.1",
+    "generator-v2": "npm:@asyncapi/generator@2.8.2",
     "helmet": "^8.1.0",
     "https-proxy-agent": "^7.0.6",
     "inquirer": "^8.2.0",
