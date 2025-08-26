@@ -1,70 +1,47 @@
+# Stage 1: Build
 FROM node:20-alpine AS build
-
-# Copy the source code
-COPY ./ /tmp/source_code
-
-# Install dependencies
-RUN cd /tmp/source_code && npm install --ignore-scripts
-
-# Build the source code
-RUN cd /tmp/source_code && npm run build
-
-# create libraries directory
-RUN mkdir -p /libraries
-
-# Copy the lib, bin, node_modules, and package.json files to the /libraries directory
-RUN cp -r /tmp/source_code/lib /libraries
-RUN cp -r /tmp/source_code/assets /libraries
-RUN cp /tmp/source_code/package.json /libraries
-RUN cp /tmp/source_code/package-lock.json /libraries
-RUN cp /tmp/source_code/oclif.manifest.json /libraries
-
-# Copy the bin directory to the /libraries directory
-RUN cp -r /tmp/source_code/bin /libraries
-
-# Remove everything inside /tmp
-RUN rm -rf /tmp/*
-
-FROM node:20-alpine
-
-# Set ARG to explicit value to build chosen version. Default is "latest"
-ARG ASYNCAPI_CLI_VERSION=
-
-# Create a non-root user
-RUN addgroup -S myuser && adduser -S myuser -G myuser
-
 WORKDIR /app
 
-# Since 0.14.0 release of html-template chromium is needed for pdf generation
-ENV PUPPETEER_EXECUTABLE_PATH /usr/bin/chromium-browser
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
-# Since 0.30.0 release Git is supported and required as a dependency
-# Since 0.14.0 release of html-template chromium is needed for pdf generation.
-# More custom packages for specific template should not be added to this dockerfile. Instead, we should come up with some extensibility solution.
-RUN apk --update add git chromium && \
-    apk add --no-cache --virtual .gyp python3 make g++ && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm /var/cache/apk/*
+# Copy package files first for better caching
+COPY package*.json ./
 
-# Copy the libraries directory from the build stage
-COPY --from=build /libraries /libraries
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci --ignore-scripts
 
-# Install the dependencies
-RUN cd /libraries && npm install --production --ignore-scripts
+# Copy only necessary files for build
+COPY src/ ./src/
+COPY assets/ ./assets/
+COPY scripts/ ./scripts/
+COPY bin/ ./bin/
+COPY tsconfig.json ./
+RUN npm run build && \
+    npm prune --omit=dev && \
+    rm -rf test docs .git tmp node_modules/.cache
 
-# Create a script that runs the desired command
-RUN ln -s /libraries/bin/run_bin /usr/local/bin/asyncapi
+# Stage 2: Runtime
+FROM ghcr.io/puppeteer/puppeteer:20.8.0
 
-# Make the script executable
-RUN chmod +x /usr/local/bin/asyncapi
+# Switch to root to create user and set up permissions
+USER root
 
-# Change ownership to non-root user
-RUN chown -R myuser:myuser /libraries /usr/local/bin/asyncapi || echo "Failed to change ownership"
+# Install git (needed by AsyncAPI CLI)
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN chown -R myuser:myuser /usr/local/lib/node_modules && \
-chown -R myuser:myuser /usr/local/bin
+# Create non-root user
+RUN groupadd -r asyncapi && useradd -r -g asyncapi asyncapi
 
-# Switch to the non-root user
-USER myuser
+# Copy built files from builder stage
+WORKDIR /app
+COPY --from=build /app /app
+
+# Create symlink and set permissions
+RUN ln -s /app/bin/run_bin /usr/local/bin/asyncapi && \
+    chmod +x /usr/local/bin/asyncapi && \
+    chown -R asyncapi:asyncapi /app
+
+# Switch to non-root user for runtime
+USER asyncapi
+
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 ENTRYPOINT [ "asyncapi" ]
