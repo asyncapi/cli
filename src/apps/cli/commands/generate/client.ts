@@ -2,8 +2,7 @@ import { Args } from '@oclif/core';
 import Command from '@cli/internal/base';
 // eslint-disable-next-line
 // @ts-ignore
-import { listBakedInTemplates } from 'generator-v2';
-import AsyncAPIGenerator from 'generator-v2';
+import AsyncAPIGenerator, { listBakedInTemplates } from 'generator-v2';
 import path from 'path';
 import os from 'os';
 import { load, Specification } from '@models/SpecificationFile';
