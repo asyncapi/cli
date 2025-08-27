@@ -22,7 +22,7 @@ export default class StartStudio extends Command {
 
     let filePath = args['spec-file'] ?? flags.file;
 
-    let port = flags.port;
+    let port = parseInt(flags.port ?? '0',10);
 
     if (flags.file) {
       this.warn(
@@ -55,7 +55,7 @@ export default class StartStudio extends Command {
       }
     }
     this.metricsMetadata.port = port;
-    startStudio(filePath as string, port);
+    await startStudio(filePath as string, port);
   }
 
   private async parseArgs(args: Record<string, any>, port?: string) {

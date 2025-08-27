@@ -14,14 +14,14 @@ const { readFile, writeFile } = fPromises;
 const sockets: any[] = [];
 const messageQueue: string[] = [];
 
-export const DEFAULT_PORT = 3210;
+export const DEFAULT_PORT = 0;
 
 function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export function start(filePath: string, port: number = DEFAULT_PORT): void {
+export async function start(filePath: string, port: number = DEFAULT_PORT): Promise<void> {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
@@ -130,7 +130,9 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
     });
 
     server.listen(port, () => {
-      const url = `http://localhost:${port}?liveServer=${port}&studio-version=${studioVersion}`;
+      const addr = server.address();
+      const listenPort = (addr && typeof addr === 'object' && 'port' in addr) ? (addr as any).port : port;
+      const url = `http://localhost:${listenPort}?liveServer=${listenPort}&studio-version=${studioVersion}`;
       console.log(`🎉 Connected to Live Server running at ${blueBright(url)}.`);
       console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
       console.log(
@@ -144,6 +146,15 @@ export function start(filePath: string, port: number = DEFAULT_PORT): void {
         );
       }
       open(url);
+    }).on('error', (error) => {
+      if (error.message.includes('EADDRINUSE')) {
+        console.log(error);
+        console.error(redBright(`Error: Port ${port} is already in use.`));
+        // eslint-disable-next-line no-process-exit
+        process.exit(2);
+      } else {
+        console.error(`Failed to start server on port ${port}`);
+      }
     });
   });
 }
