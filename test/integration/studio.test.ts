@@ -6,7 +6,7 @@ describe('Test live studio', () => {
   test
     .stdout()
     .command([
-      'start studio','-B' ,'./test/fixtures/specification-v3.yml',
+      'start studio','-B','-p','3210','./test/fixtures/specification-v3.yml',
     ])
     .it('should successfully open and navigate the site', async () => {
       const {logoTitle,sideBarId,navigationPannelId,editorId} = await testStudio();
@@ -21,7 +21,7 @@ describe('Test preview mode', () => {
   test
     .stdout()
     .command([
-      'start preview','-B','./test/fixtures/asyncapi_v2.yml',
+      'start preview','-B','-p','4321','./test/fixtures/asyncapi_v2.yml',
     ])
     .it('should successfully open and navigate the site', async () => {
       const {logoTitle,introductionSectionId} = await testPreview();

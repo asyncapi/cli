@@ -112,13 +112,10 @@ export async function testPreview(){
 
   const logo = await page.locator('body > div:nth-child(1) > div > div > div > div > img').waitHandle()
   const introductionSection = await page.locator('#introduction').waitHandle()
-  // const sideBarPannel = await page.locator('#navigation-#html-preview > section > div > div.hidden.sidebar.relative.w-64.max-h-screen.h-full.bg-gray-200.shadow.z-20 > div > div').waitHandle()
-  // const editor = await page.locator('#editor').waitHandle()
 
   const logoTitle = await logo?.evaluate((e:any) => e.title)
   const introductionSectionId = await introductionSection?.evaluate((e:any)=> e.id)
-  // const sideBarPannelId = await sideBarPannel?.evaluate((e:any)=> e.class)
-  // const editorId = await editor?.evaluate((e:any)=> e.id)
+
   await browser.close();
   return {logoTitle,introductionSectionId}
 }
