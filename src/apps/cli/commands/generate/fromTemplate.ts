@@ -1,5 +1,5 @@
 import { Args } from '@oclif/core';
-import { BaseGeneratorCommand } from './base-generator';
+import { BaseGeneratorCommand } from '@cli/internal/base/BaseGeneratorCommand';
 // eslint-disable-next-line
 // @ts-ignore
 import AsyncAPIGenerator from '@asyncapi/generator';
