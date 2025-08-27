@@ -11,6 +11,7 @@ export function createTempDirectory() {
 
 export async function removeTempDirectory(tmpDir: string) {
   try {
+    // eslint-disable-next-line no-unused-expressions
     tmpDir &&
       fs.existsSync(tmpDir) &&
       (await fsp.rm(tmpDir, { recursive: true }));

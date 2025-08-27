@@ -8,7 +8,7 @@ export const studioFlags = () => {
       description: 'path to the AsyncAPI file to link with Studio',
       deprecated: true,
     }),
-    port: Flags.integer({
+    port: Flags.string({
       char: 'p',
       description: 'port in which to start Studio',
     }),
