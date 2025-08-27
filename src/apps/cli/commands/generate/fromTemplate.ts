@@ -28,8 +28,6 @@ export default class Template extends BaseGeneratorCommand {
     template: Args.string({ description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: false }),
   };
 
-  parser = new Parser();
-
   // eslint-disable-next-line sonarjs/cognitive-complexity
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
