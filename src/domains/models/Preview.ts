@@ -18,7 +18,8 @@ const defaultErrorMessage = 'error occured while bundling files. use --detailedL
 
 let bundleError = true;
 
-export const DEFAULT_PORT = 4321;
+
+export const DEFAULT_PORT = 0;
 
 function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
@@ -26,6 +27,7 @@ function isValidFilePath(filePath: string): boolean {
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
 export function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,suppressLogs:boolean|undefined,port: number = DEFAULT_PORT, noBrowser?: boolean):void {
+
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
@@ -158,7 +160,9 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
     
     if (!bundleError) {
       server.listen(port, () => {
-        const url = `http://localhost:${port}?previewServer=${port}&studio-version=${studioVersion}`;
+        const previewServerAddr = server.address();
+        const currentPort = (previewServerAddr && typeof previewServerAddr === 'object' && 'port' in previewServerAddr) ? (previewServerAddr as any).port : port;
+        const url = `http://localhost:${currentPort}?previewServer=${currentPort}&studio-version=${studioVersion}`;
         console.log(`🎉 Connected to Preview Server running at ${blueBright(url)}.`);
         console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
         console.log(`🛑 If needed, press ${redBright('Ctrl + C')} to stop the server.`);
@@ -176,7 +180,14 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
           open(url);
         }
       }).on('error', (error) => {
-        console.error(`Failed to start server on port ${port}:`, error.message);
+        if (error.message.includes('EADDRINUSE')) {
+          console.log(error);
+          console.error(redBright(`Error: Port ${port} is already in use.`));
+          // eslint-disable-next-line no-process-exit
+          process.exit(1);
+        } else {
+          console.error(`Failed to start server on port ${port}:`, 'cause',error.cause, '\n', 'name', error.name , '\n' , 'stack' , error.stack , '\n', 'message',error.message);
+        }
       }); 
     }
   });

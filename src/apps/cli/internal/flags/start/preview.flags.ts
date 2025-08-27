@@ -3,7 +3,7 @@ import { Flags } from '@oclif/core';
 export const previewFlags = () => {
   return {
     help: Flags.help({ char: 'h' }),
-    port: Flags.integer({
+    port: Flags.string({
       char: 'p',
       description: 'port in which to start Studio in the preview mode',
     }),

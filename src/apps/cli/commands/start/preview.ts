@@ -23,7 +23,7 @@ export default class PreviewStudio extends Command {
 
     let filePath: string | undefined = args['spec-file'] ?? flags.file;
 
-    const previewPort = flags.port;
+    const previewPort = parseInt(flags.port ?? '0',10);
 
     if (!filePath) {
       filePath = (await load()).getFilePath();
@@ -37,7 +37,7 @@ export default class PreviewStudio extends Command {
       }
     }
     this.metricsMetadata.port = previewPort;
-    startPreview(
+    await startPreview(
       filePath as string,
       flags.base,
       flags.baseDir,

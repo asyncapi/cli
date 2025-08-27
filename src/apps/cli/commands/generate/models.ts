@@ -26,6 +26,7 @@ export default class Models extends Command {
     ...proxyFlags(),
   };
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   async run() {
     const { args, flags } = await this.parse(Models);
     let { language, file } = args;

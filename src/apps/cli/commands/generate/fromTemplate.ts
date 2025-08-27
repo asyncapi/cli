@@ -51,6 +51,7 @@ export default class Template extends Command {
 
   parser = new Parser();
 
+  // eslint-disable-next-line sonarjs/cognitive-complexity
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
     const interactive = !flags['no-interactive'];
