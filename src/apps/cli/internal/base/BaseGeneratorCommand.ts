@@ -2,21 +2,19 @@ import Command from '@cli/internal/base';
 // eslint-disable-next-line
 // @ts-ignore
 import AsyncAPIGenerator from '@asyncapi/generator';
-import path from 'path';
-import os from 'os';
 
 import { load, Specification } from '@models/SpecificationFile';
 import { ValidationError } from '@errors/validation-error';
 import { GeneratorError } from '@errors/generator-error';
 import { Parser } from '@asyncapi/parser';
-import { isCancel, spinner } from '@clack/prompts';
-import { yellow, magenta } from 'picocolors';
+import { isCancel } from '@clack/prompts';
 import { proxyFlags } from '@cli/internal/flags/proxy.flags';
 import { generateArgs } from '@cli/internal/args/generate.args';
 import { watcherHandler, runWatchMode } from '@utils/generate/watcher';
 import { getMapBaseUrlToFolderResolver } from '@utils/generate/mapBaseUrl';
 import { promptForAsyncAPIPath, promptForOutputDir } from '@utils/generate/prompts';
 import { ParsedFlags } from '@models/generate/Flags';
+import { GeneratorService } from '@services/generator.service';
 
 export interface GeneratorOptions {
   forceWrite: boolean;
@@ -43,6 +41,7 @@ export abstract class BaseGeneratorCommand extends Command {
   };
 
   parser = new Parser();
+  protected generatorService = new GeneratorService();
 
   protected async buildGeneratorOptions(flags: any, parsedFlags: ParsedFlags): Promise<GeneratorOptions> {
     return {
@@ -98,17 +97,19 @@ export abstract class BaseGeneratorCommand extends Command {
     interactive = true
   ): Promise<void> {
     const specification = await this.loadSpecificationSafely(asyncapi);
-
-    const generator = new AsyncAPIGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
-    const s = interactive ? spinner() : { start: () => null, stop: (string: string) => console.log(string) };
-    s.start('Generation in progress. Keep calm and wait a bit');
-    try {
-      await generator.generateFromString(specification.text(), { ...genOption, path: asyncapi });
-    } catch (err: any) {
-      s.stop('Generation failed');
-      throw new GeneratorError(err);
+    
+    const result = await this.generatorService.generate(
+      specification,
+      template,
+      output,
+      options as any, // GeneratorService expects different options interface
+      genOption,
+      interactive,
+    );
+    
+    if (!result.success) {
+      throw new GeneratorError(new Error(result.error));
     }
-    s.stop(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
   }
 
   protected async parseCommonArgs(

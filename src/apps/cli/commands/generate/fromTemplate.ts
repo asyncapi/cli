@@ -1,17 +1,11 @@
 import { Args } from '@oclif/core';
 import { BaseGeneratorCommand } from '@cli/internal/base/BaseGeneratorCommand';
-// eslint-disable-next-line
-// @ts-ignore
-import AsyncAPIGenerator from '@asyncapi/generator';
-import AsyncAPINewGenerator from 'generator-v2';
-
 import { load, Specification } from '@models/SpecificationFile';
 import { ValidationError } from '@errors/validation-error';
 import { GeneratorError } from '@errors/generator-error';
 import { intro } from '@clack/prompts';
 import { inverse } from 'picocolors';
 import { fromTemplateFlags } from '@cli/internal/flags/generate/fromTemplate.flags';
-import { GeneratorService } from '@services/generator.service';
 import { parseGeneratorFlags } from '@utils/generate/flags';
 import { promptForTemplate } from '@utils/generate/prompts';
 
@@ -20,7 +14,6 @@ const inProgressMsg = 'Generation in progress. Keep calm and wait a bit';
 export default class Template extends BaseGeneratorCommand {
   static description =
     'Generates whatever you want using templates compatible with AsyncAPI Generator.';
-  private generatorService = new GeneratorService(true);
   static examples = [
     'asyncapi generate fromTemplate asyncapi.yaml @asyncapi/html-template --param version=1.0.0 singleFile=true --output ./docs --force-write',
   ];

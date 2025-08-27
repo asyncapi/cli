@@ -1,17 +1,15 @@
 import { Args } from '@oclif/core';
-import { BaseGeneratorCommand, GeneratorOptions } from '@cli/internal/base/BaseGeneratorCommand';
+import { BaseGeneratorCommand } from '@cli/internal/base/BaseGeneratorCommand';
 // eslint-disable-next-line
 // @ts-ignore
-import AsyncAPIGenerator, { listBakedInTemplates } from 'generator-v2';
-import path from 'path';
-import os from 'os';
-import { GeneratorError } from '@errors/generator-error';
-import { intro, spinner, note } from '@clack/prompts';
-import { inverse, yellow, magenta } from 'picocolors';
+import { listBakedInTemplates } from 'generator-v2';
+import { intro, note } from '@clack/prompts';
+import { inverse, yellow } from 'picocolors';
 import { clientsFlags } from '@cli/internal/flags/generate/clients.flags';
 import { parseGeneratorFlags } from '@utils/generate/flags';
 import { promptForLanguage } from '@utils/generate/prompts';
 import { availableLanguages, AvailableLanguageType, getDefaultLanguage } from '@models/generate/ClientLanguages';
+import { GeneratorError } from '@errors/generator-error';
 
 export default class Client extends BaseGeneratorCommand {
   static description = `Generates clients baked-in AsyncAPI Generator. Available for: ${availableLanguages.join(', ')}. If some language is not supported or you want to improve existing client, join us at https://github.com/asyncapi/generator`;
@@ -72,7 +70,19 @@ export default class Client extends BaseGeneratorCommand {
     const watchTemplate = flags['watch'];
     const genOption = this.buildGenOption(flags, parsedFlags);
 
-    await this.generate(asyncapi, template, output, options, genOption);
+    // Use GeneratorService with new generator (v2) for client generation
+    const specification = await this.loadSpecificationSafely(asyncapi);
+    const result = await this.generatorService.generateUsingNewGenerator(
+      specification,
+      template,
+      output,
+      options as any, // GeneratorService expects different options interface
+      genOption,
+    );
+    
+    if (!result.success) {
+      throw new GeneratorError(new Error(result.error));
+    }
 
     if (watchTemplate) {
       await this.handleWatchMode(asyncapi, template, output, options, genOption, interactive);
@@ -112,29 +122,5 @@ export default class Client extends BaseGeneratorCommand {
     }
 
     return template;
-  }
-
-  // Override the base generate method to use v2 generator
-  protected async generate(
-    asyncapi: string | undefined,
-    template: string,
-    output: string,
-    options: GeneratorOptions,
-    genOption: any,
-    interactive = true
-  ): Promise<void> {
-    const specification = await this.loadSpecificationSafely(asyncapi);
-
-    const generator = new AsyncAPIGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
-    const s = interactive ? spinner() : { start: () => null, stop: (string: string) => console.log(string) };
-    s.start('Generation in progress. Keep calm and wait a bit');
-    try {
-      await generator.generateFromString(specification.text(), { ...genOption, path: asyncapi });
-    } catch (err: any) {
-      s.stop('Generation failed');
-      throw new GeneratorError(err);
-    }
-    s.stop(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}
-`);
   }
 }

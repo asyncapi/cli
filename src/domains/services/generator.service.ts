@@ -51,6 +51,10 @@ export class GeneratorService extends BaseService {
     return undefined;
   }
 
+  private getGenerationSuccessMessage(output: string): string {
+    return `${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n\n`;
+  }
+
   private checkV3NotSupported(asyncapi: Specification, template: string) {
     if (asyncapi.isAsyncAPI3()) {
       const v3IssueLink = this.verifyTemplateSupportForV3(template);
@@ -93,7 +97,7 @@ export class GeneratorService extends BaseService {
       return this.createErrorResult(err.message, err.diagnostics);
     }
     s.stop(
-      `${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`,
+      this.getGenerationSuccessMessage(output),
     );
 
     return this.createSuccessResult({
@@ -130,7 +134,7 @@ export class GeneratorService extends BaseService {
       return this.createErrorResult(err.message, err.diagnostics);
     }
     logs.push(
-      `${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`,
+      this.getGenerationSuccessMessage(output),
     );
 
     return this.createSuccessResult({
