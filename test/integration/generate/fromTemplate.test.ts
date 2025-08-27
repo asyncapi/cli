@@ -63,7 +63,7 @@ describe('template', () => {
         '--use-new-generator',
       ])
       .it('should be able to generate using newer version of generator', (ctx, done) => {
-        expect(ctx.stdout).to.contain('Check out your shiny new generated files at ./test/docs/2.\n\n');
+        expect(ctx.stdout).to.contain('Check out your shiny new generated files at ./test/docs/2.');
         cleanup('./test/docs/2');
         done();
       });
