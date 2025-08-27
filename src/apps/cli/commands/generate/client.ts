@@ -83,6 +83,8 @@ export default class Client extends BaseGeneratorCommand {
     if (!result.success) {
       throw new GeneratorError(new Error(result.error));
     }
+    
+    this.log(result.data?.logs?.join('\n'));
 
     if (watchTemplate) {
       await this.handleWatchMode(asyncapi, template, output, options, genOption, interactive);
