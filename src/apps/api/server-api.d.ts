@@ -1,4 +1,4 @@
-import { AsyncAPIDocument } from '@interfaces';
+import { AsyncAPIDocument, ValidationResult } from '@interfaces/index';
 
 declare module 'express' {
   export interface Request {
