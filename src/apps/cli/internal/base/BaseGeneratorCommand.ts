@@ -97,18 +97,7 @@ export abstract class BaseGeneratorCommand extends Command {
     genOption: any,
     interactive = true
   ): Promise<void> {
-    let specification: Specification;
-    try {
-      specification = await load(asyncapi);
-    } catch (err: any) {
-      return this.error(
-        new ValidationError({
-          type: 'invalid-file',
-          filepath: asyncapi,
-        }),
-        { exit: 1 },
-      );
-    }
+    const specification = await this.loadSpecificationSafely(asyncapi);
 
     const generator = new AsyncAPIGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
     const s = interactive ? spinner() : { start: () => null, stop: (string: string) => console.log(string) };
@@ -155,6 +144,20 @@ export abstract class BaseGeneratorCommand extends Command {
   protected handleCancellation(value: any): void {
     if (isCancel(value)) {
       this.error('Operation cancelled', { exit: 1 });
+    }
+  }
+
+  protected async loadSpecificationSafely(asyncapi: string | undefined): Promise<Specification> {
+    try {
+      return await load(asyncapi);
+    } catch (err: any) {
+      return this.error(
+        new ValidationError({
+          type: 'invalid-file',
+          filepath: asyncapi,
+        }),
+        { exit: 1 },
+      );
     }
   }
 }

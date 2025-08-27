@@ -1,12 +1,10 @@
 import { Args } from '@oclif/core';
-import { BaseGeneratorCommand } from '@cli/internal/base/BaseGeneratorCommand';
+import { BaseGeneratorCommand, GeneratorOptions } from '@cli/internal/base/BaseGeneratorCommand';
 // eslint-disable-next-line
 // @ts-ignore
 import AsyncAPIGenerator, { listBakedInTemplates } from 'generator-v2';
 import path from 'path';
 import os from 'os';
-import { load, Specification } from '@models/SpecificationFile';
-import { ValidationError } from '@errors/validation-error';
 import { GeneratorError } from '@errors/generator-error';
 import { intro, spinner, note } from '@clack/prompts';
 import { inverse, yellow, magenta } from 'picocolors';
@@ -116,27 +114,16 @@ export default class Client extends BaseGeneratorCommand {
     return template;
   }
 
-  // Override the base class generate method to use v2 generator
+  // Override the base generate method to use v2 generator
   protected async generate(
     asyncapi: string | undefined,
     template: string,
     output: string,
-    options: any,
+    options: GeneratorOptions,
     genOption: any,
     interactive = true
   ): Promise<void> {
-    let specification: Specification;
-    try {
-      specification = await load(asyncapi);
-    } catch (err: any) {
-      return this.error(
-        new ValidationError({
-          type: 'invalid-file',
-          filepath: asyncapi,
-        }),
-        { exit: 1 },
-      );
-    }
+    const specification = await this.loadSpecificationSafely(asyncapi);
 
     const generator = new AsyncAPIGenerator(template, output || path.resolve(os.tmpdir(), 'asyncapi-generator'), options);
     const s = interactive ? spinner() : { start: () => null, stop: (string: string) => console.log(string) };
@@ -147,6 +134,7 @@ export default class Client extends BaseGeneratorCommand {
       s.stop('Generation failed');
       throw new GeneratorError(err);
     }
-    s.stop(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}\n`);
+    s.stop(`${yellow('Check out your shiny new generated files at ') + magenta(output) + yellow('.')}
+`);
   }
 }
