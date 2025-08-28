@@ -42,7 +42,7 @@ COPY --from=build /app/lib ./lib
 COPY --from=build /app/package*.json ./
 
 # Install production deps, then remove heavy ones
-RUN CI=true npm ci --omit=dev --ignore-scripts \
+RUN npm ci --omit=dev --ignore-scripts \
   && npm uninstall @asyncapi/studio next \
   && npm cache clean --force \
   && npm prune --production

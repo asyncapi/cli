@@ -5,6 +5,9 @@ on:
     types:
       - published
 
+env:
+  CI: true
+
 jobs:
   upload-assets:
     name: Generate and upload assets
@@ -90,7 +93,7 @@ jobs:
         shell: bash
         run: npm install -g npm@latest
       - name: Install dependencies
-        run: CI=true npm ci
+        run: npm ci
       - name: Build project
         shell: bash
         run: npm run prepublishOnly

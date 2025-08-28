@@ -12,6 +12,9 @@ on:
     branches:
       - master
 
+env:
+  CI: true
+
 jobs:
   docs-gen:
     name: 'Generate docs and create PR'
@@ -32,7 +35,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
       - name: Install dependencies
-        run: CI=true npm ci
+        run: npm ci
       - name: Regenerate docs
         run: npm run generate:assets --if-present
       - name: Create Pull Request with updated docs
