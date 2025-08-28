@@ -32,7 +32,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
       - name: Regenerate docs
         run: npm run generate:assets --if-present
       - name: Create Pull Request with updated docs
