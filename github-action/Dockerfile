@@ -5,7 +5,7 @@ FROM node:18-alpine as build
 COPY ./ /tmp/source_code
 
 # Install dependencies
-RUN cd /tmp/source_code && CI=true npm install
+RUN cd /tmp/source_code && npm install --ignore-scripts
 
 # Build the source code
 RUN cd /tmp/source_code && npm run build
@@ -34,7 +34,7 @@ RUN apk add --no-cache bash git
 # Copy the libraries directory from the build stage
 COPY --from=build /libraries /libraries
 
-RUN cd /libraries && CI=true npm install --production
+RUN cd /libraries && npm install --production --ignore-scripts
 
 # Create a non-root user
 # RUN addgroup -S myuser && adduser -S myuser -G myuser

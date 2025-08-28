@@ -13,7 +13,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # 2. Install dependencies (cached unless package*.json changes)
-RUN CI=true npm install
+RUN npm install --ignore-scripts
 
 # 3. Copy the rest of the application code
 COPY ./assets ./assets
@@ -42,7 +42,7 @@ COPY --from=build /app/lib ./lib
 COPY --from=build /app/package*.json ./
 
 # Install production deps, then remove heavy ones
-RUN CI=true npm ci --omit=dev \
+RUN CI=true npm ci --omit=dev --ignore-scripts \
   && npm uninstall @asyncapi/studio next \
   && npm cache clean --force \
   && npm prune --production
