@@ -61,7 +61,7 @@ jobs:
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
         shell: bash
-        run: npm ci
+        run: npm ci --ignore-scripts
       - if: steps.packagejson.outputs.exists == 'true'
         name: Run test
         run: npm test --if-present
@@ -102,7 +102,7 @@ jobs:
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
         shell: bash
-        run: npm ci
+        run: npm ci --ignore-scripts
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install changelog
         shell: bash
