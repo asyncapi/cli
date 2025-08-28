@@ -1,11 +1,6 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import { test } from '@oclif/test';
 import rimraf from 'rimraf';
 import { expect } from '@oclif/test';
-
-const nonInteractive = '--no-interactive';
-const asyncapiv3 = './test/fixtures/specification-v3.yml';
 
 function cleanup(filepath: string) {
   rimraf.sync(filepath);
@@ -23,16 +18,17 @@ describe('client', () => {
       .command([
         'generate:client',
         'java',
-        asyncapiv3,
-        '--output=./test/docs/client-test',
+        './test/fixtures/specification-v3.yml',
+        '-p server=default',
+        '--output=./test/docs/test-output',
         '--force-write',
-        nonInteractive,
+        '--no-interactive',
       ])
       .it('should generate client successfully with v3 document', (ctx, done) => {
         expect(ctx.stdout).to.contain(
-          'Check out your shiny new generated files at ./test/docs/client-test.\n\n'
+          'Check out your shiny new generated files at ./test/docs/test-output.\n\n'
         );
-        cleanup('./test/docs/client-test');
+        cleanup('./test/docs/test-output');
         done();
       });
   }).timeout(200000);
