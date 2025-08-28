@@ -4,6 +4,12 @@
 
 ### Patch Changes
 
+- d832abc: Fixes the dependencies and package-lock.json
+
+## 3.4.2
+
+### Patch Changes
+
 - 80dcadd: fix: get server-api release ready
 
   - 35248ba: chore: fix server-api release
