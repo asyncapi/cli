@@ -4,7 +4,7 @@ FROM node:20-alpine AS build
 COPY ./ /tmp/source_code
 
 # Install dependencies
-RUN cd /tmp/source_code && npm install --ignore-scripts
+RUN cd /tmp/source_code && CI=true npm install
 
 # Build the source code
 RUN cd /tmp/source_code && npm run build
@@ -50,7 +50,7 @@ RUN apk --update add git chromium && \
 COPY --from=build /libraries /libraries
 
 # Install the dependencies
-RUN cd /libraries && npm install --production --ignore-scripts
+RUN cd /libraries && CI=true npm install --production
 
 # Create a script that runs the desired command
 RUN ln -s /libraries/bin/run_bin /usr/local/bin/asyncapi

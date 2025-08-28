@@ -90,7 +90,7 @@ jobs:
         shell: bash
         run: npm install -g npm@latest
       - name: Install dependencies
-        run: CI=true npm ci --ignore-scripts
+        run: CI=true npm ci
       - name: Build project
         shell: bash
         run: npm run prepublishOnly
