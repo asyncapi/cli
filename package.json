@@ -91,6 +91,7 @@
     "mocha": "^10.2.0",
     "nodemon": "^3.1.10",
     "nyc": "^15.1.0",
+    "puppeteer": "^24.17.0",
     "rimraf": "^3.0.2",
     "simple-git": "^3.16.0",
     "supertest": "^7.1.4",
