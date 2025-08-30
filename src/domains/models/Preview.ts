@@ -25,11 +25,11 @@ function isValidFilePath(filePath: string): boolean {
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-export async function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,suppressLogs:boolean|undefined,port: number = DEFAULT_PORT):Promise<void> {
+export function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,suppressLogs:boolean|undefined,port: number = DEFAULT_PORT, noBrowser?: boolean):void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
-
+  
   const baseDir = path.dirname(path.resolve(filePath));
   bundle(filePath).then((doc) => {
     if (doc) {
@@ -126,7 +126,23 @@ export async function startPreview(filePath:string,base:string | undefined,baseD
         }
       });
     }
-    const server = createServer((req, res) => handle(req, res));
+
+    const server = createServer((req, res) => {
+      if (req.url === '/close') {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('Shutting down server');
+        for (const socket of wsServer.clients) {
+          socket.close();
+        }
+        // Close the server
+        server.close(() => {
+          // eslint-disable-next-line no-process-exit
+          process.exit(0);
+        });
+        return;
+      }
+      handle(req, res);
+    });
 
     server.on('upgrade', (request, socket, head) => {
       if (request.url === '/preview-server' && request.headers['origin'] === `http://localhost:${port}`) {
@@ -158,7 +174,7 @@ export async function startPreview(filePath:string,base:string | undefined,baseD
             'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
           );
         }
-        if (!bundleError) {
+        if (!bundleError && !noBrowser) {
           open(url);
         }
       }).on('error', (error) => {
