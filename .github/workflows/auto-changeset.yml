@@ -13,7 +13,7 @@ jobs:
   auto-changeset:
     if: |
       startsWith(github.repository, 'asyncapi/') &&
-      (!contains(github.event.pull_request.labels, 'skip-changeset')) &&
+      (!contains(github.event.pull_request.labels.*.name, 'skip-changeset')) &&
       ( startsWith(github.event.pull_request.title, 'fix:') ||
         startsWith(github.event.pull_request.title, 'feat:') ||
         startsWith(github.event.pull_request.title, 'fix!:') ||
