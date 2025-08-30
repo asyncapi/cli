@@ -12,8 +12,53 @@ jobs:
     name: Lint PR title
     runs-on: ubuntu-latest
     steps:
+      # Check if this is a repeated title-only change to avoid unnecessary runs
+      - name: Check if title-only change
+        if: github.event.action == 'edited'
+        id: check_title_only
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            
+            // Check if there are any file changes in the PR
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            
+            // Check if there are existing title lint comments (indicating previous title validation)
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            
+            const hasExistingTitleLintComment = comments.some(comment => 
+              comment.body.includes('Conventional Commits specification') || 
+              comment.body.includes('pr-title-lint-error')
+            );
+            
+            // Skip if this is an edit with no code changes and we've already validated title before
+            const shouldSkip = github.event.action === 'edited' && 
+                              files.length === 0 && 
+                              hasExistingTitleLintComment &&
+                              github.event.changes?.title;
+            
+            console.log(`Should skip title validation: ${shouldSkip}`);
+            console.log(`Files changed: ${files.length}`);
+            console.log(`Has existing title lint comment: ${hasExistingTitleLintComment}`);
+            
+            return shouldSkip;
+
       # Since this workflow is REQUIRED for a PR to be mergable, we have to have this 'if' statement in step level instead of job level.
-      - if: ${{ !contains(fromJson('["asyncapi-bot", "dependabot[bot]", "dependabot-preview[bot]", "allcontributors[bot]"]'), github.actor) }}
+      - if: ${{ !contains(fromJson('["asyncapi-bot", "dependabot[bot]", "dependabot-preview[bot]", "allcontributors[bot]"]'), github.actor) && steps.check_title_only.outputs.result != 'true' }}
         uses: amannn/action-semantic-pull-request@c3cd5d1ea3580753008872425915e343e351ab54 #version 5.2.0 https://github.com/amannn/action-semantic-pull-request/releases/tag/v5.2.0
         id: lint_pr_title
         env:
