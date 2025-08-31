@@ -85,7 +85,7 @@ export async function testStudio(){
   });
   const page = await browser.newPage();
 
-  await page.goto(`http://localhost:3210?liveServer=3210&studio-version=${studioVersion}`);
+  await page.goto(`http://127.0.0.1:3210?liveServer=3210&studio-version=${studioVersion}`);
   await page.setViewport({width: 1080, height: 1024});
 
   const logo = await page.locator('body > div:nth-child(1) > div > div > div > div > img').waitHandle()
@@ -107,7 +107,7 @@ export async function testPreview(){
   });
   const page = await browser.newPage();
 
-  await page.goto(`http://localhost:4321?previewServer=4321&studio-version=${studioVersion}`);
+  await page.goto(`http://127.0.0.1:4321?previewServer=4321&studio-version=${studioVersion}`);
   await page.setViewport({width: 1080, height: 1024});
 
   const logo = await page.locator('body > div:nth-child(1) > div > div > div > div > img').waitHandle()
