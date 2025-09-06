@@ -8,15 +8,15 @@ export const studioFlags = () => {
       description: 'path to the AsyncAPI file to link with Studio',
       deprecated: true,
     }),
-    port: Flags.integer({
+    port: Flags.string({
       char: 'p',
       description: 'port in which to start Studio',
     }),
     'no-interactive': Flags.boolean({
-      description:
-        'disable prompts for this command which asks for file path if not passed via the arguments.',
+      description: 'disable prompts for this command which asks for file path if not passed via the arguments.',
       required: false,
       default: false,
     }),
+    noBrowser: Flags.boolean({char: 'B', description: 'Pass this to not open browser automatically upon running the command', default: false})
   };
 };

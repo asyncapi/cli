@@ -1,7 +1,7 @@
-import { AsyncAPIDocument, ValidationResult } from '@interfaces/index';
+import { AsyncAPIDocument, ValidationResult } from '../../../src/interfaces/index';
 
 declare module 'express' {
-  export interface Request {
+  export interface Request extends Express.Request {
     asyncapi?: {
       parsedDocument?: AsyncAPIDocument;
       parsedDocuments?: Array<AsyncAPIDocument>;

@@ -5,6 +5,9 @@ on:
     types:
       - published
 
+env:
+  CI: true
+
 jobs:
   upload-assets:
     name: Generate and upload assets

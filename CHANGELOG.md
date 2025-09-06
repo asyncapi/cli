@@ -1,5 +1,44 @@
 # @asyncapi/cli
 
+## 3.4.2
+
+### Patch Changes
+
+- d832abc: Fixes the dependencies and package-lock.json
+
+## 3.4.2
+
+### Patch Changes
+
+- 80dcadd: fix: get server-api release ready
+
+  - 35248ba: chore: fix server-api release
+
+  Signed-off-by: Shurtu-gal <ashishpadhy1729@gmail.com>
+
+  - 4dcdd02: fix: get server-api release ready
+
+  Signed-off-by: Shurtu-gal <ashishpadhy1729@gmail.com>
+
+## 3.4.1
+
+### Patch Changes
+
+- e2a3583: fix: made studio start on different port if one is already in use
+
+  - 43a8cb8: fix: made studio start on differnt port if one is already in use
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
+  - ce4b061: Merge remote-tracking branch 'remote/master' into fix-studio-multiple-instance
+  - 122812a: chore: new approach for port allocation done
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
+  - 5946001: fix: removed comment and fix linting errors
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
 ## 3.4.0
 
 ### Minor Changes
