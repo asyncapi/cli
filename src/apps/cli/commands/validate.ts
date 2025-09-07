@@ -16,8 +16,12 @@ import {
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
-  private validationService = new ValidationService();
+  private validationService = new ValidationService({});
   
+  constructor(argv: string[], config: any) {
+    super(argv, config);
+  }
+
   static flags = {
     ...validateFlags(),
     ...proxyFlags(), // Merge proxyFlags with validateFlags
@@ -31,8 +35,10 @@ export default class Validate extends Command {
   };
 
   async run() {
+    console.error('🏃 Validate command run() method called');
     const { args, flags } = await this.parse(Validate); //NOSONAR
     let filePath = args['spec-file'];
+    console.error('📁 File path:', filePath);
     const proxyHost = flags['proxyHost'];
     const proxyPort = flags['proxyPort'];
 

@@ -36,5 +36,5 @@ channels:
       message:
         messageId: UserSignedUp
         payload:
-          $ref: 'https://github.com/AayushSaini101/AayushSaini101/blob/main/user-signedup.yaml#/payload'
+          $ref: 'https://github.com/AayushSaini101/AayushSaini102/blob/main/user-signedup.yaml#/payload'
 

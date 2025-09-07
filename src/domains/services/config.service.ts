@@ -1,7 +1,6 @@
 import path from 'path';
 import os from 'os';
 import { promises as fs } from 'fs';
-import minimatch from 'minimatch';
 
 const CONFIG_DIR = path.join(os.homedir(), '.asyncapi');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
@@ -48,25 +47,14 @@ export class ConfigService {
   }
 
   /**
- * Add or update an auth entry by merging with existing entry if present
- */
+   * Add a new auth entry
+   */
   static async addAuthEntry(entry: AuthEntry): Promise<void> {
     const config = await this.loadConfig();
-
-    // Ensure config.auth is initialized as an array
-    config.auth ??= [];
-
-    // Find existing entry by pattern
-    const existingEntry = config.auth.find(e => e.pattern === entry.pattern);
-
-    if (existingEntry) {
-    // Merge new entry into existing one
-      Object.assign(existingEntry, entry);
-    } else {
-    // No existing entry, add new one
-      config.auth.push(entry);
+    if (!config.auth) {
+      config.auth = [];
     }
-
+    config.auth.push(entry);
     await this.saveConfig(config);
   }
 
@@ -87,7 +75,8 @@ export class ConfigService {
 
     for (const entry of config.auth) {
       try {
-        if (minimatch(url, entry.pattern)) {
+        const regex = this.wildcardToRegex(entry.pattern);
+        if (regex.test(url)) {
           return {
             token: entry.token,
             authType: entry.authType || 'Bearer',
@@ -100,5 +89,19 @@ export class ConfigService {
     }
 
     return null;
+  }
+
+  /**
+   * Convert wildcard pattern (*, **) to RegExp matching start of string
+   * @param pattern - wildcard pattern
+   */
+  private static wildcardToRegex(pattern: string): RegExp {
+    const escaped = pattern.replace(/[-/\\^$+?.()|[\]{}]/g, '\\$&');
+
+    const regexStr = escaped
+      .replace(/\*\*/g, '.*')
+      .replace(/\*/g, '[^/]*');
+
+    return new RegExp(`^${regexStr}`);
   }
 }

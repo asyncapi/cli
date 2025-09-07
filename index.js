@@ -1,7 +1,6 @@
 import path from 'path';
 import os from 'os';
 import { promises as fs } from 'fs';
-import minimatch from 'minimatch';
 
 // Construct the config file path: ~/.asyncapi/config.json
 const CONFIG_DIR = path.join(os.homedir(), '.asyncapi');
@@ -43,7 +42,8 @@ function matchAuth(url, config) {
 
   for (const entry of config.auth) {
     try {
-      if (minimatch(url, entry.pattern)) {
+      const regex = wildcardToRegex(entry.pattern);
+      if (regex.test(url)) {
         return {
           token: entry.token,
           authType: entry.authType || 'Bearer',
@@ -58,3 +58,17 @@ function matchAuth(url, config) {
   return null;
 }
 
+function wildcardToRegex(pattern) {
+  // Escape regex special characters
+  const escaped = pattern.replace(/[-/\\^$+?.()|[\]{}]/g, '\\$&');
+
+  // Convert wildcards:
+  // ** → .*
+  // *  → [^/]*  (match everything except slash)
+  const regexStr = escaped
+    .replace(/\*\*/g, '.*')
+    .replace(/\*/g, '[^/]*');
+
+  // Match URLs that START with the pattern
+  return new RegExp(`^${regexStr}`);
+}

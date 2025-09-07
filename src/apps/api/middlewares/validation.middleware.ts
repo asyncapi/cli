@@ -203,7 +203,7 @@ export async function validationMiddleware(
       __unstable: {
         resolver: {
           resolvers: [
-            // Resolver for private repositories is automatically included by ValidationService
+            // GitHub resolver for private repositories is automatically included by ValidationService
             // @TODO: Add Cookie Based Resolvers after migration and understanding some
             // details about how to use them in the new parser-js version.
           ],
