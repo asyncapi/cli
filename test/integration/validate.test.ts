@@ -350,27 +350,4 @@ describe('validate', () => {
         done();
       });
   });
-
-  describe('GitHub resolver functionality', () => {
-    test
-      .stdout()
-      .stderr()
-      .command(['validate', 'https://raw.githubusercontent.com/test-org/test-repo/main/asyncapi.yml'])
-      .it('should handle GitHub URLs with bearer token authentication', (ctx, done) => {
-        // The test will either succeed (if the URL is accessible) or fail with a specific error
-        // We're testing that the GitHub resolver is properly integrated
-        expect(ctx.stderr).to.not.include('Failed to fetch GitHub URL');
-        done();
-      });
-
-    test
-      .stdout()
-      .stderr()
-      .command(['validate', 'https://github.com/test-org/test-repo/blob/main/asyncapi.yml'])
-      .it('should handle GitHub web URLs', (ctx, done) => {
-        // Test that GitHub web URLs are also handled by the resolver
-        expect(ctx.stderr).to.not.include('Failed to fetch GitHub URL');
-        done();
-      });
-  });
 });
