@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-non-literal-regexp */
 import path from 'path';
 import os from 'os';
 import { promises as fs } from 'fs';
@@ -69,6 +70,5 @@ function wildcardToRegex(pattern) {
     .replace(/\*\*/g, '.*')
     .replace(/\*/g, '[^/]*');
 
-  // Match URLs that START with the pattern
   return new RegExp(`^${regexStr}`);
 }

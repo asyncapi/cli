@@ -61,6 +61,7 @@ function getShellConfig(shell) {
   if (!allowedShells.includes(shell)) {
     throw new Error(`Unsupported shell: ${shell}. Autocomplete only supports zsh and bash.`);
   }
+  // eslint-disable-next-line security/detect-object-injection
   return shellConfigs[shell];
 }
 
