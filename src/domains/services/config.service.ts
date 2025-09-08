@@ -1,6 +1,7 @@
 import path from 'path';
 import os from 'os';
 import { promises as fs } from 'fs';
+import minimatch from 'minimatch';
 
 const CONFIG_DIR = path.join(os.homedir(), '.asyncapi');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
@@ -91,8 +92,7 @@ export class ConfigService {
 
     for (const entry of config.auth) {
       try {
-        const regex = this.wildcardToRegex(entry.pattern);
-        if (regex.test(url)) {
+        if (minimatch(url, entry.pattern)) {
           return {
             token: entry.token,
             authType: entry.authType || 'Bearer',
@@ -107,17 +107,4 @@ export class ConfigService {
     return null;
   }
 
-  /**
-   * Convert wildcard pattern (*, **) to RegExp matching start of string
-   * @param pattern - wildcard pattern
-   */
-  private static wildcardToRegex(pattern: string): RegExp {
-    const escaped = pattern.replace(/[-/\\^$+?.()|[\]{}]/g, '\\$&');
-
-    const regexStr = escaped
-      .replace(/\*\*/g, '.*')
-      .replace(/\*/g, '[^/]*');
-
-    return new RegExp(`^${regexStr}`);
-  }
 }
