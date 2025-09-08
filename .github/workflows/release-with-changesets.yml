@@ -13,6 +13,9 @@ on:
       - alpha
       - next
 
+env:
+  CI: true
+
 jobs:
   test-nodejs:
     # We just check the message of the first commit as there is always just one commit because we squash into one before merging

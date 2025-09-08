@@ -1,5 +1,25 @@
 # @asyncapi/cli
 
+## 3.4.2
+
+### Patch Changes
+
+- d832abc: Fixes the dependencies and package-lock.json
+
+## 3.4.2
+
+### Patch Changes
+
+- 80dcadd: fix: get server-api release ready
+
+  - 35248ba: chore: fix server-api release
+
+  Signed-off-by: Shurtu-gal <ashishpadhy1729@gmail.com>
+
+  - 4dcdd02: fix: get server-api release ready
+
+  Signed-off-by: Shurtu-gal <ashishpadhy1729@gmail.com>
+
 ## 3.4.1
 
 ### Patch Changes

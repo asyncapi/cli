@@ -228,6 +228,17 @@ export async function validationMiddleware(
             validationService,
           );
           const parsedDocuments = results.map((result) => result.document);
+
+          if (!parsedDocuments.every(doc => doc !== undefined)) {
+            throw new ProblemException({
+              type: 'invalid-asyncapi-document-parse',
+              title: 'Invalid AsyncAPI Document (Parse Error)',
+              status: 422,
+              detail: 'One or more provided AsyncAPI documents are invalid.',
+              diagnostics: results.flatMap(result => result.diagnostics || []),
+            });
+          }
+
           req.asyncapi.parsedDocuments = parsedDocuments;
           req.asyncapi.validationResults = results;
         } else {

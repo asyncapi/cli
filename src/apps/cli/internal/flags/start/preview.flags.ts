@@ -27,5 +27,6 @@ export const previewFlags = () => {
       description: 'Pass this to suppress the detiled error logs.',
       default: false,
     }),
+    noBrowser: Flags.boolean({char: 'B', description: 'Pass this to not open browser automatically upon running the command', default: false})
   };
 };
