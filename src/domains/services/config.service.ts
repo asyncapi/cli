@@ -52,23 +52,18 @@ export class ConfigService {
  */
   static async addAuthEntry(entry: AuthEntry): Promise<void> {
     const config = await this.loadConfig();
-    if (!config.auth) {
-      config.auth = [];
-    }
 
-    // Find if an entry with the same pattern already exists
-    const index = config.auth.findIndex(e => e.pattern === entry.pattern);
+    // Ensure config.auth is initialized as an array
+    config.auth ??= [];
 
-    if (index !== -1) {
-    // If found, merge existing entry with new entry
-      // eslint-disable-next-line security/detect-object-injection
-      config.auth[index] = {
-        // eslint-disable-next-line security/detect-object-injection
-        ...config.auth[index],
-        ...entry
-      };
+    // Find existing entry by pattern
+    const existingEntry = config.auth.find(e => e.pattern === entry.pattern);
+
+    if (existingEntry) {
+    // Merge new entry into existing one
+      Object.assign(existingEntry, entry);
     } else {
-    // If not found, add the new entry
+    // No existing entry, add new one
       config.auth.push(entry);
     }
 
@@ -106,5 +101,4 @@ export class ConfigService {
 
     return null;
   }
-
 }

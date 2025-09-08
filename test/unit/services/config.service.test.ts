@@ -5,48 +5,46 @@ describe('ConfigService - Glob Pattern Matching', () => {
   describe('minimatch integration', () => {
     it('should match simple wildcard patterns', () => {
       // Test simple wildcard matching - * doesn't match across path separators, ** does
-      expect(minimatch('https://github.com/user/repo', 'https://github.com/*')).to.be.false; // * doesn't match across /
-      expect(minimatch('https://github.com/user/repo', 'https://github.com/**')).to.be.true;  // ** matches across /
-      expect(minimatch('https://api.example.com/v1/users/123', 'https://api.example.com/**')).to.be.true;
-      
+      expect(minimatch('https://github.com/user/repo', 'https://github.com/*')).to.equal(false); // * doesn't match across /
+      expect(minimatch('https://github.com/user/repo', 'https://github.com/**')).to.equal(true); // ** matches across /
+      expect(minimatch('https://api.example.com/v1/users/123', 'https://api.example.com/**')).to.equal(true);
+
       // Test non-matching patterns
-      expect(minimatch('https://gitlab.com/user/repo', 'https://github.com/*')).to.be.false;
-      expect(minimatch('https://github.com/user/repo', 'https://gitlab.com/*')).to.be.false;
+      expect(minimatch('https://gitlab.com/user/repo', 'https://github.com/*')).to.equal(false);
+      expect(minimatch('https://github.com/user/repo', 'https://gitlab.com/*')).to.equal(false);
     });
 
     it('should match complex glob patterns', () => {
       // Test complex pattern with file extension (without fragment)
-      expect(minimatch('https://github.com/user/repo/blob/main/file.yaml', 'https://github.com/**/blob/**/*.yaml')).to.be.true;
-      
+      expect(minimatch('https://github.com/user/repo/blob/main/file.yaml', 'https://github.com/**/blob/**/*.yaml')).to.equal(true);
+
       // Test multi-subdomain pattern
-      expect(minimatch('https://api.staging.example.com/v1/data', 'https://api.*.example.com/**')).to.be.true;
-      expect(minimatch('https://api.prod.example.com/v1/data', 'https://api.*.example.com/**')).to.be.true;
-      
-      // Test specific user pattern
-      
+      expect(minimatch('https://api.staging.example.com/v1/data', 'https://api.*.example.com/**')).to.equal(true);
+      expect(minimatch('https://api.prod.example.com/v1/data', 'https://api.*.example.com/**')).to.equal(true);
+
       // Test non-matching patterns
-      expect(minimatch('https://api.example.com/v1/data', 'https://api.*.example.com/**')).to.be.false;
+      expect(minimatch('https://api.example.com/v1/data', 'https://api.*.example.com/**')).to.equal(false);
     });
 
     it('should handle edge cases correctly', () => {
       // Test exact matches
-      expect(minimatch('https://github.com/user/repo', 'https://github.com/user/repo')).to.be.true;
-      
+      expect(minimatch('https://github.com/user/repo', 'https://github.com/user/repo')).to.equal(true);
+
       // Test patterns with special characters
-      expect(minimatch('https://api.example.com/v1/users/123', 'https://api.example.com/v1/users/*')).to.be.true;
-      expect(minimatch('https://api.example.com/v1/users/123', 'https://api.example.com/v1/users/**')).to.be.true;
-      
+      expect(minimatch('https://api.example.com/v1/users/123', 'https://api.example.com/v1/users/*')).to.equal(true);
+      expect(minimatch('https://api.example.com/v1/users/123', 'https://api.example.com/v1/users/**')).to.equal(true);
+
       // Test patterns with query parameters and fragments
-      expect(minimatch('https://github.com/user/repo?param=value#fragment', 'https://github.com/user/repo*')).to.be.true;
+      expect(minimatch('https://github.com/user/repo?param=value#fragment', 'https://github.com/user/repo*')).to.equal(true);
     });
 
     it('should handle invalid patterns gracefully', () => {
       // Test invalid bracket patterns - minimatch handles them gracefully by returning false
-      expect(minimatch('https://github.com/user/repo', 'https://github.com/[invalid-pattern')).to.be.false;
-      
+      expect(minimatch('https://github.com/user/repo', 'https://github.com/[invalid-pattern')).to.equal(false);
+
       // Test valid patterns that might be confused with invalid ones
-      expect(minimatch('https://github.com/user/repo', 'https://github.com/valid/**')).to.be.false;
-      expect(minimatch('https://github.com/valid/repo', 'https://github.com/valid/**')).to.be.true;
+      expect(minimatch('https://github.com/user/repo', 'https://github.com/valid/**')).to.equal(false);
+      expect(minimatch('https://github.com/valid/repo', 'https://github.com/valid/**')).to.equal(true);
     });
 
     it('should demonstrate improved glob support over custom regex', () => {
@@ -79,10 +77,12 @@ describe('ConfigService - Glob Pattern Matching', () => {
         }
       ];
 
-      testCases.forEach(({ pattern, url, shouldMatch }) => {
-        expect(minimatch(url, pattern)).to.equal(shouldMatch, 
-          `Pattern "${pattern}" should ${shouldMatch ? 'match' : 'not match'} URL "${url}"`);
-      });
+      for (const { pattern, url, shouldMatch } of testCases) {
+        expect(minimatch(url, pattern)).to.equal(
+          shouldMatch,
+          `Pattern "${pattern}" should ${shouldMatch ? 'match' : 'not match'} URL "${url}"`
+        );
+      }
     });
   });
 });
