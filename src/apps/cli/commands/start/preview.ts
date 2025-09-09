@@ -44,6 +44,7 @@ export default class PreviewStudio extends Command {
       flags.xOrigin,
       flags.suppressLogs,
       previewPort,
+      flags.noBrowser
     );
   }
 }
