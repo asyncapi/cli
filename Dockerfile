@@ -24,20 +24,22 @@ FROM ghcr.io/puppeteer/puppeteer:20.8.0
 # Switch to root to create user and set up permissions
 USER root
 
-# Install git (needed by AsyncAPI CLI)
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+# Install git
+RUN rm -f /etc/apt/sources.list.d/google*.list && \
+    apt-get update && \
+    apt-get install -y git && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
 RUN groupadd -r asyncapi && useradd -r -g asyncapi asyncapi
 
-# Copy built files from builder stage
+# Copy built files from builder stage with correct ownership
 WORKDIR /app
-COPY --from=build /app /app
+COPY --from=build --chown=asyncapi:asyncapi /app /app
 
 # Create symlink and set permissions
 RUN ln -s /app/bin/run_bin /usr/local/bin/asyncapi && \
-    chmod +x /usr/local/bin/asyncapi && \
-    chown -R asyncapi:asyncapi /app
+    chmod +x /usr/local/bin/asyncapi
 
 # Switch to non-root user for runtime
 USER asyncapi

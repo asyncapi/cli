@@ -3,8 +3,10 @@ pre-commit:
   commands:
     lint:
       run: npm run lint
+      exclude: 'package-lock.json'
     test:
       run: npm run test
+      exclude: 'package-lock.json'
 
 commit-msg:
   parallel: true
