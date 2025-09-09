@@ -84,7 +84,6 @@ pnpm-lock.yaml
 # Action files (for main CLI docker image)
 action.yml
 action-template.yml
-github-action
 
 # Test directories and files
 test-alpine-fix

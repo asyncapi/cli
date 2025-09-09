@@ -1,52 +1,39 @@
-# Stage 1: Build stage with Node setup
-FROM node:18-alpine as build
+# Stage 1: Build
+FROM node:20-alpine AS build
+WORKDIR /app
 
-# Copy the source code 
-COPY ./ /tmp/source_code
+# Copy package files first for better caching
+COPY package*.json ./
 
-# Install dependencies
-RUN cd /tmp/source_code && npm install --ignore-scripts
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci --ignore-scripts
 
-# Build the source code
-RUN cd /tmp/source_code && npm run build
+# Copy only necessary files for build
+COPY src/ ./src/
+COPY assets/ ./assets/
+COPY scripts/ ./scripts/
+COPY bin/ ./bin/
+COPY tsconfig.json ./
 
-# create libraries directory
-RUN mkdir -p /libraries
+# Build the application
+RUN npm run build && \
+    npm prune --omit=dev && \
+    rm -rf test docs .git tmp node_modules/.cache
 
-# Copy the lib, bin, node_modules, and package.json files to the /libraries directory
-RUN cp -r /tmp/source_code/lib /libraries
-RUN cp -r /tmp/source_code/assets /libraries
-RUN cp /tmp/source_code/package.json /libraries
-RUN cp /tmp/source_code/package-lock.json /libraries
-RUN cp /tmp/source_code/oclif.manifest.json /libraries
-
-# Copy the bin directory to the /libraries directory
-RUN cp -r /tmp/source_code/bin /libraries
-
-# Remove everything inside /tmp
-RUN rm -rf /tmp/*
-
-FROM node:18-alpine
+# Stage 2: Runtime
+FROM node:20-alpine
 
 # Install necessary packages
-RUN apk add --no-cache bash git
+RUN apk update && apk add --no-cache bash git && rm -rf /var/cache/apk/*
 
-# Copy the libraries directory from the build stage
-COPY --from=build /libraries /libraries
+WORKDIR /app
 
-RUN cd /libraries && npm install --production --ignore-scripts
+# Copy built application from build stage
+COPY --from=build /app ./
 
-# Create a non-root user
-# RUN addgroup -S myuser && adduser -S myuser -G myuser
-
-# Create a script that runs the desired command
-RUN ln -s /libraries/bin/run_bin /usr/local/bin/asyncapi
-
-# Make the script executable
-RUN chmod +x /usr/local/bin/asyncapi
-
-# Change ownership to non-root user
-# RUN chown -R myuser:myuser /libraries /usr/local/bin/asyncapi || echo "Failed to change ownership"
+# Create symlink for global access
+RUN ln -s /app/bin/run_bin /usr/local/bin/asyncapi && \
+    chmod +x /usr/local/bin/asyncapi
 
 # Copy the entrypoint script
 COPY github-action/entrypoint.sh /entrypoint.sh
