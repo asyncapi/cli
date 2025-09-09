@@ -18,7 +18,7 @@
     "@asyncapi/optimizer": "^1.0.4",
     "@asyncapi/parser": "^3.3.0",
     "@asyncapi/problem": "^1.0.0",
-    "@asyncapi/protobuf-schema-parser": "^3.5.1",
+    "@asyncapi/protobuf-schema-parser": "^3.6.0",
     "@asyncapi/raml-dt-schema-parser": "^4.0.24",
     "@asyncapi/studio": "^0.24.2",
     "@clack/prompts": "^0.7.0",
