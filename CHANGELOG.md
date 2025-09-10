@@ -1,5 +1,15 @@
 # @asyncapi/cli
 
+## 3.5.1
+
+### Patch Changes
+
+- 5a99f6f: fix: modify api:build script to generate languages
+
+  - 9488a1b: fix: modify script to generate languages
+
+  Updated the 'api:build' script to include language generation.
+
 ## 3.5.0
 
 ### Minor Changes
