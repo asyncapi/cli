@@ -3,6 +3,10 @@ import * as fs from 'fs';
 import { promisify } from 'util';
 import chokidar from 'chokidar';
 const lstat = promisify(fs.lstat);
+import path from 'path';
+import { magenta, yellow, red, green } from 'picocolors';
+import { load } from '@models/SpecificationFile';
+import { GeneratorError } from '@errors/generator-error';
 
 export async function isLocalTemplate(templatePath: string) {
   const stats = await lstat(templatePath);
@@ -40,19 +44,8 @@ export class Watcher {
    * @param {*} errorCallback Calback to call when it is no longer possible to watch a file.
    */
   initiateWatchOnPath(path: string, changeCallback: any, errorCallback: any) {
-    const watcher = chokidar.watch(path, {
-      ignoreInitial: true,
-      ignored: this.ignorePaths,
-    });
-    watcher.on('all', (eventType, changedPath) =>
-      this.fileChanged(
-        path,
-        changedPath,
-        eventType,
-        changeCallback,
-        errorCallback,
-      ),
-    );
+    const watcher = chokidar.watch(path, {ignoreInitial: true, ignored: this.ignorePaths});
+    watcher.on('all', (eventType, changedPath) => this.fileChanged(path, changedPath, eventType, changeCallback, errorCallback));
     this.watchers[String(path)] = watcher;
   }
 
@@ -75,24 +68,13 @@ export class Watcher {
    * @param {*} changeCallback Callback to call when changed occur.
    * @param {*} errorCallback Calback to call when it is no longer possible to watch a file.
    */
-  fileChanged(
-    listenerPath: string,
-    changedPath: string,
-    eventType: string,
-    changeCallback: any,
-    errorCallback: any,
-  ) {
+  fileChanged(listenerPath: string, changedPath: string, eventType: string, changeCallback: any, errorCallback: any) {
     try {
       if (fs.existsSync(listenerPath)) {
         const newEventType = this.convertEventType(eventType);
-        this.filesChanged[String(changedPath)] = {
-          eventType: newEventType,
-          path: changedPath,
-        };
+        this.filesChanged[String(changedPath)] = { eventType: newEventType, path: changedPath};
         // Since multiple changes can occur at the same time, lets wait a bit before processing.
-        if (this.fsWait) {
-          return;
-        }
+        if (this.fsWait) {return;}
         this.fsWait = setTimeout(async () => {
           await changeCallback(this.filesChanged);
           this.filesChanged = {};
@@ -176,4 +158,87 @@ export class Watcher {
       }
     }
   }
+}
+
+export async function runWatchMode(
+  thisArg: any,
+  asyncapi: string,
+  template: string,
+  output: string,
+  generatorClass: any, // ✅ passed in
+  watchHandler: (changedFiles: Record<string, any>) => Promise<void>
+) {
+  const specification = await load(asyncapi);
+
+  const watchDir = path.resolve(template);
+  const outputPath = path.resolve(watchDir, output);
+  const transpiledTemplatePath = path.resolve(watchDir, generatorClass.TRANSPILED_TEMPLATE_LOCATION); // ✅ use dynamic class
+  const ignorePaths = [outputPath, transpiledTemplatePath];
+  const specificationFile = specification.getFilePath();
+
+  // Template name is needed as it is not always a part of the cli command
+  // There is a use case that you run generator from a root of the template with `./` path
+  let templateName = '';
+  try {
+    // eslint-disable-next-line
+    templateName = require(path.resolve(watchDir, 'package.json')).name;
+  } catch (_) {
+    // intentional
+  }
+
+  let watcher;
+  if (specificationFile) {
+    thisArg.log(`[WATCHER] Watching for changes in the template directory ${magenta(watchDir)} and in the AsyncAPI file ${magenta(specificationFile)}`);
+    watcher = new Watcher([specificationFile, watchDir], ignorePaths);
+  } else {
+    thisArg.log(`[WATCHER] Watching for changes in the template directory ${magenta(watchDir)}`);
+    watcher = new Watcher(watchDir, ignorePaths);
+  }
+
+  if (!await thisArg.isLocalTemplate(path.resolve(generatorClass.DEFAULT_TEMPLATES_DIR, templateName))) {
+    thisArg.warn(`WARNING: ${template} is a remote template. Changes may be lost on subsequent installations.`);
+  }
+
+  await watcher.watch(watchHandler, (paths: any) => {
+    thisArg.error(`[WATCHER] Could not find the file path ${paths}, are you sure it still exists? If it has been deleted or moved please rerun the generator.`, {
+      exit: 1,
+    });
+  });
+}
+
+export function watcherHandler(
+  thisArg: any,
+  asyncapi: string,
+  template: string,
+  output: string,
+  options: Record<string, any>,
+  genOption: any,
+  interactive: boolean
+): (changedFiles: Record<string, any>) => Promise<void> {
+  return async (changedFiles: Record<string, any>): Promise<void> => {
+    console.clear();
+    console.log('[WATCHER] Change detected');
+    for (const [, value] of Object.entries(changedFiles)) {
+      let eventText;
+      switch (value.eventType) {
+      case 'changed':
+        eventText = green(value.eventType);
+        break;
+      case 'removed':
+        eventText = red(value.eventType);
+        break;
+      case 'renamed':
+        eventText = yellow(value.eventType);
+        break;
+      default:
+        eventText = yellow(value.eventType);
+      }
+      thisArg.log(`\t${magenta(value.path)} was ${eventText}`);
+    }
+    try {
+      await thisArg.generate(asyncapi, template, output, options, genOption, interactive);
+    } catch (err: any) {
+      throw new GeneratorError(err);
+    }
+  };
 }
