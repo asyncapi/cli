@@ -198,7 +198,7 @@
     "api:prod": "npm run api:build && cross-env NODE_ENV=production PORT=80 node lib/apps/api/server.js",
     "api:docker": "docker run -it -p 80:80 asyncapi/server-api",
     "api:build:docker": "docker build -t asyncapi/server-api -f ./src/apps/api/Dockerfile .",
-    "api:build": "rimraf lib && tsc && tsc-alias --project tsconfig.json",
+    "api:build": "rimraf lib && npm run generate:languages && tsc && tsc-alias --project tsconfig.json",
     "api:test": ""
   },
   "types": "lib/index.d.ts"
