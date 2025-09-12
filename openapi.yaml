@@ -15,6 +15,30 @@ servers:
   - url: https://api.asyncapi.com/v1
 
 paths:
+  /version:
+    get:
+      summary: Get the current version of the AsyncAPI CLI.
+      operationId: getVersion
+      tags:
+        - version
+      responses:
+        "200":
+          description: Successfully retrieved the version.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                    description: The current version of the AsyncAPI CLI.
+                    example: "1.2.3"
+        default:
+          description: Unexpected problem.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /validate:
     post:
       summary: Validate the given AsyncAPI document.
