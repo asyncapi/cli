@@ -3,7 +3,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Router, Request, Response, NextFunction } from 'express';
 import { Controller } from '@/interfaces';
-import { logger } from '@utils/logger';
 
 export class VersionController implements Controller {
   public basepath = '/version';
@@ -18,25 +17,6 @@ export class VersionController implements Controller {
     }
   }
 
-  private async getGitInfo() {
-    try {
-      const gitPath = path.join(process.cwd(), '.git', 'HEAD');
-      if (fs.existsSync(gitPath)) {
-        const head = fs.readFileSync(gitPath, 'utf8').trim();
-        if (head.startsWith('ref: ')) {
-          const refPath = path.join(process.cwd(), '.git', head.substring(5));
-          if (fs.existsSync(refPath)) {
-            return fs.readFileSync(refPath, 'utf8').trim().substring(0, 7);
-          }
-        }
-        return head.substring(0, 7);
-      }
-    } catch {
-      logger.error('Error retrieving git information');
-    }
-    return process.env.GIT_COMMIT || process.env.GITHUB_SHA || 'unknown';
-  }
-
   public async boot(): Promise<Router> {
     const router: Router = Router();
 
@@ -44,7 +24,6 @@ export class VersionController implements Controller {
       `${this.basepath}`, async (req: Request, res: Response, next: NextFunction) => {
         try {
           const packageJson = await this.getPackageInfo();
-          const gitCommit = await this.getGitInfo();
           
           const versionInfo = {
             // Core version information
@@ -52,17 +31,10 @@ export class VersionController implements Controller {
             name: packageJson.name || 'AsyncAPI CLI API',
             description: packageJson.description || 'All in one CLI for all AsyncAPI tools',
             
-            // Build information
-            build: {
-              commit: gitCommit,
-              timestamp: process.env.BUILD_TIME || new Date().toISOString(),
-              environment: process.env.NODE_ENV || 'development',
-              buildNumber: process.env.BUILD_NUMBER || process.env.GITHUB_RUN_NUMBER || 'local'
-            },
-
             // Runtime information
             runtime: {
               node: process.version,
+              environment: process.env.NODE_ENV || 'development',
               platform: os.platform(),
               arch: os.arch(),
               uptime: `${Math.floor((Date.now() - this.startTime.getTime()) / 1000)} seconds`,

@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  version: 0.1.0
+  version: 0.2.0
   title: AsyncAPI Server API
   description: Server API providing official AsyncAPI tools
   contact:
@@ -622,33 +622,6 @@ components:
           type: string
           description: Description of the application
           example: "All in one CLI for all AsyncAPI tools"
-        build:
-          type: object
-          description: Build information
-          properties:
-            commit:
-              type: string
-              description: Git commit hash
-              example: "310cc9d"
-            timestamp:
-              type: string
-              format: date-time
-              description: Build timestamp
-              example: "2025-09-12T05:08:37.979Z"
-            environment:
-              type: string
-              description: Build environment
-              example: "development"
-              enum: ["development", "staging", "production"]
-            buildNumber:
-              type: string
-              description: Build number or identifier
-              example: "local"
-          required:
-            - commit
-            - timestamp
-            - environment
-            - buildNumber
         runtime:
           type: object
           description: Runtime information
@@ -657,6 +630,11 @@ components:
               type: string
               description: Node.js version
               example: "v24.7.0"
+            environment:
+              type: string
+              description: Build environment
+              example: "development"
+              enum: ["development", "staging", "production"]
             platform:
               type: string
               description: Operating system platform
@@ -676,6 +654,7 @@ components:
               example: "2025-09-12T05:08:25.171Z"
           required:
             - node
+            - environment
             - platform
             - arch
             - uptime
