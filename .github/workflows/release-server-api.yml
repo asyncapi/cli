@@ -20,19 +20,20 @@ jobs:
           echo "value=${VERSION_WITHOUT_V}" >> $GITHUB_OUTPUT
 
       - name: Set Up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
 
       - name: Set Up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
+        id: push
         with:
           context: .
           file: ./src/apps/api/Dockerfile
@@ -52,14 +53,19 @@ jobs:
           readme: ./src/apps/api/README.md
           description: Server API providing official AsyncAPI tools
 
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
+
   deploy-app:
     name: Deploy to DigitalOcean App
     needs: publish-docker
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to DigitalOcean App
-        uses: digitalocean/app_action@e583e1b463e8ac378854c0a01af1de8a5afd836b
+        uses: digitalocean/app_action@190f99be3ce4cbbe5d1ca0a63a8ac9d0add205d0
+        env:
+          DOCKER_DIGEST: ${{ needs.publish-docker.outputs.digest }}
         with:
-          app_name: "server-api"
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-          images: '[{"name":"asyncapi-server-api","image":{"registry_type":"DOCKER_HUB","registry":"asyncapi","repository":"server-api","tag":"latest"}}]'
+          app_spec_location: ./src/apps/api/.do/app.yaml
+          print_deploy_logs: true

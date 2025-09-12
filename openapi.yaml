@@ -27,12 +27,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  version:
-                    type: string
-                    description: The current version of the AsyncAPI CLI.
-                    example: "1.2.3"
+                ref: "#/components/schemas/VersionResponse"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         default:
           description: Unexpected problem.
           content:
@@ -605,3 +606,129 @@ components:
         - title
         - status
       additionalProperties: true
+    VersionResponse:
+      type: object
+      description: Version information for the AsyncAPI CLI API
+      properties:
+        version:
+          type: string
+          description: The current version of the AsyncAPI CLI
+          example: "3.5.1"
+        name:
+          type: string
+          description: The name of the application
+          example: "@asyncapi/cli"
+        description:
+          type: string
+          description: Description of the application
+          example: "All in one CLI for all AsyncAPI tools"
+        build:
+          type: object
+          description: Build information
+          properties:
+            commit:
+              type: string
+              description: Git commit hash
+              example: "310cc9d"
+            timestamp:
+              type: string
+              format: date-time
+              description: Build timestamp
+              example: "2025-09-12T05:08:37.979Z"
+            environment:
+              type: string
+              description: Build environment
+              example: "development"
+              enum: ["development", "staging", "production"]
+            buildNumber:
+              type: string
+              description: Build number or identifier
+              example: "local"
+          required:
+            - commit
+            - timestamp
+            - environment
+            - buildNumber
+        runtime:
+          type: object
+          description: Runtime information
+          properties:
+            node:
+              type: string
+              description: Node.js version
+              example: "v24.7.0"
+            platform:
+              type: string
+              description: Operating system platform
+              example: "darwin"
+            arch:
+              type: string
+              description: System architecture
+              example: "arm64"
+            uptime:
+              type: string
+              description: Application uptime
+              example: "12 seconds"
+            startTime:
+              type: string
+              format: date-time
+              description: Application start time
+              example: "2025-09-12T05:08:25.171Z"
+          required:
+            - node
+            - platform
+            - arch
+            - uptime
+            - startTime
+        repository:
+          type: object
+          description: Repository information
+          properties:
+            url:
+              type: string
+              format: uri
+              description: Repository URL
+              example: "https://github.com/asyncapi/cli"
+            bugs:
+              type: string
+              format: uri
+              description: Bug tracker URL
+              example: "https://github.com/asyncapi/cli/issues"
+            license:
+              type: string
+              description: License type
+              example: "Apache-2.0"
+          required:
+            - url
+            - bugs
+            - license
+        api:
+          type: object
+          description: API metadata
+          properties:
+            basePath:
+              type: string
+              description: API base path
+              example: "/version"
+            timestamp:
+              type: string
+              format: date-time
+              description: Current timestamp
+              example: "2025-09-12T05:08:37.979Z"
+            health:
+              type: string
+              description: API health status
+              example: "ok"
+              enum: ["ok", "degraded", "error"]
+          required:
+            - basePath
+            - timestamp
+            - health
+      required:
+        - version
+        - name
+        - description
+        - build
+        - runtime
+        - repository
+        - api
