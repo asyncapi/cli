@@ -32,6 +32,108 @@ import { ParseOptions } from '@asyncapi/parser';
 import { ParserOptions } from '@asyncapi/parser/cjs/parser';
 import { calculateScore } from '@/utils/scoreCalculator';
 
+import { ConfigService } from './config.service';
+
+// GitHub API response type
+interface GitHubFileInfo {
+  download_url: string;
+  content?: string;
+  encoding?: string;
+  name: string;
+  path: string;
+  sha: string;
+  size: number;
+  type: string;
+}
+
+/**
+ * Custom GitHub URL resolver for private repositories
+ */
+const createGitHubResolver = () => ({
+  schema: 'https',
+  order: 1,
+
+  canRead: (uri: any) => {
+    try {
+      const url = new URL(uri.toString());
+      return url.hostname === 'raw.githubusercontent.com' || 
+             url.hostname === 'github.com' ||
+             url.hostname === 'api.github.com';
+    } catch (error) {
+      return false;
+    }
+  },
+
+  /**
+   * Convert GitHub web URL to API URL
+   */
+  convertGitHubWebUrl: (url: string): string => {
+    // Remove fragment from URL before processing
+    const urlWithoutFragment = url.split('#')[0];
+    
+    // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
+    // eslint-disable-next-line no-useless-escape
+    const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+    const match = urlWithoutFragment.match(githubWebPattern);
+    
+    if (match) {
+      const [, owner, repo, branch, path] = match;
+      return `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
+    }
+    return url;
+  },
+
+  read: async (uri: any) => {
+    let url = uri.toString();
+    const originalUrl = url;
+    
+    // Default headers
+    const headers: Record<string, string> = {
+      'User-Agent': 'AsyncAPI-CLI'
+    };
+
+    const authInfo = await ConfigService.getAuthForUrl(url);
+
+    if (url.includes('github.com') && url.includes('/blob/')) {
+      url = createGitHubResolver().convertGitHubWebUrl(url);
+    }
+    
+    if (authInfo) {
+      headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
+      Object.assign(headers, authInfo.headers); // merge custom headers
+    } else {
+      throw new Error(`Cannot resolve URL: ${url} - No authentication configured for this GitHub repository`);
+    }
+
+    if (url.includes('api.github.com')) {
+      headers['Accept'] = 'application/vnd.github.v3+json';
+      const res = await fetch(url, { headers });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch GitHub API URL: ${url} - ${res.statusText}`);
+      }
+      const fileInfo = await res.json() as GitHubFileInfo;
+
+      if (fileInfo.download_url) {
+        const contentRes = await fetch(fileInfo.download_url, { headers });
+        if (!contentRes.ok) {
+          throw new Error(`Failed to fetch content from download URL: ${fileInfo.download_url} - ${contentRes.statusText}`);
+        }
+        return await contentRes.text();
+      }
+      throw new Error(`No download URL found in GitHub API response for: ${url}`);
+    } else if (url.includes('raw.githubusercontent.com')) {
+      headers['Accept'] = 'application/vnd.github.v3.raw';
+      const res = await fetch(url, { headers });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch GitHub URL: ${url} - ${res.statusText}`);
+      }
+      return await res.text();
+    } else {
+      throw new Error(`Unsupported GitHub URL format: ${originalUrl}`);
+    }
+  }
+});
+
 const { writeFile } = promises;
 
 export enum ValidationStatus {
@@ -63,16 +165,23 @@ export class ValidationService extends BaseService {
   private parser: Parser;
 
   constructor(parserOptions: ParserOptions = {}) {
-    super();
-    this.parser = new Parser({
+    super(); 
+    // Create parser with custom GitHub resolver
+    const customParserOptions = {
       ...parserOptions,
       __unstable: {
         resolver: {
           cache: false,
+          resolvers: [
+            createGitHubResolver(),
+            ...(parserOptions.__unstable?.resolver?.resolvers || [])
+          ],
         },
         ...parserOptions.__unstable?.resolver,
       },
-    });
+    };
+
+    this.parser = new Parser(customParserOptions);
 
     this.parser.registerSchemaParser(OpenAPISchemaParser());
     this.parser.registerSchemaParser(RamlDTSchemaParser());
@@ -194,6 +303,7 @@ export class ValidationService extends BaseService {
         __unstable: {
           resolver: {
             cache: false,
+            resolvers: [createGitHubResolver()],
           },
         },
       });

@@ -17,7 +17,7 @@ import {
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
   private validationService = new ValidationService();
-
+  
   static flags = {
     ...validateFlags(),
     ...proxyFlags(), // Merge proxyFlags with validateFlags
