@@ -1,5 +1,23 @@
 # @asyncapi/cli
 
+## 3.5.2
+
+### Patch Changes
+
+- bbc9451: fix: server-api deploy
+
+  - 837be8a: fix: server-api release and deployment
+
+  Signed-off-by: Shurtu-gal <ashishpadhy1729@gmail.com>
+
+  - 09af23e: chore: add app platform spec
+
+  Signed-off-by: Shurtu-gal <ashishpadhy1729@gmail.com>
+
+  - a5eef9f: chore: install generator templates globally
+
+  Signed-off-by: Shurtu-gal <ashishpadhy1729@gmail.com>
+
 ## 3.5.1
 
 ### Patch Changes
