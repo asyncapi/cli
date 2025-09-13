@@ -6,6 +6,7 @@ import { BundleController } from './controllers/bundle.controller';
 import { DiffController } from './controllers/diff.controller';
 import { DocsController } from './controllers/docs.controller';
 import { HelpController } from './controllers/help.controller';
+import { VersionController } from './controllers/version.controller';
 
 export const CONTROLLERS = [
   new ValidateController(),
@@ -16,4 +17,5 @@ export const CONTROLLERS = [
   new DiffController(),
   new DocsController(),
   new HelpController(),
+  new VersionController(),
 ];

@@ -3,6 +3,11 @@ on:
   release:
     types: 
       - published
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release'
+        required: true
 jobs:
 
   publish-docker:
@@ -15,24 +20,25 @@ jobs:
       - name: Get version without v character
         id: version
         run: |
-          VERSION=${{github.event.release.tag_name}}
+          VERSION=${{github.event.release.tag_name || github.event.inputs.version}}
           VERSION_WITHOUT_V=${VERSION:1}
           echo "value=${VERSION_WITHOUT_V}" >> $GITHUB_OUTPUT
 
       - name: Set Up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
 
       - name: Set Up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
+        id: push
         with:
           context: .
           file: ./src/apps/api/Dockerfile
@@ -41,8 +47,14 @@ jobs:
             asyncapi/server-api:${{ steps.version.outputs.value }}
             asyncapi/server-api:latest
           platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha
+          cache-from: |
+            type=gha,scope=server-api
+            type=registry,ref=asyncapi/server-api:cache
+          cache-to: |
+            type=gha,mode=max,scope=server-api
+            type=registry,ref=asyncapi/server-api:cache,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
 
       - uses: meeDamian/sync-readme@82715041300710d9be7c726c9d6c683b70451087 #version 1.0.6 https://github.com/meeDamian/sync-readme/releases/tag/v1.0.6
         with:
@@ -52,14 +64,19 @@ jobs:
           readme: ./src/apps/api/README.md
           description: Server API providing official AsyncAPI tools
 
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
+
   deploy-app:
     name: Deploy to DigitalOcean App
     needs: publish-docker
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to DigitalOcean App
-        uses: digitalocean/app_action@e583e1b463e8ac378854c0a01af1de8a5afd836b
+        uses: digitalocean/app_action@190f99be3ce4cbbe5d1ca0a63a8ac9d0add205d0
+        env:
+          DOCKER_DIGEST: ${{ needs.publish-docker.outputs.digest }}
         with:
-          app_name: "server-api"
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-          images: '[{"name":"asyncapi-server-api","image":{"registry_type":"DOCKER_HUB","registry":"asyncapi","repository":"server-api","tag":"latest"}}]'
+          app_spec_location: ./src/apps/api/.do/app.yaml
+          print_deploy_logs: true

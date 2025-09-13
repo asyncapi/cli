@@ -1,0 +1,15 @@
+[
+  "@asyncapi/html-template",
+  "@asyncapi/markdown-template",
+  "@asyncapi/nodejs-template",
+  "@asyncapi/nodejs-ws-template",
+  "@asyncapi/java-template",
+  "@asyncapi/java-spring-template",
+  "@asyncapi/java-spring-cloud-stream-template",
+  "@asyncapi/python-paho-template",
+  "@asyncapi/ts-nats-template",
+  "@asyncapi/go-watermill-template",
+  "@asyncapi/dotnet-nats-template",
+  "@asyncapi/php-template",
+  "@asyncapi/dotnet-rabbitmq-template"
+]
