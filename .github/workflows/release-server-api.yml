@@ -47,8 +47,6 @@ jobs:
             asyncapi/server-api:${{ steps.version.outputs.value }}
             asyncapi/server-api:latest
           platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha
           
       - uses: meeDamian/sync-readme@82715041300710d9be7c726c9d6c683b70451087 #version 1.0.6 https://github.com/meeDamian/sync-readme/releases/tag/v1.0.6
         with:
