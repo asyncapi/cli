@@ -7,7 +7,8 @@ domain:
 
 ingress:
   rules:
-    - component: asyncapi-server-api
+    - component:
+        name: asyncapi-server-api
       match:
         path:
           prefix: /
