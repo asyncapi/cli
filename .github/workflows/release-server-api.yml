@@ -64,6 +64,9 @@ jobs:
     needs: publish-docker
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Deploy to DigitalOcean App
         uses: digitalocean/app_action/deploy@190f99be3ce4cbbe5d1ca0a63a8ac9d0add205d0
         env:
