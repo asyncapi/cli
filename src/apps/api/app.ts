@@ -12,6 +12,7 @@ import { Controller } from '@/interfaces';
 import { logger } from '../../utils/logger';
 import { API_VERSION } from './constants';
 import { problemMiddleware } from './middlewares/problem.middleware';
+import { loggerMiddleware } from './middlewares/logger.middleware';
 
 export class App {
   private app: express.Application;
@@ -89,6 +90,7 @@ export class App {
         crossOriginEmbedderPolicy: false,
       }),
     );
+    this.app.use(loggerMiddleware);
   }
 
   private async initializeControllers() {

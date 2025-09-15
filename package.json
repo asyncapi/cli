@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "3.4.2",
+  "version": "3.5.2",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
@@ -36,7 +36,7 @@
     "express": "^4.17.1",
     "fast-levenshtein": "^3.0.0",
     "fs-extra": "^11.1.0",
-    "generator-v2": "npm:@asyncapi/generator@2.4.1",
+    "generator-v2": "npm:@asyncapi/generator@2.8.3",
     "helmet": "^8.1.0",
     "https-proxy-agent": "^7.0.6",
     "inquirer": "^8.2.0",
@@ -160,7 +160,7 @@
   },
   "repository": "asyncapi/cli",
   "scripts": {
-    "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
+    "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && npm run generate:languages && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
     "bump:github-action": "cd github-action/lib/ && node bump-action-version.js",
     "bump:version": "npx -p @changesets/cli@2.27.7 changeset version && npm run bump:github-action",
     "dev": "tsc --watch",
@@ -170,6 +170,7 @@
     "generate:assets": "npm run generate:readme:toc && npm run generate:commands",
     "generate:commands": "npm run generate:readme:create && npm run generate:readme:commands && node ./scripts/updateUsageDocs.js && rimraf ./scripts/README.md",
     "generate:readme:toc": "markdown-toc -i README.md",
+    "generate:languages": "node scripts/generateTypesForGenerateCommand.js",
     "prepare": "lefthook install",
     "lint": "eslint --max-warnings 5 --config .eslintrc .",
     "lint:fix": "eslint --max-warnings 5 --config .eslintrc . --fix",
@@ -197,7 +198,7 @@
     "api:prod": "npm run api:build && cross-env NODE_ENV=production PORT=80 node lib/apps/api/server.js",
     "api:docker": "docker run -it -p 80:80 asyncapi/server-api",
     "api:build:docker": "docker build -t asyncapi/server-api -f ./src/apps/api/Dockerfile .",
-    "api:build": "rimraf lib && tsc && tsc-alias --project tsconfig.json",
+    "api:build": "rimraf lib && npm run generate:languages && tsc && tsc-alias --project tsconfig.json",
     "api:test": ""
   },
   "types": "lib/index.d.ts"

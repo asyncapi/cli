@@ -1,5 +1,43 @@
 # @asyncapi/cli
 
+## 3.5.2
+
+### Patch Changes
+
+- bbc9451: fix: server-api deploy
+
+  - 837be8a: fix: server-api release and deployment
+
+  Signed-off-by: Shurtu-gal <ashishpadhy1729@gmail.com>
+
+  - 09af23e: chore: add app platform spec
+
+  Signed-off-by: Shurtu-gal <ashishpadhy1729@gmail.com>
+
+  - a5eef9f: chore: install generator templates globally
+
+  Signed-off-by: Shurtu-gal <ashishpadhy1729@gmail.com>
+
+## 3.5.1
+
+### Patch Changes
+
+- 5a99f6f: fix: modify api:build script to generate languages
+
+  - 9488a1b: fix: modify script to generate languages
+
+  Updated the 'api:build' script to include language generation.
+
+## 3.5.0
+
+### Minor Changes
+
+- 129f531: Introduced a new `asyncapi generate client` command to the CLI.
+
+  This command allows you to generate client libraries using the new **AsyncAPI Generator** baked-in templates. Read more about [baked-in templates in official documentation](https://www.asyncapi.com/docs/tools/generator/baked-in-templates).
+
+  This feature is based on a new concept introduced in [AsyncAPI Generator version 2.8.3](https://github.com/asyncapi/generator/releases/tag/%40asyncapi%2Fgenerator%402.8.3). The number of templates is limited and the solution is still in the experimental phase. It is not recommended to use them in production. Instead, join us in the [Generator project](https://github.com/asyncapi/generator) to help improve templates with your use cases and your AsyncAPI documents.
+
 ## 3.4.2
 
 ### Patch Changes
