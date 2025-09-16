@@ -1,9 +1,9 @@
 name: server-api
 region: sfo3
 
-domain:
-  name: api.asyncapi.com
-  type: PRIMARY
+domains:
+  - domain: api.asyncapi.com
+    type: primary
 
 ingress:
   rules:
