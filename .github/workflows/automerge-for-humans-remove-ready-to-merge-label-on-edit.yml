@@ -15,7 +15,54 @@ jobs:
   remove-ready-label:
     runs-on: ubuntu-latest
     steps:
-      - name: Remove label
+      # Check if this is just a title change vs actual code/meaningful changes
+      - name: Check if meaningful change
+        id: check_meaningful_change
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            // For synchronize events (new commits), always remove label
+            if (github.event.action === 'synchronize') {
+              console.log('Synchronize event - will remove label');
+              return true;
+            }
+            
+            // For edited events, check if it's a meaningful change
+            if (github.event.action === 'edited') {
+              // Check if there are any file changes in the PR
+              const { data: files } = await github.rest.pulls.listFiles({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number
+              });
+              
+              // Check what was edited
+              const titleChanged = github.event.changes?.title;
+              const bodyChanged = github.event.changes?.body;
+              const baseChanged = github.event.changes?.base;
+              
+              // Consider it meaningful if:
+              // - Base branch changed (potentially dangerous)
+              // - Body changed (might affect review context)
+              // - Title changed AND there are file changes (indicates ongoing work)
+              const meaningfulChange = baseChanged || 
+                                     bodyChanged || 
+                                     (titleChanged && files.length > 0);
+              
+              console.log(`Meaningful change detected: ${meaningfulChange}`);
+              console.log(`Title changed: ${!!titleChanged}`);
+              console.log(`Body changed: ${!!bodyChanged}`);
+              console.log(`Base changed: ${!!baseChanged}`);
+              console.log(`Files in PR: ${files.length}`);
+              
+              return meaningfulChange;
+            }
+            
+            return false;
+
+      - if: steps.check_meaningful_change.outputs.result == 'true'
+        name: Remove label
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GH_TOKEN }}
