@@ -3,7 +3,7 @@ region: sfo3
 
 domains:
   - domain: api.asyncapi.com
-    type: primary
+    type: PRIMARY
 
 ingress:
   rules:
