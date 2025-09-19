@@ -46,6 +46,13 @@ interface GitHubFileInfo {
   type: string;
 }
 
+// GitHub host constants
+const GITHUB_HOSTS = [
+  'raw.githubusercontent.com', // eslint-disable-line sonarjs/no-duplicate-string
+  'github.com', // eslint-disable-line sonarjs/no-duplicate-string
+  'api.github.com' // eslint-disable-line sonarjs/no-duplicate-string
+];
+
 /**
  * Custom GitHub URL resolver for private repositories
  */
@@ -56,9 +63,7 @@ const createGitHubResolver = () => ({
   canRead: (uri: any) => {
     try {
       const url = new URL(uri.toString());
-      return url.hostname === 'raw.githubusercontent.com' || 
-             url.hostname === 'github.com' ||
-             url.hostname === 'api.github.com';
+      return GITHUB_HOSTS.includes(url.hostname);
     } catch (error) {
       return false;
     }
@@ -85,7 +90,6 @@ const createGitHubResolver = () => ({
 
   read: async (uri: any) => {
     let url = uri.toString();
-    const originalUrl = url;
     
     // Default headers
     const headers: Record<string, string> = {
@@ -98,11 +102,14 @@ const createGitHubResolver = () => ({
       url = createGitHubResolver().convertGitHubWebUrl(url);
     }
     
-    if (authInfo) {
-      headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
-      Object.assign(headers, authInfo.headers); // merge custom headers
-    } else {
-      throw new Error(`Cannot resolve URL: ${url} - No authentication configured for this GitHub repository`);
+    // Only require authentication for GitHub URLs
+    if (url.includes('github.com') || url.includes('raw.githubusercontent.com')) {
+      if (authInfo) {
+        headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
+        Object.assign(headers, authInfo.headers); // merge custom headers
+      } else {
+        throw new Error(`Cannot resolve URL: ${url} - No authentication configured for this GitHub repository`);
+      }
     }
 
     if (url.includes('api.github.com')) {
@@ -129,7 +136,12 @@ const createGitHubResolver = () => ({
       }
       return await res.text();
     } else {
-      throw new Error(`Unsupported GitHub URL format: ${originalUrl}`);
+      // Handle URLs - try without authentication
+      const res = await fetch(url, { headers });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch URL: ${url} - ${res.statusText}`);
+      }
+      return await res.text();
     }
   }
 });
