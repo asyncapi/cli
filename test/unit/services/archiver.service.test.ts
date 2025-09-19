@@ -13,6 +13,7 @@ describe('ArchiverService', () => {
     it('should create a zip archiver instance', () => {
       const zip = archiverService.createZip();
       
+      // eslint-disable-next-line no-unused-expressions
       expect(zip).to.not.be.undefined;
       expect(zip).to.have.property('append');
       expect(zip).to.have.property('directory');
