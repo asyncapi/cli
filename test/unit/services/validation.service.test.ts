@@ -216,11 +216,19 @@ describe('ValidationService', () => {
 
       const result = await validationService.validateDocument(specFile, options);
 
+      // The validation succeeds but the document is invalid due to unresolved ref
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.data).to.have.property('status');
+        expect(result.data?.status).to.equal('invalid');
         expect(result.data).to.have.property('diagnostics');
         expect(result.data?.diagnostics).to.be.an('array');
+        
+        // Should have an invalid-ref diagnostic for the private GitHub URL
+        const invalidRefDiagnostic = result.data?.diagnostics?.find((d: any) => d.code === 'invalid-ref');
+        expect(invalidRefDiagnostic).to.exist;
+        expect(invalidRefDiagnostic?.message).to.include('Page not found');
+        expect(invalidRefDiagnostic?.message).to.include('https://github.com/private-org/private-repo/blob/main/schema.yaml');
       }
     });
 
