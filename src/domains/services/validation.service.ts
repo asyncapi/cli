@@ -56,7 +56,7 @@ const GITHUB_HOSTS = [
 /**
  * Custom GitHub URL resolver for private repositories
  */
-const createGitHubResolver = () => ({
+const createHttpWithAuthResolver = () => ({
   schema: 'https',
   order: 1,
 
