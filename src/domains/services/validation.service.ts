@@ -54,6 +54,30 @@ const GITHUB_HOSTS = [
 ];
 
 /**
+ * Helper function to validate if a URL is a GitHub blob URL
+ */
+const isValidGitHubBlobUrl = (url: string): boolean => {
+  try {
+    const parsedUrl = new URL(url);
+    return parsedUrl.hostname === 'github.com' && parsedUrl.pathname.includes('/blob/');
+  } catch (error) {
+    return false;
+  }
+};
+
+/**
+ * Helper function to validate if a URL is a GitHub URL (any GitHub host)
+ */
+const isValidGitHubUrl = (url: string): boolean => {
+  try {
+    const parsedUrl = new URL(url);
+    return GITHUB_HOSTS.includes(parsedUrl.hostname);
+  } catch (error) {
+    return false;
+  }
+};
+
+/**
  * Custom GitHub URL resolver for private repositories
  */
 const createHttpWithAuthResolver = () => ({
@@ -63,7 +87,14 @@ const createHttpWithAuthResolver = () => ({
   canRead: (uri: any) => {
     try {
       const url = new URL(uri.toString());
-      return GITHUB_HOSTS.includes(url.hostname);
+      
+      // Check if host is github.com
+      if (url.hostname !== 'github.com') {
+        return false;
+      }
+      
+      // Check if path contains /blob/
+      return url.pathname.includes('/blob/');
     } catch (error) {
       return false;
     }
@@ -98,12 +129,12 @@ const createHttpWithAuthResolver = () => ({
 
     const authInfo = await ConfigService.getAuthForUrl(url);
 
-    if (url.includes('github.com') && url.includes('/blob/')) {
-      url = createGitHubResolver().convertGitHubWebUrl(url);
+    if (isValidGitHubBlobUrl(url)) {
+      url = createHttpWithAuthResolver().convertGitHubWebUrl(url);
     }
     
     // Only require authentication for GitHub URLs
-    if (url.includes('github.com') || url.includes('raw.githubusercontent.com')) {
+    if (isValidGitHubUrl(url)) {
       if (authInfo) {
         headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
         Object.assign(headers, authInfo.headers); // merge custom headers
@@ -136,7 +167,10 @@ const createHttpWithAuthResolver = () => ({
       }
       return await res.text();
     } else {
-      // Handle URLs - try without authentication
+      if (authInfo) {
+        headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
+        Object.assign(headers, authInfo.headers); // merge custom headers
+      }
       const res = await fetch(url, { headers });
       if (!res.ok) {
         throw new Error(`Failed to fetch URL: ${url} - ${res.statusText}`);
@@ -185,7 +219,7 @@ export class ValidationService extends BaseService {
         resolver: {
           cache: false,
           resolvers: [
-            createGitHubResolver(),
+            createHttpWithAuthResolver(),
             ...(parserOptions.__unstable?.resolver?.resolvers || [])
           ],
         },
@@ -315,7 +349,7 @@ export class ValidationService extends BaseService {
         __unstable: {
           resolver: {
             cache: false,
-            resolvers: [createGitHubResolver()],
+            resolvers: [createHttpWithAuthResolver()],
           },
         },
       });
