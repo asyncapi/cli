@@ -78,7 +78,7 @@ const isValidGitHubUrl = (url: string): boolean => {
 };
 
 /**
- * Custom GitHub URL resolver for private repositories
+ * Custom resolver for private repositories
  */
 const createHttpWithAuthResolver = () => ({
   schema: 'https',
