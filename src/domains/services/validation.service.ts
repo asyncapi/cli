@@ -118,13 +118,9 @@ const createHttpWithAuthResolver = () => ({
     }
     
     // Only require authentication for GitHub URLs
-    if (isValidGitHubUrl(url)) {
-      if (authInfo) {
-        headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
-        Object.assign(headers, authInfo.headers); // merge custom headers
-      } else {
-        throw new Error(`Cannot resolve URL: ${url} - No authentication configured for this GitHub repository`);
-      }
+    if (authInfo) {
+      headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
+      Object.assign(headers, authInfo.headers); // merge custom headers
     }
 
     if (url.includes('api.github.com')) {
