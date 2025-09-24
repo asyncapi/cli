@@ -147,10 +147,6 @@ const createHttpWithAuthResolver = () => ({
       }
       return await res.text();
     } else {
-      if (authInfo) {
-        headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
-        Object.assign(headers, authInfo.headers); // merge custom headers
-      }
       const res = await fetch(url, { headers });
       if (!res.ok) {
         throw new Error(`Failed to fetch URL: ${url} - ${res.statusText}`);
