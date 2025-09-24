@@ -84,22 +84,6 @@ const createHttpWithAuthResolver = () => ({
   schema: 'https',
   order: 1,
 
-  canRead: (uri: any) => {
-    try {
-      const url = new URL(uri.toString());
-      
-      // Check if host is github.com
-      if (url.hostname !== 'github.com') {
-        return false;
-      }
-      
-      // Check if path contains /blob/
-      return url.pathname.includes('/blob/');
-    } catch (error) {
-      return false;
-    }
-  },
-
   /**
    * Convert GitHub web URL to API URL
    */
