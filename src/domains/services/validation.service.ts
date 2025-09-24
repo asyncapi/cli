@@ -114,7 +114,7 @@ const createHttpWithAuthResolver = () => ({
     const authInfo = await ConfigService.getAuthForUrl(url);
 
     if (isValidGitHubBlobUrl(url)) {
-      url = createHttpWithAuthResolver().convertGitHubWebUrl(url);
+      url = convertGitHubWebUrl(url);
     }
     
     // Only require authentication for GitHub URLs
