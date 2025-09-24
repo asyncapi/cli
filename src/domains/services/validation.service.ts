@@ -59,7 +59,7 @@ const GITHUB_HOSTS = [
 const isValidGitHubBlobUrl = (url: string): boolean => {
   try {
     const parsedUrl = new URL(url);
-    return parsedUrl.hostname === 'github.com' && parsedUrl.pathname.includes('/blob/');
+    return parsedUrl.hostname === 'github.com' && parsedUrl.pathname.split('/')[3] === 'blob';
   } catch (error) {
     return false;
   }
