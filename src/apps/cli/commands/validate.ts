@@ -88,6 +88,7 @@ export default class Validate extends Command {
     flags: any,
   ): Promise<void> {
     const diagnosticsFormat = flags['diagnostics-format'] ?? 'stylish';
+    const writeOutput = flags['save-output'];
     const hasIssues =
       (result.data?.diagnostics && result.data.diagnostics.length > 0) ?? false;
     const isFailSeverity = result.data?.status === ValidationStatus.INVALID;
@@ -111,10 +112,10 @@ export default class Validate extends Command {
       flags['fail-severity'] ?? 'error',
     );
 
-    if (flags.output) {
+    if (writeOutput) {
       const { success, error } =
         await this.validationService.saveDiagnosticsToFile(
-          flags.output,
+          writeOutput,
           diagnosticsFormat,
           diagnosticsOutput,
         );
@@ -124,7 +125,7 @@ export default class Validate extends Command {
           exit: 1,
         });
       } else {
-        this.log(`Diagnostics saved to ${flags.output}`);
+        this.log(`Diagnostics saved to ${writeOutput}`);
       }
     } else {
       this.log(diagnosticsOutput);
