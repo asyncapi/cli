@@ -1,4 +1,4 @@
-#!/usr/bin/env nod
+#!/usr/bin/env node
 
 const oclif = require('@oclif/core')
 
