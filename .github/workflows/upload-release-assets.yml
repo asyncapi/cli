@@ -5,6 +5,9 @@ on:
     types:
       - published
 
+env:
+  CI: true
+
 jobs:
   upload-assets:
     name: Generate and upload assets
@@ -22,6 +25,12 @@ jobs:
             dist_folder: tar
             extension: tar.gz
           - os: ubuntu-latest
+            npm_script: pack:tarballs:alpine
+            dist_folder: tar
+            extension: alpine.tar.gz
+            container: 'node:20-alpine'
+            alpine: true
+          - os: ubuntu-latest
             npm_script: pack:windows
             dist_folder: win32
             extension: x64.exe
@@ -37,21 +46,34 @@ jobs:
             npm_script: pack:macos
             dist_folder: macos
             extension: x64.pkg
+    
+    container: ${{ matrix.container }}
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      
       - name: Check package-lock version
         uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master
         id: lockversion
+      
       - name: Setup Node.js
+        if: matrix.container == ''
         uses: actions/setup-node@v4
         with:
           node-version: "${{ steps.lockversion.outputs.version }}"
+      
+      - name: Install dependencies in Alpine
+        if: matrix.container == 'node:20-alpine'
+        run: |
+          apk add --no-cache git python3 make g++
+      
       - if: matrix.npm_script == 'pack:windows'
         name: install nodejs for windows
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      
       - name: Get version from package.json
         uses: actions/github-script@v6
         id: extractver
@@ -77,7 +99,14 @@ jobs:
         run: npm run prepublishOnly
       - name: Assets generation
         shell: bash
-        run: npm run ${{ matrix.npm_script }}
+        run: |
+          npm run ${{ matrix.npm_script }}
+          if [[ "${{ matrix.alpine }}" == "true" ]]; then
+            npm run pack:rename alpine
+          else
+            npm run pack:rename
+          fi
+      
       - name: Update release
         uses: softprops/action-gh-release@v1
         with:

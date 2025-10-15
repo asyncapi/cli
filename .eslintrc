@@ -199,9 +199,15 @@
       }
     },
     {
-      "files": ["src/core/base.ts"],
+      "files": ["src/apps/cli/internal/base.ts"],
       "rules": {
         "@typescript-eslint/ban-ts-comment": "off"
+      }
+    },
+    {
+      "files": ["*.js"],
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off"
       }
     }
   ]

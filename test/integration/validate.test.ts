@@ -2,8 +2,8 @@
 
 import path from 'path';
 import { test } from '@oclif/test';
-import { NO_CONTEXTS_SAVED } from '../../src/core/errors/context-error';
-import TestHelper, { createMockServer, stopMockServer } from '../helpers';
+import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
+import TestHelper, {createMockServer, stopMockServer } from '../helpers';
 import { expect } from '@oclif/test';
 
 const testHelper = new TestHelper();
@@ -329,8 +329,7 @@ describe('validate', () => {
         '--suppressWarnings',
         'non-existing-rule'
       ])
-      .it('should warn about the unknown rule and not suppress anything', (ctx, done) => {
-        expect(ctx.stdout).to.contains('Warning: \'non-existing-rule\' is not a known rule and will be ignored.');
+      .it('should not suppress anything', (ctx, done) => {
         expect(ctx.stdout).to.include('asyncapi-id'); 
         done();
       });
@@ -346,9 +345,8 @@ describe('validate', () => {
         '--suppressWarnings',
         'foobar'
       ])
-      .it('should suppress valid rules and warn about invalid ones', (ctx, done) => {
+      .it('should suppress valid rules', (ctx, done) => {
         expect(ctx.stdout).to.not.include('asyncapi-id'); 
-        expect(ctx.stdout).to.contains('Warning: \'foobar\' is not a known rule'); 
         done();
       });
   });

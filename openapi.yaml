@@ -1,0 +1,713 @@
+openapi: 3.1.0
+info:
+  version: 0.2.0
+  title: AsyncAPI Server API
+  description: Server API providing official AsyncAPI tools
+  contact:
+    name: AsyncAPI Initiative
+    email: info@asyncapi.io
+    url: https://asyncapi.com/
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://api.asyncapi.com/v1
+
+paths:
+  /version:
+    get:
+      summary: Get the current version of the AsyncAPI CLI.
+      operationId: getVersion
+      tags:
+        - version
+      responses:
+        "200":
+          description: Successfully retrieved the version.
+          content:
+            application/json:
+              schema:
+                ref: "#/components/schemas/VersionResponse"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        default:
+          description: Unexpected problem.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /validate:
+    post:
+      summary: Validate the given AsyncAPI document.
+      operationId: validate
+      tags:
+        - validate
+        - parser
+      externalDocs:
+        name: Github Repository for the AsyncAPI Parser
+        url: https://github.com/asyncapi/parser-js
+      requestBody:
+        description: Validate the given AsyncAPI document.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateRequest'
+      responses:
+        "204":
+          description: The given AsyncAPI document is valid.
+        "400":
+          description: The given AsyncAPI document is not valid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: The given AsyncAPI document is not valid due to invalid parameters in the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        default:
+          description: Unexpected problem.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /parse:
+    post:
+      summary: Parse the given AsyncAPI document.
+      operationId: parse
+      tags:
+        - parse
+        - parser
+      externalDocs:
+        name: Github Repository for the AsyncAPI Parser
+        url: https://github.com/asyncapi/parser-js
+      requestBody:
+        description: Parse the given AsyncAPI document.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParseRequest'
+      responses:
+        "200":
+          description: AsyncAPI document successfully parsed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParseResponse"
+        "400":
+          description: The given AsyncAPI document is not valid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: The given AsyncAPI document is not valid due to invalid parameters in the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        default:
+          description: Unexpected problem.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /generate:
+    post:
+      summary: Generate the given AsyncAPI template.
+      operationId: generate
+      tags:
+        - generate
+        - generator
+      externalDocs:
+        name: Github Repository for the AsyncAPI Generator
+        url: https://github.com/asyncapi/generator
+      requestBody:
+        description: Template details to be generated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateRequest'
+      responses:
+        "200":
+          description: Template successfully generated.
+          content:
+            application/zip:
+              schema:
+                $ref: '#/components/schemas/GenerateResponse'
+        '400':
+          description: Failed to generate the given template due to invalid AsyncAPI document.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: Failed to generate the given template due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        default:
+          description: Unexpected problem.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /convert:
+    post:
+      summary: Convert the given AsyncAPI/OpenAPI/Postman Collection document to AsyncAPI document with the specified version.
+      operationId: convert
+      tags:
+        - convert
+        - converter
+      externalDocs:
+        name: Github Repository for the AsyncAPI Converter
+        url: https://github.com/asyncapi/converter-js
+      requestBody:
+        description: Parameters to convert the spec.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConvertRequest'
+      responses:
+        '200':
+          description: AsyncAPI document successfully converted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConvertResponse'
+        '400':
+          description: Failed to convert due to invalid AsyncAPI document.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          description: Failed to convert the given document due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        default:
+          description: Unexpected problem.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  /bundle:
+    post:
+      summary: Bundle the given AsyncAPI document(s).
+      operationId: bundle
+      tags:
+        - bundle
+        - bundler
+      externalDocs:
+        name: Github Repository for the AsyncAPI Bundler
+        url: https://github.com/asyncapi/bundler
+      requestBody:
+        description: Bundle the given AsyncAPI document(s) to single one.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BundleRequest"
+      responses:
+        "200":
+          description: AsyncAPI document(s) successfully bundled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BundleResponse"
+        "400":
+          description: The given AsyncAPI document(s) is/are not valid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: The given AsyncAPI document(s) is/are not valid due to invalid parameters in the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        default:
+          description: Unexpected problem.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  /help:
+    get:
+      summary: Retrieve help information for the given command.
+      operationId: help
+      tags:
+        - help
+      parameters:
+        - name: command
+          in: query
+          style: form
+          explode: true
+          description: The command for which help information is needed.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Help information retrieved successfully.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/HelpListResponse'
+                  - $ref: '#/components/schemas/HelpCommandResponse'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "404":
+          description: Command not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        default:
+          description: Unexpected problem.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+
+  /diff:
+    post:
+      summary: Compare the given AsyncAPI documents.
+      operationId: diff
+      tags:
+        - diff
+        - differ
+      externalDocs:
+        name: Github Repository for the AsyncAPI Diff
+        url: https://github.com/asyncapi/diff
+      requestBody:
+        description: Compare the given AsyncAPI documents.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiffRequest'
+      responses:
+        '200':
+          description: Successfully received changes between two AsyncAPI documents.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiffResponse'
+        '400':
+          description: One of the AsyncAPI documents is not valid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          description: Failed to retrieve changes between two AsyncAPI documents due to invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        default:
+          description: Unexpected problem.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+components:
+  schemas:
+    AsyncAPIDocument:
+      description: AsyncAPI document in JSON or YAML.
+      oneOf:
+        - type: string # can be in YAML format
+        - $ref: https://raw.githubusercontent.com/asyncapi/spec-json-schemas/master/schemas/2.0.0.json
+        - $ref: https://raw.githubusercontent.com/asyncapi/spec-json-schemas/master/schemas/2.1.0.json
+        - $ref: https://raw.githubusercontent.com/asyncapi/spec-json-schemas/master/schemas/2.2.0.json
+        - $ref: https://raw.githubusercontent.com/asyncapi/spec-json-schemas/master/schemas/2.3.0.json
+        - $ref: https://raw.githubusercontent.com/asyncapi/spec-json-schemas/master/schemas/2.4.0.json
+        - $ref: https://raw.githubusercontent.com/asyncapi/spec-json-schemas/master/schemas/2.5.0.json
+        - $ref: https://raw.githubusercontent.com/asyncapi/spec-json-schemas/master/schemas/2.6.0.json
+        - $ref: https://raw.githubusercontent.com/asyncapi/spec-json-schemas/master/schemas/3.0.0.json
+    AsyncAPIDocuments:
+      type: array
+      description: AsyncAPI documents in JSON or YAML.
+      minItems: 1
+      items:
+        $ref: '#/components/schemas/AsyncAPIDocument'
+    OpenAPIDocument:
+      type: string
+      description: OpenAPI document in JSON or YAML.
+      oneOf:
+        - type: string # can be in YAML format
+        - $ref: https://spec.openapis.org/oas/3.0/schema/2024-10-18
+    PostmanCollectionDocument:
+      type: string
+      description: Postman Collection document in JSON or YAML.
+      oneOf:
+        - type: string # can be in YAML format
+        - $ref: https://schema.getpostman.com/json/collection/v2.1.0/collection.json
+        - $ref: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
+        - $ref: https://schema.getpostman.com/json/collection/v1.0.0/collection.json
+    SpecVersions:
+      type: string
+      description: Valid specification versions for the AsyncAPI document.
+      default: latest
+      enum:
+        - '2.0.0'
+        - '2.1.0'
+        - '2.2.0'
+        - '2.3.0'
+        - '2.4.0'
+        - '2.5.0'
+        - '2.6.0'
+        - '3.0.0'
+        - 'latest'
+
+    ValidateRequest:
+      type: object
+      required:
+        - asyncapi
+      properties:
+        asyncapi:
+          $ref: '#/components/schemas/AsyncAPIDocument'
+
+    ValidateResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          description: Validation status of the AsyncAPI document.
+          enum:
+            - valid
+            - invalid
+        diagnostics:
+          type: array
+          description: List of validation diagnostics.
+          items:
+            type: object
+        asyncapi:
+          $ref: '#/components/schemas/AsyncAPIDocument'
+        score:
+          type: number
+          description: Score of the AsyncAPI document based on validation.
+          minimum: 0
+          maximum: 100
+    ParseRequest:
+      type: object
+      required:
+        - asyncapi
+      properties:
+        asyncapi:
+          $ref: '#/components/schemas/AsyncAPIDocument'
+    ParseResponse:
+      type: object
+      required:
+        - parsed
+      properties:
+        parsed:
+          type: string
+
+    GenerateRequest:
+      type: object
+      required:
+        - asyncapi
+        - template
+      properties:
+        asyncapi:
+          $ref: "#/components/schemas/AsyncAPIDocument"
+        template:
+          type: string
+          description: Template name to be generated.
+          enum:
+            # TODO add more templates
+            - "@asyncapi/dotnet-nats-template"
+            - "@asyncapi/go-watermill-template"
+            - "@asyncapi/html-template"
+            - "@asyncapi/java-spring-cloud-stream-template"
+            - "@asyncapi/java-spring-template"
+            - "@asyncapi/java-template"
+            - "@asyncapi/markdown-template"
+            - "@asyncapi/nodejs-template"
+            - "@asyncapi/nodejs-ws-template"
+            - "@asyncapi/python-paho-template"
+            - "@asyncapi/ts-nats-template"
+            - "@asyncapi/minimaltemplate"
+            - "@asyncapi/dotnet-rabbitmq-template"
+        use-fallback-generator:
+          type: boolean
+          description: Use generator version 1.17.25
+          default: false
+        # TODO parameter validation
+        parameters:
+          type: object
+          description: |
+            Template parameters to be generated. Each template has different parameters that you should check in the documentation, 
+            which is usually located in the template's repository.
+            This field is optional but may be required for some templates.
+          additionalProperties: true
+    GenerateResponse:
+      type: string
+      format: binary
+
+    ConvertRequest:
+      type: object
+      required:
+        - source
+        - format
+      properties:
+        source:
+          description: The source document to be converted.
+          oneOf:
+            - $ref: '#/components/schemas/AsyncAPIDocument'
+            - $ref: '#/components/schemas/OpenAPIDocument'
+            - $ref: '#/components/schemas/PostmanCollectionDocument'
+        target-version:
+          description: The version of the AsyncAPI document to be converted to (only applicable for AsyncAPI documents).
+          $ref: '#/components/schemas/SpecVersions'
+        perspective:
+          type: string
+          description: The perspective of the conversion, e.g. "server", "client".
+          default: server
+          enum:
+            - server
+            - client
+        format:
+          type: string
+          description: The format of the source document to be converted.
+          enum:
+            - asyncapi
+            - openapi
+            - postman-collection
+    ConvertResponse:
+      type: object
+      properties:
+        converted:
+          $ref: '#/components/schemas/AsyncAPIDocument'
+
+    BundleRequest:
+      type: object
+      required:
+        - asyncapis 
+      properties:
+        asyncapis:
+          $ref: "#/components/schemas/AsyncAPIDocuments"
+        base:
+          $ref: "#/components/schemas/AsyncAPIDocument"
+    BundleResponse:
+      type: object
+      required:
+        - bundled 
+      properties:
+        bundled:
+          $ref: "#/components/schemas/AsyncAPIDocument"
+
+    DiffRequest:
+      type: object
+      required:
+        - asyncapis
+      properties:
+        asyncapis:
+          type: array
+          minItems: 2
+          maxItems: 2
+          items:
+            $ref: '#/components/schemas/AsyncAPIDocument'
+    DiffResponse:
+      type: object
+      properties:
+        diff:
+          type: [object, string]
+          description: The diff between the two AsyncAPI documents.
+
+    HelpListResponse:
+      type: object
+      properties:
+        commands:
+          type: array
+          items:
+            type: string
+          description: A list of all available commands.        
+    HelpCommandResponse:
+      type: object
+      description: Detailed help information for a specific command.
+      properties:
+        command:
+          type: string
+          description: The name of the command.
+        description:
+          type: string
+          description: Detailed description of the command.
+    
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+          description: |
+            An absolute URI that identifies the problem type. When dereferenced,
+            it SHOULD provide human-readable documentation for the problem type
+            (e.g., using HTML).
+          default: "about:blank"
+          example: "https://api.asyncapi.com/problem/invalid-template-parameters"
+        title:
+          type: string
+          description: |
+            A short, summary of the problem type. Written in english and readable.
+          example: Invalid AsyncAPI document.
+        status:
+          type: integer
+          format: int32
+          description: |
+            The HTTP status code generated by the origin server for this occurrence
+            of the problem.
+          minimum: 100
+          maximum: 600
+          exclusiveMaximum: true
+          example: 422
+        detail:
+          type: string
+          description: |
+            A human readable explanation specific to this occurrence of the problem.
+          example: Connection to database timed out
+        instance:
+          type: string
+          format: uri
+          description: |
+            An absolute URI that identifies the specific occurrence of the problem.
+            It may or may not yield further information if dereferenced.
+      required:
+        - type
+        - title
+        - status
+      additionalProperties: true
+    VersionResponse:
+      type: object
+      description: Version information for the AsyncAPI CLI API
+      properties:
+        version:
+          type: string
+          description: The current version of the AsyncAPI CLI
+          example: "3.5.1"
+        name:
+          type: string
+          description: The name of the application
+          example: "@asyncapi/cli"
+        description:
+          type: string
+          description: Description of the application
+          example: "All in one CLI for all AsyncAPI tools"
+        runtime:
+          type: object
+          description: Runtime information
+          properties:
+            node:
+              type: string
+              description: Node.js version
+              example: "v24.7.0"
+            environment:
+              type: string
+              description: Build environment
+              example: "development"
+              enum: ["development", "staging", "production"]
+            platform:
+              type: string
+              description: Operating system platform
+              example: "darwin"
+            arch:
+              type: string
+              description: System architecture
+              example: "arm64"
+            uptime:
+              type: string
+              description: Application uptime
+              example: "12 seconds"
+            startTime:
+              type: string
+              format: date-time
+              description: Application start time
+              example: "2025-09-12T05:08:25.171Z"
+          required:
+            - node
+            - environment
+            - platform
+            - arch
+            - uptime
+            - startTime
+        repository:
+          type: object
+          description: Repository information
+          properties:
+            url:
+              type: string
+              format: uri
+              description: Repository URL
+              example: "https://github.com/asyncapi/cli"
+            bugs:
+              type: string
+              format: uri
+              description: Bug tracker URL
+              example: "https://github.com/asyncapi/cli/issues"
+            license:
+              type: string
+              description: License type
+              example: "Apache-2.0"
+          required:
+            - url
+            - bugs
+            - license
+        api:
+          type: object
+          description: API metadata
+          properties:
+            basePath:
+              type: string
+              description: API base path
+              example: "/version"
+            timestamp:
+              type: string
+              format: date-time
+              description: Current timestamp
+              example: "2025-09-12T05:08:37.979Z"
+            health:
+              type: string
+              description: API health status
+              example: "ok"
+              enum: ["ok", "degraded", "error"]
+          required:
+            - basePath
+            - timestamp
+            - health
+      required:
+        - version
+        - name
+        - description
+        - build
+        - runtime
+        - repository
+        - api

@@ -1,0 +1,44 @@
+name: server-api
+region: sfo3
+
+domains:
+  - domain: api.asyncapi.com
+    type: PRIMARY
+
+ingress:
+  rules:
+    - component:
+        name: asyncapi-server-api
+      match:
+        path:
+          prefix: /
+      cors:
+        allow_origins:
+          - exact: "*"
+        allow_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        allow_headers: ["*"]
+
+services:
+  - name: asyncapi-server-api
+    image:
+      registry_type: DOCKER_HUB
+      registry: asyncapi
+      repository: server-api
+      digest: ${DOCKER_DIGEST}
+    http_port: 80
+    health_check:
+      http_path: /v1/help
+      port: 80
+    envs:
+      - key: PORT
+        value: "80"
+    instance_count: 1
+    instance_size_slug: basic-xs
+    alerts:
+      - rule: CPU_UTILIZATION
+        operator: GREATER_THAN
+        value: 80
+        window: TEN_MINUTES
+
+alerts:
+  - rule: DEPLOYMENT_FAILED
