@@ -26,6 +26,17 @@ COPY *.json ./
 # 4. Build TypeScript or production-ready JS
 RUN npm run api:build
 
+# ---- Templates stage ----
+FROM base AS templates
+
+# Copy templates list
+COPY ./src/apps/api/templates.json /tmp/templates.json
+
+# Install generator templates globally using the templates.json array
+# This layer will be cached unless template versions change
+RUN TEMPLATES=$(node -e "console.log(JSON.parse(require('fs').readFileSync('/tmp/templates.json', 'utf8')).join(' '))") && \
+    npm install -g $TEMPLATES
+
 # ---- Release stage ----
 FROM base AS release
 
@@ -47,11 +58,18 @@ RUN npm ci --omit=dev --ignore-scripts \
   && npm cache clean --force \
   && npm prune --production
 
+# Copy globally installed templates from templates stage
+COPY --from=templates /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=templates /usr/local/bin /usr/local/bin
+
 # Copy OpenAPI document
 COPY openapi.yaml ./
 
 # Change ownership of the app directory to the non-root user
 RUN chown -R asyncapi:nodejs /app
+
+# Change ownership of node_modules to the non-root user
+RUN chown -R asyncapi:nodejs /usr/local/lib/node_modules
 
 # Switch to non-root user
 USER asyncapi
