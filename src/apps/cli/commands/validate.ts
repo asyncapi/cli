@@ -35,10 +35,8 @@ export default class Validate extends Command {
   };
 
   async run() {
-    console.error('🏃 Validate command run() method called');
     const { args, flags } = await this.parse(Validate); //NOSONAR
     let filePath = args['spec-file'];
-    console.error('📁 File path:', filePath);
     const proxyHost = flags['proxyHost'];
     const proxyPort = flags['proxyPort'];
 
