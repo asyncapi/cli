@@ -158,7 +158,8 @@
     "access": "public"
   },
   "optionalDependencies": {
-    "fsevents": "^2.3.2"
+    "fsevents": "^2.3.2",
+    "lefthook-linux-x64": "^1.12.2"
   },
   "repository": "asyncapi/cli",
   "scripts": {
