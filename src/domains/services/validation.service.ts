@@ -47,91 +47,106 @@ interface GitHubFileInfo {
 }
 
 /**
- * Custom GitHub URL resolver for private repositories
+ * Helper function to validate if a URL is a GitHub blob URL
  */
-const createGitHubResolver = () => ({
+const isValidGitHubBlobUrl = (url: string): boolean => {
+  try {
+    const parsedUrl = new URL(url);
+    return (
+      parsedUrl.hostname === 'github.com' &&
+      parsedUrl.pathname.split('/')[3] === 'blob'
+    );
+  } catch (error) {
+    return false;
+  }
+};
+
+/**
+ * Convert GitHub web URL to API URL
+ */
+const convertGitHubWebUrl = (url: string): string => {
+  // Remove fragment from URL before processing
+  const urlWithoutFragment = url.split('#')[0];
+
+  // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
+  // eslint-disable-next-line no-useless-escape
+  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  const match = urlWithoutFragment.match(githubWebPattern);
+
+  if (match) {
+    const [, owner, repo, branch, filePath] = match;
+    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+  }
+
+  return url;
+};
+
+/**
+ * Custom resolver for private repositories
+ */
+const createHttpWithAuthResolver = () => ({
   schema: 'https',
   order: 1,
 
-  canRead: (uri: any) => {
-    try {
-      const url = new URL(uri.toString());
-      return url.hostname === 'raw.githubusercontent.com' || 
-             url.hostname === 'github.com' ||
-             url.hostname === 'api.github.com';
-    } catch (error) {
-      return false;
-    }
-  },
-
-  /**
-   * Convert GitHub web URL to API URL
-   */
-  convertGitHubWebUrl: (url: string): string => {
-    // Remove fragment from URL before processing
-    const urlWithoutFragment = url.split('#')[0];
-    
-    // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
-    // eslint-disable-next-line no-useless-escape
-    const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
-    const match = urlWithoutFragment.match(githubWebPattern);
-    
-    if (match) {
-      const [, owner, repo, branch, path] = match;
-      return `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
-    }
-    return url;
-  },
-
   read: async (uri: any) => {
     let url = uri.toString();
-    const originalUrl = url;
-    
+
     // Default headers
     const headers: Record<string, string> = {
-      'User-Agent': 'AsyncAPI-CLI'
+      'User-Agent': 'AsyncAPI-CLI',
     };
 
     const authInfo = await ConfigService.getAuthForUrl(url);
 
-    if (url.includes('github.com') && url.includes('/blob/')) {
-      url = createGitHubResolver().convertGitHubWebUrl(url);
+    if (isValidGitHubBlobUrl(url)) {
+      url = convertGitHubWebUrl(url);
     }
-    
+
+    // Only require authentication for GitHub URLs
     if (authInfo) {
       headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
       Object.assign(headers, authInfo.headers); // merge custom headers
-    } else {
-      throw new Error(`Cannot resolve URL: ${url} - No authentication configured for this GitHub repository`);
     }
 
     if (url.includes('api.github.com')) {
       headers['Accept'] = 'application/vnd.github.v3+json';
       const res = await fetch(url, { headers });
       if (!res.ok) {
-        throw new Error(`Failed to fetch GitHub API URL: ${url} - ${res.statusText}`);
+        throw new Error(
+          `Failed to fetch GitHub API URL: ${url} - ${res.statusText}`
+        );
       }
-      const fileInfo = await res.json() as GitHubFileInfo;
+      const fileInfo = (await res.json()) as GitHubFileInfo;
 
       if (fileInfo.download_url) {
         const contentRes = await fetch(fileInfo.download_url, { headers });
         if (!contentRes.ok) {
-          throw new Error(`Failed to fetch content from download URL: ${fileInfo.download_url} - ${contentRes.statusText}`);
+          throw new Error(
+            `Failed to fetch content from download URL: ${fileInfo.download_url} - ${contentRes.statusText}`
+          );
         }
         return await contentRes.text();
       }
-      throw new Error(`No download URL found in GitHub API response for: ${url}`);
+      throw new Error(
+        `No download URL found in GitHub API response for: ${url}`
+      );
     } else if (url.includes('raw.githubusercontent.com')) {
       headers['Accept'] = 'application/vnd.github.v3.raw';
       const res = await fetch(url, { headers });
       if (!res.ok) {
-        throw new Error(`Failed to fetch GitHub URL: ${url} - ${res.statusText}`);
+        throw new Error(
+          `Failed to fetch GitHub URL: ${url} - ${res.statusText}`
+        );
       }
       return await res.text();
     } else {
-      throw new Error(`Unsupported GitHub URL format: ${originalUrl}`);
+      const res = await fetch(url, { headers });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch URL: ${url} - ${res.statusText}`);
+      }
+      return await res.text();
     }
-  }
+  },
 });
 
 const { writeFile } = promises;
@@ -173,7 +188,7 @@ export class ValidationService extends BaseService {
         resolver: {
           cache: false,
           resolvers: [
-            createGitHubResolver(),
+            createHttpWithAuthResolver(),
             ...(parserOptions.__unstable?.resolver?.resolvers || [])
           ],
         },
@@ -303,7 +318,7 @@ export class ValidationService extends BaseService {
         __unstable: {
           resolver: {
             cache: false,
-            resolvers: [createGitHubResolver()],
+            resolvers: [createHttpWithAuthResolver()],
           },
         },
       });
