@@ -226,7 +226,7 @@ describe('ValidationService', () => {
         
         // Should have an invalid-ref diagnostic for the private GitHub URL
         const invalidRefDiagnostic = result.data?.diagnostics?.find((d: any) => d.code === 'invalid-ref');
-        expect(invalidRefDiagnostic).to.exist;
+        expect(invalidRefDiagnostic).to.not.be.undefined;
         expect(invalidRefDiagnostic?.message).to.include('Page not found');
         expect(invalidRefDiagnostic?.message).to.include('https://github.com/private-org/private-repo/blob/main/schema.yaml');
       }

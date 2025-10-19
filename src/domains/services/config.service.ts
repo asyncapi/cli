@@ -102,6 +102,7 @@ export class ConfigService {
       .replace(/\*\*/g, '.*')
       .replace(/\*/g, '[^/]*');
 
+    // eslint-disable-next-line security/detect-non-literal-regexp
     return new RegExp(`^${regexStr}`);
   }
 }
