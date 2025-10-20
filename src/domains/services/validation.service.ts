@@ -32,6 +32,123 @@ import { ParseOptions } from '@asyncapi/parser';
 import { ParserOptions } from '@asyncapi/parser/cjs/parser';
 import { calculateScore } from '@/utils/scoreCalculator';
 
+import { ConfigService } from './config.service';
+
+// GitHub API response type
+interface GitHubFileInfo {
+  download_url: string;
+  content?: string;
+  encoding?: string;
+  name: string;
+  path: string;
+  sha: string;
+  size: number;
+  type: string;
+}
+
+/**
+ * Helper function to validate if a URL is a GitHub blob URL
+ */
+const isValidGitHubBlobUrl = (url: string): boolean => {
+  try {
+    const parsedUrl = new URL(url);
+    return (
+      parsedUrl.hostname === 'github.com' &&
+      parsedUrl.pathname.split('/')[3] === 'blob'
+    );
+  } catch (error) {
+    return false;
+  }
+};
+
+/**
+ * Convert GitHub web URL to API URL
+ */
+const convertGitHubWebUrl = (url: string): string => {
+  // Remove fragment from URL before processing
+  const urlWithoutFragment = url.split('#')[0];
+
+  // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
+  // eslint-disable-next-line no-useless-escape
+  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  const match = urlWithoutFragment.match(githubWebPattern);
+
+  if (match) {
+    const [, owner, repo, branch, filePath] = match;
+    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+  }
+
+  return url;
+};
+
+/**
+ * Custom resolver for private repositories
+ */
+const createHttpWithAuthResolver = () => ({
+  schema: 'https',
+  order: 1,
+
+  read: async (uri: any) => {
+    let url = uri.toString();
+
+    // Default headers
+    const headers: Record<string, string> = {
+      'User-Agent': 'AsyncAPI-CLI',
+    };
+
+    const authInfo = await ConfigService.getAuthForUrl(url);
+
+    if (isValidGitHubBlobUrl(url)) {
+      url = convertGitHubWebUrl(url);
+    }
+
+    // Only require authentication for GitHub URLs
+    if (authInfo) {
+      headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
+      Object.assign(headers, authInfo.headers); // merge custom headers
+    }
+
+    if (url.includes('api.github.com')) {
+      headers['Accept'] = 'application/vnd.github.v3+json';
+      const res = await fetch(url, { headers });
+      if (!res.ok) {
+        throw new Error(
+          `Failed to fetch GitHub API URL: ${url} - ${res.statusText}`
+        );
+      }
+      const fileInfo = (await res.json()) as GitHubFileInfo;
+
+      if (fileInfo.download_url) {
+        const contentRes = await fetch(fileInfo.download_url, { headers });
+        if (!contentRes.ok) {
+          throw new Error(
+            `Failed to fetch content from download URL: ${fileInfo.download_url} - ${contentRes.statusText}`
+          );
+        }
+        return await contentRes.text();
+      }
+      throw new Error(
+        `No download URL found in GitHub API response for: ${url}`
+      );
+    } else if (url.includes('raw.githubusercontent.com')) {
+      headers['Accept'] = 'application/vnd.github.v3.raw';
+      const res = await fetch(url, { headers });
+      if (!res.ok) {
+        throw new Error(
+          `Failed to fetch GitHub URL: ${url} - ${res.statusText}`
+        );
+      }
+      return await res.text();
+    } else {
+      const res = await fetch(url, { headers });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch URL: ${url} - ${res.statusText}`);
+      }
+      return await res.text();
+    }
+  },
+});
+
 const { writeFile } = promises;
 
 export enum ValidationStatus {
@@ -63,16 +180,23 @@ export class ValidationService extends BaseService {
   private parser: Parser;
 
   constructor(parserOptions: ParserOptions = {}) {
-    super();
-    this.parser = new Parser({
+    super(); 
+    // Create parser with custom GitHub resolver
+    const customParserOptions = {
       ...parserOptions,
       __unstable: {
         resolver: {
           cache: false,
+          resolvers: [
+            createHttpWithAuthResolver(),
+            ...(parserOptions.__unstable?.resolver?.resolvers || [])
+          ],
         },
         ...parserOptions.__unstable?.resolver,
       },
-    });
+    };
+
+    this.parser = new Parser(customParserOptions);
 
     this.parser.registerSchemaParser(OpenAPISchemaParser());
     this.parser.registerSchemaParser(RamlDTSchemaParser());
@@ -194,6 +318,7 @@ export class ValidationService extends BaseService {
         __unstable: {
           resolver: {
             cache: false,
+            resolvers: [createHttpWithAuthResolver()],
           },
         },
       });
