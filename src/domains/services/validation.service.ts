@@ -102,7 +102,6 @@ const createHttpWithAuthResolver = () => ({
       url = convertGitHubWebUrl(url);
     }
 
-    // Only require authentication for GitHub URLs
     if (authInfo) {
       headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
       Object.assign(headers, authInfo.headers); // merge custom headers
