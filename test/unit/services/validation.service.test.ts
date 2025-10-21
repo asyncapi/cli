@@ -216,8 +216,9 @@ describe('ValidationService', () => {
 
       const result = await validationService.validateDocument(specFile, options);
 
-      // The validation succeeds but the document is invalid due to unresolved ref
-      expect(result.success).to.equal(true);
+      // The validation succeeds means the validation command is successfully executed it is independent whether 
+      // the document is valid or not 
+      expect(result.data.success).to.equal(true);
       if (result.success) {
         expect(result.data).to.have.property('status');
         expect(result.data?.status).to.equal('invalid');
@@ -240,7 +241,8 @@ describe('ValidationService', () => {
       };
 
       const result = await validationService.validateDocument(specFile, options);
-
+      // The validation succeeds means the validation command is successfully executed it is independent whether 
+      // the document is valid or not 
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.data).to.have.property('status');
