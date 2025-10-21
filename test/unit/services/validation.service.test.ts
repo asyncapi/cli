@@ -218,7 +218,7 @@ describe('ValidationService', () => {
 
       // The validation succeeds means the validation command is successfully executed it is independent whether 
       // the document is valid or not 
-      expect(result.data.success).to.equal(true);
+      expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.data).to.have.property('status');
         expect(result.data?.status).to.equal('invalid');
