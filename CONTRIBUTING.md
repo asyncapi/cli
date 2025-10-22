@@ -3,7 +3,10 @@ We love your input! We want to make contributing to this project as easy and tra
 
 ## Contribution recogniton
 
-We use [All Contributors](https://allcontributors.org/docs/en/specification) specification to handle recognitions. For more details read [this](https://github.com/asyncapi/community/blob/master/recognize-contributors.md) document.
+We use [All Contributors](https://allcontributors.org/docs/en/specification) specification to handle recognitions. For more details read [this](https://www.asyncapi.com/docs/community/010-contribution-guidelines/recognize-contributors#main-content) document.
+
+
+
 
 ## Summary of the contribution flow
 
@@ -43,7 +46,7 @@ AsyncAPI has adopted a Code of Conduct that we expect project participants to ad
 We use Github to host code, to track issues and feature requests, as well as accept pull requests.
 
 ## Issues
-[Open an issue](https://github.com/asyncapi/asyncapi/issues/new) **only** if you want to report a bug or a feature. Don't open issues for questions or support, instead join our [Slack workspace](https://www.asyncapi.com/slack-invite) and ask there. Don't forget to follow our [Slack Etiquette](https://github.com/asyncapi/community/blob/master/slack-etiquette.md) while interacting with community members! It's more likely you'll get help, and much faster!
+[Open an issue](https://github.com/asyncapi/asyncapi/issues/new) **only** if you want to report a bug or a feature. Don't open issues for questions or support, instead join our [Slack workspace](https://www.asyncapi.com/slack-invite) and ask there. Don't forget to follow our [Slack Etiquette](https://www.asyncapi.com/docs/community/060-meetings-and-communication/slack-etiquette) while interacting with community members! It's more likely you'll get help, and much faster!
 
 ## Bug Reports and Feature Requests
 
@@ -51,7 +54,7 @@ Please use our issues templates that provide you with hints on what information 
 
 ## Pull Requests
 
-**Please, make sure you open an issue before starting with a Pull Request, unless it's a typo or a really obvious error.** Pull requests are the best way to propose changes to the specification. Get familiar with our document that explains [Git workflow](https://github.com/asyncapi/community/blob/master/git-workflow.md) used in our repositories.
+**Please, make sure you open an issue before starting with a Pull Request, unless it's a typo or a really obvious error.** Pull requests are the best way to propose changes to the specification. Get familiar with our document that explains [Git workflow](https://www.asyncapi.com/docs/community/010-contribution-guidelines/git-workflow) used in our repositories.
 
 ## Conventional commits
 
