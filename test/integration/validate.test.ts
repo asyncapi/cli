@@ -350,4 +350,249 @@ describe('validate', () => {
         done();
       });
   });
+
+  describe('with --save-output flag', () => {
+    beforeEach(() => {
+      testHelper.createDummyContextFile();
+    });
+
+    afterEach(() => {
+      testHelper.deleteDummyContextFile();
+    });
+
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'validate',
+        './test/fixtures/specification.yml',
+        '--log-diagnostics',
+        '--save-output=./test/fixtures/validate-output-stylish.txt'
+      ])
+      .finally(async () => {
+        const fs = await import('fs');
+        try {
+          await fs.promises.unlink('./test/fixtures/validate-output-stylish.txt');
+        } catch (err) {
+          // Ignore error if file doesn't exist
+        }
+      })
+      .it('should save diagnostics output to file with default stylish format', async (ctx) => {
+        const fs = await import('fs');
+        expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output-stylish.txt');
+        expect(ctx.stdout).to.contain('File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.');
+        
+        // Verify file was created and has content
+        const fileContent = await fs.promises.readFile('./test/fixtures/validate-output-stylish.txt', 'utf8');
+        expect(fileContent.length).to.be.greaterThan(0);
+        expect(fileContent).to.include('test/fixtures/specification.yml');
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'validate',
+        './test/fixtures/specification.yml',
+        '--log-diagnostics',
+        '--diagnostics-format=json',
+        '--save-output=./test/fixtures/validate-output.json'
+      ])
+      .finally(async () => {
+        const fs = await import('fs');
+        try {
+          await fs.promises.unlink('./test/fixtures/validate-output.json');
+        } catch (err) {
+          // Ignore error if file doesn't exist
+        }
+      })
+      .it('should save diagnostics output to file with JSON format', async (ctx) => {
+        const fs = await import('fs');
+        expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output.json');
+        expect(ctx.stdout).to.contain('File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.');
+        
+        // Verify file was created and has valid JSON content
+        const fileContent = await fs.promises.readFile('./test/fixtures/validate-output.json', 'utf8');
+        expect(fileContent.length).to.be.greaterThan(0);
+        const jsonContent = JSON.parse(fileContent);
+        expect(jsonContent).to.be.an('array');
+        expect(jsonContent.length).to.be.greaterThan(0);
+        expect(jsonContent[0]).to.have.property('code');
+        expect(jsonContent[0]).to.have.property('message');
+        expect(jsonContent[0]).to.have.property('path');
+        expect(jsonContent[0]).to.have.property('severity');
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'validate',
+        './test/fixtures/specification.yml',
+        '--log-diagnostics',
+        '--diagnostics-format=text',
+        '--save-output=./test/fixtures/validate-output.txt'
+      ])
+      .finally(async () => {
+        const fs = await import('fs');
+        try {
+          await fs.promises.unlink('./test/fixtures/validate-output.txt');
+        } catch (err) {
+          // Ignore error if file doesn't exist
+        }
+      })
+      .it('should save diagnostics output to file with text format', async (ctx) => {
+        const fs = await import('fs');
+        expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output.txt');
+        expect(ctx.stdout).to.contain('File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.');
+        
+        // Verify file was created and has content
+        const fileContent = await fs.promises.readFile('./test/fixtures/validate-output.txt', 'utf8');
+        expect(fileContent.length).to.be.greaterThan(0);
+        expect(fileContent).to.include('test/fixtures/specification.yml');
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'validate',
+        './test/fixtures/specification.yml',
+        '--log-diagnostics',
+        '--diagnostics-format=html',
+        '--save-output=./test/fixtures/validate-output.html'
+      ])
+      .finally(async () => {
+        const fs = await import('fs');
+        try {
+          await fs.promises.unlink('./test/fixtures/validate-output.html');
+        } catch (err) {
+          // Ignore error if file doesn't exist
+        }
+      })
+      .it('should save diagnostics output to file with HTML format', async (ctx) => {
+        const fs = await import('fs');
+        expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output.html');
+        expect(ctx.stdout).to.contain('File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.');
+        
+        // Verify file was created and has HTML content
+        const fileContent = await fs.promises.readFile('./test/fixtures/validate-output.html', 'utf8');
+        expect(fileContent.length).to.be.greaterThan(0);
+        expect(fileContent).to.include('<');
+        expect(fileContent).to.include('>');
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'validate',
+        './test/fixtures/valid-specification-latest.yml',
+        '--log-diagnostics',
+        '--save-output=./test/fixtures/validate-output-valid.txt'
+      ])
+      .finally(async () => {
+        const fs = await import('fs');
+        try {
+          await fs.promises.unlink('./test/fixtures/validate-output-valid.txt');
+        } catch (err) {
+          // Ignore error if file doesn't exist
+        }
+      })
+      .it('should save empty diagnostics when document has no issues', async (ctx) => {
+        const fs = await import('fs');
+        expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output-valid.txt');
+        expect(ctx.stdout).to.include('File ./test/fixtures/valid-specification-latest.yml is valid!');
+        
+        // Verify file was created
+        const fileContent = await fs.promises.readFile('./test/fixtures/validate-output-valid.txt', 'utf8');
+        expect(fileContent.length).to.be.equal(0);
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'validate',
+        './test/fixtures/specification.yml',
+        '--log-diagnostics',
+        '--diagnostics-format=junit',
+        '--save-output=./test/fixtures/validate-output.xml'
+      ])
+      .finally(async () => {
+        const fs = await import('fs');
+        try {
+          await fs.promises.unlink('./test/fixtures/validate-output.xml');
+        } catch (err) {
+          // Ignore error if file doesn't exist
+        }
+      })
+      .it('should save diagnostics output to file with JUnit format', async (ctx) => {
+        const fs = await import('fs');
+        expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output.xml');
+        expect(ctx.stdout).to.contain('File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.');
+        
+        // Verify file was created and has XML content
+        const fileContent = await fs.promises.readFile('./test/fixtures/validate-output.xml', 'utf8');
+        expect(fileContent.length).to.be.greaterThan(0);
+        expect(fileContent).to.include('<?xml');
+        expect(fileContent).to.include('<testsuites');
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'validate',
+        './test/fixtures/specification.yml',
+        '--log-diagnostics',
+        '--save-output=./test/fixtures/validate-output-with-suppression.txt',
+        '--suppressWarnings=asyncapi-id'
+      ])
+      .finally(async () => {
+        const fs = await import('fs');
+        try {
+          await fs.promises.unlink('./test/fixtures/validate-output-with-suppression.txt');
+        } catch (err) {
+          // Ignore error if file doesn't exist
+        }
+      })
+      .it('should save diagnostics with suppressed warnings to file', async (ctx) => {
+        const fs = await import('fs');
+        expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output-with-suppression.txt');
+        
+        // Verify file was created and does not contain suppressed warning
+        const fileContent = await fs.promises.readFile('./test/fixtures/validate-output-with-suppression.txt', 'utf8');
+        expect(fileContent.length).to.be.greaterThan(0);
+        expect(fileContent).to.not.include('asyncapi-id');
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'validate',
+        './test/fixtures/specification.yml',
+        '--log-diagnostics',
+        '--save-output=./test/fixtures/validate-output-fail-severity.txt',
+        '--fail-severity=warn'
+      ])
+      .finally(async () => {
+        const fs = await import('fs');
+        try {
+          await fs.promises.unlink('./test/fixtures/validate-output-fail-severity.txt');
+        } catch (err) {
+          // Ignore error if file doesn't exist
+        }
+      })
+      .it('should save diagnostics with fail-severity to file', async (ctx) => {
+        const fs = await import('fs');
+        expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output-fail-severity.txt');
+        
+        // Verify file was created
+        const fileContent = await fs.promises.readFile('./test/fixtures/validate-output-fail-severity.txt', 'utf8');
+        expect(fileContent.length).to.be.greaterThan(0);
+        expect(fileContent).to.include('test/fixtures/specification.yml');
+      });
+  });
 });
