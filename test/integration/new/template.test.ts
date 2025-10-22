@@ -30,7 +30,7 @@ describe('new template', () => {
       .stderr()
       .stdout()
       .command(['new:template', '-n=test-project'])
-      .it('runs new glee command with name flag', async (ctx,done) => {
+      .it('runs new template command with name flag', async (ctx,done) => {
         expect(ctx.stderr).to.equal('');
         expect(ctx.stdout).to.contains(successMessage('test-project'));
         done();
