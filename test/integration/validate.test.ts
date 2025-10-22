@@ -381,8 +381,6 @@ describe('validate', () => {
         const fs = await import('fs');
         expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output-stylish.txt');
         expect(ctx.stdout).to.contain('File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.');
-        
-        // Verify file was created and has content
         const fileContent = await fs.promises.readFile('./test/fixtures/validate-output-stylish.txt', 'utf8');
         expect(fileContent.length).to.be.greaterThan(0);
         expect(fileContent).to.include('test/fixtures/specification.yml');
@@ -410,8 +408,6 @@ describe('validate', () => {
         const fs = await import('fs');
         expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output.json');
         expect(ctx.stdout).to.contain('File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.');
-        
-        // Verify file was created and has valid JSON content
         const fileContent = await fs.promises.readFile('./test/fixtures/validate-output.json', 'utf8');
         expect(fileContent.length).to.be.greaterThan(0);
         const jsonContent = JSON.parse(fileContent);
@@ -445,8 +441,6 @@ describe('validate', () => {
         const fs = await import('fs');
         expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output.txt');
         expect(ctx.stdout).to.contain('File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.');
-        
-        // Verify file was created and has content
         const fileContent = await fs.promises.readFile('./test/fixtures/validate-output.txt', 'utf8');
         expect(fileContent.length).to.be.greaterThan(0);
         expect(fileContent).to.include('test/fixtures/specification.yml');
@@ -474,8 +468,6 @@ describe('validate', () => {
         const fs = await import('fs');
         expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output.html');
         expect(ctx.stdout).to.contain('File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.');
-        
-        // Verify file was created and has HTML content
         const fileContent = await fs.promises.readFile('./test/fixtures/validate-output.html', 'utf8');
         expect(fileContent.length).to.be.greaterThan(0);
         expect(fileContent).to.include('<');
@@ -503,8 +495,6 @@ describe('validate', () => {
         const fs = await import('fs');
         expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output-valid.txt');
         expect(ctx.stdout).to.include('File ./test/fixtures/valid-specification-latest.yml is valid!');
-        
-        // Verify file was created
         const fileContent = await fs.promises.readFile('./test/fixtures/validate-output-valid.txt', 'utf8');
         expect(fileContent.length).to.be.equal(0);
       });
@@ -531,8 +521,6 @@ describe('validate', () => {
         const fs = await import('fs');
         expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output.xml');
         expect(ctx.stdout).to.contain('File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.');
-        
-        // Verify file was created and has XML content
         const fileContent = await fs.promises.readFile('./test/fixtures/validate-output.xml', 'utf8');
         expect(fileContent.length).to.be.greaterThan(0);
         expect(fileContent).to.include('<?xml');
@@ -560,8 +548,6 @@ describe('validate', () => {
       .it('should save diagnostics with suppressed warnings to file', async (ctx) => {
         const fs = await import('fs');
         expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output-with-suppression.txt');
-        
-        // Verify file was created and does not contain suppressed warning
         const fileContent = await fs.promises.readFile('./test/fixtures/validate-output-with-suppression.txt', 'utf8');
         expect(fileContent.length).to.be.greaterThan(0);
         expect(fileContent).to.not.include('asyncapi-id');
@@ -588,8 +574,6 @@ describe('validate', () => {
       .it('should save diagnostics with fail-severity to file', async (ctx) => {
         const fs = await import('fs');
         expect(ctx.stdout).to.contain('Diagnostics saved to ./test/fixtures/validate-output-fail-severity.txt');
-        
-        // Verify file was created
         const fileContent = await fs.promises.readFile('./test/fixtures/validate-output-fail-severity.txt', 'utf8');
         expect(fileContent.length).to.be.greaterThan(0);
         expect(fileContent).to.include('test/fixtures/specification.yml');
