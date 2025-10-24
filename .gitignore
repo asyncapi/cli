@@ -40,11 +40,5 @@ coverage
 
 .asyncapi-analytics
 
-# Glee
-assets/create-glee-app/templates/default/.glee
-assets/create-glee-app/templates/tutorial/.glee
-assets/create-glee-app/templates/default/docs
-assets/create-glee-app/templates/tutorial/docs
-
 # Modelina
 test/fixtures/generate/models
