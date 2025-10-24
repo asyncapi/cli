@@ -26,6 +26,7 @@ Learn how to install the AsyncAPI CLI by following the instructions in the [inst
 
 ## Usage
 The [usage guide](/docs/usage.md) provides information about different ways to use the CLI.
+![demo](.dg/snippets/.dg/svg/useagedemo-dark.svg)
 
 ## Architecture
 The [architecture guide](/docs/architecture.md) provides information about the architecture.
