@@ -1,5 +1,27 @@
 # @asyncapi/cli
 
+## 3.6.0
+
+### Minor Changes
+
+- ca8101f: feat: output flag renamed and writing to file functionality added to diff command
+
+  - 8c2e940: fix:parse flag output renamed to save-output and saving diff output to file functionality added to diff command
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
+  - 59e1df9: chore:tests added for flags save-output in validate and diff command
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
+  - 7228a36: chore:cleanup
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
+  - ccb5388: chore:cleanup
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
 ## 3.5.2
 
 ### Patch Changes
