@@ -25,10 +25,10 @@ export function parserFlags({
       options: ['error', 'warn', 'info', 'hint'] as const,
       default: 'error',
     })(),
-    output: Flags.string({
+    'save-output': Flags.string({
       description:
         'The output file name. Omitting this flag the result will be printed in the console.',
-      char: 'o',
+      char: 's',
     }),
   };
 }

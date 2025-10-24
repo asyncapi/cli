@@ -325,4 +325,256 @@ describe('diff', () => {
         done();
       });
   });
+
+  describe('save-output flag tests', () => {
+    describe('JSON format with save-output flag', () => {
+      test
+        .stderr()
+        .stdout()
+        .command([
+          'diff',
+          './test/fixtures/specification.yml',
+          './test/fixtures/specification.yml',
+          '--format=json',
+          '--type=all',
+          '--save-output=./test/fixtures/output-test.json',
+          '--no-error',
+        ])
+        .finally(async () => {
+          const fs = await import('fs');
+          try {
+            await fs.promises.unlink('./test/fixtures/output-test.json');
+          } catch (err) {
+            // Ignore error if file doesn't exist
+          }
+        })
+        .it('should write JSON output to file when no changes', async (ctx) => {
+          const fs = await import('fs');
+          expect(ctx.stdout).to.contain('Output successfully written to: ./test/fixtures/output-test.json');
+          
+          const fileContent = await fs.promises.readFile('./test/fixtures/output-test.json', 'utf8');
+          const actualContent = JSON.parse(fileContent);
+          expect(actualContent).to.deep.equal({ changes: [] });
+        });
+
+      test
+        .stderr()
+        .stdout()
+        .command([
+          'diff',
+          './test/fixtures/asyncapi_v1.yml',
+          './test/fixtures/asyncapi_v2.yml',
+          '--format=json',
+          '--type=all',
+          '--save-output=./test/fixtures/output-test-all.json',
+          '--no-error',
+        ])
+        .finally(async () => {
+          const fs = await import('fs');
+          try {
+            await fs.promises.unlink('./test/fixtures/output-test-all.json');
+          } catch (err) {
+            // Ignore error if file doesn't exist
+          }
+        })
+        .it('should write all changes to JSON file', async (ctx) => {
+          const fs = await import('fs');
+          expect(ctx.stdout).to.contain('Output successfully written to: ./test/fixtures/output-test-all.json');
+          
+          // Read and verify file content
+          const fileContent = await fs.promises.readFile('./test/fixtures/output-test-all.json', 'utf8');
+          const actualContent = JSON.parse(fileContent);
+          expect(actualContent).to.have.property('changes');
+          expect(actualContent.changes).to.be.an('array');
+          expect(actualContent.changes.length).to.be.greaterThan(0);
+          const types = actualContent.changes.map((c: any) => c.type);
+          expect(types).to.include('breaking');
+          expect(types).to.include('non-breaking');
+          expect(types).to.include('unclassified');
+        });
+
+      test
+        .stderr()
+        .stdout()
+        .command([
+          'diff',
+          './test/fixtures/asyncapi_v1.yml',
+          './test/fixtures/asyncapi_v2.yml',
+          '--format=json',
+          '--type=breaking',
+          '--save-output=./test/fixtures/output-test-breaking.json',
+          '--no-error',
+        ])
+        .finally(async () => {
+          const fs = await import('fs');
+          try {
+            await fs.promises.unlink('./test/fixtures/output-test-breaking.json');
+          } catch (err) {
+            // Ignore error if file doesn't exist
+          }
+        })
+        .it('should write breaking changes to JSON file', async (ctx) => {
+          const fs = await import('fs');
+          expect(ctx.stdout).to.contain('Output successfully written to: ./test/fixtures/output-test-breaking.json');
+          const fileContent = await fs.promises.readFile('./test/fixtures/output-test-breaking.json', 'utf8');
+          const actualContent = JSON.parse(fileContent);
+          expect(actualContent).to.be.an('array');
+          expect(actualContent.length).to.be.greaterThan(0);
+          for (const change of actualContent) {
+            expect(change.type).to.equal('breaking');
+          }
+        });
+
+      test
+        .stderr()
+        .stdout()
+        .command([
+          'diff',
+          './test/fixtures/asyncapi_v1.yml',
+          './test/fixtures/asyncapi_v2.yml',
+          '--format=json',
+          '--type=non-breaking',
+          '--save-output=./test/fixtures/output-test-non-breaking.json',
+          '--no-error',
+        ])
+        .finally(async () => {
+          const fs = await import('fs');
+          try {
+            await fs.promises.unlink('./test/fixtures/output-test-non-breaking.json');
+          } catch (err) {
+            // Ignore error if file doesn't exist
+          }
+        })
+        .it('should write non-breaking changes to JSON file', async (ctx) => {
+          const fs = await import('fs');
+          expect(ctx.stdout).to.contain('Output successfully written to: ./test/fixtures/output-test-non-breaking.json');
+          const fileContent = await fs.promises.readFile('./test/fixtures/output-test-non-breaking.json', 'utf8');
+          const actualContent = JSON.parse(fileContent);
+          expect(actualContent).to.be.an('array');
+          expect(actualContent.length).to.be.greaterThan(0);
+          for (const change of actualContent) {
+            expect(change.type).to.equal('non-breaking');
+          }
+        });
+
+      test
+        .stderr()
+        .stdout()
+        .command([
+          'diff',
+          './test/fixtures/asyncapi_v1.yml',
+          './test/fixtures/asyncapi_v2.yml',
+          '--format=json',
+          '--type=unclassified',
+          '--save-output=./test/fixtures/output-test-unclassified.json',
+          '--no-error',
+        ])
+        .finally(async () => {
+          const fs = await import('fs');
+          try {
+            await fs.promises.unlink('./test/fixtures/output-test-unclassified.json');
+          } catch (err) {
+            // Ignore error if file doesn't exist
+          }
+        })
+        .it('should write unclassified changes to JSON file', async (ctx) => {
+          const fs = await import('fs');
+          expect(ctx.stdout).to.contain('Output successfully written to: ./test/fixtures/output-test-unclassified.json');
+          const fileContent = await fs.promises.readFile('./test/fixtures/output-test-unclassified.json', 'utf8');
+          const actualContent = JSON.parse(fileContent);
+          expect(actualContent).to.be.an('array');
+          expect(actualContent.length).to.be.greaterThan(0);
+          for (const change of actualContent) {
+            expect(change.type).to.equal('unclassified');
+          }
+        });
+    });
+
+    describe('YAML format with save-output flag', () => {
+      test
+        .stderr()
+        .stdout()
+        .command([
+          'diff',
+          './test/fixtures/specification.yml',
+          './test/fixtures/specification.yml',
+          '--format=yaml',
+          '--type=all',
+          '--save-output=./test/fixtures/output-test.yaml',
+          '--no-error',
+        ])
+        .finally(async () => {
+          const fs = await import('fs');
+          try {
+            await fs.promises.unlink('./test/fixtures/output-test.yaml');
+          } catch (err) {
+            // Ignore error if file doesn't exist
+          }
+        })
+        .it('should write YAML output to file when no changes', async (ctx) => {
+          const fs = await import('fs');
+          expect(ctx.stdout).to.contain('Output successfully written to: ./test/fixtures/output-test.yaml');
+          const fileContent = await fs.promises.readFile('./test/fixtures/output-test.yaml', 'utf8');
+          expect(fileContent).to.equal('changes: []\n');
+        });
+
+      test
+        .stderr()
+        .stdout()
+        .command([
+          'diff',
+          './test/fixtures/asyncapi_v1.yml',
+          './test/fixtures/asyncapi_v2.yml',
+          '--format=yaml',
+          '--type=all',
+          '--save-output=./test/fixtures/output-test-all.yaml',
+          '--no-error',
+        ])
+        .finally(async () => {
+          const fs = await import('fs');
+          try {
+            await fs.promises.unlink('./test/fixtures/output-test-all.yaml');
+          } catch (err) {
+            // Ignore error if file doesn't exist
+          }
+        })
+        .it('should write all changes to YAML file', async (ctx) => {
+          const fs = await import('fs');
+          expect(ctx.stdout).to.contain('Output successfully written to: ./test/fixtures/output-test-all.yaml');
+          const fileContent = await fs.promises.readFile('./test/fixtures/output-test-all.yaml', 'utf8');
+          expect(fileContent).to.include('changes:');
+          expect(fileContent).to.include('type: breaking');
+          expect(fileContent).to.include('type: non-breaking');
+          expect(fileContent).to.include('type: unclassified');
+        });
+
+      test
+        .stderr()
+        .stdout()
+        .command([
+          'diff',
+          './test/fixtures/asyncapi_v1.yml',
+          './test/fixtures/asyncapi_v2.yml',
+          '--format=yml',
+          '--type=breaking',
+          '--save-output=./test/fixtures/output-test-breaking.yml',
+          '--no-error',
+        ])
+        .finally(async () => {
+          const fs = await import('fs');
+          try {
+            await fs.promises.unlink('./test/fixtures/output-test-breaking.yml');
+          } catch (err) {
+            // Ignore error if file doesn't exist
+          }
+        })
+        .it('should write breaking changes to YML file', async (ctx) => {
+          const fs = await import('fs');
+          expect(ctx.stdout).to.contain('Output successfully written to: ./test/fixtures/output-test-breaking.yml');
+          const fileContent = await fs.promises.readFile('./test/fixtures/output-test-breaking.yml', 'utf8');
+          expect(fileContent).to.include('action: edit');
+          expect(fileContent).to.include('type: breaking');
+        });
+    });
+  });
 });
