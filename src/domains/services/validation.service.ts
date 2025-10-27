@@ -50,15 +50,11 @@ interface GitHubFileInfo {
  * Helper function to validate if a URL is a GitHub blob URL
  */
 const isValidGitHubBlobUrl = (url: string): boolean => {
-  try {
-    const parsedUrl = new URL(url);
-    return (
-      parsedUrl.hostname === 'github.com' &&
-      parsedUrl.pathname.split('/')[3] === 'blob'
-    );
-  } catch (error) {
-    return false;
-  }
+  const parsedUrl = new URL(url);
+  return (
+    parsedUrl.hostname === 'github.com' &&
+    parsedUrl.pathname.split('/')[3] === 'blob'
+  );
 };
 
 /**
@@ -89,7 +85,7 @@ const createHttpWithAuthResolver = () => ({
   order: 1,
 
   read: async (uri: any) => {
-    let url = uri.toString();
+    const url = uri.toString();
 
     // Default headers
     const headers: Record<string, string> = {
@@ -97,55 +93,40 @@ const createHttpWithAuthResolver = () => ({
     };
 
     const authInfo = await ConfigService.getAuthForUrl(url);
-
-    if (isValidGitHubBlobUrl(url)) {
-      url = convertGitHubWebUrl(url);
-    }
-
     if (authInfo) {
       headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
-      Object.assign(headers, authInfo.headers); // merge custom headers
+      Object.assign(headers, authInfo.headers);
     }
 
-    if (url.includes('api.github.com')) {
+    const finalUrl = isValidGitHubBlobUrl(url) ? convertGitHubWebUrl(url) : url;
+
+    // Helper to fetch and throw on error
+    const fetchText = async (fetchUrl: string, customHeaders = headers) => {
+      const res = await fetch(fetchUrl, { headers: customHeaders });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch URL: ${fetchUrl} - ${res.statusText}`);
+      }
+      return await res.text();
+    };
+    if (finalUrl.includes('api.github.com')) {
       headers['Accept'] = 'application/vnd.github.v3+json';
-      const res = await fetch(url, { headers });
-      if (!res.ok) {
-        throw new Error(
-          `Failed to fetch GitHub API URL: ${url} - ${res.statusText}`
-        );
-      }
-      const fileInfo = (await res.json()) as GitHubFileInfo;
+      const fileInfo = (await fetch(finalUrl, { headers }).then(res => {
+        if (!res.ok) throw new Error(`Failed to fetch GitHub API URL: ${finalUrl} - ${res.statusText}`);
+        return res.json();
+      })) as GitHubFileInfo;
 
-      if (fileInfo.download_url) {
-        const contentRes = await fetch(fileInfo.download_url, { headers });
-        if (!contentRes.ok) {
-          throw new Error(
-            `Failed to fetch content from download URL: ${fileInfo.download_url} - ${contentRes.statusText}`
-          );
-        }
-        return await contentRes.text();
+      if (!fileInfo.download_url) {
+        throw new Error(`No download URL found in GitHub API response for: ${finalUrl}`);
       }
-      throw new Error(
-        `No download URL found in GitHub API response for: ${url}`
-      );
-    } else if (url.includes('raw.githubusercontent.com')) {
-      headers['Accept'] = 'application/vnd.github.v3.raw';
-      const res = await fetch(url, { headers });
-      if (!res.ok) {
-        throw new Error(
-          `Failed to fetch GitHub URL: ${url} - ${res.statusText}`
-        );
-      }
-      return await res.text();
-    } else {
-      const res = await fetch(url, { headers });
-      if (!res.ok) {
-        throw new Error(`Failed to fetch URL: ${url} - ${res.statusText}`);
-      }
-      return await res.text();
+
+      return fetchText(fileInfo.download_url);
     }
+    if (finalUrl.includes('raw.githubusercontent.com')) {
+      headers['Accept'] = 'application/vnd.github.v3.raw';
+    }
+    return fetchText(finalUrl);
   },
+
 });
 
 const { writeFile } = promises;
