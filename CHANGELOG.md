@@ -1,5 +1,29 @@
 # @asyncapi/cli
 
+## 4.0.1
+
+### Patch Changes
+
+- 9b479fc: fix: lockfile fixed
+
+  - 92bb81b: fix:lockfile fixed
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
+## 4.0.0
+
+### Major Changes
+
+- 9d05d49: feat!: tests, flags and glee command code removed
+
+  - 7df684f: chore: major tests flags and glee command code removed
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
+  - 4a94f51: chore:glee removal complete
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
 ## 3.6.0
 
 ### Minor Changes
