@@ -1,5 +1,15 @@
 # @asyncapi/cli
 
+## 4.0.1
+
+### Patch Changes
+
+- 9b479fc: fix: lockfile fixed
+
+  - 92bb81b: fix:lockfile fixed
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
 ## 4.0.0
 
 ### Major Changes
