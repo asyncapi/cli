@@ -67,7 +67,7 @@ const convertGitHubWebUrl = (url: string): string => {
   // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
   // eslint-disable-next-line no-useless-escape
   const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
-  const match = urlWithoutFragment.match(githubWebPattern);
+  const match = githubWebPattern.exec(urlWithoutFragment);
 
   if (match) {
     const [, owner, repo, branch, filePath] = match;
