@@ -1,6 +1,6 @@
-import path from 'path';
-import os from 'os';
-import { promises as fs } from 'fs';
+import path from 'node:path';
+import os from 'node:os';
+import { promises as fs } from 'node:fs';
 
 const CONFIG_DIR = path.join(os.homedir(), '.asyncapi');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
@@ -51,9 +51,7 @@ export class ConfigService {
    */
   static async addAuthEntry(entry: AuthEntry): Promise<void> {
     const config = await this.loadConfig();
-    if (!config.auth) {
-      config.auth = [];
-    }
+    config.auth ??= [];
     config.auth.push(entry);
     await this.saveConfig(config);
   }
@@ -96,13 +94,11 @@ export class ConfigService {
    * @param pattern - wildcard pattern
    */
   private static wildcardToRegex(pattern: string): RegExp {
-    const escaped = pattern.replace(/[-/\\^$+?.()|[\]{}]/g, '\\$&');
+    const escaped = String.raw`${pattern}`.replaceAll(/[-/\\^$+?.()|[\]{}]/g, '\\$&');
 
     const regexStr = escaped
-      .replace(/\*\*/g, '.*')
-      .replace(/\*/g, '[^/]*');
-
-    // eslint-disable-next-line security/detect-non-literal-regexp
+      .replaceAll('**', '.*')
+      .replaceAll('*', '[^/]*');
     return new RegExp(`^${regexStr}`);
   }
 }
