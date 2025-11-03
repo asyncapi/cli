@@ -38,7 +38,7 @@ runs:
   using: 'docker'
   # This is the image that will be used to run the action.
   # IMPORTANT: The version has to be changed manually in your PRs.
-  image: 'docker://asyncapi/github-action-for-cli:4.1.0'
+  image: 'docker://asyncapi/github-action-for-cli:4.1.1'
   args:
     - ${{ inputs.cli_version }}
     - ${{ inputs.command }}
