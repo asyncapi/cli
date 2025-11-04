@@ -31,6 +31,7 @@ import { Specification } from '@models/SpecificationFile';
 import { ParseOptions } from '@asyncapi/parser';
 import { ParserOptions } from '@asyncapi/parser/cjs/parser';
 import { calculateScore } from '@/utils/scoreCalculator';
+import { Type as AvroType } from 'avsc';
 
 import { ConfigService } from './config.service';
 
@@ -282,11 +283,66 @@ export class ValidationService extends BaseService {
         },
       );
 
-      const status = this.determineDiagnosticsStatus(diagnostics, options);
+      // Additional diagnostics for Avro payload schemas using avsc
+      const extraDiagnostics: Diagnostic[] = [];
+      try {
+        const docJson: any = document?.json ? document.json() : undefined;
+        if (docJson && docJson.components && docJson.components.messages) {
+          const messages = docJson.components.messages as Record<string, any>;
+          for (const [msgKey, msgVal] of Object.entries(messages)) {
+            const payload = (msgVal as any)?.payload;
+            if (!payload || typeof payload !== 'object') {
+              continue;
+            }
+            const schemaFormat: string | undefined = payload.schemaFormat || payload.schemaformat;
+            if (!schemaFormat || typeof schemaFormat !== 'string') {
+              continue;
+            }
+            const isAvro = (/application\/vnd\.apache\.avro\+(json|yaml)/i).test(schemaFormat);
+            if (!isAvro) {
+              continue;
+            }
+
+            const avroSchema = (payload as any).schema;
+            if (!avroSchema || typeof avroSchema !== 'object') {
+              extraDiagnostics.push({
+                code: 'avro-schema-missing',
+                message: 'Avro payload has schemaFormat set to Avro but no schema provided.',
+                path: ['components', 'messages', msgKey, 'payload', 'schema'],
+                severity: DiagnosticSeverity.Error,
+                range: {
+                  start: { line: 0, character: 0 },
+                  end: { line: 0, character: 0 },
+                },
+              } as unknown as Diagnostic);
+              continue;
+            }
+            try {
+              AvroType.forSchema(avroSchema as any);
+            } catch (e: any) {
+              extraDiagnostics.push({
+                code: 'avro-schema-invalid',
+                message: e?.message || 'Invalid Avro schema.',
+                path: ['components', 'messages', msgKey, 'payload', 'schema'],
+                severity: DiagnosticSeverity.Error,
+                range: {
+                  start: { line: 0, character: 0 },
+                  end: { line: 0, character: 0 },
+                },
+              } as unknown as Diagnostic);
+            }
+          }
+        }
+      } catch {
+        //Outer catch block will handle the error
+      }
+
+      const allDiagnostics = [...diagnostics, ...extraDiagnostics];
+      const status = this.determineDiagnosticsStatus(allDiagnostics, options);
 
       const result: ValidationResult = {
         status: status as 'valid' | 'invalid',
-        diagnostics,
+        diagnostics: allDiagnostics,
         score: await calculateScore(document),
         document: document?.json ? document.json() : undefined,
       };

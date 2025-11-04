@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://asyncapi.com/schema-store/3.0.0-without-$id.json
+asyncapi: 3.0.0
+info:
+  title: Coffee Bar Checkout Events
+  version: 1.0.0
+  description: AsyncAPI definition for order execution events in a coffee bar microservice.
+
+channels:
+  orderExecuted:
+    address: coffee-bar.checkout.order-executed
+    messages:
+      orderExecuted:
+        $ref: '#/components/messages/orderExecuted'
+
+operations:
+  sendAdCreated:
+    action: receive
+    channel:
+      $ref: '#/channels/orderExecuted'
+
+components:
+  messages:
+    orderExecuted:
+      payload:
+        schemaFormat: 'application/vnd.apache.avro+yaml;version=1.9.0'
+        schema:
+          type: record
+          namespace: io.examples.checkout
+          name: OrderExecuted
+          fields:
+          - name: orderId
+            type: notexisting
+
+
