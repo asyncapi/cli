@@ -251,4 +251,40 @@ describe('ValidationService', () => {
       }
     });
   });
+
+  describe('validateDocument() with parserOptions (regression test for resolver config merge bug)', () => {
+    it('should preserve custom resolvers when parserOptions with empty resolvers are passed', async () => {
+      const simpleAsyncAPI = `{
+        "asyncapi": "2.6.0",
+        "info": {
+          "title": "Test Resolver Config",
+          "version": "1.0.0"
+        },
+        "channels": {}
+      }`;
+
+      const specFile = new Specification(simpleAsyncAPI);
+
+      const parserOptions = {
+        __unstable: {
+          resolver: {
+            resolvers: []
+          }
+        }
+      };
+
+      const validationServiceWithOptions = new ValidationService(parserOptions);
+
+      const result = await validationServiceWithOptions.validateDocument(specFile, {
+        'diagnostics-format': 'stylish' as const
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.data).to.have.property('status');
+        expect(result.data?.status).to.equal('valid');
+        expect(result.data).to.have.property('diagnostics');
+      }
+    });
+  });
 });
