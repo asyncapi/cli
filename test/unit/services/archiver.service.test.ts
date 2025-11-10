@@ -13,7 +13,6 @@ describe('ArchiverService', () => {
     it('should create a zip archiver instance', () => {
       const zip = archiverService.createZip();
       
-      expect(zip).to.not.be.undefined;
       expect(zip).to.have.property('append');
       expect(zip).to.have.property('directory');
       expect(zip).to.have.property('finalize');

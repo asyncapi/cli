@@ -53,6 +53,7 @@ export default class Diff extends Command {
     let markdownSubtype = flags['markdownSubtype'];
     const watchMode = flags['watch'];
     const noError = flags['no-error'];
+    const writeOutput = flags['save-output'];
     let firstDocument: Specification, secondDocument: Specification;
 
     checkAndWarnFalseFlag(outputFormat, markdownSubtype);
@@ -141,19 +142,23 @@ export default class Diff extends Command {
         },
       );
 
-      if (outputFormat === 'json') {
-        this.outputJSON(diffOutput, outputType);
-      } else if (outputFormat === 'yaml' || outputFormat === 'yml') {
-        this.outputYAML(diffOutput, outputType);
-      } else if (outputFormat === 'md') {
-        this.outputMarkdown(diffOutput, outputType);
+      if (writeOutput) {
+        await this.writeOutputToFile(diffOutput,outputType,writeOutput,outputFormat);
       } else {
-        this.log(
-          `The output format ${outputFormat} is not supported at the moment.`,
-        );
-      }
-      if (!noError) {
-        throwOnBreakingChange(diffOutput, outputFormat);
+        if (outputFormat === 'json') {
+          this.outputJSON(diffOutput, outputType);
+        } else if (outputFormat === 'yaml' || outputFormat === 'yml') {
+          this.outputYAML(diffOutput, outputType);
+        } else if (outputFormat === 'md') {
+          this.outputMarkdown(diffOutput, outputType);
+        } else {
+          this.log(
+            `The output format ${outputFormat} is not supported at the moment.`,
+          );
+        }
+        if (!noError) {
+          throwOnBreakingChange(diffOutput, outputFormat);
+        }
       }
     } catch (error) {
       if (
@@ -180,6 +185,37 @@ export default class Diff extends Command {
       this.log(JSON.stringify(diffOutput.getOutput(), null, 2));
     } else {
       this.log(`The output type ${outputType} is not supported at the moment.`);
+    }
+  }
+
+  async writeOutputToFile(diffOutput: AsyncAPIDiff, outputType: string, filePath: string, outputFormat: string) {
+    let content: string;
+    
+    if (outputFormat === 'json') {
+      if (outputType === 'breaking') {
+        content = JSON.stringify(diffOutput.breaking(), null, 2);
+      } else if (outputType === 'non-breaking') {
+        content = JSON.stringify(diffOutput.nonBreaking(), null, 2);
+      } else if (outputType === 'unclassified') {
+        content = JSON.stringify(diffOutput.unclassified(), null, 2);
+      } else if (outputType === 'all') {
+        content = JSON.stringify(diffOutput.getOutput(), null, 2);
+      } else {
+        content = `The output type ${outputType} is not supported at the moment.`;
+      }
+    } else if (outputFormat === 'yaml' || outputFormat === 'yml') {
+      content = genericOutput(diffOutput, outputType) as string;
+    } else if (outputFormat === 'md') {
+      content = genericOutput(diffOutput, outputType) as string;
+    } else {
+      content = `The output format ${outputFormat} is not supported at the moment.`;
+    }
+    
+    try {
+      await fs.writeFile(filePath, content);
+      this.log(`Output successfully written to: ${filePath}`);
+    } catch (error: any) {
+      this.error(`Failed to write output to file: ${error.message}`);
     }
   }
 

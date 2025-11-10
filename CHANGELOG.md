@@ -1,5 +1,77 @@
 # @asyncapi/cli
 
+## 4.1.1
+
+### Patch Changes
+
+- 8eca9ed: fix: update redoc
+
+  - adde5d4: chore: update redoc
+
+  Signed-off-by: Shurtu-gal <ashishpadhy1729@gmail.com>
+
+## 4.1.0
+
+### Minor Changes
+
+- 70761f0: feat: add new custom resolver to fetch the reference from private repo
+
+  - 88ceb3d: add new custom resolver to fetch the reference from private repo
+  - 4974358: Update src/domains/services/validation.service.ts
+
+  Co-authored-by: Fran Méndez <fmvilas@gmail.com>
+
+  - c764ee6: update instruction in the test case for the validation success
+  - 2b9457f: fix test-cases
+  - 86bbfc4: fix lint issue across the project
+  - 6813ef0: Update 1875.md
+
+## 4.0.1
+
+### Patch Changes
+
+- 9b479fc: fix: lockfile fixed
+
+  - 92bb81b: fix:lockfile fixed
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
+## 4.0.0
+
+### Major Changes
+
+- 9d05d49: feat!: tests, flags and glee command code removed
+
+  - 7df684f: chore: major tests flags and glee command code removed
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
+  - 4a94f51: chore:glee removal complete
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
+## 3.6.0
+
+### Minor Changes
+
+- ca8101f: feat: output flag renamed and writing to file functionality added to diff command
+
+  - 8c2e940: fix:parse flag output renamed to save-output and saving diff output to file functionality added to diff command
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
+  - 59e1df9: chore:tests added for flags save-output in validate and diff command
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
+  - 7228a36: chore:cleanup
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
+  - ccb5388: chore:cleanup
+
+  Signed-off-by: Tushar Anand <tusharannand@gmail.com>
+
 ## 3.5.2
 
 ### Patch Changes
