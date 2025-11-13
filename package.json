@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
@@ -13,7 +13,7 @@
     "@asyncapi/converter": "^1.6.2",
     "@asyncapi/diff": "^0.5.0",
     "@asyncapi/generator": "^1.17.25",
-    "@asyncapi/modelina-cli": "^4.0.4",
+    "@asyncapi/modelina-cli": "^5.3.5",
     "@asyncapi/openapi-schema-parser": "^3.0.24",
     "@asyncapi/optimizer": "^1.0.4",
     "@asyncapi/parser": "^3.3.0",
