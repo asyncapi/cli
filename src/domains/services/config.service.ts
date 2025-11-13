@@ -95,13 +95,13 @@ export class ConfigService {
    */
   private static wildcardToRegex(pattern: string): RegExp {
     const rawPattern = String.raw`${pattern}`;
-    const escaped = rawPattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+    const escaped = rawPattern.replaceAll(/[.+?^${}()|[\]\\]/g, '\\$&');
     // Convert wildcards:
     // ** -> match any depth
     // *  -> match one segment
     const regexStr = escaped
-      .replace(/\*\*/g, '.*')// ** -> .*
-      .replace(/\*/g, '[^/]*');// * -> any chars except '/'
+      .replaceAll('**', '.*') // ** -> .*
+      .replaceAll('*', '[^/]*'); // * -> any chars except '/'
 
     // eslint-disable-next-line security/detect-non-literal-regexp
     return new RegExp(`^${regexStr}$`);
