@@ -95,7 +95,9 @@ export class ConfigService {
    */
   private static wildcardToRegex(pattern: string): RegExp {
     const rawPattern = String.raw`${pattern}`;
-    const escaped = rawPattern.replaceAll(/[.+?^${}()|[\]\\]/g, '\\$&');
+    // Sonar-safe regex escaping using String.raw
+    const escapePattern = '[.+?^${}()|[\\]\\\\]';
+    const escaped = rawPattern.replaceAll(new RegExp(escapePattern, 'g'), '\\$&');
     // Convert wildcards:
     // ** -> match any depth
     // *  -> match one segment
