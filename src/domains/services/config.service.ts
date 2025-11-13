@@ -97,7 +97,10 @@ export class ConfigService {
     const rawPattern = String.raw`${pattern}`;
     // Sonar-safe regex escaping using String.raw
     const escapePattern = '[.+?^${}()|[\\]\\\\]';
-    const escaped = rawPattern.replaceAll(new RegExp(escapePattern, 'g'), '\\$&');
+    const escaped = rawPattern.replaceAll(
+      new RegExp(escapePattern, 'g'),
+      String.raw`\$&` 
+    );
     // Convert wildcards:
     // ** -> match any depth
     // *  -> match one segment
