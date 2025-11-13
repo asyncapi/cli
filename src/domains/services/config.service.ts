@@ -94,11 +94,16 @@ export class ConfigService {
    * @param pattern - wildcard pattern
    */
   private static wildcardToRegex(pattern: string): RegExp {
-    const escaped = String.raw`${pattern}`.replaceAll(/[-/\\^$+?.()|[\]{}]/g, '\\$&');
-
+    const rawPattern = String.raw`${pattern}`;
+    const escaped = rawPattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+    // Convert wildcards:
+    // ** -> match any depth
+    // *  -> match one segment
     const regexStr = escaped
-      .replaceAll('**', '.*')
-      .replaceAll('*', '[^/]*');
-    return new RegExp(`^${regexStr}`);
+      .replace(/\*\*/g, '.*')// ** -> .*
+      .replace(/\*/g, '[^/]*');// * -> any chars except '/'
+
+    // eslint-disable-next-line security/detect-non-literal-regexp
+    return new RegExp(`^${regexStr}$`);
   }
 }
