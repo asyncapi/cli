@@ -12,9 +12,6 @@ on:
     branches:
       - master
 
-env:
-  CI: true
-
 jobs:
   docs-gen:
     name: 'Generate docs and create PR'
@@ -26,10 +23,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
       - name: Check package-lock version
-        uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master
+        # This workflow is from our own org repo and safe to reference by 'master'.
+        uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master # //NOSONAR
         id: lockversion
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "${{ steps.lockversion.outputs.version }}"
           cache: 'npm'
@@ -39,7 +37,7 @@ jobs:
       - name: Regenerate docs
         run: npm run generate:assets --if-present
       - name: Create Pull Request with updated docs
-        uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38 # uses 5.0.2 https://github.com/peter-evans/create-pull-request/releases/tag/v5.0.2
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # uses 7.0.8 https://github.com/peter-evans/create-pull-request/releases/tag/v7.0.8
         with:
           token: ${{ secrets.GH_TOKEN }}
           commit-message: 'chore: update generated docs'
@@ -50,7 +48,7 @@ jobs:
           branch: gen-docs-update/${{ github.job }}
       - name: Report workflow status to Slack
         if: failure() # Only, on failure, send a message on the 94_bot-failing-ci slack channel
-        uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 #using https://github.com/8398a7/action-slack/releases/tag/v3.15.1
+        uses: 8398a7/action-slack@28ba43ae48961b90635b50953d216767a6bea486 #using https://github.com/8398a7/action-slack/releases/tag/v3.16.2
         with:
           status: ${{ job.status }}
           fields: repo,action,workflow
