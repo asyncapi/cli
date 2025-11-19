@@ -12,7 +12,14 @@ import { OpenAPISchemaParser } from '@asyncapi/openapi-schema-parser';
 import { DiagnosticSeverity, Parser } from '@asyncapi/parser/cjs';
 import { RamlDTSchemaParser } from '@asyncapi/raml-dt-schema-parser';
 import { ProtoBuffSchemaParser } from '@asyncapi/protobuf-schema-parser';
-import { getDiagnosticSeverity } from '@stoplight/spectral-core';
+import { getDiagnosticSeverity, RulesetDefinition } from '@stoplight/spectral-core';
+import * as fs from 'fs';
+
+// Import Spectral bundler using require to avoid ts module resolution issues
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { bundleAndLoadRuleset } = require('@stoplight/spectral-ruleset-bundler/with-loader');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { fetch: spectralFetch } = require('@stoplight/spectral-runtime');
 import {
   html,
   json,
@@ -254,6 +261,27 @@ export class ValidationService extends BaseService {
   }
 
   /**
+   * Load a custom Spectral ruleset from file
+   */
+  async loadCustomRuleset(rulesetPath: string): Promise<RulesetDefinition> {
+    const absolutePath = path.resolve(process.cwd(), rulesetPath);
+
+    if (!fs.existsSync(absolutePath)) {
+      throw new Error(`Ruleset file not found: ${absolutePath}`);
+    }
+
+    if (rulesetPath.endsWith('.js') || rulesetPath.endsWith('.mjs') || rulesetPath.endsWith('.cjs')) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      return require(absolutePath);
+    }
+
+    return bundleAndLoadRuleset(absolutePath, {
+      fs,
+      fetch: spectralFetch,
+    });
+  }
+
+  /**
    * Validates an AsyncAPI document
    */
   async validateDocument(
@@ -263,9 +291,25 @@ export class ValidationService extends BaseService {
     try {
       const suppressAllWarnings = options.suppressAllWarnings ?? false;
       const suppressedWarnings = options.suppressWarnings ?? [];
+      const customRulesetPath = options.ruleset;
       let activeParser: Parser;
 
-      if (suppressAllWarnings || suppressedWarnings.length) {
+      if (customRulesetPath) {
+        const customRuleset = await this.loadCustomRuleset(customRulesetPath);
+        activeParser = new Parser({
+          ruleset: customRuleset,
+          __unstable: {
+            resolver: {
+              cache: false,
+              resolvers: [createHttpWithAuthResolver()],
+            },
+          },
+        });
+        activeParser.registerSchemaParser(AvroSchemaParser());
+        activeParser.registerSchemaParser(OpenAPISchemaParser());
+        activeParser.registerSchemaParser(RamlDTSchemaParser());
+        activeParser.registerSchemaParser(ProtoBuffSchemaParser());
+      } else if (suppressAllWarnings || suppressedWarnings.length) {
         activeParser = await this.buildAndRegisterCustomParser(
           specFile,
           suppressedWarnings,
@@ -292,8 +336,15 @@ export class ValidationService extends BaseService {
       };
 
       return this.createSuccessResult<ValidationResult>(result);
-    } catch (error) {
-      return this.handleServiceError(error);
+    } catch (error: any) {
+      let errorMessage = error?.message || error?.toString() || 'Unknown error';
+
+      if (error?.errors && Array.isArray(error.errors)) {
+        const errors = error.errors.map((e: any) => e?.message || e?.toString()).join('; ');
+        errorMessage = `${errorMessage}: ${errors}`;
+      }
+
+      return this.createErrorResult(errorMessage);
     }
   }
 
