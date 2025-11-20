@@ -5,7 +5,6 @@ import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
 import open from 'open';
-import next from 'next';
 import path from 'path';
 import yaml from 'js-yaml';
 import { blueBright, redBright } from 'picocolors';
@@ -22,6 +21,15 @@ export const DEFAULT_PORT = 0;
 
 function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
+}
+
+type NextFactory = typeof import('next')['default'];
+
+function resolveStudioNextInstance(studioPath: string): NextFactory {
+  const resolvedNextPath = require.resolve('next', { paths: [studioPath] });
+  // eslint-disable-next-line @typescript-eslint/no-var-requires,security/detect-non-literal-require
+  const nextModule = require(resolvedNextPath);
+  return (nextModule.default ?? nextModule) as NextFactory;
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
@@ -44,7 +52,8 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
   });
 
   const studioPath = path.dirname(require.resolve('@asyncapi/studio/package.json'));
-  const app = next({
+  const nextInstance = resolveStudioNextInstance(studioPath);
+  const app = nextInstance({
     dev: false,
     dir: studioPath,
     conf: {
@@ -232,4 +241,3 @@ function findPathsToWatchFromSchemaRef(filePath: string,baseDir:string) {
     }
   }
 }
-
