@@ -13,7 +13,7 @@ import { DiagnosticSeverity, Parser } from '@asyncapi/parser/cjs';
 import { RamlDTSchemaParser } from '@asyncapi/raml-dt-schema-parser';
 import { ProtoBuffSchemaParser } from '@asyncapi/protobuf-schema-parser';
 import { getDiagnosticSeverity, RulesetDefinition } from '@stoplight/spectral-core';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 
 // Import Spectral bundler using require to avoid ts module resolution issues
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -30,7 +30,7 @@ import {
   text,
 } from '@stoplight/spectral-formatters';
 import { red, yellow, green, cyan } from 'chalk';
-import { promises } from 'fs';
+import { promises } from 'node:fs';
 import path from 'path';
 
 import type { Diagnostic } from '@asyncapi/parser/cjs';
