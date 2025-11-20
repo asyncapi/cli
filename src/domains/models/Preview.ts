@@ -29,7 +29,7 @@ function resolveStudioNextInstance(studioPath: string): NextFactory {
   const resolvedNextPath = require.resolve('next', { paths: [studioPath] });
   // eslint-disable-next-line @typescript-eslint/no-var-requires,security/detect-non-literal-require
   const nextModule = require(resolvedNextPath);
-  return (nextModule.default ?? nextModule) as NextFactory;
+  return nextModule.default ?? nextModule;
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
