@@ -25,11 +25,12 @@ After installing Node.js and NPM, run the following command to install the Async
 ```sh
 npm install -g @asyncapi/cli
 ```
-To enable the autocomplete feature in the CLI for the shells **bash and zshrc**, there is a script that will run automatically and autocomplete is only support for **bash and zshrc** for the **powershell** refer to manually enabling  [autocomplete](https://www.asyncapi.com/docs/tools/cli/autocompleteEnabled) guide in ClI:
+To enable the autocomplete feature in the CLI for the shells **bash and zshrc**, there is a script that will run automatically and autocomplete is only supported for **bash and zshrc**. For **powershell** refer to instructions for [manually enabling autocomplete](https://www.asyncapi.com/docs/tools/cli/autocompleteEnabled) guide in ClI.
 
-After the ClI installation :
+After the ClI installation:
 
-if the configuration is not present logs will be:
+If the configuration is not present logs will be:
+
 ```sh
 ✅ Autocomplete configuration added to .zshrc.
 ```
@@ -50,8 +51,9 @@ To refresh the variables:
 Install [Docker](https://docs.docker.com/get-docker/) first, then use docker to build the image using the following command :
 ``` 
 docker build -t asyncapi/cli:latest . 
-``` 
-and run the image using the following command :
+```
+
+Run the image using the following command :
 
 ```bash
 docker run --rm -it \
