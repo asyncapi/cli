@@ -1,6 +1,7 @@
 import path from 'path';
 import { test } from '@oclif/test';
 import TestHelper, { createMockServer, stopMockServer } from '../helpers';
+import fs from 'fs-extra';
 import inquirer from 'inquirer';
 import {Optimizations, Outputs} from '../../src/apps/cli/commands/optimize';
 import { expect } from '@oclif/test';
@@ -134,6 +135,19 @@ describe('optimize', () => {
       .it('process without going to interactive mode.', (ctx, done) => {
         expect(ctx.stdout).to.contain('asyncapi: 2.0.0');
         expect(ctx.stderr).to.equal('');
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['optimize', unoptimizedFile, '--no-tty', '-o', 'new-file'])
+      .it('show path to the newly created file.', (ctx, done) => {
+        const pos = unoptimizedFile.lastIndexOf('.');
+        const optimizedFile = `${unoptimizedFile.substring(0, pos)}_optimized.${unoptimizedFile.substring(pos + 1)}`;
+        expect(ctx.stdout).to.contain(`✅ Success! Your optimized file has been created at ${optimizedFile}.`);
+        expect(ctx.stderr).to.equal('');
+        fs.unlinkSync(optimizedFile);
         done();
       });
   });

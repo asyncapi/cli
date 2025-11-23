@@ -170,7 +170,7 @@ export default class Optimize extends Command {
       case Outputs.NEW_FILE:
         await writeFile(newPath, optimizedDocument, { encoding: 'utf8' });
         this.log(
-          `✅ Success! Your optimized file has been created at ${chalk.blue({ newPath })}.`,
+          `✅ Success! Your optimized file has been created at ${chalk.blue(newPath)}.`,
         );
         break;
       case Outputs.OVERWRITE:
