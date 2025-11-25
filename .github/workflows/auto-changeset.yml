@@ -26,11 +26,6 @@ jobs:
         with:
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Checkout PR
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: gh pr checkout ${{ github.event.pull_request.number }}
-
       # This step has been added in such a way because
       # - Using simple `npm install` will install all the packages in the repo, which takes a lot of time.
       # - Using `npm install` doesn't work with all repositories, as some of them have a different structure/package manager.
@@ -55,27 +50,47 @@ jobs:
             const changesetContents = await getChangesetContents(pullRequest, github)
             return changesetContents;
 
+      # This is unsecured context: the checkout happens with pull_request_target event
+      # which means that if a PR comes from a fork, the code from the fork will be checked out from this point onwards
+      - name: Checkout PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr checkout "$PR_NUMBER"
+
       - name: Create changeset file
-        run: "echo -e ${{ steps.get_changeset_contents.outputs.result }} > .changeset/${{ github.event.pull_request.number }}.md"
+        env:
+          CHANGESET_CONTENTS: ${{ steps.get_changeset_contents.outputs.result }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          echo "$CHANGESET_CONTENTS" > ".changeset/${PR_NUMBER}.md"
 
       - name: Commit changeset file
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           git config --global user.name asyncapi-bot
           git config --global user.email info@asyncapi.io
-          git add .changeset/${{ github.event.pull_request.number }}.md
+          git add ".changeset/${PR_NUMBER}.md"
           # Check if there are any changes to commit
           if git diff --quiet HEAD; then
             echo "No changes to commit"
           else
-            git commit -m "chore: add changeset for PR #${{ github.event.pull_request.number }}"
+            git commit -m "chore: add changeset for PR #${PR_NUMBER}"
           fi
 
       - name: Push changeset file
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          REPO_FULL_NAME: ${{ github.repository }}
         run: |
-          git remote set-url origin https://github.com/${{ github.event.pull_request.head.repo.full_name }}
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          git remote set-url origin "https://github.com/${REPO_FULL_NAME}"
+          git push origin "HEAD:${HEAD_REF}"
+
+      - name: Go out from PR checkout
+        run: git checkout master
+      # Unsecured context ends here
       
       - name: Comment workflow
         env:
