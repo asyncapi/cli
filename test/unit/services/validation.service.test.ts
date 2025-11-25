@@ -6,20 +6,6 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 
-const customYamlRuleset = `
-extends: []
-rules:
-  asyncapi-latest-version:
-    description: Checks AsyncAPI version
-    recommended: true
-    severity: info
-    given: $.asyncapi
-    then:
-      function: pattern
-      functionOptions:
-        match: "^2"
-`;
-
 const spectralFunctionsPath = require.resolve('@stoplight/spectral-functions');
 const customJsRuleset = `
 const { pattern } = require('${spectralFunctionsPath.replace(/\\/g, '/')}');
@@ -309,15 +295,12 @@ describe('ValidationService', () => {
 
   describe('validateDocument() with custom rulesets', () => {
     let tempDir: string;
-    let yamlRulesetPath: string;
     let jsRulesetPath: string;
 
     beforeEach(async () => {
       tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'asyncapi-test-'));
-      yamlRulesetPath = path.join(tempDir, '.spectral.yaml');
       jsRulesetPath = path.join(tempDir, '.spectral.js');
 
-      await fs.writeFile(yamlRulesetPath, customYamlRuleset, 'utf8');
       await fs.writeFile(jsRulesetPath, customJsRuleset, 'utf8');
     });
 
@@ -326,28 +309,6 @@ describe('ValidationService', () => {
         await fs.rm(tempDir, { recursive: true });
       } catch (err) {
         // Ignore cleanup errors
-      }
-    });
-
-    // Note: YAML rulesets with custom Spectral functions have compatibility issues
-    // with the @asyncapi/parser's ruleset validation. Use JS rulesets for full
-    // function support, or simple YAML rulesets without custom functions.
-    it.skip('should validate with custom YAML ruleset', async () => {
-      const specFile = new Specification(validAsyncAPI);
-      const options = {
-        'diagnostics-format': 'stylish' as const,
-        ruleset: yamlRulesetPath
-      };
-
-      const result = await validationService.validateDocument(specFile, options);
-
-      if (!result.success) {
-        console.error('Test error:', JSON.stringify(result, null, 2));
-      }
-      expect(result.success).to.equal(true);
-      if (result.success) {
-        expect(result.data).to.have.property('status');
-        expect(result.data).to.have.property('diagnostics');
       }
     });
 
@@ -384,9 +345,22 @@ describe('ValidationService', () => {
     });
 
     it('should load custom ruleset using loadCustomRuleset method', async () => {
-      const ruleset = await validationService.loadCustomRuleset(yamlRulesetPath);
+      const ruleset = await validationService.loadCustomRuleset(jsRulesetPath);
       // eslint-disable-next-line no-unused-expressions
       expect(ruleset).to.exist;
+    });
+
+    it('should reject unsupported ruleset file types', async () => {
+      const yamlPath = path.join(tempDir, '.spectral.yaml');
+      await fs.writeFile(yamlPath, 'rules: {}', 'utf8');
+
+      try {
+        await validationService.loadCustomRuleset(yamlPath);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.message).to.include('Only JavaScript ruleset files');
+        expect(error.message).to.include('.js, .mjs, .cjs');
+      }
     });
   });
 });

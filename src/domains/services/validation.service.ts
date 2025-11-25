@@ -14,12 +14,6 @@ import { RamlDTSchemaParser } from '@asyncapi/raml-dt-schema-parser';
 import { ProtoBuffSchemaParser } from '@asyncapi/protobuf-schema-parser';
 import { getDiagnosticSeverity, RulesetDefinition } from '@stoplight/spectral-core';
 import * as fs from 'node:fs';
-
-// Import Spectral bundler using require to avoid ts module resolution issues
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { bundleAndLoadRuleset } = require('@stoplight/spectral-ruleset-bundler/with-loader');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { fetch: spectralFetch } = require('@stoplight/spectral-runtime');
 import {
   html,
   json,
@@ -270,15 +264,12 @@ export class ValidationService extends BaseService {
       throw new Error(`Ruleset file not found: ${absolutePath}`);
     }
 
-    if (rulesetPath.endsWith('.js') || rulesetPath.endsWith('.mjs') || rulesetPath.endsWith('.cjs')) {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      return require(absolutePath);
+    if (!rulesetPath.endsWith('.js') && !rulesetPath.endsWith('.mjs') && !rulesetPath.endsWith('.cjs')) {
+      throw new Error(`Only JavaScript ruleset files (.js, .mjs, .cjs) are supported. Provided: ${rulesetPath}`);
     }
 
-    return bundleAndLoadRuleset(absolutePath, {
-      fs,
-      fetch: spectralFetch,
-    });
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    return require(absolutePath);
   }
 
   /**

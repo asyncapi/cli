@@ -26,7 +26,7 @@ export const validateFlags = () => {
     }),
     ruleset: Flags.string({
       description:
-        'Path to custom Spectral ruleset file (e.g., .spectral.yaml or .spectral.js)',
+        'Path to custom Spectral ruleset file (.js, .mjs, or .cjs)',
       required: false,
     }),
   };
