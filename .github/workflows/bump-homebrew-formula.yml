@@ -15,13 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@v4
       - name: Get version from package.json
         id: extractver
         run: |
           VERSION=$(npm run get-version --silent)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-      - uses: mislav/bump-homebrew-formula-action@b3327118b2153c82da63fd681367004e12f802dc # v3.2
+      - uses: mislav/bump-homebrew-formula-action@9d4d820e1d00b99927bd36e67d41fff1cfc8bd07 # v2
         with:
           # A PR will be sent to github.com/Homebrew/homebrew-core to update AsyncAPI CLI formula:
           formula-name: asyncapi

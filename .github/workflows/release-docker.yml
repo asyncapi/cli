@@ -49,9 +49,9 @@ jobs:
           cache-to: type=gha
 
       - name:  Sync README.md and Description to Docker Hub
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@v4
 
-      - uses: meeDamian/sync-readme@e4943aa4de77c27d46dbc8406e2e626c458132bd # v1.0.6
+      - uses: meeDamian/sync-readme@82715041300710d9be7c726c9d6c683b70451087 # v1.0.6
         with:
           user: ${{ secrets.DOCKER_USERNAME }}
           pass: ${{ secrets.DOCKER_PASSWORD }}
@@ -103,7 +103,7 @@ jobs:
           cd github-action/
           ls -la
 
-      - uses: meeDamian/sync-readme@e4943aa4de77c27d46dbc8406e2e626c458132bd # v1.0.6
+      - uses: meeDamian/sync-readme@82715041300710d9be7c726c9d6c683b70451087 # v1.0.6
         with:
           user: ${{ secrets.DOCKER_USERNAME }}
           pass: ${{ secrets.DOCKER_PASSWORD }}
