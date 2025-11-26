@@ -70,7 +70,7 @@ jobs:
         run: npm test --if-present
       - if: failure() # Only, on failure, send a message on the 94_bot-failing-ci slack channel
         name: Report workflow run status to Slack
-        uses: 8398a7/action-slack@v3
+        uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 # v3.15.1
         with:
           status: ${{ job.status }}
           fields: repo,action,workflow
@@ -114,8 +114,7 @@ jobs:
 
       - if: steps.packagejson.outputs.exists == 'true'
         name: Publish to any of NPM, Github, and Docker Hub
-        #this step has 2 goals, it is either identifying that there is changeset file created and then this action creates a PR with version bump that will trigger release - or if it sees there is no changeset, and there are versions changes in package.json files, it publish new versions to NPM is they are not there yet
-        uses: changesets/action@v1
+        uses: changesets/action@aba318e9165b45b7948c60273e0b72fce0a64eb9 # v1.4.7
         id: release
         with:
           version: npm run bump:version
@@ -132,7 +131,7 @@ jobs:
           GIT_COMMITTER_EMAIL: info@asyncapi.io
       - if: failure() # Only, on failure, send a message on the 94_bot-failing-ci Slack channel
         name: Report workflow run status to Slack
-        uses: 8398a7/action-slack@v3
+        uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 # v3.15.1
         with:
           status: ${{ job.status }}
           fields: repo,action,workflow

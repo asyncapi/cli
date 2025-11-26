@@ -11,9 +11,10 @@ jobs:
     steps:
       - name: Get version without v character
         id: version
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
-          VERSION=${{ github.event.release.tag_name }}
-          VERSION_WITHOUT_V=${VERSION:1}
+          VERSION_WITHOUT_V=${TAG_NAME:1}
           echo "value=${VERSION_WITHOUT_V}" >> $GITHUB_OUTPUT
 
       - name : Checkout repository
@@ -22,19 +23,19 @@ jobs:
           ref: ${{ github.event.release.tag_name }}
 
       - name: Set Up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
 
       - name: Set Up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
 
       - name: login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
         with:
           push: true
           load: false
@@ -48,9 +49,9 @@ jobs:
           cache-to: type=gha
 
       - name:  Sync README.md and Description to Docker Hub
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4
 
-      - uses: meeDamian/sync-readme@v1.0.6
+      - uses: meeDamian/sync-readme@82715041300710d9be7c726c9d6c683b70451087 # v1.0.6
         with:
           user: ${{ secrets.DOCKER_USERNAME }}
           pass: ${{ secrets.DOCKER_PASSWORD }}
@@ -68,25 +69,26 @@ jobs:
 
       - name: Get version without v character
         id: version
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
-          VERSION=${{github.event.release.tag_name}}
-          VERSION_WITHOUT_V=${VERSION:1}
+          VERSION_WITHOUT_V=${TAG_NAME:1}
           echo "value=${VERSION_WITHOUT_V}" >> $GITHUB_OUTPUT
 
       - name: Set Up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
 
       - name: Set Up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3.3.0
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
         with:
           context: .
           file: ./github-action/Dockerfile
@@ -101,7 +103,7 @@ jobs:
           cd github-action/
           ls -la
 
-      - uses: meeDamian/sync-readme@v1.0.6
+      - uses: meeDamian/sync-readme@82715041300710d9be7c726c9d6c683b70451087 # v1.0.6
         with:
           user: ${{ secrets.DOCKER_USERNAME }}
           pass: ${{ secrets.DOCKER_PASSWORD }}
