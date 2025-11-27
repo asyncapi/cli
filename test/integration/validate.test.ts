@@ -84,6 +84,16 @@ describe('validate', () => {
         expect(ctx.stderr).to.equal('');
         done();
       });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['validate', './test/fixtures/external-refs/main.yaml'])
+      .it('should resolve external file references in same directory', (ctx, done) => {
+        expect(ctx.stdout).to.include('File ./test/fixtures/external-refs/main.yaml is valid');
+        expect(ctx.stderr).to.equal('');
+        done();
+      });
   });
 
   describe('with context names', () => {

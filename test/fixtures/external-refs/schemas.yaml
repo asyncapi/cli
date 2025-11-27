@@ -1,0 +1,20 @@
+components:
+  schemas:
+    UserSchema:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: User ID
+        name:
+          type: string
+          description: User name
+        email:
+          type: string
+          format: email
+          description: User email
+      required:
+        - id
+        - name
+        - email
