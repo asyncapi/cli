@@ -1,5 +1,23 @@
 # @asyncapi/cli
 
+## 4.1.2
+
+### Patch Changes
+
+- df62a63: fix: generate optimized output corresponding to the input format
+
+  - c756765: fix: generate optimized output corresponding to the input format
+
+## 4.1.1
+
+### Patch Changes
+
+- 8eca9ed: fix: update redoc
+
+  - adde5d4: chore: update redoc
+
+  Signed-off-by: Shurtu-gal <ashishpadhy1729@gmail.com>
+
 ## 4.1.0
 
 ### Minor Changes
