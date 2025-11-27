@@ -84,6 +84,16 @@ describe('validate', () => {
         expect(ctx.stderr).to.equal('');
         done();
       });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['validate', './test/fixtures/asyncapi_avro_invalid.yml', '--log-diagnostics'])
+      .it('fails and reports diagnostics when Avro schema is invalid', (ctx, done) => {
+        expect(process.exitCode).to.equal(1);
+        expect(ctx.stdout).to.contain('Errors');
+        done();
+      });
   });
 
   describe('with context names', () => {
