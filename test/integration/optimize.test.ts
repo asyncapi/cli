@@ -8,7 +8,8 @@ import { expect } from '@oclif/test';
 
 const testHelper = new TestHelper();
 const optimizedFilePath = './test/fixtures/specification.yml';
-const unoptimizedFile = './test/fixtures/dummyspec/unoptimizedSpec.yml';
+const unoptimizedYamlFile = './test/fixtures/dummyspec/unoptimizedSpec.yml';
+const unoptimizedJsonFile = './test/fixtures/dummyspec/unoptimizedSpec.json';
 const invalidFile = './test/fixtures/specification-invalid.yml';
 const asyncapiv3 = './test/fixtures/specification-v3.yml';
 
@@ -131,7 +132,7 @@ describe('optimize', () => {
     test
       .stderr()
       .stdout()
-      .command(['optimize', unoptimizedFile, '--no-tty'])
+      .command(['optimize', unoptimizedYamlFile, '--no-tty'])
       .it('process without going to interactive mode.', (ctx, done) => {
         expect(ctx.stdout).to.contain('asyncapi: 2.0.0');
         expect(ctx.stderr).to.equal('');
@@ -141,12 +142,27 @@ describe('optimize', () => {
     test
       .stderr()
       .stdout()
-      .command(['optimize', unoptimizedFile, '--no-tty', '-o', 'new-file'])
-      .it('show path to the newly created file.', (ctx, done) => {
-        const pos = unoptimizedFile.lastIndexOf('.');
-        const optimizedFile = `${unoptimizedFile.substring(0, pos)}_optimized.${unoptimizedFile.substring(pos + 1)}`;
+      .command(['optimize', unoptimizedYamlFile, '--no-tty', '-o', 'new-file'])
+      .it('generate YAML output against YAML input and show its path.', (ctx, done) => {
+        const pos = unoptimizedYamlFile.lastIndexOf('.');
+        const optimizedFile = `${unoptimizedYamlFile.substring(0, pos)}_optimized.${unoptimizedYamlFile.substring(pos + 1)}`;
         expect(ctx.stdout).to.contain(`✅ Success! Your optimized file has been created at ${optimizedFile}.`);
         expect(ctx.stderr).to.equal('');
+        expect(fs.readFileSync(optimizedFile, 'utf8')).to.contain('asyncapi: 2.0.0');
+        fs.unlinkSync(optimizedFile);
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['optimize', unoptimizedJsonFile, '--no-tty', '-o', 'new-file'])
+      .it('generate JSON output against JSON input and show its path.', (ctx, done) => {
+        const pos = unoptimizedJsonFile.lastIndexOf('.');
+        const optimizedFile = `${unoptimizedJsonFile.substring(0, pos)}_optimized.${unoptimizedJsonFile.substring(pos + 1)}`;
+        expect(ctx.stdout).to.contain(`✅ Success! Your optimized file has been created at ${optimizedFile}.`);
+        expect(ctx.stderr).to.equal('');
+        expect(fs.readFileSync(optimizedFile, 'utf8')).to.contain('"asyncapi": "2.0.0"');
         fs.unlinkSync(optimizedFile);
         done();
       });
@@ -159,7 +175,7 @@ describe('optimize', () => {
       })
       .stderr()
       .stdout()
-      .command(['optimize', unoptimizedFile])
+      .command(['optimize', unoptimizedYamlFile])
       .it('interactive terminal, only remove components and outputs to terminal', (ctx, done) => {
         expect(ctx.stdout).to.contain('asyncapi: 2.0.0');
         expect(ctx.stderr).to.equal('');
