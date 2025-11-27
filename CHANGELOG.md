@@ -1,5 +1,13 @@
 # @asyncapi/cli
 
+## 4.1.2
+
+### Patch Changes
+
+- df62a63: fix: generate optimized output corresponding to the input format
+
+  - c756765: fix: generate optimized output corresponding to the input format
+
 ## 4.1.1
 
 ### Patch Changes

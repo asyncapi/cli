@@ -15,11 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Get version from package.json
         id: extractver
-        run: echo "version=$(npm run get-version --silent)" >> $GITHUB_OUTPUT
-      - uses: mislav/bump-homebrew-formula-action@v2
+        run: |
+          VERSION=$(npm run get-version --silent)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - uses: mislav/bump-homebrew-formula-action@9d4d820e1d00b99927bd36e67d41fff1cfc8bd07 # v2
         with:
           # A PR will be sent to github.com/Homebrew/homebrew-core to update AsyncAPI CLI formula:
           formula-name: asyncapi
@@ -31,7 +33,7 @@ jobs:
           COMMITTER_TOKEN: ${{ secrets.GH_TOKEN_BOT_EVE }}
       - if: failure() # Only, on failure, send a message on the 94_bot-failing-ci slack channel
         name: Report workflow run status to Slack
-        uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 #using https://github.com/8398a7/action-slack/releases/tag/v3.15.1
+        uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 # v3.15.1
         with:
           status: ${{ job.status }}
           fields: repo,action,workflow
