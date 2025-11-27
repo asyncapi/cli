@@ -3,95 +3,200 @@ title: 'CLI Architecture'
 weight: 40
 ---
 
-The AsyncAPI CLI uses oclif (Open CLI Framework) as its core framework, which enables developers to build powerful and scalable command-line applications.
+# CLI Architecture
 
-**Structure of the AsyncAPI CLI**: The CLI is primarily divided into two components: commands and the core part.
+## Overview
 
-1. **Command Component**: The commands include all the necessary functionalities that help developers interact with features like creating new AsyncAPI projects, validating AsyncAPI files, formatting AsyncAPI files, and more.  
-2. **Core Component**: The core part of the CLI contains various utilities that facilitate the efficient creation of new commands.
+The AsyncAPI CLI is built with [oclif](https://oclif.io/) and provides both command-line operations and a REST API server for working with AsyncAPI specifications.
 
----
+## Architecture
 
-### Detailed Explanation of Key Directories in the CLI
+The CLI follows a **layered architecture**:
 
-#### `src/commands/`
-- **Purpose:** Implements the CLI commands available to the user.
-- **Subdirectories:**
-  - `config/`: Stores configuration-related files for commands.
-  - `generate/`: Generates typed models or other artifacts like clients, applications, or documentation using AsyncAPI Generator templates.
-    - **Files:**
-      - `fromTemplate.ts`: Contains logic for generating files using templates.
-      - `models.ts`: Defines the models used during generation.
-  - `new/`: Create a new AsyncAPI project, specification files, or templates for clients and applications.
-    - **Files:**
-      - `file.ts`: Handles file creation logic.
-      - `template.ts`: Manages templates for new projects.
-  - `start/`: Implements starting functionalities like launching a local server or studio.
-    - **Files:**
-      - `studio.ts`: Integrates with the AsyncAPI Studio.
+```
+┌─────────────────────────────────────────────┐
+│  Entry Points                                │
+│  ┌──────────┐         ┌──────────┐          │
+│  │   CLI    │         │   API    │          │
+│  │  (oclif) │         │ (Express)│          │
+│  └────┬─────┘         └────┬─────┘          │
+└───────┼────────────────────┼────────────────┘
+        └────────┬───────────┘
+                 │
+    ┌────────────▼─────────────┐
+    │   Domain Services        │
+    │  Validation, Generator,  │
+    │  Convert, Config, etc.   │
+    └────────────┬─────────────┘
+                 │
+    ┌────────────▼─────────────┐
+    │   Domain Models          │
+    │  Specification, Context  │
+    └────────────┬─────────────┘
+                 │
+    ┌────────────▼─────────────┐
+    │   Utilities              │
+    │  Logger, Helpers         │
+    └──────────────────────────┘
+```
 
-- **Standalone Files:**
-  - `bundle.ts`: Bundles one or multiple AsyncAPI documents and their references together.
-  - `convert.ts`: Converts AsyncAPI documents from older to newer versions or transforms OpenAPI/Postman-collection documents into AsyncAPI.
-  - `diff.ts`: Compares two AsyncAPI documents.
-  - `format.ts`: Converts AsyncAPI documents from any format to YAML, YML, or JSON.
-  - `optimize.ts`: Optimizes AsyncAPI documents for performance.
-  - `pretty.ts`: Beautifies the AsyncAPI spec file (indentation, styling) in place or outputs the formatted spec to a new file.
-  - `validate.ts`: Validates AsyncAPI documents for correctness.
+## Directory Structure
 
----
+```
+src/
+├── apps/                    # Application Layer
+│   ├── cli/                # CLI commands & internals
+│   └── api/                # REST API (Express)
+│
+├── domains/                # Domain Layer
+│   ├── models/            # Specification, Context
+│   └── services/          # Business logic
+│
+├── errors/                 # Custom errors
+├── interfaces/             # TypeScript types
+└── utils/                  # Utilities
+```
 
-#### `src/core/`
-- **Purpose:** Provides foundational components and utilities for the CLI.
-- **Subdirectories:**
-  - `errors/`: Centralized error definitions.
-  - `flags/`: Defines CLI flags and their behavior.
-  - `hooks/`: Event hooks used for customization.
-  - `models/`: Core data models used across the application.
-  - `utils/`: Utility functions for common operations.
+## Core Components
 
-- **Standalone Files:**
-  - `base.ts`: Base class or logic for CLI commands.
-  - `global.d.ts`: Global TypeScript definitions.
-  - `globals.ts`: Stores global variables and configurations.
-  - `parser.ts`: Parses AsyncAPI documents.
+### CLI Application (`src/apps/cli/`)
 
----
+**Entry Points:**
+- `bin/run` - Development (NODE_ENV=development)
+- `bin/run_bin` - Production (NODE_ENV=production)
 
-#### `test/`
-- **Purpose:** Implements the test suite for the CLI.
-- **Subdirectories:**
-  - `fixtures/`: Contains mock data or files for testing.
-  - `hooks/`: Tests related to hooks.
-  - `integration/`: Integration tests to verify end-to-end functionality.
-  - `system/`: System-level tests.
-  - `unit/`: Unit tests for individual modules or functions.
+**Base Command** (`internal/base.ts`):
+- Metrics collection
+- AsyncAPI parser integration
+- Error handling
+- Specification management
 
----
+**Commands:**
+- **Core**: `validate`, `convert`, `format`, `optimize`, `diff`, `bundle`
+- **Generation**: `generate client`, `generate models`, `generate fromTemplate`
+- **Config**: `config context`, `config analytics`, `config versions`
+- **Utility**: `new file`, `new template`, `start api|studio|preview`, `pretty`
 
-### Use Cases
+### API Server (`src/apps/api/`)
 
-1. **Generate AsyncAPI Artifacts:**
-   - Use the `generate` command to create client/server code, documentation, or other artifacts based on AsyncAPI templates.
+**Controllers:** `/v1/validate`, `/v1/parse`, `/v1/generate`, `/v1/convert`, `/v1/bundle`, `/v1/diff`, `/v1/docs`, `/v1/help`, `/v1/version`
 
-2. **Create New Projects:**
-   - The `new` command helps users scaffold new AsyncAPI projects with predefined templates.
+**Features:**
+- Express with security (Helmet), CORS, compression
+- Problem middleware (RFC 7807) for errors
+- Request/response logging
 
-3. **Validate AsyncAPI Documents:**
-   - The `validate` command ensures AsyncAPI documents conform to the specification.
+### Domain Services (`src/domains/services/`)
 
-4. **Optimize and Format Documents:**
-   - The `optimize` and `pretty` commands provide tools for improving document readability and performance.
+All services extend `BaseService` and return `ServiceResult<T>`:
 
-5. **Compare Documents:**
-   - The `diff` command enables comparison between two AsyncAPI documents to track changes.
+```typescript
+interface ServiceResult<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  diagnostics?: any[];
+}
+```
 
-6. **Integration with AsyncAPI Studio:**
-   - The `start` command integrates with the AsyncAPI Studio for editing and visualizing documents.
+**Services:**
+- `ValidationService` - Validates specs with Spectral, calculates scores
+- `GeneratorService` - Generates code/models (v1 & v2 generators)
+- `ConvertService` - Converts between AsyncAPI/OpenAPI formats
+- `ConfigService` - Manages CLI config and contexts
+- `ArchiverService` - Creates ZIP archives
 
-7. **Convert Between Formats:**
-   - The `convert` command supports converting AsyncAPI documents between formats like YAML and JSON.
+### Domain Models (`src/domains/models/`)
 
----
+**Specification** (`SpecificationFile.ts`):
+- Loads from file, URL, or context
+- Auto-detects `asyncapi.json|yml|yaml` in current directory
+- Supports proxy configuration for URLs
 
-This structure ensures the CLI is modular, scalable, and easy to maintain. Let me know if you need further clarification or additional details!
+**Context** (`Context.ts`):
+- Manages multiple AsyncAPI contexts
+- Stored in `~/.asyncapi/`
+- Tracks current active context
+
+### Error Handling (`src/errors/`)
+
+Custom error classes:
+- `ContextError` - Context-related errors
+- `SpecificationFileError` - File loading errors
+- `ValidationError` - Validation errors
+- `GeneratorError` - Generator errors
+- `DiffError` - Diff operation errors
+
+## Execution Flow
+
+### CLI Command
+
+```
+User Command → Entry Point → oclif → Base Command → Command.run()
+                                                      ↓
+                                              Domain Service
+                                                      ↓
+                                              ServiceResult
+```
+
+### API Request
+
+```
+HTTP Request → Express → Controller → Domain Service → ServiceResult → HTTP Response
+```
+
+## Build Process
+
+1. Clean `lib/` directory
+2. Generate types (languages, etc.)
+3. Compile TypeScript
+4. Resolve path aliases
+5. Generate oclif manifest
+
+## Technology Stack
+
+**Core:**
+- oclif (CLI framework)
+- TypeScript
+- Express (API server)
+
+**AsyncAPI Tools:**
+- @asyncapi/parser, @asyncapi/generator, @asyncapi/converter
+- @asyncapi/bundler, @asyncapi/diff, @asyncapi/optimizer
+- @stoplight/spectral-cli
+
+**Supporting:**
+- winston (logging), ajv (validation), chalk (colors)
+- @clack/prompts (interactive prompts)
+
+## Extension Points
+
+### Add New Command
+1. Create file in `src/apps/cli/commands/`
+2. Extend base `Command` class
+3. Define flags/args
+4. Implement `run()` method
+5. Use domain services
+
+### Add New API Endpoint
+1. Create controller in `src/apps/api/controllers/`
+2. Implement `Controller` interface
+3. Register in `src/apps/api/index.ts`
+4. Use domain services
+
+### Add New Service
+1. Create file in `src/domains/services/`
+2. Extend `BaseService`
+3. Return `ServiceResult<T>`
+4. Use in commands/controllers
+
+## Configuration
+
+**CLI Context:** `~/.asyncapi/contexts.json`, `~/.asyncapi/.current`
+
+**Analytics:** `~/.asyncapi-analytics` (configurable via `asyncapi config analytics`)
+
+**Environment Variables:**
+- `NODE_ENV` - `development` | `production` | `test`
+- `PORT` - API server port (default: 3000)
+- `ASYNCAPI_METRICS_*` - Metrics configuration
