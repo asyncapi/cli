@@ -57,6 +57,7 @@ export default class Validate extends Command {
       ...flags,
       suppressWarnings: flags['suppressWarnings'],
       suppressAllWarnings: flags['suppressAllWarnings'],
+      ruleset: flags['ruleset'],
     };
 
     const result = await this.validationService.validateDocument(
