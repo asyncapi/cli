@@ -184,14 +184,15 @@ export class ValidationService extends BaseService {
     const customParserOptions = {
       ...parserOptions,
       __unstable: {
+        ...parserOptions.__unstable,
         resolver: {
+          ...parserOptions.__unstable?.resolver,
           cache: false,
           resolvers: [
             createHttpWithAuthResolver(),
             ...(parserOptions.__unstable?.resolver?.resolvers || [])
           ],
         },
-        ...parserOptions.__unstable?.resolver,
       },
     };
 
