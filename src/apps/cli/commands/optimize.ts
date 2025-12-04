@@ -3,6 +3,7 @@ import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
 import Command from '@cli/internal/base';
 import { ValidationError } from '@errors/validation-error';
 import { load, retrieveFileFormat } from '@models/SpecificationFile';
+import { applyProxyConfiguration, extractProxyConfig } from '@/utils/proxy';
 import * as inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
@@ -59,25 +60,23 @@ export default class Optimize extends Command {
 
   async run() {
     const { args, flags } = await this.parse(Optimize); //NOSONAR
-    let filePath = args['spec-file'];
-    const proxyHost = flags['proxyHost'];
-    const proxyPort = flags['proxyPort'];
-    if (proxyHost && proxyPort) {
-      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
-      filePath = `${filePath}+${proxyUrl}`; // Update filePath with proxyUrl
-    }
+    const filePath = args['spec-file'];
+    const proxyConfig = extractProxyConfig(flags);
+    const filePathWithProxy = applyProxyConfiguration(filePath, proxyConfig.proxyHost, proxyConfig.proxyPort);
+    
     try {
-      this.specFile = await load(filePath);
-    } catch (err: any) {
-      if (err.message.includes('Failed to download')) {
+      this.specFile = await load(filePathWithProxy);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      if (errorMessage.includes('Failed to download')) {
         throw new Error(
           'Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.',
         );
-      } else if (filePath) {
+      } else if (filePathWithProxy) {
         this.error(
           new ValidationError({
             type: 'invalid-file',
-            filepath: filePath,
+            filepath: filePathWithProxy,
           }),
         );
       } else {

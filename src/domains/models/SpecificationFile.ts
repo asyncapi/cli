@@ -123,7 +123,7 @@ export class Specification {
         }
       }
     } catch (error) {
-      console.log(error);
+      // Error is already handled by ErrorLoadingSpec
       throw new ErrorLoadingSpec('url', targetUrl);
     }
 
@@ -289,23 +289,25 @@ export function retrieveFileFormat(content: string): fileFormat | undefined {
   }
 }
 
-export function convertToYaml(spec: string) {
+export function convertToYaml(spec: string): string | undefined {
   try {
     // JS object -> YAML string
     const jsonContent = yaml.load(spec);
     return yaml.dump(jsonContent);
   } catch (err) {
-    console.error(err);
+    // Return undefined on error - caller should handle
+    return undefined;
   }
 }
 
-export function convertToJSON(spec: string) {
+export function convertToJSON(spec: string): string | undefined {
   try {
     // JSON or YAML String -> JS object
     const jsonContent = yaml.load(spec);
     // JS Object -> pretty JSON string
     return JSON.stringify(jsonContent, null, 2);
   } catch (err) {
-    console.error(err);
+    // Return undefined on error - caller should handle
+    return undefined;
   }
 }

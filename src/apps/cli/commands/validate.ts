@@ -4,6 +4,7 @@ import { load } from '@models/SpecificationFile';
 import { specWatcher } from '@cli/internal/globals';
 import { validateFlags } from '@cli/internal/flags/validate.flags';
 import { proxyFlags } from '@cli/internal/flags/proxy.flags';
+import { applyProxyConfiguration, extractProxyConfig } from '@/utils/proxy';
 import {
   ServiceResult,
   ValidationOptions,
@@ -32,16 +33,11 @@ export default class Validate extends Command {
 
   async run() {
     const { args, flags } = await this.parse(Validate); //NOSONAR
-    let filePath = args['spec-file'];
-    const proxyHost = flags['proxyHost'];
-    const proxyPort = flags['proxyPort'];
+    const filePath = args['spec-file'];
+    const proxyConfig = extractProxyConfig(flags);
+    const filePathWithProxy = applyProxyConfiguration(filePath, proxyConfig.proxyHost, proxyConfig.proxyPort);
 
-    if (proxyHost && proxyPort) {
-      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
-      filePath = `${filePath}+${proxyUrl}`; // Update filePath with proxyUrl
-    }
-
-    this.specFile = await load(filePath);
+    this.specFile = await load(filePathWithProxy);
     const watchMode = flags.watch;
 
     if (watchMode) {
@@ -85,7 +81,7 @@ export default class Validate extends Command {
 
   private async handleDiagnostics(
     result: ServiceResult<ValidationResult>,
-    flags: any,
+    flags: Record<string, unknown>,
   ): Promise<void> {
     const diagnosticsFormat = flags['diagnostics-format'] ?? 'stylish';
     const writeOutput = flags['save-output'];

@@ -216,22 +216,19 @@ export async function editContext(contextName: string, pathToFile: string) {
 }
 
 export async function loadContextFile(): Promise<IContextFile> {
-  let fileContent: IContextFile;
-
-  // If the context file cannot be read then it's a 'MissingContextFileError'
-  // error.
+  // Read file once and reuse content
+  let fileContentString: string;
   try {
-    await readFile(CONTEXT_FILE_PATH, { encoding: 'utf8' });
+    fileContentString = await readFile(CONTEXT_FILE_PATH, { encoding: 'utf8' });
   } catch (e) {
     throw new MissingContextFileError();
   }
 
   // If the context file cannot be parsed then it's a
   // 'ContextFileWrongFormatError' error.
+  let fileContent: IContextFile;
   try {
-    fileContent = JSON.parse(
-      await readFile(CONTEXT_FILE_PATH, { encoding: 'utf8' }),
-    );
+    fileContent = JSON.parse(fileContentString);
   } catch (e) {
     // https://stackoverflow.com/questions/29797946/handling-bad-json-parse-in-node-safely
     throw new ContextFileWrongFormatError(CONTEXT_FILE_PATH);

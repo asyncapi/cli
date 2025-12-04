@@ -6,6 +6,7 @@ import { SpecificationFileNotFound } from '@errors/specification-file';
 import type { AsyncAPIConvertVersion } from '@asyncapi/converter';
 import { cyan } from 'picocolors';
 import { proxyFlags } from '@cli/internal/flags/proxy.flags';
+import { applyProxyConfiguration, extractProxyConfig } from '@/utils/proxy';
 import specs from '@asyncapi/specs';
 import { convertFlags } from '@cli/internal/flags/convert.flags';
 import { ConversionService } from '@services/convert.service';
@@ -32,17 +33,13 @@ export default class Convert extends Command {
 
   async run() {
     const { args, flags } = await this.parse(Convert);
-    let filePath = args['spec-file'];
-    const proxyHost = flags['proxyHost'];
-    const proxyPort = flags['proxyPort'];
-    if (proxyHost && proxyPort) {
-      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
-      filePath = `${filePath}+${proxyUrl}`; // Update filePath with proxyUrl
-    }
+    const filePath = args['spec-file'];
+    const proxyConfig = extractProxyConfig(flags);
+    const filePathWithProxy = applyProxyConfiguration(filePath, proxyConfig.proxyHost, proxyConfig.proxyPort);
 
     try {
       // LOAD FILE
-      this.specFile = await load(filePath);
+      this.specFile = await load(filePathWithProxy);
       // eslint-disable-next-line sonarjs/no-duplicate-string
       this.metricsMetadata.to_version = flags['target-version'];
       const conversionOptions = {
@@ -81,7 +78,7 @@ export default class Convert extends Command {
   }
 
   // Helper function to handle errors
-  private handleError(err: any, filePath: string, flags: any) {
+  private handleError(err: unknown, filePath: string, flags: Record<string, unknown>) {
     if (err instanceof SpecificationFileNotFound) {
       this.error(
         new ValidationError({

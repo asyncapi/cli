@@ -58,7 +58,7 @@ export default class Template extends BaseGeneratorCommand {
     const options = await this.buildGeneratorOptions(flags, parsedFlags);
 
     // Apply proxy configuration using base class method
-    asyncapi = this.applyProxyConfiguration(asyncapi, proxyHost, proxyPort);
+    asyncapi = this.applyProxyConfigurationToPath(asyncapi, proxyHost, proxyPort);
     
     const asyncapiInput = await this.loadAsyncAPIInput(asyncapi);
 

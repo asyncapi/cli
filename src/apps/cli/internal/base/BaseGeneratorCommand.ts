@@ -9,6 +9,7 @@ import { GeneratorError } from '@errors/generator-error';
 import { Parser } from '@asyncapi/parser';
 import { isCancel } from '@clack/prompts';
 import { proxyFlags } from '@cli/internal/flags/proxy.flags';
+import { applyProxyConfiguration } from '@/utils/proxy';
 import { generateArgs } from '@cli/internal/args/generate.args';
 import { watcherHandler, runWatchMode } from '@utils/generate/watcher';
 import { getMapBaseUrlToFolderResolver } from '@utils/generate/mapBaseUrl';
@@ -43,7 +44,7 @@ export abstract class BaseGeneratorCommand extends Command {
   parser = new Parser();
   protected generatorService = new GeneratorService();
 
-  protected async buildGeneratorOptions(flags: any, parsedFlags: ParsedFlags): Promise<GeneratorOptions> {
+  protected async buildGeneratorOptions(flags: Record<string, unknown>, parsedFlags: ParsedFlags): Promise<GeneratorOptions> {
     return {
       forceWrite: flags['force-write'],
       install: flags.install,
@@ -60,12 +61,8 @@ export abstract class BaseGeneratorCommand extends Command {
     };
   }
 
-  protected applyProxyConfiguration(asyncapi: string, proxyHost?: string, proxyPort?: string): string {
-    if (proxyHost && proxyPort) {
-      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
-      return `${asyncapi}+${proxyUrl}`;
-    }
-    return asyncapi;
+  protected applyProxyConfigurationToPath(asyncapi: string, proxyHost?: string, proxyPort?: string): string {
+    return applyProxyConfiguration(asyncapi, proxyHost, proxyPort);
   }
 
   protected async handleWatchMode(
@@ -73,15 +70,15 @@ export abstract class BaseGeneratorCommand extends Command {
     template: string,
     output: string,
     options: GeneratorOptions,
-    genOption: any,
+    genOption: Record<string, unknown>,
     interactive: boolean
   ): Promise<void> {
     const watcher = watcherHandler(this, asyncapi, template, output, options, genOption, interactive);
     await runWatchMode(this, asyncapi, template, output, AsyncAPIGenerator, watcher);
   }
 
-  protected buildGenOption(flags: any, parsedFlags: ParsedFlags): any {
-    const genOption: any = {};
+  protected buildGenOption(flags: Record<string, unknown>, parsedFlags: ParsedFlags): Record<string, unknown> {
+    const genOption: Record<string, unknown> = {};
     if (flags['map-base-url']) {
       genOption.resolve = { resolve: getMapBaseUrlToFolderResolver(parsedFlags.mapBaseUrlToFolder) };
     }
@@ -93,7 +90,7 @@ export abstract class BaseGeneratorCommand extends Command {
     template: string,
     output: string,
     options: GeneratorOptions,
-    genOption: any,
+    genOption: Record<string, unknown>,
     interactive = true
   ): Promise<void> {
     const specification = await this.loadSpecificationSafely(asyncapi);
@@ -113,7 +110,7 @@ export abstract class BaseGeneratorCommand extends Command {
   }
 
   protected async parseCommonArgs(
-    args: Record<string, any>,
+    args: Record<string, unknown>,
     output?: string
   ): Promise<{ asyncapi: string; output: string }> {
     let asyncapi = args['asyncapi'];
@@ -142,7 +139,7 @@ export abstract class BaseGeneratorCommand extends Command {
     return (await load(asyncapi)) || (await load());
   }
 
-  protected handleCancellation(value: any): void {
+  protected handleCancellation(value: unknown): void {
     if (isCancel(value)) {
       this.error('Operation cancelled', { exit: 1 });
     }
@@ -151,7 +148,7 @@ export abstract class BaseGeneratorCommand extends Command {
   protected async loadSpecificationSafely(asyncapi: string | undefined): Promise<Specification> {
     try {
       return await load(asyncapi);
-    } catch (err: any) {
+    } catch (err: unknown) {
       return this.error(
         new ValidationError({
           type: 'invalid-file',
