@@ -37,7 +37,7 @@ export default class PreviewStudio extends Command {
       }
     }
     this.metricsMetadata.port = previewPort;
-    await startPreview(
+    startPreview(
       filePath as string,
       flags.base,
       flags.baseDir,
