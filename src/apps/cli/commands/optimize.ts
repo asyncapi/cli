@@ -2,7 +2,7 @@ import { Args } from '@oclif/core';
 import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
 import Command from '@cli/internal/base';
 import { ValidationError } from '@errors/validation-error';
-import { load } from '@models/SpecificationFile';
+import { load, retrieveFileFormat } from '@models/SpecificationFile';
 import * as inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
@@ -127,7 +127,8 @@ export default class Optimize extends Command {
     }
 
     try {
-      const optimizedDocument = optimizer.getOptimizedDocument({
+      const fileFormat = retrieveFileFormat(this.specFile.text());
+      let optimizedDocument = optimizer.getOptimizedDocument({
         rules: {
           moveDuplicatesToComponents: this.selectedOptimizations.includes(
             Optimizations.MOVE_DUPLICATES_TO_COMPONENTS,
@@ -147,8 +148,11 @@ export default class Optimize extends Command {
             DisableOptimizations.SCHEMA,
           ),
         },
-        output: Output.YAML,
+        output: fileFormat === 'json' ? Output.JSON : Output.YAML,
       });
+      if (fileFormat === 'json') {
+        optimizedDocument = JSON.stringify((JSON.parse(optimizedDocument)), null, 2);
+      }
 
       this.collectMetricsData(report);
 
@@ -159,7 +163,7 @@ export default class Optimize extends Command {
         const pos = specPath.lastIndexOf('.');
         newPath = `${specPath.substring(0, pos)}_optimized.${specPath.substring(pos + 1)}`;
       } else {
-        newPath = 'optimized-asyncapi.yaml';
+        newPath = `optimized-asyncapi.${fileFormat}`;
       }
 
       switch (this.outputMethod) {
@@ -170,11 +174,11 @@ export default class Optimize extends Command {
       case Outputs.NEW_FILE:
         await writeFile(newPath, optimizedDocument, { encoding: 'utf8' });
         this.log(
-          `✅ Success! Your optimized file has been created at ${chalk.blue({ newPath })}.`,
+          `✅ Success! Your optimized file has been created at ${chalk.blue(newPath)}.`,
         );
         break;
       case Outputs.OVERWRITE:
-        await writeFile(specPath ?? 'asyncapi.yaml', optimizedDocument, {
+        await writeFile(specPath ?? `asyncapi.${fileFormat}`, optimizedDocument, {
           encoding: 'utf8',
         });
         this.log(
