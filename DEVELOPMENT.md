@@ -151,7 +151,7 @@ feat: add new feature
 
 If you encounter any issues during development or testing, please check the following:
 
-1. Ensure you're using the correct Node.js version (18.12.0 or higher) and npm version (8.19.0 or higher).
+1. Ensure you're using the correct Node.js version (24.0.0 or higher) and npm version (8.19.0 or higher).
 2. Clear the `node_modules` directory and reinstall dependencies if you encounter unexpected behavior.
 3. For Docker-related issues, make sure Docker is running and you have sufficient permissions.
 

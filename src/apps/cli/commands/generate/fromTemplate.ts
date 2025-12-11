@@ -82,32 +82,16 @@ export default class Template extends BaseGeneratorCommand {
       );
     }
 
-    if (flags['use-new-generator']) {
-      this.log(inProgressMsg);
-      const result = await this.generatorService.generateUsingNewGenerator(
-        specification,
-        template,
-        output,
-        options as any, // GeneratorService expects different options interface
-        genOption,
-      );
-      if (!result.success) {
-        throw new GeneratorError(new Error(result.error));
-      } else {
-        this.log(result.data?.logs?.join('\n'));
-      }
-    } else {
-      const result = await this.generatorService.generate(
-        specification,
-        template,
-        output,
-        options as any, // GeneratorService expects different options interface
-        genOption,
-        interactive,
-      );
-      if (!result.success) {
-        throw new GeneratorError(new Error(result.error));
-      }
+    const result = await this.generatorService.generate(
+      specification,
+      template,
+      output,
+      options as any, // GeneratorService expects different options interface
+      genOption,
+      interactive,
+    );
+    if (!result.success) {
+      throw new GeneratorError(new Error(result.error));
     }
     
     if (watchTemplate) {

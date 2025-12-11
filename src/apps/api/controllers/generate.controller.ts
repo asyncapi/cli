@@ -41,11 +41,7 @@ export class GenerateController implements Controller {
         templateParams: parameters,
       };
 
-      const generateFunc = req.body['use-fallback-generator']
-        ? this.generatorService.generate.bind(this.generatorService)
-        : this.generatorService.generateUsingNewGenerator.bind(
-          this.generatorService,
-        );
+      const generateFunc = this.generatorService.generate.bind(this.generatorService);
 
       try {
         const result = await generateFunc(

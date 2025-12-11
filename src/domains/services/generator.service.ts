@@ -7,7 +7,6 @@ import { Specification } from '../models/SpecificationFile';
 import { BaseService } from './base.service';
 
 import AsyncAPIGenerator from '@asyncapi/generator';
-import AsyncAPINewGenerator from 'generator-v2';
 import { spinner } from '@clack/prompts';
 import path from 'path';
 import os from 'os';
@@ -103,44 +102,6 @@ export class GeneratorService extends BaseService {
     return this.createSuccessResult({
       success: true,
       outputPath: output,
-    } as GenerationResult);
-  }
-
-  async generateUsingNewGenerator(
-    asyncapi: Specification,
-    template: string,
-    output: string,
-    options: any,
-    genOption: any,
-  ): Promise<ServiceResult<GenerationResult>> {
-    const v3NotSupported = this.checkV3NotSupported(asyncapi, template);
-    if (v3NotSupported) {
-      return this.createErrorResult(v3NotSupported);
-    }
-    const logs = [];
-
-    const generator = new AsyncAPINewGenerator(
-      template,
-      output || path.resolve(os.tmpdir(), 'asyncapi-generator'),
-      options,
-    );
-    try {
-      await generator.generateFromString(asyncapi.text(), {
-        ...genOption,
-        path: asyncapi,
-      });
-    } catch (err: any) {
-      logs.push('Generation failed');
-      return this.createErrorResult(err.message, err.diagnostics);
-    }
-    logs.push(
-      this.getGenerationSuccessMessage(output),
-    );
-
-    return this.createSuccessResult({
-      success: true,
-      outputPath: output,
-      logs,
     } as GenerationResult);
   }
 }
