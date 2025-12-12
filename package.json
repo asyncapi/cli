@@ -5,6 +5,10 @@
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
+  }, 
+  "repository": {
+    "url": "https://github.com/asyncapi/cli",
+    "type": "git"
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
@@ -13,6 +17,7 @@
     "@asyncapi/converter": "^1.6.2",
     "@asyncapi/diff": "^0.5.0",
     "@asyncapi/generator": "^1.17.25",
+    "@asyncapi/generator-helpers": "^0.2.0",
     "@asyncapi/modelina-cli": "^5.3.5",
     "@asyncapi/openapi-schema-parser": "^3.0.24",
     "@asyncapi/optimizer": "^1.0.4",
@@ -36,12 +41,11 @@
     "express": "^4.17.1",
     "fast-levenshtein": "^3.0.0",
     "fs-extra": "^11.1.0",
-    "generator-v2": "npm:@asyncapi/generator@2.8.3",
+    "generator-v2": "npm:@asyncapi/generator@2.11.0",
     "helmet": "^8.1.0",
     "https-proxy-agent": "^7.0.6",
     "inquirer": "^8.2.0",
     "js-yaml": "^4.1.0",
-    "next": "^15.2.4",
     "oclif": "^4.17.34",
     "open": "^8.4.0",
     "picocolors": "^1.1.0",
@@ -58,7 +62,6 @@
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@oclif/test": "^2",
-    "@swc/core": "^1.3.2",
     "@types/archiver": "^6.0.3",
     "@types/body-parser": "^1.19.6",
     "@types/chai": "^4.3.6",
@@ -101,7 +104,7 @@
     "typescript": "^5.8.2"
   },
   "engines": {
-    "node": ">12.16"
+    "node": ">=24.0"
   },
   "files": [
     "/bin",
@@ -158,7 +161,6 @@
   "optionalDependencies": {
     "fsevents": "^2.3.2"
   },
-  "repository": "asyncapi/cli",
   "scripts": {
     "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && npm run generate:languages && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
     "bump:github-action": "cd github-action/lib/ && node bump-action-version.js",

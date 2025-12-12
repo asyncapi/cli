@@ -4,7 +4,6 @@ import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
 import open from 'open';
-import next from 'next';
 import path from 'path';
 import { version as studioVersion } from '@asyncapi/studio/package.json';
 import { blueBright, redBright } from 'picocolors';
@@ -20,6 +19,15 @@ function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
 }
 
+type NextFactory = (config?: any) => any;
+
+function resolveStudioNextInstance(studioPath: string): NextFactory {
+  const resolvedNextPath = require.resolve('next', { paths: [studioPath] });
+  // eslint-disable-next-line @typescript-eslint/no-var-requires,security/detect-non-literal-require
+  const nextModule = require(resolvedNextPath);
+  return nextModule.default ?? nextModule;
+}
+
 // eslint-disable-next-line sonarjs/cognitive-complexity
 export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:boolean): void {
   if (filePath && !isValidFilePath(filePath)) {
@@ -30,7 +38,8 @@ export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:
   const studioPath = path.dirname(
     require.resolve('@asyncapi/studio/package.json'),
   );
-  const app = next({
+  const nextInstance = resolveStudioNextInstance(studioPath);
+  const app = nextInstance({
     dev: false,
     dir: studioPath,
     conf: {
