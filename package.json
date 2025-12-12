@@ -5,6 +5,10 @@
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
+  }, 
+  "repository": {
+    "url": "https://github.com/asyncapi/cli",
+    "type": "git"
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
@@ -157,7 +161,6 @@
   "optionalDependencies": {
     "fsevents": "^2.3.2"
   },
-  "repository": "asyncapi/cli",
   "scripts": {
     "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && npm run generate:languages && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
     "bump:github-action": "cd github-action/lib/ && node bump-action-version.js",
