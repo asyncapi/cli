@@ -25,7 +25,7 @@
     "@asyncapi/problem": "^1.0.0",
     "@asyncapi/protobuf-schema-parser": "^3.6.0",
     "@asyncapi/raml-dt-schema-parser": "^4.0.24",
-    "@asyncapi/studio": "^0.24.2",
+    "@asyncapi/studio": "^1.1.0",
     "@clack/prompts": "^0.7.0",
     "@oclif/core": "^4.2.9",
     "@oclif/plugin-autocomplete": "^3.2.26",
