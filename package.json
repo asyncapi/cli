@@ -101,7 +101,7 @@
     "typescript": "^5.8.2"
   },
   "engines": {
-    "node": ">12.16"
+    "node": ">=24.0"
   },
   "files": [
     "/bin",
