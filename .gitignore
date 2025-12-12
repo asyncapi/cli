@@ -22,7 +22,6 @@ test/fixtures/newtemplate/__transpiled
 test/fixtures/specification-conv.yml
 test/fixtures/specification-conv.yaml
 test/fixtures/specification-conv.json
-test/docs/*
 .vscode
 src/domains/models/generate/ClientLanguages.ts
 

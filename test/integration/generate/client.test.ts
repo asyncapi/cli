@@ -19,7 +19,7 @@ describe('client', () => {
         'generate:client',
         'javascript',
         './test/fixtures/specification-v3.yml',
-        '-p server=default',
+        '-pserver=default',
         '--output=./test/docs/test-output',
         '--force-write',
         '--no-interactive',
