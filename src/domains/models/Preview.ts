@@ -23,7 +23,7 @@ function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
 }
 
-type NextFactory = typeof import('next')['default'];
+type NextFactory = (config?: any) => any;
 
 function resolveStudioNextInstance(studioPath: string): NextFactory {
   const resolvedNextPath = require.resolve('next', { paths: [studioPath] });
