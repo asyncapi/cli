@@ -105,7 +105,6 @@ jobs:
         name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          registry-url: "https://registry.npmjs.org"
           node-version: "${{ steps.lockversion.outputs.version }}"
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
@@ -119,13 +118,13 @@ jobs:
 
       - if: steps.packagejson.outputs.exists == 'true'
         name: Publish to any of NPM, Github, and Docker Hub
-        uses: changesets/action@aba318e9165b45b7948c60273e0b72fce0a64eb9 # v1.4.7
+        uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1.5.3
         id: release
         with:
           version: npm run bump:version
           commit: "chore(release): release and bump versions of packages"
           title: "chore(release): release and bump versions of packages"
-          publish: npx -p @changesets/cli@2.27.7 changeset publish
+          publish: npx -p @changesets/cli@2.29.8 changeset publish
           setupGitUser: false
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
