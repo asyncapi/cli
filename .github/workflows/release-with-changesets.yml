@@ -13,9 +13,6 @@ on:
       - alpha
       - next
 
-env:
-  CI: true
-
 jobs:
   test-nodejs:
     # We just check the message of the first commit as there is always just one commit because we squash into one before merging
@@ -54,6 +51,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "${{ steps.lockversion.outputs.version }}"
+          registry-url: "https://registry.npmjs.org"
       - if: steps.lockversion.outputs.version == '18' && matrix.os == 'windows-latest'
         name: Install npm cli 8
         shell: bash
@@ -118,13 +116,14 @@ jobs:
 
       - if: steps.packagejson.outputs.exists == 'true'
         name: Publish to any of NPM, Github, and Docker Hub
+        #this step has 2 goals, it is either identifying that there is changeset file created and then this action creates a PR with version bump that will trigger release - or if it sees there is no changeset, and there are versions changes in package.json files, it publish new versions to NPM is they are not there yet
         uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1.5.3
         id: release
         with:
           version: npm run bump:version
           commit: "chore(release): release and bump versions of packages"
           title: "chore(release): release and bump versions of packages"
-          publish: npx -p @changesets/cli@2.29.8 changeset publish
+          publish: npx -p @changesets/cli@2.27.7 changeset publish
           setupGitUser: false
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
