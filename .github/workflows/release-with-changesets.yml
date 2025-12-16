@@ -99,12 +99,12 @@ jobs:
         id: lockversion
         with:
           node-version: ${{ vars.NODE_VERSION }}
-          registry-url: "https://registry.npmjs.org"
       - if: steps.packagejson.outputs.exists == 'true'
         name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "${{ steps.lockversion.outputs.version }}"
+          registry-url: "https://registry.npmjs.org"
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
         shell: bash
