@@ -17,7 +17,7 @@ describe('client', () => {
       .stdout()
       .command([
         'generate:client',
-        'java',
+        'javascript',
         './test/fixtures/specification-v3.yml',
         '-pserver=default',
         '--output=./test/docs/test-output',
