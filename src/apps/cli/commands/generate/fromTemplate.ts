@@ -9,8 +9,6 @@ import { fromTemplateFlags } from '@cli/internal/flags/generate/fromTemplate.fla
 import { parseGeneratorFlags } from '@utils/generate/flags';
 import { promptForTemplate } from '@utils/generate/prompts';
 
-const inProgressMsg = 'Generation in progress. Keep calm and wait a bit';
-
 export default class Template extends BaseGeneratorCommand {
   static description =
     'Generates whatever you want using templates compatible with AsyncAPI Generator.';
