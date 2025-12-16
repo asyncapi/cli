@@ -127,8 +127,11 @@ jobs:
           publish: npx -p @changesets/cli@2.27.7 changeset publish
           setupGitUser: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          # Workaround for https://github.com/changesets/changesets/issues/1152
           NODE_AUTH_TOKEN: ""
+          NPM_TOKEN: ""
+          NPM_CONFIG_PROVENANCE: true
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GIT_AUTHOR_NAME: asyncapi-bot
           GIT_AUTHOR_EMAIL: info@asyncapi.io
           GIT_COMMITTER_NAME: asyncapi-bot
