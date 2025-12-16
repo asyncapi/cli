@@ -1,7 +1,7 @@
 DEFAULT_VERSION = 'latest'
 DEFAULT_COMMAND = 'generate'
 TEST_FILEPATH = 'test/asyncapi.yml'
-DEFAULT_TEMPLATE = '@asyncapi/markdown-template@0.10.0'
+DEFAULT_TEMPLATE = 'test/fixtures/newtemplate'
 DEFAULT_LANGUAGE = ''
 DEFAULT_OUTPUT = 'output'
 DEFAULT_PARAMETERS = ''
