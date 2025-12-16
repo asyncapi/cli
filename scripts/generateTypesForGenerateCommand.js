@@ -1,6 +1,6 @@
 const { writeFile } = require('fs/promises');
 const path = require('path');
-const { listBakedInTemplates } = require('generator-v2');
+const { listBakedInTemplates } = require('@asyncapi/generator');
 
 async function generateClientLanguages() {
   const bakedInClients = listBakedInTemplates({ type: 'client' });
