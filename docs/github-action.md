@@ -229,7 +229,7 @@ Use following commands to run and test github action locally:
 2. Execute docker image with proper arguments
 
   ```bash
-    docker run -e GITHUB_WORKSPACE="" --workdir /action  -v "/home/{user}/path/to/repo":"/action" asyncapi/github-action-for-cli  "" "generate" "github-action/test/asyncapi.yml" "@asyncapi/markdown-template@0.10.0" "" "output" "" ""
+    docker run -e GITHUB_WORKSPACE="" --workdir /action  -v "/home/{user}/path/to/repo":"/action" asyncapi/github-action-for-cli  "" "generate" "github-action/test/asyncapi.yml" "@asyncapi/markdown-template@2.0.0" "" "output" "" ""
   ```
 
 Make sure to change the path of the repo and user in the command.

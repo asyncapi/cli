@@ -1,7 +1,7 @@
 DEFAULT_VERSION = 'latest'
 DEFAULT_COMMAND = 'generate'
 TEST_FILEPATH = 'test/asyncapi.yml'
-DEFAULT_TEMPLATE = 'https://github.com/derberg/markdown-template\#mieszkomieszkomojkoleszko'
+DEFAULT_TEMPLATE = '@asyncapi/markdown-template@2.0.0'
 DEFAULT_LANGUAGE = ''
 DEFAULT_OUTPUT = 'output'
 DEFAULT_PARAMETERS = ''
