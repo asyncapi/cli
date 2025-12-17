@@ -94,7 +94,9 @@ export default class Template extends BaseGeneratorCommand {
 
     // Output logs in non-interactive mode
     if (!interactive && result.data?.logs) {
-      result.data.logs.forEach((log: string) => this.log(log));
+      for (const log of result.data.logs) {
+        this.log(log);
+      }
     }
     
     if (watchTemplate) {
