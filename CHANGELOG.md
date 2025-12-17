@@ -1,14 +1,10 @@
 # @asyncapi/cli
 
-## 6.0.0
-
-### Major Changes
-
-- dac7bb4: Breaking changes: Removed support for AsyncAPI Generator v1 and v2. The CLI now exclusively uses Generator v3. The `--use-new-generator` flag has been removed from the `generate fromTemplate` command. Minimum supported Node.js version is now 24+.
-
 ## 5.0.0
 
 ### Major Changes
+
+- dac7bb4: Removed support for AsyncAPI Generator v1 and v2. The CLI now exclusively uses Generator v3. The `--use-new-generator` flag has been removed from the `generate fromTemplate` command.
 
 - b90a9b7: ## Major release with important security updates
   - Keeping in mind the recent Shai-Hulud attack, we have adopted trusted publishing with NPM.
@@ -19,6 +15,8 @@
   - Node.js version 24 or higher is now required.
   - NPM version 11 or higher is now required.
   - Next.js version is now 14.2.35 or higher.
+  - The CLI now exclusively uses Generator v3 onlu.
+  - The `--use-new-generator` flag has been removed from the `generate fromTemplate` command.
 
   Please make sure to update your environment accordingly before upgrading to this version.
 
