@@ -15,8 +15,9 @@
   - Node.js version 24 or higher is now required.
   - NPM version 11 or higher is now required.
   - Next.js version is now 14.2.35 or higher.
-  - The CLI now exclusively uses Generator v3 onlu.
+  - The CLI now exclusively uses Generator v3 only.
   - The `--use-new-generator` flag has been removed from the `generate fromTemplate` command.
+  - Default template in action has been upgraded to `@asyncapi/markdown-template@2.0.0`
 
   Please make sure to update your environment accordingly before upgrading to this version.
 
