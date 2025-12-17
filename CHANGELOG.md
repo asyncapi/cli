@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 6.0.0
+
+### Major Changes
+
+- dac7bb4: Breaking changes: Removed support for AsyncAPI Generator v1 and v2. The CLI now exclusively uses Generator v3. The `--use-new-generator` flag has been removed from the `generate fromTemplate` command. Minimum supported Node.js version is now 24+.
+
 ## 5.0.0
 
 ### Major Changes
