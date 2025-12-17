@@ -75,6 +75,7 @@ export class GeneratorService extends BaseService {
     if (v3NotSupported) {
       return this.createErrorResult(v3NotSupported);
     }
+    const logs: string[] = [];
 
     const generator = new AsyncAPIGenerator(
       template,
@@ -83,7 +84,7 @@ export class GeneratorService extends BaseService {
     );
     const s = interactive
       ? spinner()
-      : { start: () => null, stop: (string: string) => console.log(string) };
+      : { start: () => null, stop: (string: string) => logs.push(string) };
     s.start('Generation in progress. Keep calm and wait a bit');
     try {
       await generator.generateFromString(asyncapi.text(), {
@@ -91,7 +92,6 @@ export class GeneratorService extends BaseService {
         path: asyncapi,
       });
     } catch (err: any) {
-      console.log(err);
       s.stop('Generation failed');
       return this.createErrorResult(err.message, err.diagnostics);
     }
@@ -102,6 +102,7 @@ export class GeneratorService extends BaseService {
     return this.createSuccessResult({
       success: true,
       outputPath: output,
+      logs,
     } as GenerationResult);
   }
 }

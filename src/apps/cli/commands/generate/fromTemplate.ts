@@ -91,6 +91,11 @@ export default class Template extends BaseGeneratorCommand {
     if (!result.success) {
       throw new GeneratorError(new Error(result.error));
     }
+
+    // Output logs in non-interactive mode
+    if (!interactive && result.data?.logs) {
+      result.data.logs.forEach((log: string) => this.log(log));
+    }
     
     if (watchTemplate) {
       await this.handleWatchMode(asyncapi, template, output, options, genOption, interactive);
