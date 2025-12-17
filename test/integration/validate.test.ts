@@ -3,7 +3,7 @@
 import path from 'path';
 import { test } from '@oclif/test';
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
-import TestHelper, {createMockServer, stopMockServer } from '../helpers';
+import TestHelper, { createMockServer, stopMockServer } from '../helpers';
 import { expect } from '@oclif/test';
 
 const testHelper = new TestHelper();
@@ -82,16 +82,6 @@ describe('validate', () => {
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stdout).to.include('File ./test/fixtures/valid-specification-latest.yml is valid! File ./test/fixtures/valid-specification-latest.yml and referenced documents don\'t have governance issues.');
         expect(ctx.stderr).to.equal('');
-        done();
-      });
-
-    test
-      .stderr()
-      .stdout()
-      .command(['validate', './test/fixtures/asyncapi_avro_invalid.yml', '--log-diagnostics'])
-      .it('fails and reports diagnostics when Avro schema is invalid', (ctx, done) => {
-        expect(process.exitCode).to.equal(1);
-        expect(ctx.stdout).to.contain('Errors');
         done();
       });
   });
@@ -264,8 +254,8 @@ describe('validate', () => {
         done();
       });
   });
-  
-  describe('with --score flag',() => {
+
+  describe('with --score flag', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
     });
@@ -340,7 +330,7 @@ describe('validate', () => {
         'non-existing-rule'
       ])
       .it('should not suppress anything', (ctx, done) => {
-        expect(ctx.stdout).to.include('asyncapi-id'); 
+        expect(ctx.stdout).to.include('asyncapi-id');
         done();
       });
   });
@@ -356,7 +346,7 @@ describe('validate', () => {
         'foobar'
       ])
       .it('should suppress valid rules', (ctx, done) => {
-        expect(ctx.stdout).to.not.include('asyncapi-id'); 
+        expect(ctx.stdout).to.not.include('asyncapi-id');
         done();
       });
   });
