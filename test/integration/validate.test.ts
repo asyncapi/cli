@@ -49,6 +49,18 @@ describe('validate', () => {
     test
       .stderr()
       .stdout()
+      .command(['validate', './test/fixtures/asyncapi_avro_invalid.yml', '--diagnostics-format=json'])
+      .it('works when file path is passed and schema is avro but invalid', (ctx, done) => {
+        // We expect diagnostics in JSON format
+        const diagnostics = JSON.parse(ctx.stdout);
+        expect(diagnostics).to.be.an('array');
+        expect(diagnostics.some((d: any) => d.code === 'avro-schema-invalid' || d.code === 'avro-schema-missing')).to.equal(true);
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
       .command(['validate', './test/fixtures/not-found.yml'])
       .it('should throw error if file path is wrong', (ctx, done) => {
         expect(ctx.stdout).to.equal('');
