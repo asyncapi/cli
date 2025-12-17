@@ -143,10 +143,10 @@ describe('optimize', () => {
       .stderr()
       .stdout()
       .command(['optimize', unoptimizedYamlFile, '--no-tty', '-o', 'new-file'])
-      .it('generate YAML output against YAML input.', (ctx, done) => {
+      .it('generate YAML output against YAML input and show its path.', (ctx, done) => {
         const pos = unoptimizedYamlFile.lastIndexOf('.');
         const optimizedFile = `${unoptimizedYamlFile.substring(0, pos)}_optimized.${unoptimizedYamlFile.substring(pos + 1)}`;
-        expect(ctx.stdout).to.contain('✅ Success! Your optimized file has been created at ');
+        expect(ctx.stdout).to.contain(`✅ Success! Your optimized file has been created at ${optimizedFile}.`);
         expect(ctx.stderr).to.equal('');
         expect(fs.readFileSync(optimizedFile, 'utf8')).to.contain('asyncapi: 2.0.0');
         fs.unlinkSync(optimizedFile);
@@ -157,10 +157,10 @@ describe('optimize', () => {
       .stderr()
       .stdout()
       .command(['optimize', unoptimizedJsonFile, '--no-tty', '-o', 'new-file'])
-      .it('generate JSON output against JSON input.', (ctx, done) => {
+      .it('generate JSON output against JSON input and show its path.', (ctx, done) => {
         const pos = unoptimizedJsonFile.lastIndexOf('.');
         const optimizedFile = `${unoptimizedJsonFile.substring(0, pos)}_optimized.${unoptimizedJsonFile.substring(pos + 1)}`;
-        expect(ctx.stdout).to.contain('✅ Success! Your optimized file has been created at ');
+        expect(ctx.stdout).to.contain(`✅ Success! Your optimized file has been created at ${optimizedFile}.`);
         expect(ctx.stderr).to.equal('');
         expect(fs.readFileSync(optimizedFile, 'utf8')).to.contain('"asyncapi": "2.0.0"');
         fs.unlinkSync(optimizedFile);
