@@ -81,7 +81,6 @@ jobs:
         uses: ./
         with:
           filepath: ./github-action/test/asyncapi.yml
-          template: ./test/fixtures/newtemplate
       - name: Assert GitHub Action
         run: |
           echo "Listing all files"
@@ -176,7 +175,6 @@ jobs:
         with:
           filepath: ./github-action/test/asyncapi.yml
           output: custom-output
-          template: ./test/fixtures/newtemplate
       - name: Assert GitHub Action
         run: |
           echo "Listing all files"

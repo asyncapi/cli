@@ -57,9 +57,11 @@ Path to the AsyncAPI document that you want to process.
 
 **Default** expects the AsyncAPI document to be in the root of the repository and named `asyncapi.yaml`.
 
-### `template` (required)
+### `template`
 
 Template for the generator. Official templates are listed here https://github.com/asyncapi/generator#list-of-official-generator-templates. You can pass template as npm package, url to git repository, link to tar file or local template.
+
+**Default** points to `@asyncapi/markdown-template@2.0.0` template.
 
 > [!TIP]
 > We recommend to always specify the version of the template to not encounter any issues with the action in case of release of the template that is not compatible with given version of the generator.
