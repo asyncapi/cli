@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
+ 
 import { promises as fPromises } from 'fs';
 import { Args } from '@oclif/core';
 import Command from '@cli/internal/base';
@@ -38,7 +38,7 @@ export default class Convert extends Command {
     let convertedFile;
     try {
       this.specFile = await load(filePath);
-      // eslint-disable-next-line sonarjs/no-duplicate-string
+       
       this.metricsMetadata.to_version = flags['target-version'];
 
       const ff = retrieveFileFormat(this.specFile.text());

@@ -56,7 +56,7 @@ const isValidGitHubBlobUrl = (url: string): boolean => {
       parsedUrl.hostname === 'github.com' &&
       parsedUrl.pathname.split('/')[3] === 'blob'
     );
-  } catch (error) {
+  } catch {
     return false;
   }
 };

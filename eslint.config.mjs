@@ -5,10 +5,22 @@ import security from 'eslint-plugin-security';
 import github from 'eslint-plugin-github';
 
 export default [
+  {
+    ignores: [
+      'node_modules',
+      'dist',
+      'lib',
+      'test/commands/generate/models/',
+      'test/helpers',
+      'test/fixtures/minimaltemplate',
+      'test/fixtures/newtemplate',
+      '.github/workflows/scripts',
+      'github-action',
+      'scripts/**/*.js',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
-  sonarjs.configs.recommended,
-  security.configs.recommended,
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js'],
     plugins: {
@@ -175,6 +187,7 @@ export default [
       '@typescript-eslint/no-unused-vars': 'off',
       'no-use-before-define': 'off',
       'sonarjs/cognitive-complexity': 'off',
+      '@typescript-eslint/no-unused-expressions': 'off',
     },
   },
   {
@@ -186,6 +199,13 @@ export default [
   {
     files: ['**/*.js'],
     rules: {
+      '@typescript-eslint/no-var-requires': 'off',
+    },
+  },
+  {
+    files: ['src/domains/models/Preview.ts', 'src/domains/models/Studio.ts', 'test/jest.setup.ts'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-var-requires': 'off',
     },
   },

@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-identical-functions */
 
 import path from 'path';
 import { test } from '@oclif/test';

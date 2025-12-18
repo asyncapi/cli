@@ -94,7 +94,7 @@ export default class Optimize extends Command {
     try {
       optimizer = new Optimizer(this.specFile.text());
       report = await optimizer.getReport();
-    } catch (err) {
+    } catch {
       this.error(
         new ValidationError({
           type: 'invalid-syntax-file',

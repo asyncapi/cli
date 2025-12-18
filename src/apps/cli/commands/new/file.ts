@@ -101,7 +101,7 @@ export default class NewFile extends Command {
         { encoding: 'utf8' },
       );
       examples = JSON.parse(exampleFiles);
-    } catch (error) {
+    } catch {
       // no examples found
     }
 
