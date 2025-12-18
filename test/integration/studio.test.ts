@@ -1,6 +1,6 @@
 import { test } from '@oclif/test';
 import { expect } from '@oclif/test';
-import { testPreview, testStudio } from '../helpers';
+import { testPreview, testStudio } from '../helpers/index';
 
 describe('Test live studio', () => {
   test

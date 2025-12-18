@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { test } from '@oclif/test';
-import rimraf from 'rimraf';
+import { rimrafSync } from 'rimraf';
 import { expect } from '@oclif/test';
 
 const nonInteractive = '--no-interactive';
@@ -14,7 +14,7 @@ const generalOptions = [
 const asyncapiv3 = './test/fixtures/specification-v3.yml';
 
 function cleanup(filepath: string) {
-  rimraf.sync(filepath);
+  rimrafSync(filepath);
 }
 
 describe('template', () => {

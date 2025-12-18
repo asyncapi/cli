@@ -3,7 +3,7 @@ import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
 import Command from '@cli/internal/base';
 import { ValidationError } from '@errors/validation-error';
 import { load, retrieveFileFormat } from '@models/SpecificationFile';
-import * as inquirer from 'inquirer';
+import inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
 import { Parser } from '@asyncapi/parser';
