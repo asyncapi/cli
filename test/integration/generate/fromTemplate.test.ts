@@ -50,7 +50,7 @@ describe('template', () => {
       });
   }).timeout(200000);
 
-  describe('should be able to use the new generator', () => {
+  describe('should be able to generate from template', () => {
     test
       .stderr()
       .stdout()
@@ -60,9 +60,8 @@ describe('template', () => {
         '@asyncapi/newtemplate',
         '--output=./test/docs/2',
         '--force-write',
-        '--use-new-generator',
       ])
-      .it('should be able to generate using newer version of generator', (ctx, done) => {
+      .it('should be able to generate using the generator', (ctx, done) => {
         expect(ctx.stdout).to.contain('Check out your shiny new generated files at ./test/docs/2.\n\n');
         cleanup('./test/docs/2');
         done();
@@ -81,7 +80,6 @@ describe('template', () => {
         '--force-write',
         '--proxyHost=host',
         '--proxyPort=8080',
-        '--use-new-generator',
       ])
       .it('should throw error when url is passed with proxyHost and proxyPort with invalid host', (ctx, done) => {
         expect(ctx.stdout).to.contain('');

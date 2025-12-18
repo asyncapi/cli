@@ -7,7 +7,7 @@
     "asyncapi": "./bin/run_bin"
   },
   "repository": {
-    "url": "https://github.com/asyncapi/cli",
+    "url": "git+https://github.com/asyncapi/cli.git",
     "type": "git"
   },
   "bugs": "https://github.com/asyncapi/cli/issues",

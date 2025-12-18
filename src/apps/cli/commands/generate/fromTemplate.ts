@@ -9,8 +9,6 @@ import { fromTemplateFlags } from '@cli/internal/flags/generate/fromTemplate.fla
 import { parseGeneratorFlags } from '@utils/generate/flags';
 import { promptForTemplate } from '@utils/generate/prompts';
 
-const inProgressMsg = 'Generation in progress. Keep calm and wait a bit';
-
 export default class Template extends BaseGeneratorCommand {
   static description =
     'Generates whatever you want using templates compatible with AsyncAPI Generator.';
@@ -82,31 +80,22 @@ export default class Template extends BaseGeneratorCommand {
       );
     }
 
-    if (flags['use-new-generator']) {
-      this.log(inProgressMsg);
-      const result = await this.generatorService.generateUsingNewGenerator(
-        specification,
-        template,
-        output,
-        options as any, // GeneratorService expects different options interface
-        genOption,
-      );
-      if (!result.success) {
-        throw new GeneratorError(new Error(result.error));
-      } else {
-        this.log(result.data?.logs?.join('\n'));
-      }
-    } else {
-      const result = await this.generatorService.generate(
-        specification,
-        template,
-        output,
-        options as any, // GeneratorService expects different options interface
-        genOption,
-        interactive,
-      );
-      if (!result.success) {
-        throw new GeneratorError(new Error(result.error));
+    const result = await this.generatorService.generate(
+      specification,
+      template,
+      output,
+      options as any, // GeneratorService expects different options interface
+      genOption,
+      interactive,
+    );
+    if (!result.success) {
+      throw new GeneratorError(new Error(result.error));
+    }
+
+    // Output logs in non-interactive mode
+    if (!interactive && result.data?.logs) {
+      for (const log of result.data.logs) {
+        this.log(log);
       }
     }
     
