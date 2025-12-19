@@ -124,11 +124,12 @@ jobs:
           version: npm run bump:version
           commit: "chore(release): release and bump versions of packages"
           title: "chore(release): release and bump versions of packages"
-          # Set NODE_AUTH_TOKEN to empty to use trusted publishing with
-          # See: https://github.com/actions/setup-node/issues/1440
-          publish: NODE_AUTH_TOKEN="" npx -p @changesets/cli@2.27.7 changeset publish
+          publish: npx -p @changesets/cli@2.27.7 changeset publish
           setupGitUser: false
         env:
+          # Set NODE_AUTH_TOKEN to empty to use trusted publishing with
+          # See: https://github.com/actions/setup-node/issues/1440
+          NODE_AUTH_TOKEN: ""
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GIT_AUTHOR_NAME: asyncapi-bot
           GIT_AUTHOR_EMAIL: info@asyncapi.io
