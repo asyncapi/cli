@@ -4,38 +4,48 @@ import { ProblemException } from '../exceptions/problem.exception';
 import { getAppOpenAPI } from '../../../utils/app-openapi';
 
 const getCommandsFromRequest = (req: Request): string[] => {
-  return req.params.command
-    ? req.params.command.split('/').filter((cmd) => cmd.trim())
-    : [];
-};
-
-const isKeyValid = (key: string, obj: any): boolean => {
-  return Object.keys(obj).includes(key);
+  const param = req.params.command ?? req.params[0] ?? '';
+  if (Array.isArray(param)) {
+    return param.filter((cmd: string) => cmd.trim());
+  }
+  return param.split('/').filter((cmd: string) => cmd.trim());
 };
 
 const getPathKeysMatchingCommands = (
   commands: string[],
   pathKeys: string[],
 ): string | undefined => {
-  if (
-    !Array.isArray(pathKeys) ||
-    !pathKeys.every((key) => typeof key === 'string')
-  ) {
-    return undefined;
+  const exactPath = `/${commands.join('/')}`;
+  if (pathKeys.includes(exactPath)) {
+    return exactPath;
   }
+
   return pathKeys.find((pathKey) => {
     const pathParts = pathKey.split('/').filter((part) => part !== '');
-    return pathParts.every((pathPart, i) => {
-      const command = commands[Number(i)];
-      return pathPart === command || pathPart.startsWith('{');
-    });
+    if (pathParts.length !== commands.length) {
+      return false;
+    }
+    return pathParts.every((pathPart, i) =>
+      pathPart === commands[i] || pathPart.startsWith('{') || pathPart.startsWith(':')
+    );
   });
 };
 
 const getFullRequestBodySpec = (operationDetails: any) => {
-  return isKeyValid('requestBody', operationDetails)
-    ? operationDetails.requestBody.content['application/json'].schema
-    : null;
+  const schema = operationDetails?.requestBody?.content?.['application/json']?.schema ?? null;
+  if (!schema) {
+    return null;
+  }
+  const seen = new WeakSet();
+  return JSON.parse(JSON.stringify(schema, (_key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return '[Circular]';
+      }
+      seen.add(value);
+    }
+    return value;
+  }));
 };
 
 const buildResponseObject = (
@@ -59,70 +69,63 @@ export class HelpController implements Controller {
     const router: Router = Router();
 
     const helpHandler = async (req: Request, res: Response, next: NextFunction) => {
-      const commands = getCommandsFromRequest(req);
-      let openapiSpec: any;
-
       try {
-        openapiSpec = await getAppOpenAPI();
+        const openapiSpec = await getAppOpenAPI();
+        const paths = openapiSpec?.paths ?? {};
+        const pathKeys = Object.keys(paths);
+        const commands = getCommandsFromRequest(req);
+
+        if (commands.length === 0) {
+          return res.json(pathKeys.map((path) => ({
+            command: path.replace(/^\//, ''),
+            url: `${this.basepath}${path}`,
+          })));
+        }
+
+        const matchedPathKey = getPathKeysMatchingCommands(commands, pathKeys);
+
+        if (!matchedPathKey) {
+          return next(new ProblemException({
+            type: 'invalid-asyncapi-command',
+            title: 'Invalid AsyncAPI Command',
+            status: 404,
+            detail: 'The given AsyncAPI command is not valid.',
+          }));
+        }
+
+        const pathInfo = paths[matchedPathKey];
+        const method = pathInfo.get ? 'get' : 'post';
+        const operationDetails = pathInfo[method];
+
+        if (!operationDetails) {
+          return next(new ProblemException({
+            type: 'invalid-asyncapi-command',
+            title: 'Invalid AsyncAPI Command',
+            status: 404,
+            detail: 'The given AsyncAPI command is not valid.',
+          }));
+        }
+
+        const requestBodySchema = getFullRequestBodySpec(operationDetails);
+
+        return res.json(buildResponseObject(matchedPathKey, method, operationDetails, requestBodySchema));
       } catch (err) {
         return next(err);
       }
-
-      if (commands.length === 0) {
-        const routes = isKeyValid('paths', openapiSpec)
-          ? Object.keys(openapiSpec.paths).map((path) => ({
-            command: path.replace(/^\//, ''),
-            url: `${this.basepath}${path}`,
-          }))
-          : [];
-        return res.json(routes);
-      }
-
-      const pathKeys = isKeyValid('paths', openapiSpec)
-        ? Object.keys(openapiSpec.paths)
-        : [];
-      const matchedPathKey = getPathKeysMatchingCommands(commands, pathKeys);
-
-      if (!matchedPathKey) {
-        return next(
-          new ProblemException({
-            type: 'invalid-asyncapi-command',
-            title: 'Invalid AsyncAPI Command',
-            status: 404,
-            detail: 'The given AsyncAPI command is not valid.',
-          }),
-        );
-      }
-
-      const pathInfo = isKeyValid(matchedPathKey, openapiSpec.paths)
-        ? openapiSpec.paths[String(matchedPathKey)]
-        : undefined;
-      const method = commands.length > 1 ? 'get' : 'post';
-      const operationDetails = isKeyValid(method, pathInfo)
-        ? pathInfo[String(method)]
-        : undefined;
-      if (!operationDetails) {
-        return next(
-          new ProblemException({
-            type: 'invalid-asyncapi-command',
-            title: 'Invalid AsyncAPI Command',
-            status: 404,
-            detail: 'The given AsyncAPI command is not valid.',
-          }),
-        );
-      }
-
-      const requestBodySchema = getFullRequestBodySpec(operationDetails);
-
-      return res.json(
-        buildResponseObject(
-          matchedPathKey,
-          method,
-          operationDetails,
-          requestBodySchema,
-        ),
-      );
     };
+
+    router.get(this.basepath, async (_req: Request, res: Response, next: NextFunction) => {
+      try {
+        const openapiSpec = await getAppOpenAPI();
+        const paths = Object.keys(openapiSpec?.paths ?? {});
+        return res.json(paths.map(path => ({
+          command: path.replace(/^\//, ''),
+          url: `${this.basepath}${path}`,
+        })));
+      } catch (err) {
+        return next(err);
+      }
+    });
 
     router.get(`${this.basepath}{/*command}`, helpHandler);
 
