@@ -113,20 +113,7 @@ export class HelpController implements Controller {
         return next(err);
       }
     };
-
-    router.get(this.basepath, async (_req: Request, res: Response, next: NextFunction) => {
-      try {
-        const openapiSpec = await getAppOpenAPI();
-        const paths = Object.keys(openapiSpec?.paths ?? {});
-        return res.json(paths.map(path => ({
-          command: path.replace(/^\//, ''),
-          url: `${this.basepath}${path}`,
-        })));
-      } catch (err) {
-        return next(err);
-      }
-    });
-
+    
     router.get(`${this.basepath}{/*command}`, helpHandler);
 
     return router;
