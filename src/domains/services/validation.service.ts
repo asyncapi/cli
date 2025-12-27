@@ -31,6 +31,7 @@ import { Specification } from '@models/SpecificationFile';
 import { ParseOptions } from '@asyncapi/parser';
 import { ParserOptions } from '@asyncapi/parser/cjs/parser';
 import { calculateScore } from '@/utils/scoreCalculator';
+import { Type as AvroType } from 'avsc';
 
 import { ConfigService } from './config.service';
 
@@ -179,7 +180,7 @@ export class ValidationService extends BaseService {
   private parser: Parser;
 
   constructor(parserOptions: ParserOptions = {}) {
-    super(); 
+    super();
     // Create parser with custom GitHub resolver
     const customParserOptions = {
       ...parserOptions,
@@ -283,11 +284,70 @@ export class ValidationService extends BaseService {
         },
       );
 
-      const status = this.determineDiagnosticsStatus(diagnostics, options);
+      // Additional diagnostics for Avro payload schemas using avsc
+      const extraDiagnostics: Diagnostic[] = [];
+      try {
+        if (typeof document?.allMessages === 'function') {
+          const allMessages = document.allMessages();
+          for (const message of allMessages.values()) {
+            const payload = message.payload();
+            if (!payload) {continue;}
+
+            const schemaFormat = message.schemaFormat();
+            if (!schemaFormat) {continue;}
+
+            const isAvro = (/application\/vnd\.apache\.avro\+(json|yaml)/i).test(schemaFormat);
+
+            if (!isAvro) {continue;}
+
+            // In parser v3, payload().json() gives the schema object
+            const avroSchema = payload.json();
+
+            if (!avroSchema || typeof avroSchema !== 'object') {
+              // If schema is missing but format is Avro, we might want to warn.
+              // We approximate the path or use a generic one if message ID is not easily mappable to json path.
+              // However, we can use message.id() usually. 
+              extraDiagnostics.push({
+                code: 'avro-schema-missing',
+                message: 'Avro payload has schemaFormat set to Avro but no schema provided.',
+                path: ['components', 'messages', message.id(), 'payload', 'schema'],
+                severity: DiagnosticSeverity.Error,
+                source: specFile.getSource(),
+                range: {
+                  start: { line: 0, character: 0 },
+                  end: { line: 0, character: 0 },
+                },
+              } as unknown as Diagnostic);
+              continue;
+            }
+
+            try {
+              AvroType.forSchema(avroSchema as any);
+            } catch (e: any) {
+              extraDiagnostics.push({
+                code: 'avro-schema-invalid',
+                message: e?.message || 'Invalid Avro schema.',
+                path: ['components', 'messages', message.id(), 'payload', 'schema'],
+                severity: DiagnosticSeverity.Error,
+                source: specFile.getSource(),
+                range: {
+                  start: { line: 0, character: 0 },
+                  end: { line: 0, character: 0 },
+                },
+              } as unknown as Diagnostic);
+            }
+          }
+        }
+      } catch (e) {
+        // console.error(e); // Context: silent failure for extra validation
+      }
+
+      const allDiagnostics = [...diagnostics, ...extraDiagnostics];
+      const status = this.determineDiagnosticsStatus(allDiagnostics, options);
 
       const result: ValidationResult = {
         status: status as 'valid' | 'invalid',
-        diagnostics,
+        diagnostics: allDiagnostics,
         score: await calculateScore(document),
         document: document?.json ? document.json() : undefined,
       };
