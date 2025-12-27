@@ -93,11 +93,63 @@ export class GeneratorService extends BaseService {
       });
     } catch (err: any) {
       s.stop('Generation failed');
-      return this.createErrorResult(err.message, err.diagnostics);
+
+      let enhancedMessage = err.message;
+
+      // Template not found (404 error)
+      if (
+        err.message.includes('404 Not Found') ||
+        err.message.includes('Installation failed')
+      ) {
+        enhancedMessage = `Template '${template}' not found in npm registry.
+
+The template you specified does not exist. This might be because:
+  • The template name is misspelled
+  • The template doesn't exist in the npm registry
+  • You need to use the full package name (e.g., @asyncapi/html-template)
+
+Popular templates: @asyncapi/html-template, @asyncapi/markdown-template, @asyncapi/nodejs-template`;
+      } else if (err.message.includes('not compatible with')) {
+        // Template version incompatibility
+        enhancedMessage = `${err.message}
+
+The template you're using is not compatible with your AsyncAPI document version or generator version.
+
+Possible solutions:
+  • Update the template to a newer version
+  • Use a different template that supports your AsyncAPI version
+  • Check template documentation for compatibility information
+
+Template compatibility info:
+  https://www.asyncapi.com/docs/tools/generator/versioning`;
+      } else if (
+        // Template structure/file not found
+        err.message.includes('ENOENT') &&
+        err.message.includes('template')
+      ) {
+        enhancedMessage = `Template '${template}' installation failed or is corrupted.
+
+This usually happens when:
+  • The package name is missing the scope (use @asyncapi/html-template instead of html-template)
+  • The template was partially downloaded but is incomplete
+  • The template package doesn't follow AsyncAPI template structure`;
+      } else if (
+        // Network/connection errors
+        err.message.includes('ENOTFOUND') ||
+        err.message.includes('ETIMEDOUT') ||
+        err.message.includes('network')
+      ) {
+        enhancedMessage = `Failed to download template due to network issues.
+
+Possible causes:
+  • No internet connection
+  • Firewall blocking npm registry access
+  • npm registry is temporarily unavailable`;
+      }
+
+      return this.createErrorResult(enhancedMessage, err.diagnostics);
     }
-    s.stop(
-      this.getGenerationSuccessMessage(output),
-    );
+    s.stop(this.getGenerationSuccessMessage(output));
 
     return this.createSuccessResult({
       success: true,
