@@ -24,7 +24,7 @@ export default class Versions extends Command {
           // used in `@oclif` source code.
           const importedPJSON = await import(`${key}/package.json`);
           dependencies.push(`${key}/${importedPJSON.default.version}`);
-        } catch (e) {
+        } catch {
           dependencies.push(`${key}/` + '`package.json` not found');
         }
       }
@@ -42,7 +42,7 @@ export default class Versions extends Command {
       // https://github.com/eslint-community/eslint-plugin-security/issues/21#issuecomment-530184612
       // https://github.com/eslint-community/eslint-plugin-security/issues/21#issuecomment-1157887653
       // https://web.archive.org/web/20150430062816/https://blog.liftsecurity.io/2015/01/15/the-dangers-of-square-bracket-notation
-      dependency = dependencies[i]; // eslint-disable-line
+      dependency = dependencies[i];  
       if (i !== dependencies.length - 1) {
         this.log(`  ├${dependency}`);
       } else {

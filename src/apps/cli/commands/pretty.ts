@@ -31,7 +31,7 @@ export default class Pretty extends Command {
 
     try {
       this.specFile = await load(filePath);
-    } catch (err) {
+    } catch {
       this.error(
         new ValidationError({
           type: 'invalid-file',

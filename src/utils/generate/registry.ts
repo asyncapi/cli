@@ -13,7 +13,7 @@ export async function registryValidation(registryUrl?: string, registryAuth?: st
     if (response.status === 401 && !registryAuth && !registryToken) {
       throw new Error('You Need to pass either registryAuth in username:password encoded in Base64 or need to pass registryToken');
     }
-  } catch (error: any) {
+  } catch {
     throw new Error(`Can't fetch registryURL: ${registryUrl}`);
   }
 }

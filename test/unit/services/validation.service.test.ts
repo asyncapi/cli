@@ -229,7 +229,10 @@ describe('ValidationService', () => {
         const invalidRefDiagnostic = result.data?.diagnostics?.find((d: any) => d.code === 'invalid-ref');
         // eslint-disable-next-line no-unused-expressions
         expect(invalidRefDiagnostic).to.exist;
-        expect(invalidRefDiagnostic?.message).to.include('Page not found');
+        // Error message varies by platform - macOS shows FetchError, Linux/Windows show "Page not found"
+        expect(invalidRefDiagnostic?.message).to.satisfy((msg: string) => 
+          msg.includes('Page not found') || msg.includes('FetchError')
+        );
         expect(invalidRefDiagnostic?.message).to.include('https://github.com/private-org/private-repo/blob/main/schema.yaml');
       }
     });

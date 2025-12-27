@@ -3,7 +3,7 @@ import * as path from 'path';
 import { IContextFile, CONTEXT_FILE_PATH } from '../../src/domains/models/Context';
 import SpecificationFile from '../../src/domains/models/SpecificationFile';
 import http from 'http';
-import rimraf from 'rimraf';
+import { rimrafSync } from 'rimraf';
 import puppeteer from 'puppeteer';
 import { version as studioVersion } from '@asyncapi/studio/package.json';
 
@@ -71,7 +71,7 @@ export default class ContextTestingHelper {
   }
 
   deleteDummyProjectDirectory(): void {
-    rimraf.sync(PROJECT_DIRECTORY_PATH);
+    rimrafSync(PROJECT_DIRECTORY_PATH);
   }
 }
 

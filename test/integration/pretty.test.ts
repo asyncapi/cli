@@ -1,5 +1,5 @@
 import { test } from '@oclif/test';
-import TestHelper, { createMockServer, stopMockServer } from '../helpers';
+import TestHelper, { createMockServer, stopMockServer } from '../helpers/index';
 import { expect } from '@oclif/test';
 
 const testHelper = new TestHelper();

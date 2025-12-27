@@ -22,7 +22,7 @@ export function getMapBaseUrlToFolderResolver(urlToFolder: IMapBaseUrlToFlag) {
               resolve(data);
             }
           });
-        } catch (err) {
+        } catch {
           reject(`Error opening file "${localpath}"`);
         }
       });

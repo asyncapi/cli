@@ -59,7 +59,6 @@ export default abstract class extends Command {
       try {
         const { document } = await this.parser.parse(rawDocument);
         if (document !== undefined) {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           metadata = MetadataFromDocument(document, metadata);
         }
@@ -109,7 +108,7 @@ export default abstract class extends Command {
     try {
       const stats = await stat(specFilePath);
       this.metricsMetadata['file_creation_timestamp'] = stats.birthtimeMs;
-    } catch (e: any) {
+    } catch {
       // If there's an error with the file, we don't handle it here because it's expected to be handled and reported in the 'finally' method of the command.
     }
   }

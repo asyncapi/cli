@@ -21,14 +21,13 @@ function isValidFilePath(filePath: string): boolean {
 
 type NextFactory = (config?: any) => any;
 
+// Using require here is necessary for dynamic module resolution
 function resolveStudioNextInstance(studioPath: string): NextFactory {
   const resolvedNextPath = require.resolve('next', { paths: [studioPath] });
-  // eslint-disable-next-line @typescript-eslint/no-var-requires,security/detect-non-literal-require
   const nextModule = require(resolvedNextPath);
   return nextModule.default ?? nextModule;
 }
-
-// eslint-disable-next-line sonarjs/cognitive-complexity
+ 
 export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:boolean): void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
@@ -84,7 +83,7 @@ export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:
           );
           console.log(json);
         }
-      } catch (e) {
+      } catch {
         console.error(
           `Live Server: An invalid event has been received. See details:\n${event}`,
         );

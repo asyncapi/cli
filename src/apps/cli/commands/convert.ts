@@ -43,7 +43,7 @@ export default class Convert extends Command {
     try {
       // LOAD FILE
       this.specFile = await load(filePath);
-      // eslint-disable-next-line sonarjs/no-duplicate-string
+       
       this.metricsMetadata.to_version = flags['target-version'];
       const conversionOptions = {
         format: flags.format as 'asyncapi' | 'openapi' | 'postman-collection',
