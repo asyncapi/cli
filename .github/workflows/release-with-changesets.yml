@@ -88,7 +88,7 @@ jobs:
           git config --global core.autocrlf false
           git config --global core.eol lf
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Check if Node.js project and has package.json
         id: packagejson
         run: test -e ./package.json && echo "exists=true" >> $GITHUB_OUTPUT || echo "exists=false" >> $GITHUB_OUTPUT
@@ -101,10 +101,9 @@ jobs:
           node-version: ${{ vars.NODE_VERSION }}
       - if: steps.packagejson.outputs.exists == 'true'
         name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "${{ steps.lockversion.outputs.version }}"
-          registry-url: "https://registry.npmjs.org"
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
         shell: bash
@@ -127,10 +126,7 @@ jobs:
           publish: npx -p @changesets/cli@2.27.7 changeset publish
           setupGitUser: false
         env:
-          # Workaround for https://github.com/changesets/changesets/issues/1152
-          NODE_AUTH_TOKEN: ""
-          NPM_TOKEN: ""
-          NPM_CONFIG_PROVENANCE: true
+          NPM_TOKEN: ''
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GIT_AUTHOR_NAME: asyncapi-bot
           GIT_AUTHOR_EMAIL: info@asyncapi.io
