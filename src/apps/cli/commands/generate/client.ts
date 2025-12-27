@@ -35,7 +35,7 @@ export default class Client extends BaseGeneratorCommand {
     let language = args['language'] as AvailableLanguageType;
     let output = flags.output as string;
     const { proxyPort, proxyHost } = flags;
-    
+
     if (interactive) {
       intro(inverse('Client generation with AsyncAPI Generator'));
       note(yellow('This feature is in the experimental phase. Please provide feedback at: https://github.com/asyncapi/generator/issues'));
@@ -58,10 +58,10 @@ export default class Client extends BaseGeneratorCommand {
     );
 
     const options = await this.buildGeneratorOptions(flags, parsedFlags);
-    
+
     // Apply proxy configuration using base class method
     asyncapi = this.applyProxyConfiguration(asyncapi, proxyHost, proxyPort);
-    
+
     const asyncapiInput = await this.loadAsyncAPIInput(asyncapi);
 
     this.specFile = asyncapiInput;
@@ -80,22 +80,24 @@ export default class Client extends BaseGeneratorCommand {
       genOption,
       interactive,
     );
-    
+
     if (!result.success) {
       throw new GeneratorError(new Error(result.error));
     }
-    
+
     this.log(result.data?.logs?.join('\n'));
 
     if (watchTemplate) {
       await this.handleWatchMode(asyncapi, template, output, options, genOption, interactive);
+    } else if (output) {
+      this.log(`Check out your shiny new generated files at ${output}.\n\n`);
     }
   }
 
   private async parseArgs(args: Record<string, any>, output?: string): Promise<{ asyncapi: string; language: string; output: string; }> {
     // Use base class method for common args
     const commonArgs = await this.parseCommonArgs(args, output);
-    
+
     let language = args['language'] as AvailableLanguageType;
 
     if (!language) {
@@ -105,10 +107,10 @@ export default class Client extends BaseGeneratorCommand {
 
     this.handleCancellation(language);
 
-    return { 
-      asyncapi: commonArgs.asyncapi, 
-      language, 
-      output: commonArgs.output 
+    return {
+      asyncapi: commonArgs.asyncapi,
+      language,
+      output: commonArgs.output
     };
   }
 

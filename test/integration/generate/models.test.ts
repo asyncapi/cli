@@ -1,6 +1,6 @@
 import { expect, test } from '@oclif/test';
 import path from 'path';
-import rimraf from 'rimraf';
+import { rimrafSync } from 'rimraf';
 import { createMockServer, stopMockServer } from '../../helpers';
 const generalOptions = ['generate:models'];
 const outputDir = './test/fixtures/generate/models';
@@ -11,7 +11,7 @@ describe('models', () => {
   });
   after(() => {
     stopMockServer();
-    rimraf.sync(outputDir);
+    rimrafSync(outputDir);
   });
 
   test
@@ -24,7 +24,7 @@ describe('models', () => {
       );
       done();
     });
-  
+
   test
     .stderr()
     .stdout()
@@ -33,22 +33,22 @@ describe('models', () => {
       expect(ctx.stdout).to.match(/Successfully generated the following models:\s+## Model name:/);
       done();
     });
-  
+
   test
     .stderr()
     .stdout()
-    .command([...generalOptions, 'typescript', './test/fixtures/specification.yml', `-o=${ path.resolve(outputDir, './ts')}`])
+    .command([...generalOptions, 'typescript', './test/fixtures/specification.yml', `-o=${path.resolve(outputDir, './ts')}`])
     .it('works when file path is passed with specified output directory', (ctx, done) => {
       expect(ctx.stdout).to.contain(
         'Successfully generated the following models: '
       );
       done();
     });
-    
+
   test
     .stderr()
     .stdout()
-    .command([...generalOptions,'typescript','http://localhost:8080/dummySpec.yml --proxyHost=host --proxyPort=8080'])
+    .command([...generalOptions, 'typescript', 'http://localhost:8080/dummySpec.yml --proxyHost=host --proxyPort=8080'])
     .it('should throw error when url is passed with proxyHost and proxyPort with invalid host ', (ctx, done) => {
       expect(ctx.stdout).to.contain('');
       expect(ctx.stderr).to.equal('error loading AsyncAPI document from url: Failed to download http://localhost:8080/dummySpec.yml --proxyHost=host --proxyPort=8080.\n');

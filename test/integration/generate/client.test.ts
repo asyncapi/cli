@@ -1,9 +1,9 @@
 import { test } from '@oclif/test';
-import rimraf from 'rimraf';
+import { rimrafSync } from 'rimraf';
 import { expect } from '@oclif/test';
 
 function cleanup(filepath: string) {
-  rimraf.sync(filepath);
+  rimrafSync(filepath);
 }
 
 describe('client', () => {
