@@ -15,7 +15,7 @@ inputs:
     default: 'asyncapi.yml'
   template:
     description: 'Template for the generator. Official templates are listed here https://github.com/search?q=topic%3Aasyncapi+topic%3Agenerator+topic%3Atemplate. You can pass template as npm package, url to git repository, link to tar file or local template.'
-    default: '@asyncapi/markdown-template@0.10.0'
+    default: '@asyncapi/markdown-template@2.0.0'
     required: false
   language:
     description: 'Language of the generated code. This input is required if you want to generate models. List of available languages can be found in https://www.asyncapi.com/docs/tools/cli/usage#asyncapi-generate-models-language-file'
@@ -38,7 +38,7 @@ runs:
   using: 'docker'
   # This is the image that will be used to run the action.
   # IMPORTANT: The version has to be changed manually in your PRs.
-  image: 'docker://asyncapi/github-action-for-cli:4.1.3'
+  image: 'docker://asyncapi/github-action-for-cli:5.0.0'
   args:
     - ${{ inputs.cli_version }}
     - ${{ inputs.command }}

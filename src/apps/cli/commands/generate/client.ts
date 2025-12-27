@@ -2,7 +2,7 @@ import { Args } from '@oclif/core';
 import { BaseGeneratorCommand } from '@cli/internal/base/BaseGeneratorCommand';
 // eslint-disable-next-line
 // @ts-ignore
-import { listBakedInTemplates } from 'generator-v2';
+import { listBakedInTemplates } from '@asyncapi/generator';
 import { intro, note } from '@clack/prompts';
 import { inverse, yellow } from 'picocolors';
 import { clientsFlags } from '@cli/internal/flags/generate/clients.flags';
@@ -70,14 +70,15 @@ export default class Client extends BaseGeneratorCommand {
     const watchTemplate = flags['watch'];
     const genOption = this.buildGenOption(flags, parsedFlags);
 
-    // Use GeneratorService with new generator (v2) for client generation
+    // Use GeneratorService for client generation
     const specification = await this.loadSpecificationSafely(asyncapi);
-    const result = await this.generatorService.generateUsingNewGenerator(
+    const result = await this.generatorService.generate(
       specification,
       template,
       output,
       options as any, // GeneratorService expects different options interface
       genOption,
+      interactive,
     );
     
     if (!result.success) {
