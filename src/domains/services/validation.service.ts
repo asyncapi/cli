@@ -68,17 +68,9 @@ const convertGitHubWebUrl = (url: string): string => {
   // Remove fragment from URL before processing
   const urlWithoutFragment = url.split('#')[0];
 
-  // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
-  // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
-  const match = urlWithoutFragment.match(githubWebPattern);
-
-  if (match) {
-    const [, owner, repo, branch, filePath] = match;
-    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
-  }
-
-  return url;
+  return urlWithoutFragment
+    .replace('github.com', 'raw.githubusercontent.com')
+    .replace('/blob/', '/');
 };
 
 /**
