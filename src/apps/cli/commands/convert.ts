@@ -12,6 +12,7 @@ import { ConversionService } from '@services/convert.service';
 import { applyProxyToPath } from '@utils/proxy';
 
 const latestVersion = Object.keys(specs.schemas).pop() as string;
+const TARGET_VERSION_FLAG = 'target-version';
 
 export default class Convert extends Command {
   static description =
@@ -36,14 +37,15 @@ export default class Convert extends Command {
       flags['proxyHost'],
       flags['proxyPort']
     );
+    const targetVersion = flags[TARGET_VERSION_FLAG];
 
     try {
       // LOAD FILE
       this.specFile = await load(filePath);
-      this.metricsMetadata.to_version = flags['target-version'];
+      this.metricsMetadata.to_version = targetVersion;
       const conversionOptions = {
         format: flags.format as 'asyncapi' | 'openapi' | 'postman-collection',
-        'target-version': (flags['target-version'] ||
+        [TARGET_VERSION_FLAG]: (targetVersion ||
           latestVersion) as AsyncAPIConvertVersion,
         perspective: flags['perspective'] as 'client' | 'server',
       };
@@ -72,7 +74,7 @@ export default class Convert extends Command {
         this.log(result.data.convertedDocument);
       }
     } catch (err) {
-      this.handleError(err, filePath ?? 'unknown', flags['target-version']);
+      this.handleError(err, filePath ?? 'unknown', targetVersion);
     }
   }
 
