@@ -42,7 +42,7 @@ export default class StartStudio extends Command {
       try {
         filePath = (await load()).getFilePath();
         this.log(`Loaded specification from: ${filePath}`);
-      } catch (error) {
+      } catch {
         filePath = '';
         this.error('No file specified.');
       }

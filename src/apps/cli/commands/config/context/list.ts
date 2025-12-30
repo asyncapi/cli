@@ -16,6 +16,7 @@ export default class ContextList extends Command {
   static flags = helpFlag();
 
   async run() {
+    await this.parse(ContextList);
     try {
       const fileContent = await loadContextFile();
 

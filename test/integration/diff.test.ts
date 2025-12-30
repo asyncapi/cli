@@ -1,4 +1,4 @@
-/* eslint-disable sonarjs/no-duplicate-string */
+ 
 import { expect, test } from '@oclif/test';
 
 const asyncapiv3 = './test/fixtures/specification-v3.yml';
