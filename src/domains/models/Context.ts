@@ -339,7 +339,9 @@ async function getContextFilePath(): Promise<string | null> {
         CONTEXT_FILE_PATH = currentPathString;
         return CONTEXT_FILE_PATH;
       }
-    } catch (e) {} // eslint-disable-line
+    } catch {
+      // Silently continue to parent directory if file doesn't exist or is invalid JSON
+    }
 
     currentPath.pop();
   }

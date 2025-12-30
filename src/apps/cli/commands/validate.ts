@@ -13,6 +13,7 @@ import {
   ValidationService,
   ValidationStatus,
 } from '@services/validation.service';
+import { applyProxyToPath } from '@utils/proxy';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
@@ -32,14 +33,11 @@ export default class Validate extends Command {
 
   async run() {
     const { args, flags } = await this.parse(Validate); //NOSONAR
-    let filePath = args['spec-file'];
-    const proxyHost = flags['proxyHost'];
-    const proxyPort = flags['proxyPort'];
-
-    if (proxyHost && proxyPort) {
-      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
-      filePath = `${filePath}+${proxyUrl}`; // Update filePath with proxyUrl
-    }
+    const filePath = applyProxyToPath(
+      args['spec-file'],
+      flags['proxyHost'],
+      flags['proxyPort']
+    );
 
     this.specFile = await load(filePath);
     const watchMode = flags.watch;

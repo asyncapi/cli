@@ -15,6 +15,7 @@ import { getMapBaseUrlToFolderResolver } from '@utils/generate/mapBaseUrl';
 import { promptForAsyncAPIPath, promptForOutputDir } from '@utils/generate/prompts';
 import { ParsedFlags } from '@models/generate/Flags';
 import { GeneratorService } from '@services/generator.service';
+import { applyProxyToPath } from '@utils/proxy';
 
 export interface GeneratorOptions {
   forceWrite: boolean;
@@ -61,11 +62,7 @@ export abstract class BaseGeneratorCommand extends Command {
   }
 
   protected applyProxyConfiguration(asyncapi: string, proxyHost?: string, proxyPort?: string): string {
-    if (proxyHost && proxyPort) {
-      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
-      return `${asyncapi}+${proxyUrl}`;
-    }
-    return asyncapi;
+    return applyProxyToPath(asyncapi, proxyHost, proxyPort) ?? asyncapi;
   }
 
   protected async handleWatchMode(
