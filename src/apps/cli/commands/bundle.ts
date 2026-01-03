@@ -26,13 +26,17 @@ export default class Bundle extends Command {
 
   async run() {
     const { argv, flags } = await this.parse(Bundle);
+    //Guard: building requires at least one AsyncApi file path.
+    if (!argv.length) {
+      this.error('At least one AsyncAPI file path is required!');
+    }
     const output = flags.output;
     const outputFormat = path.extname(argv[0] as string);
-    const AsyncAPIFiles = argv as string[];
+    const AsyncApiFiles = argv as string[];
 
-    this.metricsMetadata.files = AsyncAPIFiles.length;
+    this.metricsMetadata.files = AsyncApiFiles.length;
 
-    const document = await bundle(AsyncAPIFiles, {
+    const document = await bundle(AsyncApiFiles, {
       base: flags.base,
       baseDir: flags.baseDir,
       xOrigin: flags.xOrigin,
@@ -49,6 +53,7 @@ export default class Bundle extends Command {
     } else {
       const format = path.extname(output);
 
+      //Ensuring only one output format is written and fail fast on unsupported extension.
       if (format === '.yml' || format === '.yaml') {
         await writeFile(
           path.resolve(process.cwd(), output),
@@ -57,9 +62,7 @@ export default class Bundle extends Command {
             encoding: 'utf-8',
           },
         );
-      }
-
-      if (format === '.json') {
+      } else if (format === '.json') {
         await writeFile(
           path.resolve(process.cwd(), output),
           document.string() || '',
@@ -67,6 +70,8 @@ export default class Bundle extends Command {
             encoding: 'utf-8',
           },
         );
+      } else {
+        this.error('Output file must be .json, .yaml or .yml');
       }
       this.log(`Check out your shiny new bundled files at ${output}`);
     }
