@@ -1,14 +1,14 @@
-import { existsSync, writeFileSync, unlinkSync,rmdirSync, mkdirSync, promises as fs } from 'fs';
+import { existsSync, writeFileSync, unlinkSync, rmdirSync, mkdirSync, promises as fs } from 'fs';
 import * as path from 'path';
 import { IContextFile, CONTEXT_FILE_PATH } from '../../src/domains/models/Context';
 import SpecificationFile from '../../src/domains/models/SpecificationFile';
 import http from 'http';
-import rimraf from 'rimraf';
+import { rimrafSync } from 'rimraf';
 import puppeteer from 'puppeteer';
 import { version as studioVersion } from '@asyncapi/studio/package.json';
 
 const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'specification.yaml');
-const SERVER_DIRECTORY= path.join(__dirname, '../fixtures/dummyspec');
+const SERVER_DIRECTORY = path.join(__dirname, '../fixtures/dummyspec');
 export const PROJECT_DIRECTORY_PATH = path.join(process.cwd(), 'test-project');
 
 let server: http.Server;
@@ -71,7 +71,7 @@ export default class ContextTestingHelper {
   }
 
   deleteDummyProjectDirectory(): void {
-    rimraf.sync(PROJECT_DIRECTORY_PATH);
+    rimrafSync(PROJECT_DIRECTORY_PATH);
   }
 }
 
@@ -79,53 +79,53 @@ export function fileCleanup(filepath: string) {
   unlinkSync(filepath);
 }
 
-export async function testStudio(){
+export async function testStudio() {
   const browser = await puppeteer.launch({
     args: ['--no-sandbox']
   });
   const page = await browser.newPage();
 
   await page.goto(`http://127.0.0.1:3210?liveServer=3210&studio-version=${studioVersion}`);
-  await page.setViewport({width: 1080, height: 1024});
+  await page.setViewport({ width: 1080, height: 1024 });
 
   const logo = await page.locator('body > div:nth-child(1) > div > div > div > div > img').waitHandle()
   const sideBar = await page.locator('#sidebar').waitHandle()
   const navigationPannel = await page.locator('#navigation-panel').waitHandle()
   const editor = await page.locator('#editor').waitHandle()
 
-  const logoTitle = await logo?.evaluate((e:any) => e.title)
-  const sideBarId = await sideBar?.evaluate((e:any)=> e.id)
-  const navigationPannelId = await navigationPannel?.evaluate((e:any)=> e.id)
-  const editorId = await editor?.evaluate((e:any)=> e.id)
+  const logoTitle = await logo?.evaluate((e: any) => e.title)
+  const sideBarId = await sideBar?.evaluate((e: any) => e.id)
+  const navigationPannelId = await navigationPannel?.evaluate((e: any) => e.id)
+  const editorId = await editor?.evaluate((e: any) => e.id)
   await browser.close();
-  return {logoTitle,sideBarId,navigationPannelId,editorId}
+  return { logoTitle, sideBarId, navigationPannelId, editorId }
 }
 
-export async function testPreview(){
+export async function testPreview() {
   const browser = await puppeteer.launch({
     args: ['--no-sandbox']
   });
   const page = await browser.newPage();
 
   await page.goto(`http://127.0.0.1:4321?previewServer=4321&studio-version=${studioVersion}`);
-  await page.setViewport({width: 1080, height: 1024});
+  await page.setViewport({ width: 1080, height: 1024 });
 
   const logo = await page.locator('body > div:nth-child(1) > div > div > div > div > img').waitHandle()
   const introductionSection = await page.locator('#introduction').waitHandle()
 
-  const logoTitle = await logo?.evaluate((e:any) => e.title)
-  const introductionSectionId = await introductionSection?.evaluate((e:any)=> e.id)
+  const logoTitle = await logo?.evaluate((e: any) => e.title)
+  const introductionSectionId = await introductionSection?.evaluate((e: any) => e.id)
 
   await browser.close();
-  return {logoTitle,introductionSectionId}
+  return { logoTitle, introductionSectionId }
 }
-export function createMockServer (port = 8080) {
-  server = http.createServer(async (req,res) => {
-    if (req.method ==='GET') {
-      const filePath= path.join(SERVER_DIRECTORY, req.url || '/');
+export function createMockServer(port = 8080) {
+  server = http.createServer(async (req, res) => {
+    if (req.method === 'GET') {
+      const filePath = path.join(SERVER_DIRECTORY, req.url || '/');
       try {
-        const content = await fs.readFile(filePath, {encoding: 'utf8'});
-        res.writeHead(200, {'Content-Type': getContentType(filePath)});
+        const content = await fs.readFile(filePath, { encoding: 'utf8' });
+        res.writeHead(200, { 'Content-Type': getContentType(filePath) });
         res.end(content);
       } catch (error: any) {
         if (error.code === 'ENOENT') {
@@ -158,16 +158,16 @@ export async function closeStudioServer(port = 3210): Promise<void> {
   }
 }
 
-function getContentType(filePath:string):string {
+function getContentType(filePath: string): string {
   const extname = path.extname(filePath);
   switch (extname) {
-  case '.json':
-    return 'application/json';
-  case '.yml':
-  case '.yaml':
-    return 'application/yaml';
-  default:
-    // Any other suggestion?
-    return 'application/octet-stream';
+    case '.json':
+      return 'application/json';
+    case '.yml':
+    case '.yaml':
+      return 'application/yaml';
+    default:
+      // Any other suggestion?
+      return 'application/octet-stream';
   }
 }

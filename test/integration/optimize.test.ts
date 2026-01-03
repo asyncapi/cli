@@ -2,8 +2,8 @@ import path from 'path';
 import { test } from '@oclif/test';
 import TestHelper, { createMockServer, stopMockServer } from '../helpers';
 import fs from 'fs-extra';
-import inquirer from 'inquirer';
-import {Optimizations, Outputs} from '../../src/apps/cli/commands/optimize';
+import * as inquirer from 'inquirer';
+import { Optimizations, Outputs } from '../../src/apps/cli/commands/optimize';
 import { expect } from '@oclif/test';
 
 const testHelper = new TestHelper();
@@ -171,7 +171,7 @@ describe('optimize', () => {
   describe('interactive terminal', () => {
     test
       .stub(inquirer, 'prompt', () => {
-        return Promise.resolve({optimization: [Optimizations.REMOVE_COMPONENTS] , output: Outputs.TERMINAL});
+        return Promise.resolve({ optimization: [Optimizations.REMOVE_COMPONENTS], output: Outputs.TERMINAL });
       })
       .stderr()
       .stdout()
@@ -186,7 +186,7 @@ describe('optimize', () => {
     test
       .stderr()
       .stdout()
-      .command(['optimize',invalidFile])
+      .command(['optimize', invalidFile])
       .it('give ValidationError', (ctx, done) => {
         expect(ctx.stderr).to.contain(`ValidationError: Syntax Error in "${invalidFile}".`);
         expect(ctx.stdout).to.equal('');
