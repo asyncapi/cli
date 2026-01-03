@@ -57,6 +57,8 @@ const isValidGitHubBlobUrl = (url: string): boolean => {
       parsedUrl.pathname.split('/')[3] === 'blob'
     );
   } catch (error) {
+    // This is expected for non-URL strings, just log and return false
+    console.debug(`Invalid URL format for GitHub blob check: ${url}`);
     return false;
   }
 };
@@ -71,7 +73,7 @@ const convertGitHubWebUrl = (url: string): string => {
   // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
   // eslint-disable-next-line no-useless-escape
   const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
-  const match = urlWithoutFragment.match(githubWebPattern);
+  const match = githubWebPattern.exec(urlWithoutFragment);
 
   if (match) {
     const [, owner, repo, branch, filePath] = match;
@@ -79,6 +81,67 @@ const convertGitHubWebUrl = (url: string): string => {
   }
 
   return url;
+};
+
+/**
+ * Helper function to fetch URL and handle errors
+ */
+const fetchWithErrorHandling = async (
+  url: string,
+  headers: Record<string, string>,
+  errorMessage: string
+): Promise<Response> => {
+  const res = await fetch(url, { headers });
+  if (!res.ok) {
+    throw new Error(`${errorMessage}: ${url} - ${res.statusText}`);
+  }
+  return res;
+};
+
+/**
+ * Handle GitHub API URLs
+ */
+const handleGitHubApiUrl = async (
+  url: string,
+  headers: Record<string, string>
+): Promise<string> => {
+  headers['Accept'] = 'application/vnd.github.v3+json';
+  const res = await fetchWithErrorHandling(url, headers, 'Failed to fetch GitHub API URL');
+  const fileInfo = (await res.json()) as GitHubFileInfo;
+
+  if (!fileInfo.download_url) {
+    throw new Error(`No download URL found in GitHub API response for: ${url}`);
+  }
+
+  const contentRes = await fetchWithErrorHandling(
+    fileInfo.download_url,
+    headers,
+    'Failed to fetch content from download URL'
+  );
+  return await contentRes.text();
+};
+
+/**
+ * Handle raw GitHub content URLs
+ */
+const handleRawGitHubUrl = async (
+  url: string,
+  headers: Record<string, string>
+): Promise<string> => {
+  headers['Accept'] = 'application/vnd.github.v3.raw';
+  const res = await fetchWithErrorHandling(url, headers, 'Failed to fetch GitHub URL');
+  return await res.text();
+};
+
+/**
+ * Handle regular HTTP/HTTPS URLs
+ */
+const handleRegularUrl = async (
+  url: string,
+  headers: Record<string, string>
+): Promise<string> => {
+  const res = await fetchWithErrorHandling(url, headers, 'Failed to fetch URL');
+  return await res.text();
 };
 
 /**
@@ -104,47 +167,16 @@ const createHttpWithAuthResolver = () => ({
 
     if (authInfo) {
       headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
-      Object.assign(headers, authInfo.headers); // merge custom headers
+      Object.assign(headers, authInfo.headers);  
     }
 
     if (url.includes('api.github.com')) {
-      headers['Accept'] = 'application/vnd.github.v3+json';
-      const res = await fetch(url, { headers });
-      if (!res.ok) {
-        throw new Error(
-          `Failed to fetch GitHub API URL: ${url} - ${res.statusText}`
-        );
-      }
-      const fileInfo = (await res.json()) as GitHubFileInfo;
-
-      if (fileInfo.download_url) {
-        const contentRes = await fetch(fileInfo.download_url, { headers });
-        if (!contentRes.ok) {
-          throw new Error(
-            `Failed to fetch content from download URL: ${fileInfo.download_url} - ${contentRes.statusText}`
-          );
-        }
-        return await contentRes.text();
-      }
-      throw new Error(
-        `No download URL found in GitHub API response for: ${url}`
-      );
-    } else if (url.includes('raw.githubusercontent.com')) {
-      headers['Accept'] = 'application/vnd.github.v3.raw';
-      const res = await fetch(url, { headers });
-      if (!res.ok) {
-        throw new Error(
-          `Failed to fetch GitHub URL: ${url} - ${res.statusText}`
-        );
-      }
-      return await res.text();
-    } else {
-      const res = await fetch(url, { headers });
-      if (!res.ok) {
-        throw new Error(`Failed to fetch URL: ${url} - ${res.statusText}`);
-      }
-      return await res.text();
+      return handleGitHubApiUrl(url, headers);
     }
+    if (url.includes('raw.githubusercontent.com')) {
+      return handleRawGitHubUrl(url, headers);
+    }
+    return handleRegularUrl(url, headers);
   },
 });
 
