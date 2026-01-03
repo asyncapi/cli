@@ -12,7 +12,8 @@ import { OpenAPISchemaParser } from '@asyncapi/openapi-schema-parser';
 import { DiagnosticSeverity, Parser } from '@asyncapi/parser/cjs';
 import { RamlDTSchemaParser } from '@asyncapi/raml-dt-schema-parser';
 import { ProtoBuffSchemaParser } from '@asyncapi/protobuf-schema-parser';
-import { getDiagnosticSeverity } from '@stoplight/spectral-core';
+import { getDiagnosticSeverity, RulesetDefinition } from '@stoplight/spectral-core';
+import * as fs from 'node:fs';
 import {
   html,
   json,
@@ -23,7 +24,7 @@ import {
   text,
 } from '@stoplight/spectral-formatters';
 import { red, yellow, green, cyan } from 'chalk';
-import { promises } from 'fs';
+import { promises } from 'node:fs';
 import path from 'path';
 
 import type { Diagnostic } from '@asyncapi/parser/cjs';
@@ -255,6 +256,24 @@ export class ValidationService extends BaseService {
   }
 
   /**
+   * Load a custom Spectral ruleset from file
+   */
+  async loadCustomRuleset(rulesetPath: string): Promise<RulesetDefinition> {
+    const absolutePath = path.resolve(process.cwd(), rulesetPath);
+
+    if (!fs.existsSync(absolutePath)) {
+      throw new Error(`Ruleset file not found: ${absolutePath}`);
+    }
+
+    if (!rulesetPath.endsWith('.js') && !rulesetPath.endsWith('.mjs') && !rulesetPath.endsWith('.cjs')) {
+      throw new Error(`Only JavaScript ruleset files (.js, .mjs, .cjs) are supported. Provided: ${rulesetPath}`);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    return require(absolutePath);
+  }
+
+  /**
    * Validates an AsyncAPI document
    */
   async validateDocument(
@@ -264,9 +283,25 @@ export class ValidationService extends BaseService {
     try {
       const suppressAllWarnings = options.suppressAllWarnings ?? false;
       const suppressedWarnings = options.suppressWarnings ?? [];
+      const customRulesetPath = options.ruleset;
       let activeParser: Parser;
 
-      if (suppressAllWarnings || suppressedWarnings.length) {
+      if (customRulesetPath) {
+        const customRuleset = await this.loadCustomRuleset(customRulesetPath);
+        activeParser = new Parser({
+          ruleset: customRuleset,
+          __unstable: {
+            resolver: {
+              cache: false,
+              resolvers: [createHttpWithAuthResolver()],
+            },
+          },
+        });
+        activeParser.registerSchemaParser(AvroSchemaParser());
+        activeParser.registerSchemaParser(OpenAPISchemaParser());
+        activeParser.registerSchemaParser(RamlDTSchemaParser());
+        activeParser.registerSchemaParser(ProtoBuffSchemaParser());
+      } else if (suppressAllWarnings || suppressedWarnings.length) {
         activeParser = await this.buildAndRegisterCustomParser(
           specFile,
           suppressedWarnings,
@@ -293,8 +328,15 @@ export class ValidationService extends BaseService {
       };
 
       return this.createSuccessResult<ValidationResult>(result);
-    } catch (error) {
-      return this.handleServiceError(error);
+    } catch (error: any) {
+      let errorMessage = error?.message || error?.toString() || 'Unknown error';
+
+      if (error?.errors && Array.isArray(error.errors)) {
+        const errors = error.errors.map((e: any) => e?.message || e?.toString()).join('; ');
+        errorMessage = `${errorMessage}: ${errors}`;
+      }
+
+      return this.createErrorResult(errorMessage);
     }
   }
 
