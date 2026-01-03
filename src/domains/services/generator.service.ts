@@ -11,6 +11,15 @@ import { spinner } from '@clack/prompts';
 import path from 'path';
 import os from 'os';
 import { yellow, magenta } from 'picocolors';
+import { getErrorMessage } from '@utils/error-handler';
+
+/**
+ * Options passed to the generator for code generation.
+ */
+interface GeneratorRunOptions {
+  path?: Specification;
+  [key: string]: unknown;
+}
 
 export class GeneratorService extends BaseService {
   private defaultInteractive: boolean;
@@ -63,12 +72,23 @@ export class GeneratorService extends BaseService {
     }
   }
 
+  /**
+   * Generates code from an AsyncAPI specification using the specified template.
+   *
+   * @param asyncapi - The AsyncAPI specification to generate from
+   * @param template - The template to use for generation
+   * @param output - The output directory for generated files
+   * @param options - Generator options
+   * @param genOption - Additional generator run options
+   * @param interactive - Whether to show interactive spinner (default: false)
+   * @returns ServiceResult containing generation result or error
+   */
   async generate(
     asyncapi: Specification,
     template: string,
     output: string,
     options: GenerationOptions,
-    genOption: any,
+    genOption: GeneratorRunOptions = {},
     interactive = this.defaultInteractive,
   ): Promise<ServiceResult<GenerationResult>> {
     const v3NotSupported = this.checkV3NotSupported(asyncapi, template);
@@ -84,16 +104,20 @@ export class GeneratorService extends BaseService {
     );
     const s = interactive
       ? spinner()
-      : { start: () => null, stop: (string: string) => logs.push(string) };
+      : { start: () => null, stop: (message: string) => logs.push(message) };
     s.start('Generation in progress. Keep calm and wait a bit');
     try {
       await generator.generateFromString(asyncapi.text(), {
         ...genOption,
         path: asyncapi,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       s.stop('Generation failed');
-      return this.createErrorResult(err.message, err.diagnostics);
+      const errorMessage = getErrorMessage(err, 'Generation failed');
+      const diagnostics = err && typeof err === 'object' && 'diagnostics' in err 
+        ? (err as { diagnostics?: unknown[] }).diagnostics as Parameters<typeof this.createErrorResult>[1]
+        : undefined;
+      return this.createErrorResult(errorMessage, diagnostics);
     }
     s.stop(
       this.getGenerationSuccessMessage(output),

@@ -9,12 +9,12 @@ import { proxyFlags } from '@cli/internal/flags/proxy.flags';
 import specs from '@asyncapi/specs';
 import { convertFlags } from '@cli/internal/flags/convert.flags';
 import { ConversionService } from '@services/convert.service';
+import { applyProxyToPath } from '@utils/proxy';
 
 const latestVersion = Object.keys(specs.schemas).pop() as string;
+const TARGET_VERSION_FLAG = 'target-version';
 
 export default class Convert extends Command {
-  static specFile: any;
-  static metricsMetadata: any = {};
   static description =
     'Convert asyncapi documents older to newer versions or OpenAPI/postman-collection documents to AsyncAPI';
   private conversionService = new ConversionService();
@@ -32,22 +32,20 @@ export default class Convert extends Command {
 
   async run() {
     const { args, flags } = await this.parse(Convert);
-    let filePath = args['spec-file'];
-    const proxyHost = flags['proxyHost'];
-    const proxyPort = flags['proxyPort'];
-    if (proxyHost && proxyPort) {
-      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
-      filePath = `${filePath}+${proxyUrl}`; // Update filePath with proxyUrl
-    }
+    const filePath = applyProxyToPath(
+      args['spec-file'],
+      flags['proxyHost'],
+      flags['proxyPort']
+    );
+    const targetVersion = flags[TARGET_VERSION_FLAG];
 
     try {
       // LOAD FILE
       this.specFile = await load(filePath);
-      // eslint-disable-next-line sonarjs/no-duplicate-string
-      this.metricsMetadata.to_version = flags['target-version'];
+      this.metricsMetadata.to_version = targetVersion;
       const conversionOptions = {
         format: flags.format as 'asyncapi' | 'openapi' | 'postman-collection',
-        'target-version': (flags['target-version'] ||
+        [TARGET_VERSION_FLAG]: (targetVersion ||
           latestVersion) as AsyncAPIConvertVersion,
         perspective: flags['perspective'] as 'client' | 'server',
       };
@@ -76,12 +74,12 @@ export default class Convert extends Command {
         this.log(result.data.convertedDocument);
       }
     } catch (err) {
-      this.handleError(err, filePath ?? 'unknown', flags);
+      this.handleError(err, filePath ?? 'unknown', targetVersion);
     }
   }
 
   // Helper function to handle errors
-  private handleError(err: any, filePath: string, flags: any) {
+  private handleError(err: unknown, filePath: string, targetVersion: string | undefined) {
     if (err instanceof SpecificationFileNotFound) {
       this.error(
         new ValidationError({
@@ -89,7 +87,7 @@ export default class Convert extends Command {
           filepath: filePath,
         }),
       );
-    } else if (this.specFile?.toJson().asyncapi > flags['target-version']) {
+    } else if (this.specFile?.toJson().asyncapi > (targetVersion ?? '')) {
       this.error(
         `The ${cyan(filePath)} file cannot be converted to an older version. Downgrading is not supported.`,
       );

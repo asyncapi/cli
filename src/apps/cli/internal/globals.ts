@@ -2,6 +2,7 @@ import chokidar from 'chokidar';
 import chalk from 'chalk';
 import Command from './base';
 import { Specification } from '@models/SpecificationFile';
+import { getErrorMessage } from '@utils/error-handler';
 
 const GreenLog = chalk.hex('#00FF00');
 const OrangeLog = chalk.hex('#FFA500');
@@ -50,12 +51,12 @@ export const specWatcher = (params: SpecWatcherParams) => {
 
       try {
         await params.handler.run();
-      } catch (err: any) {
-        await params.handler.catch(err);
+      } catch (err: unknown) {
+        await params.handler.catch(err as Error);
       }
     });
     CHOKIDAR_INSTANCE_STORE.set(params.label || '_default', true);
-  } catch (error) {
-    console.log(error);
+  } catch (error: unknown) {
+    console.error(chalk.red(`Watch error: ${getErrorMessage(error)}`));
   }
 };
