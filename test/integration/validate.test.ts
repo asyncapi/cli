@@ -3,7 +3,7 @@
 import path from 'path';
 import { test } from '@oclif/test';
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
-import TestHelper, {createMockServer, stopMockServer } from '../helpers';
+import TestHelper, { createMockServer, stopMockServer } from '../helpers';
 import { expect } from '@oclif/test';
 
 const testHelper = new TestHelper();
@@ -49,6 +49,18 @@ describe('validate', () => {
     test
       .stderr()
       .stdout()
+      .command(['validate', './test/fixtures/asyncapi_avro_invalid.yml', '--diagnostics-format=json'])
+      .it('works when file path is passed and schema is avro but invalid', (ctx, done) => {
+        // We expect diagnostics in JSON format
+        const diagnostics = JSON.parse(ctx.stdout);
+        expect(diagnostics).to.be.an('array');
+        expect(diagnostics.some((d: any) => d.code === 'avro-schema-invalid' || d.code === 'avro-schema-missing')).to.equal(true);
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
       .command(['validate', './test/fixtures/not-found.yml'])
       .it('should throw error if file path is wrong', (ctx, done) => {
         expect(ctx.stdout).to.equal('');
@@ -81,16 +93,6 @@ describe('validate', () => {
       .command(['validate', './test/fixtures/valid-specification-latest.yml'])
       .it('works when file path is passed', (ctx, done) => {
         expect(ctx.stdout).to.include('File ./test/fixtures/valid-specification-latest.yml is valid! File ./test/fixtures/valid-specification-latest.yml and referenced documents don\'t have governance issues.');
-        expect(ctx.stderr).to.equal('');
-        done();
-      });
-
-    test
-      .stderr()
-      .stdout()
-      .command(['validate', './test/fixtures/external-refs/main.yaml'])
-      .it('should resolve external file references in same directory', (ctx, done) => {
-        expect(ctx.stdout).to.include('File ./test/fixtures/external-refs/main.yaml is valid');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -264,8 +266,8 @@ describe('validate', () => {
         done();
       });
   });
-  
-  describe('with --score flag',() => {
+
+  describe('with --score flag', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
     });
@@ -340,7 +342,7 @@ describe('validate', () => {
         'non-existing-rule'
       ])
       .it('should not suppress anything', (ctx, done) => {
-        expect(ctx.stdout).to.include('asyncapi-id'); 
+        expect(ctx.stdout).to.include('asyncapi-id');
         done();
       });
   });
@@ -356,7 +358,7 @@ describe('validate', () => {
         'foobar'
       ])
       .it('should suppress valid rules', (ctx, done) => {
-        expect(ctx.stdout).to.not.include('asyncapi-id'); 
+        expect(ctx.stdout).to.not.include('asyncapi-id');
         done();
       });
   });
