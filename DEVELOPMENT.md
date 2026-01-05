@@ -28,15 +28,21 @@ npm install
 To run all tests locally:
 
 - CLI tests: `npm run cli:test`
+- Unit tests: `npm run unit:test`
 - Github action tests: `npm run action:test`
+- Single test file: `npm run test:one -- <path-to-test-file>`
 
 ### Adding tests
 
 1. Create new test files in the appropriate directory under `test/`:
+   - Unit tests: `test/unit/<category>/<name>.test.ts`
+   - Integration tests: `test/integration/<command>.test.ts`
 
 2. Follow the existing test patterns.
 
 3. Run your new tests using the commands mentioned above.
+
+> 📘 **For detailed debugging and testing guidelines**, see the [Debugging & Testing Guide](/docs/debugging-testing.md).
 
 ## Release process
 
@@ -137,5 +143,9 @@ If you encounter any issues during development or testing, please check the foll
 1. Ensure you're using the correct Node.js version (24.0.0 or higher) and npm version (8.19.0 or higher).
 2. Clear the `node_modules` directory and reinstall dependencies if you encounter unexpected behavior.
 3. For Docker-related issues, make sure Docker is running and you have sufficient permissions.
+4. For permission errors, try: `sudo chown -R $(whoami) ./lib ./node_modules`
+5. For path alias issues, rebuild the project: `npm run build`
+
+> 📘 **For comprehensive debugging help**, see the [Debugging & Testing Guide](/docs/debugging-testing.md).
 
 If problems persist, please open an issue on the GitHub repository.

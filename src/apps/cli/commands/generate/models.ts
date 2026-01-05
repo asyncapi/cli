@@ -15,6 +15,7 @@ import {
   ValidationStatus,
 } from '@/domains/services/validation.service';
 import { Diagnostic } from '@asyncapi/parser/cjs';
+import { applyProxyToPath } from '@utils/proxy';
 
 export default class Models extends Command {
   static description = 'Generates typed models';
@@ -43,11 +44,8 @@ export default class Models extends Command {
       output = parsedArgs.output;
     }
 
-    if (proxyHost && proxyPort) {
-      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
-      file = `${file}+${proxyUrl}`;
-    }
-    const inputFile = (await load(file)) || (await load());
+    const fileWithProxy = applyProxyToPath(file, proxyHost, proxyPort);
+    const inputFile = (await load(fileWithProxy)) || (await load());
 
     const result = await this.validationService.parseDocument(
       inputFile,

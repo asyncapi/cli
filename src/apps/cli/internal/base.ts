@@ -35,15 +35,15 @@ export default abstract class extends Command {
     await this.recordActionInvoked(commandName, this.metricsMetadata);
   }
 
-  async catch(err: Error & { exitCode?: number }): Promise<any> {
+  async catch(err: Error & { exitCode?: number }): Promise<void> {
     try {
-      return await super.catch(err);
-    } catch (e: any) {
-      if (e.message.includes('EEXIT: 0')) {
-        process.exitCode = 0;
-        return;
-      }
+      await super.catch(err);
+    } catch (e: unknown) {
       if (e instanceof Error) {
+        if (e.message.includes('EEXIT: 0')) {
+          process.exitCode = 0;
+          return;
+        }
         this.logToStderr(`${e.name}: ${e.message}`);
         process.exitCode = 1;
       }
@@ -62,7 +62,7 @@ export default abstract class extends Command {
           // @ts-ignore
           metadata = MetadataFromDocument(document, metadata);
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (e instanceof Error) {
           this.log(
             `Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`,
@@ -91,7 +91,7 @@ export default abstract class extends Command {
       await this.setSource();
       await recordFunc(await this.recorder);
       await (await this.recorder).flush();
-    } catch (e: any) {
+    } catch (e: unknown) {
       if (e instanceof Error) {
         this.log(
           `Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`,

@@ -1,5 +1,22 @@
 # @asyncapi/cli
 
+## 5.0.2
+
+### Patch Changes
+
+- 4073175: - Alpine Releases have been fixed now.
+  - Smaller docker image sizes and pruned dependencies.
+
+## 5.0.1
+
+### Patch Changes
+
+- 394967f: fix: remove unnecessary await from startPreview call
+
+  The startPreview function returns void, not a Promise, so awaiting it
+  was incorrect and triggered a linter error. This matches the pattern
+  used in the studio command.
+
 ## 5.0.0
 
 ### Major Changes

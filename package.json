@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "5.0.0",
+  "version": "5.0.2",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
@@ -175,6 +175,7 @@
     "pack:tarballs:alpine": "oclif pack tarballs -t linux-x64 && npm run pack:rename alpine",
     "pack:windows": "oclif pack win && npm run pack:rename",
     "pack:rename": "node scripts/releasePackagesRename.js",
+    "publish:trusted": "echo \"Working around changesets action not supporting OIDC yet. Need to pass successful release output for triggering github release\";VERSION=$(node -p \"require('./package.json').version\"); PACKAGE_NAME=$(node -p \"require('./package.json').name\"); if npm view $PACKAGE_NAME@$VERSION > /dev/null 2>&1; then echo \"Version $VERSION of package $PACKAGE_NAME already published to NPM. Skipping GitHub release.\"; else git tag v$VERSION -m v$VERSION; echo \"New tag: $PACKAGE_NAME@$VERSION.\"; fi",
     "prepublishOnly": "npm run build",
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",

@@ -68,16 +68,27 @@ export class ConversionService extends BaseService {
     return `🎉 The ${outputMap[flags.format]} from ${cyan(sourcePath)} has been successfully converted to AsyncAPI version ${green(targetVersion)}!!`;
   }
 
-  // Helper function to format the converted file
-  private formatConvertedFile(convertedFile: any) {
+  /**
+   * Formats the converted document for output.
+   * Objects are stringified with indentation, strings are returned as-is.
+   *
+   * @param convertedFile - The converted file content
+   * @returns Formatted string representation
+   */
+  private formatConvertedFile(convertedFile: string | object): string {
     return typeof convertedFile === 'object'
       ? JSON.stringify(convertedFile, null, 4)
       : convertedFile;
   }
 
-  // Helper function to handle output
-  async handleOutput(outputPath: string, convertedFileFormatted: string) {
-    await fPromises.writeFile(`${outputPath}`, convertedFileFormatted, {
+  /**
+   * Writes the converted document to the specified output path.
+   *
+   * @param outputPath - The path to write the file to
+   * @param convertedFileFormatted - The formatted content to write
+   */
+  async handleOutput(outputPath: string, convertedFileFormatted: string): Promise<void> {
+    await fPromises.writeFile(outputPath, convertedFileFormatted, {
       encoding: 'utf8',
     });
   }
