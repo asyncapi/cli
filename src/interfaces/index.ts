@@ -90,6 +90,7 @@ export interface ValidationOptions {
   output?: string;
   suppressWarnings?: string[];
   suppressAllWarnings?: boolean;
+  ruleset?: string;
 }
 
 /**
