@@ -11,6 +11,15 @@ import { spinner } from '@clack/prompts';
 import path from 'path';
 import os from 'os';
 import { yellow, magenta } from 'picocolors';
+import { getErrorMessage } from '@utils/error-handler';
+
+/**
+ * Options passed to the generator for code generation.
+ */
+interface GeneratorRunOptions {
+  path?: Specification;
+  [key: string]: unknown;
+}
 
 export class GeneratorService extends BaseService {
   private defaultInteractive: boolean;
@@ -63,12 +72,23 @@ export class GeneratorService extends BaseService {
     }
   }
 
+  /**
+   * Generates code from an AsyncAPI specification using the specified template.
+   *
+   * @param asyncapi - The AsyncAPI specification to generate from
+   * @param template - The template to use for generation
+   * @param output - The output directory for generated files
+   * @param options - Generator options
+   * @param genOption - Additional generator run options
+   * @param interactive - Whether to show interactive spinner (default: false)
+   * @returns ServiceResult containing generation result or error
+   */
   async generate(
     asyncapi: Specification,
     template: string,
     output: string,
     options: GenerationOptions,
-    genOption: any,
+    genOption: GeneratorRunOptions = {},
     interactive = this.defaultInteractive,
   ): Promise<ServiceResult<GenerationResult>> {
     const v3NotSupported = this.checkV3NotSupported(asyncapi, template);
@@ -84,24 +104,22 @@ export class GeneratorService extends BaseService {
     );
     const s = interactive
       ? spinner()
-      : { start: () => null, stop: (string: string) => logs.push(string) };
+      : { start: () => null, stop: (message: string) => logs.push(message) };
     s.start('Generation in progress. Keep calm and wait a bit');
     try {
       await generator.generateFromString(asyncapi.text(), {
         ...genOption,
         path: asyncapi,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       s.stop('Generation failed');
+      let errorMessage = getErrorMessage(err, 'Generation failed');
 
-      let enhancedMessage = err.message;
-
-      // Template not found (404 error)
       if (
-        err.message.includes('404 Not Found') ||
-        err.message.includes('Installation failed')
+        errorMessage.includes('404 Not Found') ||
+        errorMessage.includes('Installation failed')
       ) {
-        enhancedMessage = `Template '${template}' not found in npm registry.
+        errorMessage = `Template '${template}' not found in npm registry.
 
 The template you specified does not exist. This might be because:
   • The template name is misspelled
@@ -109,9 +127,8 @@ The template you specified does not exist. This might be because:
   • You need to use the full package name (e.g., @asyncapi/html-template)
 
 Popular templates: @asyncapi/html-template, @asyncapi/markdown-template, @asyncapi/nodejs-template`;
-      } else if (err.message.includes('not compatible with')) {
-        // Template version incompatibility
-        enhancedMessage = `${err.message}
+      } else if (errorMessage.includes('not compatible with')) {
+        errorMessage = `${errorMessage}
 
 The template you're using is not compatible with your AsyncAPI document version or generator version.
 
@@ -123,23 +140,21 @@ Possible solutions:
 Template compatibility info:
   https://www.asyncapi.com/docs/tools/generator/versioning`;
       } else if (
-        // Template structure/file not found
-        err.message.includes('ENOENT') &&
-        err.message.includes('template')
+        errorMessage.includes('ENOENT') &&
+        errorMessage.includes('template')
       ) {
-        enhancedMessage = `Template '${template}' installation failed or is corrupted.
+        errorMessage = `Template '${template}' installation failed or is corrupted.
 
 This usually happens when:
   • The package name is missing the scope (use @asyncapi/html-template instead of html-template)
   • The template was partially downloaded but is incomplete
   • The template package doesn't follow AsyncAPI template structure`;
       } else if (
-        // Network/connection errors
-        err.message.includes('ENOTFOUND') ||
-        err.message.includes('ETIMEDOUT') ||
-        err.message.includes('network')
+        errorMessage.toLowerCase().includes('enotfound') ||
+        errorMessage.toLowerCase().includes('etimedout') ||
+        errorMessage.toLowerCase().includes('network')
       ) {
-        enhancedMessage = `Failed to download template due to network issues.
+        errorMessage = `Failed to download template due to network issues.
 
 Possible causes:
   • No internet connection
@@ -147,7 +162,14 @@ Possible causes:
   • npm registry is temporarily unavailable`;
       }
 
-      return this.createErrorResult(enhancedMessage, err.diagnostics);
+      const diagnostics =
+        err && typeof err === 'object' && 'diagnostics' in err
+          ? ((err as { diagnostics?: unknown[] }).diagnostics as Parameters<
+              typeof this.createErrorResult
+            >[1])
+          : undefined;
+
+      return this.createErrorResult(errorMessage, diagnostics);
     }
     s.stop(this.getGenerationSuccessMessage(output));
 

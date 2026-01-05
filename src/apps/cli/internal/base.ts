@@ -35,15 +35,15 @@ export default abstract class extends Command {
     await this.recordActionInvoked(commandName, this.metricsMetadata);
   }
 
-  async catch(err: Error & { exitCode?: number }): Promise<any> {
+  async catch(err: Error & { exitCode?: number }): Promise<void> {
     try {
-      return await super.catch(err);
-    } catch (e: any) {
-      if (e.message.includes('EEXIT: 0')) {
-        process.exitCode = 0;
-        return;
-      }
+      await super.catch(err);
+    } catch (e: unknown) {
       if (e instanceof Error) {
+        if (e.message.includes('EEXIT: 0')) {
+          process.exitCode = 0;
+          return;
+        }
         this.logToStderr(`${e.name}: ${e.message}`);
         process.exitCode = 1;
       }
@@ -63,7 +63,7 @@ export default abstract class extends Command {
           // @ts-ignore
           metadata = MetadataFromDocument(document, metadata);
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (e instanceof Error) {
           this.log(
             `Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`,
@@ -92,7 +92,7 @@ export default abstract class extends Command {
       await this.setSource();
       await recordFunc(await this.recorder);
       await (await this.recorder).flush();
-    } catch (e: any) {
+    } catch (e: unknown) {
       if (e instanceof Error) {
         this.log(
           `Skipping submitting anonymous metrics due to the following error: ${e.name}: ${e.message}`,
@@ -109,8 +109,9 @@ export default abstract class extends Command {
     try {
       const stats = await stat(specFilePath);
       this.metricsMetadata['file_creation_timestamp'] = stats.birthtimeMs;
-    } catch (e: any) {
-      // If there's an error with the file, we don't handle it here because it's expected to be handled and reported in the 'finally' method of the command.
+    } catch {
+      // If there's an error with the file, we don't handle it here 
+      // because it's expected to be handled and reported in the 'finally' method of the command.
     }
   }
   async finally(error: Error | undefined): Promise<any> {
