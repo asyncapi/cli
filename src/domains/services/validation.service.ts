@@ -22,7 +22,7 @@ import {
   teamcity,
   text,
 } from '@stoplight/spectral-formatters';
-import { red, yellow, green, cyan } from 'chalk';
+import chalk from 'chalk';
 import { promises } from 'fs';
 import path from 'path';
 
@@ -56,7 +56,7 @@ const isValidGitHubBlobUrl = (url: string): boolean => {
       parsedUrl.hostname === 'github.com' &&
       parsedUrl.pathname.split('/')[3] === 'blob'
     );
-  } catch (error) {
+  } catch {
     return false;
   }
 };
@@ -525,13 +525,13 @@ export class ValidationService extends BaseService {
   private getSeverityTitle(severity: DiagnosticSeverity): string {
     switch (severity) {
     case DiagnosticSeverity.Error:
-      return red('Errors');
+      return chalk.red('Errors');
     case DiagnosticSeverity.Warning:
-      return yellow('Warnings');
+      return chalk.yellow('Warnings');
     case DiagnosticSeverity.Information:
-      return cyan('Information');
+      return chalk.cyan('Information');
     case DiagnosticSeverity.Hint:
-      return green('Hints');
+      return chalk.green('Hints');
     default:
       return 'Unknown';
     }

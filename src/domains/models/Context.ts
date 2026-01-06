@@ -114,7 +114,7 @@ export async function initContext(contextFilePath: string) {
     await writeFile(contextWritePath, JSON.stringify(fileContent), {
       encoding: 'utf8',
     });
-  } catch (e) {
+  } catch {
     throw new ContextFileWriteError(contextWritePath);
   }
 
@@ -222,7 +222,7 @@ export async function loadContextFile(): Promise<IContextFile> {
   // error.
   try {
     await readFile(CONTEXT_FILE_PATH, { encoding: 'utf8' });
-  } catch (e) {
+  } catch {
     throw new MissingContextFileError();
   }
 
@@ -232,7 +232,7 @@ export async function loadContextFile(): Promise<IContextFile> {
     fileContent = JSON.parse(
       await readFile(CONTEXT_FILE_PATH, { encoding: 'utf8' }),
     );
-  } catch (e) {
+  } catch {
     // https://stackoverflow.com/questions/29797946/handling-bad-json-parse-in-node-safely
     throw new ContextFileWrongFormatError(CONTEXT_FILE_PATH);
   }
@@ -256,7 +256,7 @@ async function saveContextFile(fileContent: IContextFile) {
       }),
       { encoding: 'utf8' },
     );
-  } catch (e) {
+  } catch {
     throw new ContextFileWriteError(CONTEXT_FILE_PATH);
   }
 }
