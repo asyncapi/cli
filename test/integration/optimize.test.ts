@@ -1,6 +1,6 @@
 import path from 'path';
 import { test } from '@oclif/test';
-import TestHelper, { createMockServer, stopMockServer } from '../helpers';
+import TestHelper, { createMockServer, stopMockServer } from '../helpers/index';
 import fs from 'fs-extra';
 import inquirer from 'inquirer';
 import {Optimizations, Outputs} from '../../src/apps/cli/commands/optimize';
@@ -170,9 +170,7 @@ describe('optimize', () => {
 
   describe('interactive terminal', () => {
     test
-      .stub(inquirer, 'prompt', () => {
-        return Promise.resolve({optimization: [Optimizations.REMOVE_COMPONENTS] , output: Outputs.TERMINAL});
-      })
+      .stub(inquirer, 'prompt', (stub) => stub.resolves({optimization: [Optimizations.REMOVE_COMPONENTS] , output: Outputs.TERMINAL}))
       .stderr()
       .stdout()
       .command(['optimize', unoptimizedYamlFile])

@@ -19,7 +19,6 @@ jobs:
     # "commits" contains an array of objects where one of the properties is the commit "message"
     # Release workflow will be skipped if release conventional commits are not used
     if: |
-      startsWith( github.repository, 'asyncapi/' ) &&
       (startsWith( github.event.commits[0].message , 'fix:' ) ||
       startsWith( github.event.commits[0].message, 'fix!:' ) ||
       startsWith( github.event.commits[0].message, 'feat:' ) ||
@@ -117,21 +116,37 @@ jobs:
       - if: steps.packagejson.outputs.exists == 'true'
         name: Publish to any of NPM, Github, and Docker Hub
         #this step has 2 goals, it is either identifying that there is changeset file created and then this action creates a PR with version bump that will trigger release - or if it sees there is no changeset, and there are versions changes in package.json files, it publish new versions to NPM is they are not there yet
+        # However, as currently changeset's publish isn't working well with OIDC next step will directly publish to NPM if there are version changes but no changesets
         uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1.5.3
         id: release
         with:
           version: npm run bump:version
           commit: "chore(release): release and bump versions of packages"
           title: "chore(release): release and bump versions of packages"
-          publish: npx -p @changesets/cli@2.27.7 changeset publish
+          # Working around changesets action not supporting OIDC yet. Need to pass successful release output for triggering github release
+          publish: npm run publish:trusted
           setupGitUser: false
         env:
-          NPM_TOKEN: ''
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GIT_AUTHOR_NAME: asyncapi-bot
           GIT_AUTHOR_EMAIL: info@asyncapi.io
           GIT_COMMITTER_NAME: asyncapi-bot
           GIT_COMMITTER_EMAIL: info@asyncapi.io
+
+      - name: Publish to NPM directly (skip if version already published)
+        if: steps.packagejson.outputs.exists == 'true' && steps.release.outputs.hasChangesets == 'false'
+        shell: bash
+        run: |
+          # Check if the version in package.json is already published
+          VERSION=$(node -p "require('./package.json').version")
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          if npm view "$PACKAGE_NAME@$VERSION" > /dev/null 2>&1; then
+            echo "Version $VERSION of package $PACKAGE_NAME is already published. Skipping publish."
+          else
+            echo "Publishing version $VERSION of package $PACKAGE_NAME to NPM."
+            npm publish --provenance
+          fi
+
       - if: failure() # Only, on failure, send a message on the 94_bot-failing-ci Slack channel
         name: Report workflow run status to Slack
         uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 # v3.15.1

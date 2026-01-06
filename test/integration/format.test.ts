@@ -1,6 +1,6 @@
 import { test } from '@oclif/test';
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
-import TestHelper, { createMockServer, stopMockServer } from '../helpers';
+import TestHelper, { createMockServer, stopMockServer } from '../helpers/index';
 import { expect } from '@oclif/test';
 
 const testHelper = new TestHelper();

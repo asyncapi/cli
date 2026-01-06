@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { promises as fPromises } from 'fs';
 import { Args } from '@oclif/core';
 import Command from '@cli/internal/base';
@@ -16,9 +15,7 @@ import {
   fileFormat,
 } from '@cli/internal/flags/format.flags';
 
-export default class Convert extends Command {
-  static specFile: any;
-  static metricsMetadata: any = {};
+export default class Format extends Command {
   static description =
     'Convert asyncapi documents from any format to yaml, yml or JSON';
 
@@ -32,14 +29,13 @@ export default class Convert extends Command {
   };
 
   async run() {
-    const { args, flags } = await this.parse(Convert);
+    const { args, flags } = await this.parse(Format);
     const filePath = args['spec-file'];
     const outputFileFormat = flags['format'] as fileFormat;
     let convertedFile;
     try {
       this.specFile = await load(filePath);
-      // eslint-disable-next-line sonarjs/no-duplicate-string
-      this.metricsMetadata.to_version = flags['target-version'];
+      this.metricsMetadata.output_format = outputFileFormat;
 
       const ff = retrieveFileFormat(this.specFile.text());
       const isSpecFileJson = ff === 'json';

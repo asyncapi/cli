@@ -25,8 +25,7 @@ export default class Template extends BaseGeneratorCommand {
     ...BaseGeneratorCommand.args,
     template: Args.string({ description: '- Name of the generator template like for example @asyncapi/html-template or https://github.com/asyncapi/html-template', required: false }),
   };
-
-  // eslint-disable-next-line sonarjs/cognitive-complexity
+   
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
     const interactive = !flags['no-interactive'];
@@ -69,10 +68,10 @@ export default class Template extends BaseGeneratorCommand {
     let specification: Specification;
     try {
       specification = await load(asyncapi);
-    } catch (err: any) {
+    } catch {
       return this.error(
         new ValidationError({
-          // eslint-disable-next-line sonarjs/no-duplicate-string
+           
           type: 'invalid-file',
           filepath: asyncapi,
         }),

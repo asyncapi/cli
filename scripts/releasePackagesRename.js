@@ -46,7 +46,7 @@ async function renameTar({version, name, sha, isAlpine}) {
   const tarDirectory = path.resolve(dist, 'tar');
   await createDirectory(tarDirectory);
 
-  const fileName = isAlpine ? 'asyncapi-alpine.tar.gz' : 'asyncapi.tar.gz';
+  const fileName = isAlpine ? 'asyncapi.alpine.tar.gz' : 'asyncapi.tar.gz';
   const newPath = path.resolve(tarDirectory, fileName);
   await checkAndRenameFile(generatedPath, newPath);
 }

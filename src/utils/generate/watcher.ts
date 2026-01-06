@@ -81,7 +81,7 @@ export class Watcher {
           this.fsWait = false;
         }, 500);
       }
-    } catch (e) {
+    } catch {
       // File was not, find all files that are missing..
       const unknownPaths = this.getAllNonExistingPaths();
       this.closeWatchers();
@@ -182,7 +182,7 @@ export async function runWatchMode(
   try {
     // eslint-disable-next-line
     templateName = require(path.resolve(watchDir, 'package.json')).name;
-  } catch (_) {
+  } catch {
     // intentional
   }
 

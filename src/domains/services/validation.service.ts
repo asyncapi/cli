@@ -22,7 +22,7 @@ import {
   teamcity,
   text,
 } from '@stoplight/spectral-formatters';
-import { red, yellow, green, cyan } from 'chalk';
+import chalk from 'chalk';
 import { promises } from 'fs';
 import path from 'path';
 
@@ -56,7 +56,7 @@ const isValidGitHubBlobUrl = (url: string): boolean => {
       parsedUrl.hostname === 'github.com' &&
       parsedUrl.pathname.split('/')[3] === 'blob'
     );
-  } catch (error) {
+  } catch {
     return false;
   }
 };
@@ -299,6 +299,79 @@ export class ValidationService extends BaseService {
   }
 
   /**
+   * Creates a custom parser with specific rules turned off.
+   */
+  private buildCustomParser(rulesToSuppress: string[]): Parser {
+    return new Parser({
+      ruleset: {
+        extends: [],
+        rules: Object.fromEntries(
+          rulesToSuppress.map((rule) => [rule, 'off']),
+        ),
+      },
+      __unstable: {
+        resolver: {
+          cache: false,
+          resolvers: [createHttpWithAuthResolver()],
+        },
+      },
+    });
+  }
+
+  /**
+   * Registers all schema parsers for the given parser instance.
+   */
+  private registerSchemaParsers(parser: Parser): void {
+    parser.registerSchemaParser(AvroSchemaParser());
+    parser.registerSchemaParser(OpenAPISchemaParser());
+    parser.registerSchemaParser(RamlDTSchemaParser());
+    parser.registerSchemaParser(ProtoBuffSchemaParser());
+  }
+
+  /**
+   * Builds a parser that suppresses all discovered warnings.
+   */
+  private async buildParserWithAllWarningsSuppressed(
+    specFile: Specification
+  ): Promise<Parser> {
+    const diagnostics = await this.parser.validate(specFile.text(), {
+      source: specFile.getSource(),
+    });
+    const allRuleNames = Array.from(
+      new Set(
+        diagnostics
+          .map((d) => d.code)
+          .filter((c): c is string => typeof c === 'string'),
+      ),
+    );
+    return this.buildCustomParser(allRuleNames);
+  }
+
+  /**
+   * Builds a parser that suppresses specific warnings, handling invalid rules gracefully.
+   */
+  private buildParserWithSpecificWarningsSuppressed(
+    suppressedWarnings: string[]
+  ): Parser {
+    try {
+      return this.buildCustomParser(suppressedWarnings);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : '';
+      const matches = [
+        ...msg.matchAll(/Cannot extend non-existing rule: "([^"]+)"/g),
+      ];
+      const invalidRules = matches.map((m) => m[1]);
+      if (invalidRules.length > 0) {
+        const validRules = suppressedWarnings.filter(
+          (rule) => !invalidRules.includes(rule),
+        );
+        return this.buildCustomParser(validRules);
+      }
+      throw e;
+    }
+  }
+
+  /**
    * Helper to build and register a custom parser with suppressed rules
    */
   private async buildAndRegisterCustomParser(
@@ -306,68 +379,15 @@ export class ValidationService extends BaseService {
     suppressedWarnings: string[],
     suppressAllWarnings: boolean,
   ): Promise<Parser> {
-    // Helper to build a parser with given rules turned off
-    const buildCustomParser = (rulesToSuppress: string[]) =>
-      new Parser({
-        ruleset: {
-          extends: [],
-          rules: Object.fromEntries(
-            rulesToSuppress.map((rule) => [rule, 'off']),
-          ),
-        },
-        __unstable: {
-          resolver: {
-            cache: false,
-            resolvers: [createHttpWithAuthResolver()],
-          },
-        },
-      });
-
-    let activeParser: Parser;
-
-    if (suppressAllWarnings || suppressedWarnings.length) {
-      if (suppressAllWarnings) {
-        // Run the default parser to discover all rule codes
-        const diagnostics = await this.parser.validate(specFile.text(), {
-          source: specFile.getSource(),
-        });
-        const allRuleNames = Array.from(
-          new Set(
-            diagnostics
-              .map((d) => d.code)
-              .filter((c): c is string => typeof c === 'string'),
-          ),
-        );
-        activeParser = buildCustomParser(allRuleNames);
-      } else {
-        try {
-          activeParser = buildCustomParser(suppressedWarnings);
-        } catch (e: any) {
-          const msg = e.message || '';
-          const matches = [
-            ...msg.matchAll(/Cannot extend non-existing rule: "([^"]+)"/g),
-          ];
-          const invalidRules = matches.map((m) => m[1]);
-          if (invalidRules.length > 0) {
-            const validRules = suppressedWarnings.filter(
-              (rule) => !invalidRules.includes(rule),
-            );
-            activeParser = buildCustomParser(validRules);
-          } else {
-            throw e;
-          }
-        }
-      }
-
-      // Register schema parsers for active parser
-      activeParser.registerSchemaParser(AvroSchemaParser());
-      activeParser.registerSchemaParser(OpenAPISchemaParser());
-      activeParser.registerSchemaParser(RamlDTSchemaParser());
-      activeParser.registerSchemaParser(ProtoBuffSchemaParser());
-    } else {
+    if (!suppressAllWarnings && !suppressedWarnings.length) {
       throw new Error('No rules to suppress provided');
     }
 
+    const activeParser = suppressAllWarnings
+      ? await this.buildParserWithAllWarningsSuppressed(specFile)
+      : this.buildParserWithSpecificWarningsSuppressed(suppressedWarnings);
+
+    this.registerSchemaParsers(activeParser);
     return activeParser;
   }
 
@@ -505,13 +525,13 @@ export class ValidationService extends BaseService {
   private getSeverityTitle(severity: DiagnosticSeverity): string {
     switch (severity) {
     case DiagnosticSeverity.Error:
-      return red('Errors');
+      return chalk.red('Errors');
     case DiagnosticSeverity.Warning:
-      return yellow('Warnings');
+      return chalk.yellow('Warnings');
     case DiagnosticSeverity.Information:
-      return cyan('Information');
+      return chalk.cyan('Information');
     case DiagnosticSeverity.Hint:
-      return green('Hints');
+      return chalk.green('Hints');
     default:
       return 'Unknown';
     }

@@ -50,10 +50,23 @@ jobs:
     container: ${{ matrix.container }}
     
     steps:
+      - name: Install base tools for alpine container
+        if: matrix.container == 'node:20-alpine'
+        run: |
+          apk add --no-cache bash git python3 make g++ perl-utils xz
+
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      # Needed to avoid "fatal: detected dubious ownership in repository" error when using alpine container
+      - name: Mark GitHub workspace as safe
+        if: matrix.container == 'node:20-alpine'
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       
       - name: Check package-lock version
+        if: matrix.container == ''
         uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master
         id: lockversion
       
@@ -62,11 +75,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "${{ steps.lockversion.outputs.version }}"
-      
-      - name: Install dependencies in Alpine
-        if: matrix.container == 'node:20-alpine'
-        run: |
-          apk add --no-cache git python3 make g++
       
       - if: matrix.npm_script == 'pack:windows'
         name: install nodejs for windows
