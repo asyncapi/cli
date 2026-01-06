@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 5.0.3
+
+### Patch Changes
+
+- 125e907: Update dependencies to the latest feasible ones thus eliminating vulnerabilities.
+
 ## 5.0.2
 
 ### Patch Changes
