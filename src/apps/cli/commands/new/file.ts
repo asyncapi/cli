@@ -1,6 +1,6 @@
 import { promises as fPromises, readFileSync } from 'fs';
 import Command from '@cli/internal/base';
-import * as inquirer from 'inquirer';
+import inquirer from 'inquirer';
 import { start as startStudio, DEFAULT_PORT } from '@models/Studio';
 import { resolve } from 'path';
 import { load } from '@models/SpecificationFile';
@@ -101,7 +101,7 @@ export default class NewFile extends Command {
         { encoding: 'utf8' },
       );
       examples = JSON.parse(exampleFiles);
-    } catch (error) {
+    } catch {
       // no examples found
     }
 

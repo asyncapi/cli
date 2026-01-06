@@ -148,7 +148,7 @@ export abstract class BaseGeneratorCommand extends Command {
   protected async loadSpecificationSafely(asyncapi: string | undefined): Promise<Specification> {
     try {
       return await load(asyncapi);
-    } catch (err: any) {
+    } catch {
       return this.error(
         new ValidationError({
           type: 'invalid-file',

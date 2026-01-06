@@ -1,7 +1,7 @@
 import { expect, test } from '@oclif/test';
 import fs from 'fs';
 import path from 'path';
-import { fileCleanup } from '../../helpers';
+import { fileCleanup } from '../../helpers/index';
 
 const spec = fs.readFileSync('./test/integration/bundle/final-asyncapi.yaml', {encoding: 'utf-8'});
 

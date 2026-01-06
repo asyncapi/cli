@@ -1,5 +1,5 @@
 import { test } from '@oclif/test';
-import TestHelper from '../../helpers';
+import TestHelper from '../../helpers/index';
 import { expect } from '@oclif/test';
 import { cyan, gray } from 'picocolors';
 const testHelper = new TestHelper();

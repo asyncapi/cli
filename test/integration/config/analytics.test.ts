@@ -1,5 +1,5 @@
 import { expect, test } from '@oclif/test';
-import { fileCleanup } from '../../helpers';
+import { fileCleanup } from '../../helpers/index';
 
 const analyticsConfigFilePath = './test/fixtures/.asyncapi-analytics';
 
