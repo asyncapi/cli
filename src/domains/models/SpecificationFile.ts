@@ -47,7 +47,7 @@ export class Specification {
   toJson(): Record<string, any> {
     try {
       return yaml.load(this.spec, { json: true }) as Record<string, any>;
-    } catch (e) {
+    } catch {
       return JSON.parse(this.spec);
     }
   }
@@ -83,7 +83,7 @@ export class Specification {
     let spec;
     try {
       spec = await readFile(filepath, { encoding: 'utf8' });
-    } catch (error) {
+    } catch {
       throw new ErrorLoadingSpec('file', filepath);
     }
     return new Specification(spec, { filepath });
@@ -214,7 +214,7 @@ export async function nameType(name: string): Promise<string> {
       return TYPE_FILE_PATH;
     }
     return TYPE_CONTEXT_NAME;
-  } catch (e) {
+  } catch {
     if (await isURL(name)) {
       return TYPE_URL;
     }
@@ -226,7 +226,7 @@ export async function isURL(urlpath: string): Promise<boolean> {
   try {
     const url = new URL(urlpath);
     return url.protocol === 'http:' || url.protocol === 'https:';
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -246,7 +246,7 @@ export async function fileExists(name: string): Promise<boolean> {
     }
 
     throw new ErrorLoadingSpec('file', name);
-  } catch (e) {
+  } catch {
     throw new ErrorLoadingSpec('file', name);
   }
 }
@@ -269,7 +269,7 @@ async function detectSpecFile(): Promise<string | undefined> {
       try {
         const exists = await fileExists(path.resolve(process.cwd(), filename));
         return exists ? filename : undefined;
-      } catch (e) {
+      } catch {
         // We did our best...
       }
     }),
@@ -287,7 +287,7 @@ export function retrieveFileFormat(content: string): fileFormat | undefined {
     // it is able to load .txt text files also.
     yaml.load(content);
     return 'yaml';
-  } catch (err) {
+  } catch {
     return undefined;
   }
 }
