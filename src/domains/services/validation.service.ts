@@ -82,6 +82,50 @@ const convertGitHubWebUrl = (url: string): string => {
 };
 
 /**
+ * Helper function to fetch with error handling
+ */
+const fetchWithErrorHandling = async (
+  url: string,
+  headers: Record<string, string>,
+  errorMessage: string,
+): Promise<Response> => {
+  const res = await fetch(url, { headers });
+  if (!res.ok) {
+    throw new Error(`${errorMessage}: ${url} - ${res.statusText}`);
+  }
+  return res;
+};
+
+/**
+ * Helper function to fetch content from GitHub API
+ */
+const fetchGitHubApiContent = async (
+  url: string,
+  headers: Record<string, string>,
+): Promise<string> => {
+  headers['Accept'] = 'application/vnd.github.v3+json';
+  const res = await fetchWithErrorHandling(
+    url,
+    headers,
+    'Failed to fetch GitHub API URL',
+  );
+  const fileInfo = (await res.json()) as GitHubFileInfo;
+
+  if (!fileInfo.download_url) {
+    throw new Error(
+      `No download URL found in GitHub API response for: ${url}`,
+    );
+  }
+
+  const contentRes = await fetchWithErrorHandling(
+    fileInfo.download_url,
+    headers,
+    'Failed to fetch content from download URL',
+  );
+  return await contentRes.text();
+};
+
+/**
  * Custom resolver for private repositories
  */
 const createHttpWithAuthResolver = () => ({
@@ -108,43 +152,23 @@ const createHttpWithAuthResolver = () => ({
     }
 
     if (url.includes('api.github.com')) {
-      headers['Accept'] = 'application/vnd.github.v3+json';
-      const res = await fetch(url, { headers });
-      if (!res.ok) {
-        throw new Error(
-          `Failed to fetch GitHub API URL: ${url} - ${res.statusText}`
-        );
-      }
-      const fileInfo = (await res.json()) as GitHubFileInfo;
-
-      if (fileInfo.download_url) {
-        const contentRes = await fetch(fileInfo.download_url, { headers });
-        if (!contentRes.ok) {
-          throw new Error(
-            `Failed to fetch content from download URL: ${fileInfo.download_url} - ${contentRes.statusText}`
-          );
-        }
-        return await contentRes.text();
-      }
-      throw new Error(
-        `No download URL found in GitHub API response for: ${url}`
-      );
-    } else if (url.includes('raw.githubusercontent.com')) {
+      return await fetchGitHubApiContent(url, headers);
+    }
+    if (url.includes('raw.githubusercontent.com')) {
       headers['Accept'] = 'application/vnd.github.v3.raw';
-      const res = await fetch(url, { headers });
-      if (!res.ok) {
-        throw new Error(
-          `Failed to fetch GitHub URL: ${url} - ${res.statusText}`
-        );
-      }
-      return await res.text();
-    } else {
-      const res = await fetch(url, { headers });
-      if (!res.ok) {
-        throw new Error(`Failed to fetch URL: ${url} - ${res.statusText}`);
-      }
+      const res = await fetchWithErrorHandling(
+        url,
+        headers,
+        'Failed to fetch GitHub URL',
+      );
       return await res.text();
     }
+    const res = await fetchWithErrorHandling(
+      url,
+      headers,
+      'Failed to fetch URL',
+    );
+    return await res.text();
   },
 });
 
