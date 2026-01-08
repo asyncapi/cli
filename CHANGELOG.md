@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 5.0.4
+
+### Patch Changes
+
+- cacf566: Update server-api image to use Node 24.
+
 ## 5.0.3
 
 ### Patch Changes
