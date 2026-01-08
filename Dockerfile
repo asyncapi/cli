@@ -1,4 +1,4 @@
-FROM node:20-alpine AS build
+FROM node:24-alpine AS build
 
 # Copy the source code
 COPY ./ /tmp/source_code
@@ -25,7 +25,7 @@ RUN cp -r /tmp/source_code/bin /libraries
 # Remove everything inside /tmp
 RUN rm -rf /tmp/*
 
-FROM node:20-alpine
+FROM node:24-alpine
 
 # Set ARG to explicit value to build chosen version. Default is "latest"
 ARG ASYNCAPI_CLI_VERSION=

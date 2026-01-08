@@ -1,5 +1,5 @@
 # ---- Base Alpine with Node ----
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 
 # Install required system packages
 RUN apk add --update nghttp2
