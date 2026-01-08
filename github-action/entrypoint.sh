@@ -10,7 +10,7 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 RED='\033[0;31m'
 
-if [ -z "$GITHUB_WORKSPACE" ]; then
+if [[ -z "$GITHUB_WORKSPACE" ]]; then
   workdir=$(pwd)
 else
   workdir="$GITHUB_WORKSPACE"
@@ -27,34 +27,34 @@ CUSTOM_COMMAND="$8"
 
 echo "::group::Debug information"
 # Check if currently running in Developer environment by checking for presence of ./bin/run or ../bin/run and set alias asyncapi= PATH_TO_BIN/RUN
-if [ -f "$workdir/bin/run" ]; then
+if [[ -f "$workdir/bin/run" ]]; then
   echo -e "${BLUE}Running in developer environment...${NC}"
   echo -e "${BLUE}Setting alias for asyncapi:${NC}" "$workdir/bin/run"
   shopt -s expand_aliases
   alias asyncapi="$workdir/bin/run"
-elif [ -f "$workdir/../bin/run" ]; then
+elif [[ -f "$workdir/../bin/run" ]]; then
   echo -e "${BLUE}Running in developer environment...${NC}"
   echo -e "${BLUE}Setting alias for asyncapi:${NC}" "$workdir/../bin/run"
   shopt -s expand_aliases
   alias asyncapi="$workdir/../bin/run"
-elif [ -n "$CLI_VERSION" ] && [ ! "$CLI_VERSION" == "latest" ]; then
+elif [[ -n "$CLI_VERSION" && ! "$CLI_VERSION" == "latest" ]]; then
   echo -e "${BLUE}CLI version:${NC}" "$CLI_VERSION"
   # Check if the CLI version is already installed or not
-  if [ -z $(command -v -- asyncapi) ]; then
+  if [[ -z $(command -v -- asyncapi) ]]; then
     output=''
   else
     output=$(asyncapi --version >/dev/null 2>&1)
   fi
   # output @asyncapi/cli/1.1.1 linux-x64 node-v20.8.1
   version=$(echo "$output" | cut -d' ' -f1 | cut -d '/' -f3)
-  if [ "$version" == "$CLI_VERSION" ]; then
+  if [[ "$version" == "$CLI_VERSION" ]]; then
     echo -e "${BLUE}AsyncAPI CLI already installed:${NC}" "$CLI_VERSION" "...skipping"
   else 
     echo -e "${BLUE}Installing AsyncAPI CLI:${NC}" "$CLI_VERSION"
     npm install -g @asyncapi/cli@$CLI_VERSION
   fi
 else
-  if [ -z $(command -v -- asyncapi) ]; then
+  if [[ -z $(command -v -- asyncapi) ]]; then
     echo -e "${RED}No CLI installation found. Installing the latest one"
     npm install -g @asyncapi/cli
   fi
@@ -68,7 +68,7 @@ echo -e "${GREEN}Executing AsyncAPI CLI...${NC}"
 
 git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-if [ -n "$CUSTOM_COMMAND" ]; then
+if [[ -n "$CUSTOM_COMMAND" ]]; then
   echo "::group::Debug information" 
   echo -e "${BLUE}Executing custom command:${NC} asyncapi" "$CUSTOM_COMMAND"
   eval "asyncapi $CUSTOM_COMMAND"
@@ -94,7 +94,7 @@ handle_validate () {
   echo -e "${BLUE}Validating AsyncAPI file...${NC}"
   echo "::group::Debug information"
 
-  if [ ! -f "$FILEPATH" ]; then 
+  if [[ ! -f "$FILEPATH" ]]; then 
     handle_file_error "$FILEPATH"
     exit 1
   fi
@@ -108,7 +108,7 @@ handle_optimize () {
   echo -e "${BLUE}Optimising AsyncAPI file...${NC}"
   echo "::group::Debug information"
   
-  if [ ! -f "$FILEPATH" ]; then 
+  if [[ ! -f "$FILEPATH" ]]; then 
     handle_file_error "$FILEPATH"
     exit 1
   fi
@@ -121,7 +121,7 @@ handle_optimize () {
 handle_generate () {
   echo -e "${BLUE}Generating from AsyncAPI file...${NC}"
 
-  if [ ! -f "$FILEPATH" ]; then 
+  if [[ ! -f "$FILEPATH" ]]; then 
     handle_file_error "$FILEPATH"
     exit 1
   fi
@@ -129,16 +129,16 @@ handle_generate () {
   # Check if the output directory exists or not and create it if it doesn't
   output_dir=$(dirname "$OUTPUT")
 
-  if [ ! -d "$output_dir" ]; then
+  if [[ ! -d "$output_dir" ]]; then
     mkdir -p "$output_dir"
     echo -e "${BLUE}Created output directory:${NC}" "$output_dir"
   fi
 
   echo "::group::Debug information"
-  if [ -n "$LANGUAGE" ]; then
+  if [[ -n "$LANGUAGE" ]]; then
     echo -e "${BLUE}Executing command:${NC}" "asyncapi generate models $LANGUAGE $FILEPATH -o $OUTPUT $PARAMETERS"
     eval "asyncapi generate models $LANGUAGE $FILEPATH -o $OUTPUT $PARAMETERS"
-  elif [ -n "$TEMPLATE" ]; then
+  elif [[ -n "$TEMPLATE" ]]; then
     echo -e "${BLUE}Executing command:${NC}" "asyncapi generate fromTemplate $FILEPATH $TEMPLATE -o $OUTPUT $PARAMETERS"
     eval "asyncapi generate fromTemplate $FILEPATH $TEMPLATE -o $OUTPUT $PARAMETERS"  
   else
@@ -152,19 +152,19 @@ handle_convert () {
   echo -e "${BLUE}Converting AsyncAPI file...${NC}"
   echo "::group::Debug information"
 
-  if [ ! -f "$FILEPATH" ]; then 
+  if [[ ! -f "$FILEPATH" ]]; then 
     handle_file_error "$FILEPATH"
     exit 1
   fi
 
-  if [ -z "$OUTPUT" ]; then
+  if [[ -z "$OUTPUT" ]]; then
     echo -e "${BLUE}Executing command:${NC}" "asyncapi convert $FILEPATH $PARAMETERS"
     eval "asyncapi convert $FILEPATH $PARAMETERS"
   else
     # Create the output directory if it doesn't exist
     output_dir=$(dirname "$OUTPUT")
 
-    if [ ! -d "$output_dir" ]; then
+    if [[ ! -d "$output_dir" ]]; then
       mkdir -p "$output_dir"
       echo -e "${BLUE}Created output directory:${NC}" "$output_dir"
     fi
@@ -174,13 +174,13 @@ handle_convert () {
   fi
 }
 
-if [ $COMMAND == "validate" ]; then
+if [[ $COMMAND == "validate" ]]; then
   handle_validate
-elif [ $COMMAND == "optimize" ]; then
+elif [[ $COMMAND == "optimize" ]]; then
   handle_optimize
-elif [ $COMMAND == "generate" ]; then
+elif [[ $COMMAND == "generate" ]]; then
   handle_generate
-elif [ $COMMAND == "convert" ]; then
+elif [[ $COMMAND == "convert" ]]; then
   handle_convert
 else
   echo -e "${RED}Invalid command:${NC}" "$COMMAND"
