@@ -50,7 +50,7 @@ RUN apk --update add git chromium && \
 COPY --from=build /libraries /libraries
 
 # Install the dependencies
-RUN cd /libraries && npm install --production --ignore-scripts
+RUN cd /libraries && npm install --omit=dev --ignore-scripts
 
 # Create a script that runs the desired command
 RUN ln -s /libraries/bin/run_bin /usr/local/bin/asyncapi
