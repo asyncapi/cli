@@ -86,7 +86,8 @@ echo -e "${BLUE}Parameters:${NC}" "$PARAMETERS"
 echo "::endgroup::"
 
 handle_file_error () {
-  echo -e "${RED}Validation error: File not found:${NC}" "$1"
+  local filepath="$1"
+  echo -e "${RED}Validation error: File not found:${NC}" "$filepath"
   echo -e "skipping...\n"
   return 0
 }
