@@ -1,7 +1,7 @@
 # Stage 1: Build stage with Node setup
-FROM node:18-alpine as build
+FROM node:24-alpine as build
 
-# Copy the source code 
+# Copy the source code
 COPY ./ /tmp/source_code
 
 # Install dependencies
@@ -26,7 +26,7 @@ RUN cp -r /tmp/source_code/bin /libraries
 # Remove everything inside /tmp
 RUN rm -rf /tmp/*
 
-FROM node:18-alpine
+FROM node:24-alpine
 
 # Install necessary packages
 RUN apk add --no-cache bash git
