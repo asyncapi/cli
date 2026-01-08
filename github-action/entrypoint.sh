@@ -87,8 +87,8 @@ echo "::endgroup::"
 
 handle_file_error () {
   local filepath="$1"
-  echo -e "${RED}Validation error: File not found:${NC}" "$filepath"
-  echo -e "skipping...\n"
+  echo -e "${RED}Validation error: File not found:${NC}" "$filepath" >&2
+  echo -e "skipping...\n" >&2
   return 0
 }
 
