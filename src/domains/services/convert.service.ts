@@ -12,7 +12,7 @@ import {
   OpenAPIConvertVersion,
 } from '@asyncapi/converter';
 import { cyan, green } from 'picocolors';
-import { promises as fPromises } from 'fs';
+import { promises as fPromises } from 'node:fs';
 
 export class ConversionService extends BaseService {
   /**
