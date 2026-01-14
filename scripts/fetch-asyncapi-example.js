@@ -159,7 +159,14 @@ const tidyUp = async () => {
 };
 
 
-await fetchAsyncAPIExamplesFromExternalURL();
-await unzipAsyncAPIExamples();
-await buildCLIListFromExamples();
-await tidyUp();
+const main = async () => {
+  await fetchAsyncAPIExamplesFromExternalURL();
+  await unzipAsyncAPIExamples();
+  await buildCLIListFromExamples();
+  await tidyUp();
+};
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
