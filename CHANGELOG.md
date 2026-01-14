@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 5.0.5
+
+### Patch Changes
+
+- be7c41d: chore: bump Node.js version to 24 in remaining Dockerfiles
+
 ## 5.0.4
 
 ### Patch Changes
