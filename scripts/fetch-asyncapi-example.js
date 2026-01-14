@@ -41,31 +41,56 @@ const fetchAsyncAPIExamplesFromExternalURL = async () => {
   console.log('Fetched ZIP file');
 };
 
+/**
+ * Safely unzip examples while preventing ZIP Slip attacks
+ */
 const unzipAsyncAPIExamples = async () => {
-  return new Promise((resolve, reject) => {
-    if (!fs.existsSync(EXAMPLE_DIRECTORY)) {
-      fs.mkdirSync(EXAMPLE_DIRECTORY);
-    }
+  if (!fs.existsSync(EXAMPLE_DIRECTORY)) {
+    fs.mkdirSync(EXAMPLE_DIRECTORY, { recursive: true });
+  }
 
+  return new Promise((resolve, reject) => {
     fs.createReadStream(TEMP_ZIP_NAME)
       .pipe(unzipper.Parse())
       .on('entry', async (entry) => {
-        const fileName = entry.path;
-        if (fileName.includes('examples/') && fileName.includes('.yml') && entry.type === 'File') {
-          const fileContent = await entry.buffer();
-          const fileNameWithExtension = fileName.split('examples/')[1];
-          fs.writeFileSync(path.join(EXAMPLE_DIRECTORY, fileNameWithExtension), fileContent.toString());
-        } else {
+        try {
+          const rawPath = entry.path;
+          const normalizedPath = path.normalize(rawPath);
+
+          // Only allow files inside examples/ directory
+          if (
+            entry.type === 'File' &&
+            normalizedPath.startsWith(`examples${path.sep}`) &&
+            normalizedPath.endsWith('.yml')
+          ) {
+            const safeFileName = path.basename(normalizedPath);
+            const outputPath = path.join(EXAMPLE_DIRECTORY, safeFileName);
+
+            // Final safety check to prevent path traversal
+            if (!outputPath.startsWith(EXAMPLE_DIRECTORY)) {
+              throw new Error(`Path traversal attempt detected: ${rawPath}`);
+            }
+
+            const fileContent = await entry.buffer();
+            fs.writeFileSync(outputPath, fileContent.toString(), 'utf-8');
+          } else {
+            entry.autodrain();
+          }
+        } catch (error) {
           entry.autodrain();
+          reject(error);
         }
-      }).on('close', () => {
+      })
+      .on('close', () => {
         console.log('Unzipped all examples from ZIP');
         resolve();
-      }).on('error', (error) => {
-        reject(new Error(`Error in unzipping from ZIP: ${error.message}`));
+      })
+      .on('error', (error) => {
+        reject(new Error(`Error unzipping ZIP: ${error.message}`));
       });
   });
 };
+
 
 /**
  * Build CLI examples list from parsed specs
