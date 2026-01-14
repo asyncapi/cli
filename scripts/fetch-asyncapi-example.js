@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const fs = require('fs');
+const fs = require('node:fs');
 const unzipper = require('unzipper');
-const path = require('path');
+const path = require('node:path');
 
 const { Parser } = require('@asyncapi/parser/cjs');
 const { AvroSchemaParser } = require('@asyncapi/avro-schema-parser');
 const { OpenAPISchemaParser } = require('@asyncapi/openapi-schema-parser');
 const { RamlDTSchemaParser } = require('@asyncapi/raml-dt-schema-parser');
-const { pipeline } = require('stream');
-const { promisify } = require('util');
+const { pipeline } = require('node:stream');
+const { promisify } = require('node:util');
 
 const streamPipeline = promisify(pipeline);
 
