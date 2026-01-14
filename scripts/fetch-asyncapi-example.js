@@ -114,8 +114,14 @@ const listAllProtocolsForFile = (document) => {
   return servers.all().map(server => server.protocol()).join(',');
 };
 
+
+/**
+ * Cleanup temporary ZIP files
+ */
 const tidyUp = async () => {
-  fs.unlinkSync(TEMP_ZIP_NAME);
+  if (fs.existsSync(TEMP_ZIP_NAME)) {
+    fs.unlinkSync(TEMP_ZIP_NAME);
+  }
 };
 
 
