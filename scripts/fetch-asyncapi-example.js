@@ -73,37 +73,52 @@ const unzipAsyncAPIExamples = async () => {
   });
 };
 
+/**
+ * Build CLI examples list from parsed specs
+ */
 const buildCLIListFromExamples = async () => {
   const files = fs.readdirSync(EXAMPLE_DIRECTORY);
-  const examples = files.filter(file => file.includes('.yml')).sort();
+  const examples = files.filter((file) => file.endsWith('.yml')).sort();
 
-  const buildExampleList = examples.map(async example => {
-    const examplePath = path.join(EXAMPLE_DIRECTORY, example);
-    const exampleContent = fs.readFileSync(examplePath, { encoding: 'utf-8' });
+  const exampleEntries = await Promise.all(
+    examples.map(async (example) => {
+      const examplePath = path.join(EXAMPLE_DIRECTORY, example);
+      const exampleContent = fs.readFileSync(examplePath, 'utf-8');
 
-    try {
-      const { document } = await parser.parse(exampleContent);
-      // Failed for some reason to parse this spec file (document is undefined), ignore for now
-      if (!document) {
-        return;
+      try {
+        const { document } = await parser.parse(exampleContent);
+        if (!document) {
+          return null;
+        }
+
+        const title = document.info().title();
+        const protocols = listAllProtocolsForFile(document);
+
+        return {
+          name: protocols ? `${title} - (protocols: ${protocols})` : title,
+          value: example,
+        };
+      } catch (error) {
+        console.error(error);
+        return null;
       }
+    })
+  );
 
-      const title = document.info().title();
-      const protocols = listAllProtocolsForFile(document);
-      return {
-        name: protocols ? `${title} - (protocols: ${protocols})` : title,
-        value: example
-      };
-    } catch (error) {
-      console.error(error);
-    }
-  });
+  const orderedExampleList = exampleEntries
+    .filter(Boolean)
+    .sort((a, b) => a.name.localeCompare(b.name));
 
-  const exampleList = (await Promise.all(buildExampleList)).filter(item => !!item);
-  const orderedExampleList = exampleList.sort((a, b) => a.name.localeCompare(b.name));
-
-  fs.writeFileSync(path.join(EXAMPLE_DIRECTORY, 'examples.json'), JSON.stringify(orderedExampleList, null, 4));
+  fs.writeFileSync(
+    path.join(EXAMPLE_DIRECTORY, 'examples.json'),
+    JSON.stringify(orderedExampleList, null, 2),
+    'utf-8'
+  );
 };
+
+/**
+ * List all protocols defined in an AsyncAPI document
+ */
 
 const listAllProtocolsForFile = (document) => {
   const servers = document.servers();
@@ -111,7 +126,7 @@ const listAllProtocolsForFile = (document) => {
     return '';
   }
 
-  return servers.all().map(server => server.protocol()).join(',');
+  return servers.all().map((server) => server.protocol()).join(',');
 };
 
 
