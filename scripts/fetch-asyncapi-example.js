@@ -25,26 +25,20 @@ const SPEC_EXAMPLES_ZIP_URL = 'https://github.com/asyncapi/spec/archive/refs/hea
 const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
 const TEMP_ZIP_NAME = 'spec-examples.zip';
 
-const fetchAsyncAPIExamplesFromExternalURL = () => {
-  try {
-    return new Promise((resolve, reject) => {
-      fetch(SPEC_EXAMPLES_ZIP_URL)
-        .then(async (res) => {
-          if (res.status !== 200) {
-            return reject(new Error(`Failed to fetch examples from ${SPEC_EXAMPLES_ZIP_URL}`));
-          }
+/**
+ * Fetch examples ZIP from AsyncAPI spec repository
+ */
+const fetchAsyncAPIExamplesFromExternalURL = async () => {
+  const res = await fetch(SPEC_EXAMPLES_ZIP_URL);
 
-          const file = fs.createWriteStream(TEMP_ZIP_NAME);
-          await streamPipeline(res.body, file);
-
-          console.log('Fetched ZIP file');
-          resolve();
-        })
-        .catch(reject);
-    });
-  } catch (error) {
-    console.error(error);
+  if (res.status !== 200) {
+    throw new Error(`Failed to fetch examples from ${SPEC_EXAMPLES_ZIP_URL}`);
   }
+
+  const fileStream = fs.createWriteStream(TEMP_ZIP_NAME);
+  await streamPipeline(res.body, fileStream);
+
+  console.log('Fetched ZIP file');
 };
 
 const unzipAsyncAPIExamples = async () => {
