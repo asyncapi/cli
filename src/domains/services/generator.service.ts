@@ -97,10 +97,12 @@ export class GeneratorService extends BaseService {
     }
     const logs: string[] = [];
 
+    const {compile, ...restOptions} = options as any;
+
     const generator = new AsyncAPIGenerator(
       template,
       output || path.resolve(os.tmpdir(), 'asyncapi-generator'),
-      options,
+      {...restOptions, compile},
     );
     const s = interactive
       ? spinner()
