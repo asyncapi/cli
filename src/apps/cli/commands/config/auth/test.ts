@@ -5,21 +5,21 @@ import { helpFlag } from '@cli/internal/flags/global.flags';
 import { green, yellow, cyan } from 'picocolors';
 
 export default class AuthTest extends Command {
-  static description = 'Test which auth entry matches a URL';
+  static readonly description = 'Test which auth entry matches a URL';
 
-  static examples = [
+  static readonly examples = [
     '$ asyncapi config auth test "https://schema-registry.company.com/schemas/user.yaml"',
     '$ asyncapi config auth test "https://github.com/myorg/repo/blob/main/schema.yaml"',
   ];
 
-  static args = {
+  static readonly args = {
     url: Args.string({
       description: 'URL to test',
       required: true,
     }),
   };
 
-  static flags = helpFlag();
+  static readonly flags = helpFlag();
 
   async run() {
     const { args } = await this.parse(AuthTest);
@@ -43,15 +43,15 @@ export default class AuthTest extends Command {
     
     if (authResult.token) {
       const displayToken = authResult.token.length > 10 
-        ? authResult.token.substring(0, 10) + '...' 
+        ? `${authResult.token.substring(0, 10)}...`
         : authResult.token;
       this.log(`  Token: ${displayToken}`);
     } else {
-      this.log(yellow(`  Token: (not set - check environment variable)`));
+      this.log(yellow('  Token: (not set - check environment variable)'));
     }
     
     if (Object.keys(authResult.headers).length > 0) {
-      this.log(`  Headers:`);
+      this.log('  Headers:');
       for (const [key, value] of Object.entries(authResult.headers)) {
         this.log(`    ${key}: ${value}`);
       }

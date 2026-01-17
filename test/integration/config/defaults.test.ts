@@ -96,7 +96,7 @@ describe('config:defaults', () => {
         expect(ctx.stdout).to.contain('Defaults removed for command "validate"');
 
         const config = JSON.parse(await fs.readFile(TEST_CONFIG_FILE, 'utf8'));
-        expect(config.defaults.validate).to.be.undefined;
+        expect(config.defaults.validate).to.equal(undefined);
       });
 
     test
@@ -124,7 +124,8 @@ describe('config:defaults', () => {
       .it('should apply defaults when running validate command', (ctx) => {
         // The validate command should use the score flag from defaults
         // This is verified by the command not erroring about missing flags
-        expect(ctx.stdout).to.exist;
+        expect(ctx.stdout).to.be.a('string');
+        expect(ctx.stdout.length).to.be.greaterThan(0);
       });
   });
 });

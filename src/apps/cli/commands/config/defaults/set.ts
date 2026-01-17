@@ -5,30 +5,30 @@ import { helpFlag } from '@cli/internal/flags/global.flags';
 import { green, cyan, yellow } from 'picocolors';
 
 export default class DefaultsSet extends Command {
-  static description = 'Set default flags for a command';
+  static readonly description = 'Set default flags for a command';
 
-  static examples = [
+  static readonly examples = [
     '$ asyncapi config defaults set validate --log-diagnostics --fail-severity error',
     '$ asyncapi config defaults set generate:fromTemplate --template @asyncapi/html-template --output ./docs',
     '$ asyncapi config defaults set bundle --output ./dist/bundled.yaml',
   ];
 
-  static args = {
+  static readonly args = {
     command: Args.string({
       description: 'Command to set defaults for (e.g., validate, generate:fromTemplate)',
       required: true,
     }),
   };
 
-  static flags = helpFlag();
+  static readonly flags = helpFlag();
   
-  static strict = false;
-  static enableJsonFlag = false;
+  static readonly strict = false;
+  static readonly enableJsonFlag = false;
 
   async run() {
     const rawArgv = process.argv.slice(2);
     
-    const setIndex = rawArgv.findIndex(arg => arg === 'set');
+    const setIndex = rawArgv.indexOf('set');
     if (setIndex === -1 || setIndex + 1 >= rawArgv.length) {
       this.error('Command argument required');
     }
@@ -42,23 +42,29 @@ export default class DefaultsSet extends Command {
 
     const defaults: Record<string, any> = {};
     
-    for (let i = 0; i < flagArgs.length; i++) {
+    let i = 0;
+    while (i < flagArgs.length) {
       const arg = flagArgs[i];
       
       if (!arg.startsWith('--')) {
         this.warn(yellow(`Skipping non-flag argument: ${arg}`));
+        i++;
         continue;
       }
       
       const flagName = arg.replace(/^--/, '');
       
-      if (flagName === 'help') continue;
+      if (flagName === 'help') {
+        i++;
+        continue;
+      }
       
       if (i + 1 < flagArgs.length && !flagArgs[i + 1].startsWith('--')) {
         defaults[flagName] = flagArgs[i + 1];
-        i++;
+        i += 2;
       } else {
         defaults[flagName] = true;
+        i++;
       }
     }
 

@@ -5,21 +5,21 @@ import { helpFlag } from '@cli/internal/flags/global.flags';
 import { green } from 'picocolors';
 
 export default class DefaultsRemove extends Command {
-  static description = 'Remove defaults for a command';
+  static readonly description = 'Remove defaults for a command';
 
-  static examples = [
+  static readonly examples = [
     '$ asyncapi config defaults remove validate',
     '$ asyncapi config defaults remove generate:fromTemplate',
   ];
 
-  static args = {
+  static readonly args = {
     command: Args.string({
       description: 'Command to remove defaults for',
       required: true,
     }),
   };
 
-  static flags = helpFlag();
+  static readonly flags = helpFlag();
 
   async run() {
     const { args } = await this.parse(DefaultsRemove);

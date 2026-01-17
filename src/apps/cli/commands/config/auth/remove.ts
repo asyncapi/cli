@@ -5,21 +5,21 @@ import { helpFlag } from '@cli/internal/flags/global.flags';
 import { green } from 'picocolors';
 
 export default class AuthRemove extends Command {
-  static description = 'Remove authentication for a URL pattern';
+  static readonly description = 'Remove authentication for a URL pattern';
 
-  static examples = [
+  static readonly examples = [
     '$ asyncapi config auth remove "https://schema-registry.company.com/*"',
     '$ asyncapi config auth remove "https://github.com/myorg/*"',
   ];
 
-  static args = {
+  static readonly args = {
     pattern: Args.string({
       description: 'URL pattern to remove authentication for',
       required: true,
     }),
   };
 
-  static flags = helpFlag();
+  static readonly flags = helpFlag();
 
   async run() {
     const { args } = await this.parse(AuthRemove);

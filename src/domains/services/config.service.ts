@@ -97,7 +97,7 @@ export class ConfigService {
 
   private static resolveToken(tokenTemplate: string): string {
     const envVarPattern = /\$\{([^}]+)\}/;
-    const match = tokenTemplate.match(envVarPattern);
+    const match = envVarPattern.exec(tokenTemplate);
     
     if (match) {
       const envVar = match[1];
@@ -172,9 +172,7 @@ export class ConfigService {
   ): Promise<void> {
     const config = await this.loadConfig();
     
-    if (!config.defaults) {
-      config.defaults = {};
-    }
+    config.defaults ??= {};
     
     config.defaults[commandId] = defaults;
     await this.saveConfig(config);
@@ -187,7 +185,7 @@ export class ConfigService {
   static async removeCommandDefaults(commandId: string): Promise<void> {
     const config = await this.loadConfig();
     
-    if (config.defaults && config.defaults[commandId]) {
+    if (config.defaults?.[commandId]) {
       delete config.defaults[commandId];
       await this.saveConfig(config);
     }

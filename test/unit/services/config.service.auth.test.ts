@@ -94,7 +94,7 @@ describe('ConfigService - Auth Token Resolution', () => {
       });
 
       const auth = await ConfigService.getAuthForUrl('https://github.com/myorg/repo');
-      expect(auth).to.not.be.null;
+      expect(auth).to.not.equal(null);
       expect(auth?.token).to.equal('ghp_test456');
     });
 
@@ -106,7 +106,7 @@ describe('ConfigService - Auth Token Resolution', () => {
       });
 
       const auth = await ConfigService.getAuthForUrl('https://api.example.com/v1/deep/path/schema.yaml');
-      expect(auth).to.not.be.null;
+      expect(auth).to.not.equal(null);
       expect(auth?.token).to.equal('secret123');
     });
 
@@ -118,7 +118,7 @@ describe('ConfigService - Auth Token Resolution', () => {
       });
 
       const auth = await ConfigService.getAuthForUrl('https://github.com/otherorg/repo');
-      expect(auth).to.be.null;
+      expect(auth).to.equal(null);
     });
 
     it('should return first matching pattern', async () => {

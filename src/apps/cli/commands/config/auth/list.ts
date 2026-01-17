@@ -4,13 +4,13 @@ import { helpFlag } from '@cli/internal/flags/global.flags';
 import { cyan, blueBright } from 'picocolors';
 
 export default class AuthList extends Command {
-  static description = 'List configured authentication entries';
+  static readonly description = 'List configured authentication entries';
 
-  static examples = [
+  static readonly examples = [
     '$ asyncapi config auth list',
   ];
 
-  static flags = helpFlag();
+  static readonly flags = helpFlag();
 
   async run() {
     await this.parse(AuthList);
@@ -25,22 +25,22 @@ export default class AuthList extends Command {
       return;
     }
 
-    this.log(blueBright('Configured authentication:\n'));
+    this.log(blueBright('Configured authentication:\\n'));
 
-    config.auth.forEach((entry, index) => {
+    for (const [index, entry] of config.auth.entries()) {
       this.log(cyan(`${index + 1}. ${entry.pattern}`));
       this.log(`   Type: ${entry.authType || 'Bearer'}`);
       this.log(`   Token: ${entry.token}`);
       
       if (entry.headers && Object.keys(entry.headers).length > 0) {
-        this.log(`   Custom headers:`);
+        this.log('   Custom headers:');
         for (const [key, value] of Object.entries(entry.headers)) {
           this.log(`     ${key}: ${value}`);
         }
       }
       
       this.log('');
-    });
+    }
 
     this.log(cyan(`Total: ${config.auth.length} auth entries configured`));
   }

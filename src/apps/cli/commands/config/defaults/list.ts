@@ -4,13 +4,13 @@ import { helpFlag } from '@cli/internal/flags/global.flags';
 import { blueBright, cyan } from 'picocolors';
 
 export default class DefaultsList extends Command {
-  static description = 'List all configured command defaults';
+  static readonly description = 'List all configured command defaults';
 
-  static examples = [
+  static readonly examples = [
     '$ asyncapi config defaults list',
   ];
 
-  static flags = helpFlag();
+  static readonly flags = helpFlag();
 
   async run() {
     await this.parse(DefaultsList);
