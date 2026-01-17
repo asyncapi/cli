@@ -18,8 +18,13 @@ export interface AuthResult {
   headers: Record<string, string>;
 }
 
+export interface CommandDefaults {
+  [commandId: string]: Record<string, any>;
+}
+
 interface Config {
   auth?: AuthEntry[];
+  defaults?: CommandDefaults;
 }
 
 export class ConfigService {
@@ -69,7 +74,6 @@ export class ConfigService {
     const config = await this.loadConfig();
 
     if (!config.auth || !Array.isArray(config.auth)) {
-      console.warn('⚠️ No valid "auth" array found in config');
       return null;
     }
 
@@ -78,7 +82,7 @@ export class ConfigService {
         const regex = this.wildcardToRegex(entry.pattern);
         if (regex.test(url)) {
           return {
-            token: entry.token,
+            token: this.resolveToken(entry.token),
             authType: entry.authType || 'Bearer',
             headers: entry.headers || {}
           };
@@ -89,6 +93,25 @@ export class ConfigService {
     }
 
     return null;
+  }
+
+  private static resolveToken(tokenTemplate: string): string {
+    const envVarPattern = /\$\{([^}]+)\}/;
+    const match = tokenTemplate.match(envVarPattern);
+    
+    if (match) {
+      const envVar = match[1];
+      const value = process.env[envVar];
+      
+      if (!value) {
+        console.warn(`⚠️  Environment variable "${envVar}" is not set`);
+        return '';
+      }
+      
+      return value;
+    }
+    
+    return tokenTemplate;
   }
 
   /**
@@ -103,5 +126,79 @@ export class ConfigService {
       .replace(/\*/g, '[^/]*');
      
     return new RegExp(`^${regexStr}`);
+  }
+
+  // ========================================
+  // COMMAND DEFAULTS METHODS (Phase 1)
+  // ========================================
+
+  /**
+   * Get default flags for a specific command
+   * @param commandId - Command identifier (e.g., 'validate', 'generate:fromTemplate')
+   * @returns Default flags object or empty object if none configured
+   */
+  static async getCommandDefaults(
+    commandId: string
+  ): Promise<Record<string, any>> {
+    const config = await this.loadConfig();
+    return config.defaults?.[commandId] || {};
+  }
+
+  /**
+   * Merge CLI flags with config defaults
+   * CLI flags take precedence over config defaults
+   * @param commandId - Command identifier
+   * @param cliFlags - Flags passed via CLI
+   * @returns Merged flags object
+   */
+  static async mergeWithDefaults(
+    commandId: string,
+    cliFlags: Record<string, any>
+  ): Promise<Record<string, any>> {
+    const defaults = await this.getCommandDefaults(commandId);
+    
+    // CLI flags override defaults (spread order matters!)
+    return { ...defaults, ...cliFlags };
+  }
+
+  /**
+   * Set default flags for a command
+   * @param commandId - Command identifier
+   * @param defaults - Default flags to set
+   */
+  static async setCommandDefaults(
+    commandId: string,
+    defaults: Record<string, any>
+  ): Promise<void> {
+    const config = await this.loadConfig();
+    
+    if (!config.defaults) {
+      config.defaults = {};
+    }
+    
+    config.defaults[commandId] = defaults;
+    await this.saveConfig(config);
+  }
+
+  /**
+   * Remove defaults for a command
+   * @param commandId - Command identifier
+   */
+  static async removeCommandDefaults(commandId: string): Promise<void> {
+    const config = await this.loadConfig();
+    
+    if (config.defaults && config.defaults[commandId]) {
+      delete config.defaults[commandId];
+      await this.saveConfig(config);
+    }
+  }
+
+  /**
+   * List all configured command defaults
+   * @returns Map of command IDs to their defaults
+   */
+  static async listAllDefaults(): Promise<CommandDefaults> {
+    const config = await this.loadConfig();
+    return config.defaults || {};
   }
 }
