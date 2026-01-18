@@ -1,4 +1,4 @@
-/* eslint-disable sonarjs/no-duplicate-string */
+ 
 import { Args } from '@oclif/core';
 import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
@@ -367,13 +367,13 @@ async function readOverrideFile(path: string): Promise<diff.OverrideObject> {
   let overrideStringData;
   try {
     overrideStringData = await readFile(path, { encoding: 'utf8' });
-  } catch (err) {
+  } catch {
     throw new DiffOverrideFileError();
   }
 
   try {
     return JSON.parse(overrideStringData);
-  } catch (err) {
+  } catch {
     throw new DiffOverrideJSONError();
   }
 }

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import fs from 'fs';
 import { createTempDirectory, removeTempDirectory } from '../../../src/utils/temp-dir';
-import { closeStudioServer } from '../../helpers';
+import { closeStudioServer } from '../../helpers/index';
 
 describe('createTempDirectory() & removeTempDirectory()', () => {
   after(async () => {

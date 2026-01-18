@@ -13,6 +13,7 @@ CLI to work with your AsyncAPI files. Currently under development, we are workin
 - [Installation](#installation)
 - [Usage](#usage)
 - [Architecture](#architecture)
+- [Debugging & Testing](#debugging--testing)
 - [Github Action](#github-action)
 - [Contributing](#contributing)
   * [Set up development environment](#set-up-development-environment)
@@ -29,6 +30,9 @@ The [usage guide](/docs/usage.md) provides information about different ways to u
 
 ## Architecture
 The [architecture guide](/docs/architecture.md) provides information about the architecture.
+
+## Debugging & Testing
+The [debugging & testing guide](/docs/debugging-testing.md) provides step-by-step instructions for debugging CLI commands, API endpoints, and services, along with comprehensive testing guidelines.
 
 ## Github Action
 

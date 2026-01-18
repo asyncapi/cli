@@ -7,6 +7,8 @@ import { ErrorLoadingSpec } from '@errors/specification-file';
 import { MissingContextFileError } from '@errors/context-error';
 import { fileFormat } from '@cli/internal/flags/format.flags';
 import { HttpsProxyAgent } from 'https-proxy-agent';
+import { logger } from '@utils/logger';
+import { getErrorMessage } from '@utils/error-handler';
 const { readFile, lstat } = fs;
 const allowedFileNames: string[] = [
   'asyncapi.json',
@@ -45,7 +47,7 @@ export class Specification {
   toJson(): Record<string, any> {
     try {
       return yaml.load(this.spec, { json: true }) as Record<string, any>;
-    } catch (e) {
+    } catch {
       return JSON.parse(this.spec);
     }
   }
@@ -81,7 +83,7 @@ export class Specification {
     let spec;
     try {
       spec = await readFile(filepath, { encoding: 'utf8' });
-    } catch (error) {
+    } catch {
       throw new ErrorLoadingSpec('file', filepath);
     }
     return new Specification(spec, { filepath });
@@ -102,7 +104,7 @@ export class Specification {
       // Validate the target URL
       new URL(targetUrl);
 
-      const fetchOptions: any = { method: 'GET' };
+      const fetchOptions: RequestInit & { agent?: HttpsProxyAgent<string> } = { method: 'GET' };
 
       // If proxy URL is provided, create a proxy agent
       if (proxyUrl) {
@@ -111,7 +113,8 @@ export class Specification {
           const proxyAgent = new HttpsProxyAgent(proxyUrl);
           fetchOptions.agent = proxyAgent;
           response = await fetch(targetUrl, fetchOptions);
-        } catch (err: any) {
+        } catch (err: unknown) {
+          logger.error(`Proxy connection error: ${getErrorMessage(err)}`);
           throw new Error(
             'Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber',
           );
@@ -122,8 +125,8 @@ export class Specification {
           throw new ErrorLoadingSpec('url', targetUrl);
         }
       }
-    } catch (error) {
-      console.log(error);
+    } catch (error: unknown) {
+      logger.error(`Error loading spec from URL: ${getErrorMessage(error)}`);
       throw new ErrorLoadingSpec('url', targetUrl);
     }
 
@@ -211,7 +214,7 @@ export async function nameType(name: string): Promise<string> {
       return TYPE_FILE_PATH;
     }
     return TYPE_CONTEXT_NAME;
-  } catch (e) {
+  } catch {
     if (await isURL(name)) {
       return TYPE_URL;
     }
@@ -223,7 +226,7 @@ export async function isURL(urlpath: string): Promise<boolean> {
   try {
     const url = new URL(urlpath);
     return url.protocol === 'http:' || url.protocol === 'https:';
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -243,7 +246,7 @@ export async function fileExists(name: string): Promise<boolean> {
     }
 
     throw new ErrorLoadingSpec('file', name);
-  } catch (e) {
+  } catch {
     throw new ErrorLoadingSpec('file', name);
   }
 }
@@ -266,7 +269,7 @@ async function detectSpecFile(): Promise<string | undefined> {
       try {
         const exists = await fileExists(path.resolve(process.cwd(), filename));
         return exists ? filename : undefined;
-      } catch (e) {
+      } catch {
         // We did our best...
       }
     }),
@@ -284,28 +287,42 @@ export function retrieveFileFormat(content: string): fileFormat | undefined {
     // it is able to load .txt text files also.
     yaml.load(content);
     return 'yaml';
-  } catch (err) {
+  } catch {
     return undefined;
   }
 }
 
-export function convertToYaml(spec: string) {
+/**
+ * Converts a JSON or YAML specification to YAML format.
+ * 
+ * @param spec - The specification content as a string
+ * @returns The YAML formatted string, or undefined if conversion fails
+ */
+export function convertToYaml(spec: string): string | undefined {
   try {
     // JS object -> YAML string
     const jsonContent = yaml.load(spec);
     return yaml.dump(jsonContent);
-  } catch (err) {
-    console.error(err);
+  } catch (err: unknown) {
+    logger.error(`Failed to convert spec to YAML: ${getErrorMessage(err)}`);
+    return undefined;
   }
 }
 
-export function convertToJSON(spec: string) {
+/**
+ * Converts a JSON or YAML specification to JSON format.
+ * 
+ * @param spec - The specification content as a string
+ * @returns The JSON formatted string, or undefined if conversion fails
+ */
+export function convertToJSON(spec: string): string | undefined {
   try {
     // JSON or YAML String -> JS object
     const jsonContent = yaml.load(spec);
     // JS Object -> pretty JSON string
     return JSON.stringify(jsonContent, null, 2);
-  } catch (err) {
-    console.error(err);
+  } catch (err: unknown) {
+    logger.error(`Failed to convert spec to JSON: ${getErrorMessage(err)}`);
+    return undefined;
   }
 }

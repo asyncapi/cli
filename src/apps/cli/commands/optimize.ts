@@ -3,12 +3,13 @@ import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
 import Command from '@cli/internal/base';
 import { ValidationError } from '@errors/validation-error';
 import { load, retrieveFileFormat } from '@models/SpecificationFile';
-import * as inquirer from 'inquirer';
+import inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
 import { Parser } from '@asyncapi/parser';
 import { optimizeFlags } from '@cli/internal/flags/optimize.flags';
 import { proxyFlags } from '@cli/internal/flags/proxy.flags';
+import { applyProxyToPath } from '@utils/proxy';
 
 const { writeFile } = promises;
 
@@ -59,13 +60,11 @@ export default class Optimize extends Command {
 
   async run() {
     const { args, flags } = await this.parse(Optimize); //NOSONAR
-    let filePath = args['spec-file'];
-    const proxyHost = flags['proxyHost'];
-    const proxyPort = flags['proxyPort'];
-    if (proxyHost && proxyPort) {
-      const proxyUrl = `http://${proxyHost}:${proxyPort}`;
-      filePath = `${filePath}+${proxyUrl}`; // Update filePath with proxyUrl
-    }
+    const filePath = applyProxyToPath(
+      args['spec-file'],
+      flags['proxyHost'],
+      flags['proxyPort']
+    );
     try {
       this.specFile = await load(filePath);
     } catch (err: any) {
@@ -94,7 +93,7 @@ export default class Optimize extends Command {
     try {
       optimizer = new Optimizer(this.specFile.text());
       report = await optimizer.getReport();
-    } catch (err) {
+    } catch {
       this.error(
         new ValidationError({
           type: 'invalid-syntax-file',

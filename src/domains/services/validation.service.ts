@@ -22,7 +22,7 @@ import {
   teamcity,
   text,
 } from '@stoplight/spectral-formatters';
-import { red, yellow, green, cyan } from 'chalk';
+import chalk from 'chalk';
 import { promises } from 'fs';
 import path from 'path';
 
@@ -56,7 +56,7 @@ const isValidGitHubBlobUrl = (url: string): boolean => {
       parsedUrl.hostname === 'github.com' &&
       parsedUrl.pathname.split('/')[3] === 'blob'
     );
-  } catch (error) {
+  } catch {
     return false;
   }
 };
@@ -71,6 +71,50 @@ const convertGitHubWebUrl = (url: string): string => {
   return urlWithoutFragment
     .replace('github.com', 'raw.githubusercontent.com')
     .replace('/blob/', '/');
+};
+
+/**
+ * Helper function to fetch with error handling
+ */
+const fetchWithErrorHandling = async (
+  url: string,
+  headers: Record<string, string>,
+  errorMessage: string,
+): Promise<Response> => {
+  const res = await fetch(url, { headers });
+  if (!res.ok) {
+    throw new Error(`${errorMessage}: ${url} - ${res.statusText}`);
+  }
+  return res;
+};
+
+/**
+ * Helper function to fetch content from GitHub API
+ */
+const fetchGitHubApiContent = async (
+  url: string,
+  headers: Record<string, string>,
+): Promise<string> => {
+  headers['Accept'] = 'application/vnd.github.v3+json';
+  const res = await fetchWithErrorHandling(
+    url,
+    headers,
+    'Failed to fetch GitHub API URL',
+  );
+  const fileInfo = (await res.json()) as GitHubFileInfo;
+
+  if (!fileInfo.download_url) {
+    throw new Error(
+      `No download URL found in GitHub API response for: ${url}`,
+    );
+  }
+
+  const contentRes = await fetchWithErrorHandling(
+    fileInfo.download_url,
+    headers,
+    'Failed to fetch content from download URL',
+  );
+  return await contentRes.text();
 };
 
 /**
@@ -100,43 +144,23 @@ const createHttpWithAuthResolver = () => ({
     }
 
     if (url.includes('api.github.com')) {
-      headers['Accept'] = 'application/vnd.github.v3+json';
-      const res = await fetch(url, { headers });
-      if (!res.ok) {
-        throw new Error(
-          `Failed to fetch GitHub API URL: ${url} - ${res.statusText}`
-        );
-      }
-      const fileInfo = (await res.json()) as GitHubFileInfo;
-
-      if (fileInfo.download_url) {
-        const contentRes = await fetch(fileInfo.download_url, { headers });
-        if (!contentRes.ok) {
-          throw new Error(
-            `Failed to fetch content from download URL: ${fileInfo.download_url} - ${contentRes.statusText}`
-          );
-        }
-        return await contentRes.text();
-      }
-      throw new Error(
-        `No download URL found in GitHub API response for: ${url}`
-      );
-    } else if (url.includes('raw.githubusercontent.com')) {
+      return await fetchGitHubApiContent(url, headers);
+    }
+    if (url.includes('raw.githubusercontent.com')) {
       headers['Accept'] = 'application/vnd.github.v3.raw';
-      const res = await fetch(url, { headers });
-      if (!res.ok) {
-        throw new Error(
-          `Failed to fetch GitHub URL: ${url} - ${res.statusText}`
-        );
-      }
-      return await res.text();
-    } else {
-      const res = await fetch(url, { headers });
-      if (!res.ok) {
-        throw new Error(`Failed to fetch URL: ${url} - ${res.statusText}`);
-      }
+      const res = await fetchWithErrorHandling(
+        url,
+        headers,
+        'Failed to fetch GitHub URL',
+      );
       return await res.text();
     }
+    const res = await fetchWithErrorHandling(
+      url,
+      headers,
+      'Failed to fetch URL',
+    );
+    return await res.text();
   },
 });
 
@@ -291,6 +315,79 @@ export class ValidationService extends BaseService {
   }
 
   /**
+   * Creates a custom parser with specific rules turned off.
+   */
+  private buildCustomParser(rulesToSuppress: string[]): Parser {
+    return new Parser({
+      ruleset: {
+        extends: [],
+        rules: Object.fromEntries(
+          rulesToSuppress.map((rule) => [rule, 'off']),
+        ),
+      },
+      __unstable: {
+        resolver: {
+          cache: false,
+          resolvers: [createHttpWithAuthResolver()],
+        },
+      },
+    });
+  }
+
+  /**
+   * Registers all schema parsers for the given parser instance.
+   */
+  private registerSchemaParsers(parser: Parser): void {
+    parser.registerSchemaParser(AvroSchemaParser());
+    parser.registerSchemaParser(OpenAPISchemaParser());
+    parser.registerSchemaParser(RamlDTSchemaParser());
+    parser.registerSchemaParser(ProtoBuffSchemaParser());
+  }
+
+  /**
+   * Builds a parser that suppresses all discovered warnings.
+   */
+  private async buildParserWithAllWarningsSuppressed(
+    specFile: Specification
+  ): Promise<Parser> {
+    const diagnostics = await this.parser.validate(specFile.text(), {
+      source: specFile.getSource(),
+    });
+    const allRuleNames = Array.from(
+      new Set(
+        diagnostics
+          .map((d) => d.code)
+          .filter((c): c is string => typeof c === 'string'),
+      ),
+    );
+    return this.buildCustomParser(allRuleNames);
+  }
+
+  /**
+   * Builds a parser that suppresses specific warnings, handling invalid rules gracefully.
+   */
+  private buildParserWithSpecificWarningsSuppressed(
+    suppressedWarnings: string[]
+  ): Parser {
+    try {
+      return this.buildCustomParser(suppressedWarnings);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : '';
+      const matches = [
+        ...msg.matchAll(/Cannot extend non-existing rule: "([^"]+)"/g),
+      ];
+      const invalidRules = matches.map((m) => m[1]);
+      if (invalidRules.length > 0) {
+        const validRules = suppressedWarnings.filter(
+          (rule) => !invalidRules.includes(rule),
+        );
+        return this.buildCustomParser(validRules);
+      }
+      throw e;
+    }
+  }
+
+  /**
    * Helper to build and register a custom parser with suppressed rules
    */
   private async buildAndRegisterCustomParser(
@@ -298,68 +395,15 @@ export class ValidationService extends BaseService {
     suppressedWarnings: string[],
     suppressAllWarnings: boolean,
   ): Promise<Parser> {
-    // Helper to build a parser with given rules turned off
-    const buildCustomParser = (rulesToSuppress: string[]) =>
-      new Parser({
-        ruleset: {
-          extends: [],
-          rules: Object.fromEntries(
-            rulesToSuppress.map((rule) => [rule, 'off']),
-          ),
-        },
-        __unstable: {
-          resolver: {
-            cache: false,
-            resolvers: [createHttpWithAuthResolver()],
-          },
-        },
-      });
-
-    let activeParser: Parser;
-
-    if (suppressAllWarnings || suppressedWarnings.length) {
-      if (suppressAllWarnings) {
-        // Run the default parser to discover all rule codes
-        const diagnostics = await this.parser.validate(specFile.text(), {
-          source: specFile.getSource(),
-        });
-        const allRuleNames = Array.from(
-          new Set(
-            diagnostics
-              .map((d) => d.code)
-              .filter((c): c is string => typeof c === 'string'),
-          ),
-        );
-        activeParser = buildCustomParser(allRuleNames);
-      } else {
-        try {
-          activeParser = buildCustomParser(suppressedWarnings);
-        } catch (e: any) {
-          const msg = e.message || '';
-          const matches = [
-            ...msg.matchAll(/Cannot extend non-existing rule: "([^"]+)"/g),
-          ];
-          const invalidRules = matches.map((m) => m[1]);
-          if (invalidRules.length > 0) {
-            const validRules = suppressedWarnings.filter(
-              (rule) => !invalidRules.includes(rule),
-            );
-            activeParser = buildCustomParser(validRules);
-          } else {
-            throw e;
-          }
-        }
-      }
-
-      // Register schema parsers for active parser
-      activeParser.registerSchemaParser(AvroSchemaParser());
-      activeParser.registerSchemaParser(OpenAPISchemaParser());
-      activeParser.registerSchemaParser(RamlDTSchemaParser());
-      activeParser.registerSchemaParser(ProtoBuffSchemaParser());
-    } else {
+    if (!suppressAllWarnings && !suppressedWarnings.length) {
       throw new Error('No rules to suppress provided');
     }
 
+    const activeParser = suppressAllWarnings
+      ? await this.buildParserWithAllWarningsSuppressed(specFile)
+      : this.buildParserWithSpecificWarningsSuppressed(suppressedWarnings);
+
+    this.registerSchemaParsers(activeParser);
     return activeParser;
   }
 
@@ -497,13 +541,13 @@ export class ValidationService extends BaseService {
   private getSeverityTitle(severity: DiagnosticSeverity): string {
     switch (severity) {
     case DiagnosticSeverity.Error:
-      return red('Errors');
+      return chalk.red('Errors');
     case DiagnosticSeverity.Warning:
-      return yellow('Warnings');
+      return chalk.yellow('Warnings');
     case DiagnosticSeverity.Information:
-      return cyan('Information');
+      return chalk.cyan('Information');
     case DiagnosticSeverity.Hint:
-      return green('Hints');
+      return chalk.green('Hints');
     default:
       return 'Unknown';
     }
