@@ -228,4 +228,23 @@ describe('template', () => {
         }
       );
   });
+
+  describe('compile flag', () => {
+    test
+      .stdout()
+      .command([
+        ...generalOptions,
+        '--output=./test/docs/9',
+        '--force-write',
+        '--no-compile',
+        nonInteractive
+      ])
+      .it('should generate template with compile flag disabled', (ctx, done) => {
+        expect(ctx.stdout).to.contain(
+          'Check out your shiny new generated files at ./test/docs/9.\n\n'
+        );
+        cleanup('./test/docs/9');
+        done();
+      });
+  });
 });
