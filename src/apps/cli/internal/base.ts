@@ -1,4 +1,4 @@
-import { Command } from '@oclif/core';
+import { Command, Interfaces } from '@oclif/core';
 import {
   MetadataFromDocument,
   MetricMetadata,
@@ -14,6 +14,7 @@ import { existsSync } from 'fs-extra';
 import { promises as fPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { homedir } from 'os';
+import { ConfigService } from '@services/config.service';
 
 const { readFile, writeFile, stat } = fPromises;
 
@@ -33,6 +34,28 @@ export default abstract class extends Command {
     await super.init();
     const commandName: string = this.id || '';
     await this.recordActionInvoked(commandName, this.metricsMetadata);
+  }
+
+  async parse<
+    TFlags extends Record<string, any>,
+    BFlags extends Record<string, any>,
+    TArgs extends Record<string, any>
+  >(
+    options?: Interfaces.Input<TFlags, BFlags, TArgs>,
+    argv = this.argv
+  ): Promise<Interfaces.ParserOutput<TFlags, BFlags, TArgs>> {
+    const parsed = await super.parse(options, argv);
+    
+    if (this.id) {
+      const merged = await ConfigService.mergeWithDefaults(
+        this.id,
+        parsed.flags as Record<string, any>
+      );
+      
+      (parsed as any).flags = merged;
+    }
+    
+    return parsed;
   }
 
   async catch(err: Error & { exitCode?: number }): Promise<void> {
