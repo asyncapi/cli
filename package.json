@@ -24,7 +24,6 @@
     "@asyncapi/problem": "^1.0.0",
     "@asyncapi/protobuf-schema-parser": "^3.6.0",
     "@asyncapi/raml-dt-schema-parser": "^4.0.24",
-    "@asyncapi/studio": "^1.1.0",
     "@clack/prompts": "^0.11.0",
     "@oclif/core": "^4.8.0",
     "@oclif/plugin-autocomplete": "^3.2.39",
@@ -153,6 +152,7 @@
     "access": "public"
   },
   "optionalDependencies": {
+    "@asyncapi/studio": "^1.1.0",
     "fsevents": "^2.3.3"
   },
   "scripts": {
