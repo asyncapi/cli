@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 5.0.6
+
+### Patch Changes
+
+- a414293: - Updated `@asyncapi/generator` from `3.0.1` → `3.1.0`
+
 ## 5.0.5
 
 ### Patch Changes
