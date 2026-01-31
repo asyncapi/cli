@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 5.0.7
+
+### Patch Changes
+
+- 72fd21f: Bump @asyncapi/generator from v3.1.0 &rarr; v3.1.1
+
 ## 5.0.6
 
 ### Patch Changes
