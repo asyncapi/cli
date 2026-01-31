@@ -1,5 +1,29 @@
 # @asyncapi/cli
 
+## 5.0.7
+
+### Patch Changes
+
+- 72fd21f: Bump @asyncapi/generator from v3.1.0 &rarr; v3.1.1
+
+## 5.0.6
+
+### Patch Changes
+
+- a414293: - Updated `@asyncapi/generator` from `3.0.1` → `3.1.0`
+
+## 5.0.5
+
+### Patch Changes
+
+- be7c41d: chore: bump Node.js version to 24 in remaining Dockerfiles
+
+## 5.0.4
+
+### Patch Changes
+
+- cacf566: Update server-api image to use Node 24.
+
 ## 5.0.3
 
 ### Patch Changes
