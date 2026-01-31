@@ -64,7 +64,7 @@ export default class Template extends BaseGeneratorCommand {
         ? asyncapiInput
         : asyncapiInput?.toString?.() ?? '';
 
-    if (content.trim().length === 0) {
+    if(!content || !content.trim()){
       return this.error(
         new ValidationError({
           type: 'invalid-file',
