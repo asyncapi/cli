@@ -115,7 +115,9 @@ const listAllProtocolsForFile = (document) => {
 };
 
 const tidyUp = async () => {
-  fs.unlinkSync(TEMP_ZIP_NAME);
+  if (fs.existsSync(TEMP_ZIP_NAME)) {
+    fs.unlinkSync(TEMP_ZIP_NAME);
+  }
 };
 
 (async () => {
