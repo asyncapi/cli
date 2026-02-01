@@ -98,13 +98,20 @@ async function startStandalone(filePath: string, port: number, noBrowser: boolea
     open(url);
   }
 
-  const cleanup = () => {
-    child.kill();
+  const cleanup = (signal?: string) => {
+    try {
+      if (child.pid) {
+        child.kill(signal as NodeJS.Signals || 'SIGTERM');
+      }
+    } catch (e) {
+    }
     process.exit(0);
   };
 
-  process.on('SIGINT', cleanup);
-  process.on('SIGTERM', cleanup);
+  process.on('SIGINT', () => cleanup('SIGINT'));
+  process.on('SIGTERM', () => cleanup('SIGTERM'));
+
+  // Ensure child dies if parent dies
   process.on('exit', () => child.kill());
 }
 
