@@ -135,30 +135,6 @@ describe('ConversionService', () => {
         expect(result.error).to.be.a('string');
       }
     });
-
-    it('should handle Postman collection conversion', async () => {
-      const postmanCollection = `{
-        "info": {
-          "name": "Test Collection",
-          "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-        },
-        "item": []
-      }`;
-      
-      const specFile = new Specification(postmanCollection);
-      const options = {
-        format: 'postman-collection' as const,
-        perspective: 'client' as const
-      };
-
-      const result = await conversionService.convertDocument(specFile, options);
-
-      // Should either succeed or fail gracefully
-      expect(result).to.have.property('success');
-      if (!result.success) {
-        expect(result.error).to.be.a('string');
-      }
-    });
   });
 
   describe('handleLogging()', () => {

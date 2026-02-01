@@ -167,7 +167,7 @@ paths:
 
   /convert:
     post:
-      summary: Convert the given AsyncAPI/OpenAPI/Postman Collection document to AsyncAPI document with the specified version.
+      summary: Convert the given AsyncAPI/OpenAPI document to AsyncAPI document with the specified version.
       operationId: convert
       tags:
         - convert
@@ -363,14 +363,6 @@ components:
       oneOf:
         - type: string # can be in YAML format
         - $ref: https://spec.openapis.org/oas/3.0/schema/2024-10-18
-    PostmanCollectionDocument:
-      type: string
-      description: Postman Collection document in JSON or YAML.
-      oneOf:
-        - type: string # can be in YAML format
-        - $ref: https://schema.getpostman.com/json/collection/v2.1.0/collection.json
-        - $ref: https://schema.getpostman.com/json/collection/v2.0.0/collection.json
-        - $ref: https://schema.getpostman.com/json/collection/v1.0.0/collection.json
     SpecVersions:
       type: string
       description: Valid specification versions for the AsyncAPI document.
@@ -485,7 +477,6 @@ components:
           oneOf:
             - $ref: '#/components/schemas/AsyncAPIDocument'
             - $ref: '#/components/schemas/OpenAPIDocument'
-            - $ref: '#/components/schemas/PostmanCollectionDocument'
         target-version:
           description: The version of the AsyncAPI document to be converted to (only applicable for AsyncAPI documents).
           $ref: '#/components/schemas/SpecVersions'
@@ -502,7 +493,6 @@ components:
           enum:
             - asyncapi
             - openapi
-            - postman-collection
     ConvertResponse:
       type: object
       properties:

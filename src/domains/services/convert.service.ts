@@ -8,7 +8,6 @@ import { BaseService } from './base.service';
 import {
   convert,
   convertOpenAPI,
-  convertPostman,
   OpenAPIConvertVersion,
 } from '@asyncapi/converter';
 import { cyan, green } from 'picocolors';
@@ -16,7 +15,7 @@ import { promises as fPromises } from 'fs';
 
 export class ConversionService extends BaseService {
   /**
-   * Handles the conversion of AsyncAPI, Postman or OpenAPI documents based on the provided flags.
+   * Handles the conversion of AsyncAPI or OpenAPI documents based on the provided flags.
    */
   async convertDocument(
     specFile: Specification,
@@ -39,11 +38,6 @@ export class ConversionService extends BaseService {
           },
       );
       break;
-    case 'postman-collection':
-      convertedDocument = convertPostman(specFile.text() ?? '', '3.0.0', {
-        perspective: options.perspective,
-      });
-      break;
     default:
       return this.createErrorResult(
         `Unsupported conversion format: ${options.format}`,
@@ -62,7 +56,6 @@ export class ConversionService extends BaseService {
     const outputMap = {
       asyncapi: 'AsyncAPI document',
       openapi: 'OpenAPI document',
-      'postman-collection': 'Postman Collection',
     };
 
     return `🎉 The ${outputMap[flags.format]} from ${cyan(sourcePath)} has been successfully converted to AsyncAPI version ${green(targetVersion)}!!`;
