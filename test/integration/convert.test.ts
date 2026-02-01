@@ -33,7 +33,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert', filePath])
       .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain('The AsyncAPI document from ./test/fixtures/specification.yml has been successfully converted to AsyncAPI version 3.0.0!!');
+        expect(ctx.stdout).to.contain('The AsyncAPI document from ./test/fixtures/specification.yml has been successfully converted to AsyncAPI version 3.1.0!!');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -53,7 +53,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert', 'http://localhost:8080/dummySpec.yml'])
       .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain('The AsyncAPI document from http://localhost:8080/dummySpec.yml has been successfully converted to AsyncAPI version 3.0.0!!');
+        expect(ctx.stdout).to.contain('The AsyncAPI document from http://localhost:8080/dummySpec.yml has been successfully converted to AsyncAPI version 3.1.0!!');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -83,7 +83,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert'])
       .it('converts from current context', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`The AsyncAPI document from ${path.resolve(__dirname, '../fixtures/specification.yml')} has been successfully converted to AsyncAPI version 3.0.0!!\n`);
+        expect(ctx.stdout).to.contain(`The AsyncAPI document from ${path.resolve(__dirname, '../fixtures/specification.yml')} has been successfully converted to AsyncAPI version 3.1.0!!\n`);
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -169,7 +169,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert', filePath, '-f', 'asyncapi', '-o=./test/fixtures/specification_output.yml'])
       .it('works when .yml file is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`The AsyncAPI document from ${filePath} has been successfully converted to AsyncAPI version 3.0.0!!`);
+        expect(ctx.stdout).to.contain(`The AsyncAPI document from ${filePath} has been successfully converted to AsyncAPI version 3.1.0!!`);
         expect(fs.existsSync('./test/fixtures/specification_output.yml')).to.equal(true);
         expect(ctx.stderr).to.equal('');
         fs.unlinkSync('./test/fixtures/specification_output.yml');
@@ -181,7 +181,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert', JSONFilePath, '-f', 'asyncapi', '-o=./test/fixtures/specification_output.json'])
       .it('works when .json file is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`The AsyncAPI document from ${JSONFilePath} has been successfully converted to AsyncAPI version 3.0.0!!`);
+        expect(ctx.stdout).to.contain(`The AsyncAPI document from ${JSONFilePath} has been successfully converted to AsyncAPI version 3.1.0!!`);
         expect(fs.existsSync('./test/fixtures/specification_output.json')).to.equal(true);
         expect(ctx.stderr).to.equal('');
         fs.unlinkSync('./test/fixtures/specification_output.json');
@@ -203,7 +203,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert', openAPIFilePath, '-f', 'openapi'])
       .it('works when OpenAPI file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`The OpenAPI document from ${openAPIFilePath} has been successfully converted to AsyncAPI version 3.0.0!`);
+        expect(ctx.stdout).to.contain(`The OpenAPI document from ${openAPIFilePath} has been successfully converted to AsyncAPI version 3.1.0!`);
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -213,7 +213,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert', openAPIFilePath, '-f', 'openapi', '-p=client'])
       .it('works when OpenAPI file path is passed with client perspective', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`The OpenAPI document from ${openAPIFilePath} has been successfully converted to AsyncAPI version 3.0.0!`);
+        expect(ctx.stdout).to.contain(`The OpenAPI document from ${openAPIFilePath} has been successfully converted to AsyncAPI version 3.1.0!`);
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -223,7 +223,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert', openAPIFilePath, '-f', 'openapi','-p=server'])
       .it('works when OpenAPI file path is passed with server perspective', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`The OpenAPI document from ${openAPIFilePath} has been successfully converted to AsyncAPI version 3.0.0!`);
+        expect(ctx.stdout).to.contain(`The OpenAPI document from ${openAPIFilePath} has been successfully converted to AsyncAPI version 3.1.0!`);
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -243,7 +243,7 @@ describe('convert', () => {
       .stdout()
       .command(['convert', openAPIFilePath, '-f', 'openapi', '-o=./test/fixtures/openapi_converted_output.yml'])
       .it('works when OpenAPI file is converted and output is saved', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`The OpenAPI document from ${openAPIFilePath} has been successfully converted to AsyncAPI version 3.0.0!`);
+        expect(ctx.stdout).to.contain(`The OpenAPI document from ${openAPIFilePath} has been successfully converted to AsyncAPI version 3.1.0!`);
         expect(fs.existsSync('./test/fixtures/openapi_converted_output.yml')).to.equal(true);
         expect(ctx.stderr).to.equal('');
         fs.unlinkSync('./test/fixtures/openapi_converted_output.yml');

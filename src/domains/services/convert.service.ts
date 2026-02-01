@@ -26,7 +26,7 @@ export class ConversionService extends BaseService {
     case 'asyncapi':
       convertedDocument = convert(
         specFile.text() ?? '',
-        options['target-version'] || '3.0.0',
+        options['target-version'] || '3.1.0',
       );
       break;
     case 'openapi':

@@ -385,7 +385,7 @@ FLAGS
   -p, --perspective=<option>    [default: server] Perspective to use when converting OpenAPI to AsyncAPI (client or
                                 server). Note: This option is only applicable for OpenAPI to AsyncAPI conversions.
                                 <options: client|server>
-  -t, --target-version=<value>  [default: 3.0.0] asyncapi version to convert to
+  -t, --target-version=<value>  [default: 3.1.0] asyncapi version to convert to
       --proxyHost=<value>       Name of the ProxyHost
       --proxyPort=<value>       Port number number for the proxyHost.
 
@@ -669,13 +669,43 @@ USAGE
   $ asyncapi new file [-h] [-n <value>] [-e <value>] [-s] [-p <value>] [--no-tty]
 
 FLAGS
-  -e, --example=<value>    name of the example to use. Available examples are:
-                           - tutorial.yml
-  -h, --help               Show CLI help.
-  -n, --file-name=<value>  name of the file
-  -p, --port=<value>       port in which to start Studio
-  -s, --studio             open in Studio
-      --no-tty             do not use an interactive terminal
+  -e, --example=<value>
+      name of the example to use. Available examples are:
+      - simple-asyncapi.yml
+      - adeo-kafka-request-reply-asyncapi.yml
+      - anyof-asyncapi.yml
+      - application-headers-asyncapi.yml
+      - correlation-id-asyncapi.yml
+      - websocket-gemini-asyncapi.yml
+      - gitter-streaming-asyncapi.yml
+      - kraken-websocket-request-reply-message-filter-in-reply-asyncapi.yml
+      - kraken-websocket-request-reply-multiple-channels-asyncapi.yml
+      - mercure-asyncapi.yml
+      - not-asyncapi.yml
+      - operation-security-asyncapi.yml
+      - oneof-asyncapi.yml
+      - rpc-client-asyncapi.yml
+      - rpc-server-asyncapi.yml
+      - slack-rtm-asyncapi.yml
+      - tutorial.yml
+      - streetlights-kafka-asyncapi.yml
+      - streetlights-operation-security-asyncapi.yml
+      - streetlights-mqtt-asyncapi.yml
+
+  -h, --help
+      Show CLI help.
+
+  -n, --file-name=<value>
+      name of the file
+
+  -p, --port=<value>
+      port in which to start Studio
+
+  -s, --studio
+      open in Studio
+
+  --no-tty
+      do not use an interactive terminal
 
 DESCRIPTION
   Creates a new asyncapi file
