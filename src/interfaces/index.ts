@@ -103,7 +103,7 @@ export interface ValidationResult {
 }
 
 export interface ConversionOptions {
-  format: 'asyncapi' | 'openapi' | 'postman-collection';
+  format: 'asyncapi' | 'openapi';
   'target-version'?: AsyncAPIConvertVersion;
   perspective?: 'client' | 'server';
 }
