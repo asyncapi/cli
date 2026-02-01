@@ -14,7 +14,7 @@
   "dependencies": {
     "@asyncapi/avro-schema-parser": "^3.0.24",
     "@asyncapi/bundler": "^0.6.4",
-    "@asyncapi/converter": "^2.0.0",
+    "@asyncapi/converter": "^2.0.1",
     "@asyncapi/diff": "^0.5.0",
     "@asyncapi/generator": "^3.1.1",
     "@asyncapi/modelina-cli": "^5.10.1",
