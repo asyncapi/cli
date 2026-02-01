@@ -27,8 +27,8 @@ function resolveStudioNextInstance(studioPath: string): NextFactory {
   const nextModule = require(resolvedNextPath);
   return nextModule.default ?? nextModule;
 }
- 
-export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:boolean): void {
+
+export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?: boolean): void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
@@ -99,27 +99,27 @@ export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:
     if (filePath) {
       chokidar.watch(filePath).on('all', (event, path) => {
         switch (event) {
-        case 'add':
-        case 'change':
-          getFileContent(path).then((code: string) => {
+          case 'add':
+          case 'change':
+            getFileContent(path).then((code: string) => {
+              messageQueue.push(
+                JSON.stringify({
+                  type: 'file:changed',
+                  code,
+                }),
+              );
+              sendQueuedMessages();
+            });
+            break;
+          case 'unlink':
             messageQueue.push(
               JSON.stringify({
-                type: 'file:changed',
-                code,
+                type: 'file:deleted',
+                filePath,
               }),
             );
             sendQueuedMessages();
-          });
-          break;
-        case 'unlink':
-          messageQueue.push(
-            JSON.stringify({
-              type: 'file:deleted',
-              filePath,
-            }),
-          );
-          sendQueuedMessages();
-          break;
+            break;
         }
       });
     }
@@ -156,8 +156,12 @@ export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:
       const addr = server.address();
       const listenPort = (addr && typeof addr === 'object' && 'port' in addr) ? (addr as any).port : port;
       const url = `http://localhost:${listenPort}?liveServer=${listenPort}&studio-version=${studioVersion}`;
-      console.log(`🎉 Connected to Live Server running at ${blueBright(url)}.`);
-      console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
+      if (noBrowser) {
+        console.log(`🔗 Studio is running at ${blueBright(url)}`);
+      } else {
+        console.log(`🎉 Connected to Live Server running at ${blueBright(url)}.`);
+        console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
+      }
       console.log(
         `🛑 If needed, press ${redBright('Ctrl + C')} to stop the process.`,
       );
