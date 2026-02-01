@@ -55,7 +55,7 @@ export default class StartStudio extends Command {
       }
     }
     this.metricsMetadata.port = port;
-    startStudio(filePath as string, port, flags['no-browser']);
+    await startStudio(filePath as string, port, flags['no-browser']);
   }
 
   private async parseArgs(args: Record<string, any>, port?: string) {
