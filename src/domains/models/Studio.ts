@@ -1,4 +1,5 @@
 import { existsSync, promises as fPromises } from 'fs';
+import { copySync } from 'fs-extra';
 import { SpecificationFileNotFound } from '@errors/specification-file';
 import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
@@ -41,13 +42,31 @@ export async function start(filePath: string, port: number = DEFAULT_PORT, noBro
   const standalonePath = path.join(studioPath, 'build', 'standalone', 'apps', 'studio', 'server.js');
 
   if (existsSync(standalonePath)) {
-    await startStandalone(filePath, port, noBrowser, standalonePath);
+    await startStandalone(filePath, port, noBrowser, standalonePath, studioPath);
   } else {
     await startLegacy(filePath, port, noBrowser, studioPath);
   }
 }
 
-async function startStandalone(filePath: string, port: number, noBrowser: boolean | undefined, serverPath: string) {
+async function startStandalone(filePath: string, port: number, noBrowser: boolean | undefined, serverPath: string, studioPath: string) {
+  // Ensure static assets are available in the standalone directory
+  const standaloneDir = path.dirname(serverPath);
+  const staticSrc = path.join(studioPath, 'build', 'static');
+  const staticDest = path.join(standaloneDir, 'build', 'static');
+  const publicSrc = path.join(studioPath, 'public');
+  const publicDest = path.join(standaloneDir, 'public');
+
+  try {
+    if (!existsSync(staticDest) && existsSync(staticSrc)) {
+      copySync(staticSrc, staticDest);
+    }
+    if (!existsSync(publicDest) && existsSync(publicSrc)) {
+      copySync(publicSrc, publicDest);
+    }
+  } catch (error) {
+    console.warn('Warning: Failed to copy static assets to standalone directory. Studio might not load correctly.', error);
+  }
+
   let studioPort = port;
   if (studioPort === 0) {
     studioPort = await getFreePort();
@@ -69,6 +88,7 @@ async function startStandalone(filePath: string, port: number, noBrowser: boolea
   const child = fork(serverPath, [], {
     env: { ...process.env, PORT: studioPort.toString() },
     stdio: 'ignore',
+    cwd: standaloneDir,
   });
 
   const url = `http://localhost:${studioPort}?liveServer=${wsPort}&studio-version=${studioVersion}`;
