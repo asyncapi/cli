@@ -38,7 +38,7 @@ export const sharedFlags = {
   ),
   param: Flags.string({
     char: 'p',
-    description: 'Additional param to pass to templates',
+    description: 'Additional param to pass to templates (e.g., --param sidebarOrganization=byTags)',
     multiple: true
   }),
   'map-base-url': Flags.string({
