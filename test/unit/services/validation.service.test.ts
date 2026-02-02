@@ -104,7 +104,7 @@ describe('ValidationService', () => {
         expect(result.data).to.have.property('status');
         expect(result.data).to.have.property('diagnostics');
         expect(result.data?.diagnostics).to.be.an('array');
-        
+
         // Should have diagnostics for missing required fields
         if (result.data?.diagnostics && result.data.diagnostics.length > 0) {
           expect(result.data.diagnostics.some((d: any) => d.message)).to.equal(true);
@@ -119,7 +119,7 @@ describe('ValidationService', () => {
       };
 
       const result = await validationService.validateDocument(specFile, options);
-      
+
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.data).to.have.property('diagnostics');
@@ -129,12 +129,12 @@ describe('ValidationService', () => {
 
     it('should handle different output formats', async () => {
       const specFile = new Specification(validAsyncAPI);
-      const formats = ['json', 'junit', 'html', 'text', 'teamcity', 'pretty'] as const;
+      const formats = ['json', 'junit', 'html', 'text', 'teamcity', 'pretty', 'github-actions', 'sarif', 'code-climate', 'gitlab', 'markdown'] as const;
 
       for (const format of formats) {
         const options = { 'diagnostics-format': format };
         const result = await validationService.validateDocument(specFile, options);
-        
+
         expect(result.success).to.equal(true);
         if (result.success) {
           expect(result.data).to.have.property('diagnostics');
@@ -216,21 +216,21 @@ describe('ValidationService', () => {
 
       const result = await validationService.validateDocument(specFile, options);
 
-      // The validation succeeds means the validation command is successfully executed it is independent whether 
-      // the document is valid or not 
+      // The validation succeeds means the validation command is successfully executed it is independent whether
+      // the document is valid or not
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.data).to.have.property('status');
         expect(result.data?.status).to.equal('invalid');
         expect(result.data).to.have.property('diagnostics');
         expect(result.data?.diagnostics).to.be.an('array');
-        
+
         // Should have an invalid-ref diagnostic for the private GitHub URL
         const invalidRefDiagnostic = result.data?.diagnostics?.find((d: any) => d.code === 'invalid-ref');
         // eslint-disable-next-line no-unused-expressions
         expect(invalidRefDiagnostic).to.exist;
         // Error message varies by platform - macOS shows FetchError, Linux/Windows show "Page not found"
-        expect(invalidRefDiagnostic?.message).to.satisfy((msg: string) => 
+        expect(invalidRefDiagnostic?.message).to.satisfy((msg: string) =>
           msg.includes('Page not found') || msg.includes('FetchError')
         );
         expect(invalidRefDiagnostic?.message).to.include('https://github.com/private-org/private-repo/blob/main/schema.yaml');
@@ -244,8 +244,8 @@ describe('ValidationService', () => {
       };
 
       const result = await validationService.validateDocument(specFile, options);
-      // The validation succeeds means the validation command is successfully executed it is independent whether 
-      // the document is valid or not 
+      // The validation succeeds means the validation command is successfully executed it is independent whether
+      // the document is valid or not
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.data).to.have.property('status');
