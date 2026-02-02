@@ -12,7 +12,9 @@ import { OpenAPISchemaParser } from '@asyncapi/openapi-schema-parser';
 import { DiagnosticSeverity, Parser } from '@asyncapi/parser/cjs';
 import { RamlDTSchemaParser } from '@asyncapi/raml-dt-schema-parser';
 import { ProtoBuffSchemaParser } from '@asyncapi/protobuf-schema-parser';
-import { getDiagnosticSeverity } from '@stoplight/spectral-core';
+import { OutputFormat } from '@stoplight/spectral-cli/dist/services/config';
+import { version } from '@stoplight/spectral-cli/package.json';
+import { getDiagnosticSeverity, Ruleset } from '@stoplight/spectral-core';
 import {
   html,
   json,
@@ -21,6 +23,10 @@ import {
   stylish,
   teamcity,
   text,
+  githubActions,
+  sarif,
+  codeClimate,
+  markdown
 } from '@stoplight/spectral-formatters';
 import chalk from 'chalk';
 import { promises } from 'fs';
@@ -187,6 +193,11 @@ const formatExtensions: Record<DiagnosticsFormat, string> = {
   text: '.txt',
   teamcity: '.txt',
   pretty: '.txt',
+  'github-actions': '.txt',
+  sarif: '.json',
+  'code-climate': '.json',
+  gitlab: '.json',
+  markdown: '.md',
 };
 
 const validFormats = [
@@ -197,13 +208,18 @@ const validFormats = [
   'text',
   'teamcity',
   'pretty',
+  'github-actions',
+  'sarif',
+  'code-climate',
+  'gitlab',
+  'markdown',
 ];
 
 export class ValidationService extends BaseService {
   private parser: Parser;
 
   constructor(parserOptions: ParserOptions = {}) {
-    super(); 
+    super();
     // Create parser with custom GitHub resolver
     const customParserOptions = {
       ...parserOptions,
@@ -498,22 +514,31 @@ export class ValidationService extends BaseService {
     };
 
     switch (format) {
-    case 'stylish':
+    case OutputFormat.STYLISH:
       return this.formatStylish(diagnostics, options);
-    case 'json':
+    case OutputFormat.JSON:
       return json(diagnostics, options);
-    case 'junit':
+    case OutputFormat.JUNIT:
       return junit(diagnostics, options);
-    case 'html':
+    case OutputFormat.HTML:
       return html(diagnostics, options);
-    case 'text':
+    case OutputFormat.TEXT:
       return text(diagnostics, options);
-    case 'teamcity':
+    case OutputFormat.TEAMCITY:
       return teamcity(diagnostics, options);
-    case 'pretty':
+    case OutputFormat.PRETTY:
       return pretty(diagnostics, options);
+    case OutputFormat.GITHUB_ACTIONS:
+      return githubActions(diagnostics, options);
+    case OutputFormat.SARIF:
+      return sarif(diagnostics, options, { ruleset: new Ruleset({rules: {}}), spectralVersion: version });
+    case OutputFormat.CODE_CLIMATE:
+    case OutputFormat.GITLAB:
+      return codeClimate(diagnostics, options);
+    case OutputFormat.MARKDOWN:
+      return markdown(diagnostics, options);
     default:
-      return stylish(diagnostics, options);
+      return this.formatStylish(diagnostics, options);
     }
   }
 
