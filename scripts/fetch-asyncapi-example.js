@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const fs = require('fs');
+const fs = require('node:fs');
 const unzipper = require('unzipper');
-const path = require('path');
+const path = require('node:path');
 
 const { Parser } = require('@asyncapi/parser/cjs');
 const { AvroSchemaParser } = require('@asyncapi/avro-schema-parser');
 const { OpenAPISchemaParser } = require('@asyncapi/openapi-schema-parser');
 const { RamlDTSchemaParser } = require('@asyncapi/raml-dt-schema-parser');
-const { pipeline } = require('stream');
-const { promisify } = require('util');
+const { pipeline } = require('node:stream');
+const { promisify } = require('node:util');
 
 const streamPipeline = promisify(pipeline);
 
@@ -25,85 +25,119 @@ const SPEC_EXAMPLES_ZIP_URL = 'https://github.com/asyncapi/spec/archive/refs/hea
 const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
 const TEMP_ZIP_NAME = 'spec-examples.zip';
 
-const fetchAsyncAPIExamplesFromExternalURL = () => {
-  try {
-    return new Promise((resolve, reject) => {
-      fetch(SPEC_EXAMPLES_ZIP_URL)
-        .then(async (res) => {
-          if (res.status !== 200) {
-            return reject(new Error(`Failed to fetch examples from ${SPEC_EXAMPLES_ZIP_URL}`));
-          }
+/**
+ * Fetch examples ZIP from AsyncAPI spec repository
+ */
+const fetchAsyncAPIExamplesFromExternalURL = async () => {
+  const res = await fetch(SPEC_EXAMPLES_ZIP_URL);
 
-          const file = fs.createWriteStream(TEMP_ZIP_NAME);
-          await streamPipeline(res.body, file);
-
-          console.log('Fetched ZIP file');
-          resolve();
-        })
-        .catch(reject);
-    });
-  } catch (error) {
-    console.error(error);
+  if (res.status !== 200) {
+    throw new Error(`Failed to fetch examples from ${SPEC_EXAMPLES_ZIP_URL}`);
   }
+
+  const fileStream = fs.createWriteStream(TEMP_ZIP_NAME);
+  await streamPipeline(res.body, fileStream);
+
+  console.log('Fetched ZIP file');
 };
 
+/**
+ * Safely unzip examples while preventing ZIP Slip attacks
+ */
 const unzipAsyncAPIExamples = async () => {
-  return new Promise((resolve, reject) => {
-    if (!fs.existsSync(EXAMPLE_DIRECTORY)) {
-      fs.mkdirSync(EXAMPLE_DIRECTORY);
-    }
+  if (!fs.existsSync(EXAMPLE_DIRECTORY)) {
+    fs.mkdirSync(EXAMPLE_DIRECTORY, { recursive: true });
+  }
 
+  return new Promise((resolve, reject) => {
     fs.createReadStream(TEMP_ZIP_NAME)
       .pipe(unzipper.Parse())
       .on('entry', async (entry) => {
-        const fileName = entry.path;
-        if (fileName.includes('examples/') && fileName.includes('.yml') && entry.type === 'File') {
-          const fileContent = await entry.buffer();
-          const fileNameWithExtension = fileName.split('examples/')[1];
-          fs.writeFileSync(path.join(EXAMPLE_DIRECTORY, fileNameWithExtension), fileContent.toString());
-        } else {
+        try {
+          const rawPath = entry.path;
+          const normalizedPath = path.normalize(rawPath);
+
+          // Only allow files inside examples/ directory
+          if (
+            entry.type === 'File' &&
+            normalizedPath.startsWith(`examples${path.sep}`) &&
+            normalizedPath.endsWith('.yml')
+          ) {
+            const safeFileName = path.basename(normalizedPath);
+            const outputPath = path.join(EXAMPLE_DIRECTORY, safeFileName);
+
+            // Final safety check to prevent path traversal
+            if (!outputPath.startsWith(EXAMPLE_DIRECTORY)) {
+              throw new Error(`Path traversal attempt detected: ${rawPath}`);
+            }
+
+            const fileContent = await entry.buffer();
+            fs.writeFileSync(outputPath, fileContent.toString(), 'utf-8');
+          } else {
+            entry.autodrain();
+          }
+        } catch (error) {
           entry.autodrain();
+          reject(error);
         }
-      }).on('close', () => {
+      })
+      .on('close', () => {
         console.log('Unzipped all examples from ZIP');
         resolve();
-      }).on('error', (error) => {
-        reject(new Error(`Error in unzipping from ZIP: ${error.message}`));
+      })
+      .on('error', (error) => {
+        reject(new Error(`Error unzipping ZIP: ${error.message}`));
       });
   });
 };
 
+
+/**
+ * Build CLI examples list from parsed specs
+ */
 const buildCLIListFromExamples = async () => {
   const files = fs.readdirSync(EXAMPLE_DIRECTORY);
-  const examples = files.filter(file => file.includes('.yml')).sort();
+  const examples = files.filter((file) => file.endsWith('.yml')).sort();
 
-  const buildExampleList = examples.map(async example => {
-    const examplePath = path.join(EXAMPLE_DIRECTORY, example);
-    const exampleContent = fs.readFileSync(examplePath, { encoding: 'utf-8' });
+  const exampleEntries = await Promise.all(
+    examples.map(async (example) => {
+      const examplePath = path.join(EXAMPLE_DIRECTORY, example);
+      const exampleContent = fs.readFileSync(examplePath, 'utf-8');
 
-    try {
-      const { document } = await parser.parse(exampleContent);
-      // Failed for some reason to parse this spec file (document is undefined), ignore for now
-      if (!document) {
-        return;
+      try {
+        const { document } = await parser.parse(exampleContent);
+        if (!document) {
+          return null;
+        }
+
+        const title = document.info().title();
+        const protocols = listAllProtocolsForFile(document);
+
+        return {
+          name: protocols ? `${title} - (protocols: ${protocols})` : title,
+          value: example,
+        };
+      } catch (error) {
+        console.error(error);
+        return null;
       }
+    })
+  );
 
-      const title = document.info().title();
-      const protocols = listAllProtocolsForFile(document);
-      return {
-        name: protocols ? `${title} - (protocols: ${protocols})` : title,
-        value: example
-      };
-    } catch (error) {
-      console.error(error);
-    }
-  });
+  const orderedExampleList = exampleEntries
+    .filter(Boolean)
+    .sort((a, b) => a.name.localeCompare(b.name));
 
-  const exampleList = (await Promise.all(buildExampleList)).filter(item => !!item);
-  const orderedExampleList = exampleList.sort((a, b) => a.name.localeCompare(b.name));
-
-  fs.writeFileSync(path.join(EXAMPLE_DIRECTORY, 'examples.json'), JSON.stringify(orderedExampleList, null, 4));
+  fs.writeFileSync(
+    path.join(EXAMPLE_DIRECTORY, 'examples.json'),
+    JSON.stringify(orderedExampleList, null, 2),
+    'utf-8'
+  );
 };
+
+/**
+ * List all protocols defined in an AsyncAPI document
+ */
 
 const listAllProtocolsForFile = (document) => {
   const servers = document.servers();
@@ -111,16 +145,28 @@ const listAllProtocolsForFile = (document) => {
     return '';
   }
 
-  return servers.all().map(server => server.protocol()).join(',');
+  return servers.all().map((server) => server.protocol()).join(',');
 };
 
+
+/**
+ * Cleanup temporary ZIP files
+ */
 const tidyUp = async () => {
-  fs.unlinkSync(TEMP_ZIP_NAME);
+  if (fs.existsSync(TEMP_ZIP_NAME)) {
+    fs.unlinkSync(TEMP_ZIP_NAME);
+  }
 };
 
-(async () => {
+
+const main = async () => {
   await fetchAsyncAPIExamplesFromExternalURL();
   await unzipAsyncAPIExamples();
   await buildCLIListFromExamples();
   await tidyUp();
-})();
+};
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
