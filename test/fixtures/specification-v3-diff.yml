@@ -1,4 +1,4 @@
-asyncapi: 3.0.0
+asyncapi: 3.1.0
 id: 'urn:example:com:smartylighting:streetlights:server'
 info:
   title: AsyncAPI App
