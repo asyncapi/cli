@@ -27,7 +27,7 @@ $ npm install -g @asyncapi/cli
 $ asyncapi COMMAND
 running command...
 $ asyncapi (--version|--v)
-@asyncapi/cli/5.0.1 darwin-arm64 node-v22.16.0
+@asyncapi/cli/5.0.7 darwin-arm64 node-v24.7.0
 $ asyncapi --help [COMMAND]
 USAGE
   $ asyncapi COMMAND
@@ -367,30 +367,30 @@ _See code: [src/commands/config/versions.ts](https://github.com/asyncapi/cli/blo
 
 ## `asyncapi convert [SPEC-FILE]`
 
-Convert asyncapi documents older to newer versions or OpenAPI/postman-collection documents to AsyncAPI
+Convert asyncapi documents older to newer versions or OpenAPI documents to AsyncAPI
 
 ```
 USAGE
-  $ asyncapi convert [SPEC-FILE] -f openapi|asyncapi|postman-collection [-h] [-o <value>] [-t <value>] [-p
-    client|server] [--proxyHost <value>] [--proxyPort <value>]
+  $ asyncapi convert [SPEC-FILE] -f openapi|asyncapi [-h] [-o <value>] [-t <value>] [-p client|server]
+    [--proxyHost <value>] [--proxyPort <value>]
 
 ARGUMENTS
   [SPEC-FILE]  spec path, url, or context-name
 
 FLAGS
   -f, --format=<option>         (required) [default: asyncapi] Specify the format to convert from (openapi or asyncapi)
-                                <options: openapi|asyncapi|postman-collection>
+                                <options: openapi|asyncapi>
   -h, --help                    Show CLI help.
   -o, --output=<value>          path to the file where the result is saved
   -p, --perspective=<option>    [default: server] Perspective to use when converting OpenAPI to AsyncAPI (client or
                                 server). Note: This option is only applicable for OpenAPI to AsyncAPI conversions.
                                 <options: client|server>
-  -t, --target-version=<value>  [default: 3.0.0] asyncapi version to convert to
+  -t, --target-version=<value>  [default: 3.1.0] asyncapi version to convert to
       --proxyHost=<value>       Name of the ProxyHost
       --proxyPort=<value>       Port number number for the proxyHost.
 
 DESCRIPTION
-  Convert asyncapi documents older to newer versions or OpenAPI/postman-collection documents to AsyncAPI
+  Convert asyncapi documents older to newer versions or OpenAPI documents to AsyncAPI
 ```
 
 _See code: [src/commands/convert.ts](https://github.com/asyncapi/cli/blob/master/src/apps/cli/commands/convert.ts)_
@@ -403,7 +403,8 @@ Find diff between two asyncapi files
 USAGE
   $ asyncapi diff OLD NEW [-h] [-f json|yaml|yml|md] [-t breaking|non-breaking|unclassified|all]
     [--markdownSubtype json|yaml|yml] [-o <value>] [--no-error] [-w] [--log-diagnostics] [--diagnostics-format
-    json|stylish|junit|html|text|teamcity|pretty] [--fail-severity error|warn|info|hint] [-s <value>]
+    json|stylish|junit|html|text|teamcity|pretty|github-actions|sarif|code-climate|gitlab|markdown] [--fail-severity
+    error|warn|info|hint] [-s <value>]
 
 ARGUMENTS
   OLD  old spec path, URL or context-name
@@ -419,7 +420,8 @@ FLAGS
                                      <options: breaking|non-breaking|unclassified|all>
   -w, --watch                        Enable watch mode
       --diagnostics-format=<option>  [default: stylish] format to use for validation diagnostics
-                                     <options: json|stylish|junit|html|text|teamcity|pretty>
+                                     <options: json|stylish|junit|html|text|teamcity|pretty|github-actions|sarif|code-cl
+                                     imate|gitlab|markdown>
       --fail-severity=<option>       [default: error] diagnostics of this level or above will trigger a failure exit
                                      code
                                      <options: error|warn|info|hint>
@@ -577,8 +579,9 @@ USAGE
     [--csharpAutoImplement] [--csharpNewtonsoft] [--csharpArrayType Array|List] [--csharpHashcode] [--csharpEqual]
     [--csharpSystemJson] [--goIncludeComments] [--goIncludeTags] [--javaIncludeComments] [--javaJackson]
     [--javaConstraints] [--javaArrayType Array|List] [--pyDantic] [--no-interactive] [--log-diagnostics]
-    [--diagnostics-format json|stylish|junit|html|text|teamcity|pretty] [--fail-severity error|warn|info|hint] [-s
-    <value>] [--proxyHost <value>] [--proxyPort <value>]
+    [--diagnostics-format
+    json|stylish|junit|html|text|teamcity|pretty|github-actions|sarif|code-climate|gitlab|markdown] [--fail-severity
+    error|warn|info|hint] [-s <value>] [--proxyHost <value>] [--proxyPort <value>]
 
 ARGUMENTS
   LANGUAGE  (typescript|csharp|golang|java|javascript|dart|python|rust|kotlin|php|cplusplus|scala) The language you want
@@ -598,7 +601,8 @@ FLAGS
       --csharpNewtonsoft             C# specific, generate the models with newtonsoft serialization support
       --csharpSystemJson             C# specific, generate the models with System.Text.Json serialization support
       --diagnostics-format=<option>  [default: stylish] format to use for validation diagnostics
-                                     <options: json|stylish|junit|html|text|teamcity|pretty>
+                                     <options: json|stylish|junit|html|text|teamcity|pretty|github-actions|sarif|code-cl
+                                     imate|gitlab|markdown>
       --fail-severity=<option>       [default: error] diagnostics of this level or above will trigger a failure exit
                                      code
                                      <options: error|warn|info|hint>
@@ -900,8 +904,9 @@ validate asyncapi file
 ```
 USAGE
   $ asyncapi validate [SPEC-FILE] [-h] [-w] [--log-diagnostics] [--diagnostics-format
-    json|stylish|junit|html|text|teamcity|pretty] [--fail-severity error|warn|info|hint] [-s <value>] [--score]
-    [--suppressWarnings <value>...] [--suppressAllWarnings] [--proxyHost <value>] [--proxyPort <value>]
+    json|stylish|junit|html|text|teamcity|pretty|github-actions|sarif|code-climate|gitlab|markdown] [--fail-severity
+    error|warn|info|hint] [-s <value>] [--score] [--suppressWarnings <value>...] [--suppressAllWarnings] [--proxyHost
+    <value>] [--proxyPort <value>]
 
 ARGUMENTS
   [SPEC-FILE]  spec path, url, or context-name
@@ -911,7 +916,8 @@ FLAGS
   -s, --save-output=<value>          The output file name. Omitting this flag the result will be printed in the console.
   -w, --watch                        Enable watch mode
       --diagnostics-format=<option>  [default: stylish] format to use for validation diagnostics
-                                     <options: json|stylish|junit|html|text|teamcity|pretty>
+                                     <options: json|stylish|junit|html|text|teamcity|pretty|github-actions|sarif|code-cl
+                                     imate|gitlab|markdown>
       --fail-severity=<option>       [default: error] diagnostics of this level or above will trigger a failure exit
                                      code
                                      <options: error|warn|info|hint>
