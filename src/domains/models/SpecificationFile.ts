@@ -41,7 +41,7 @@ export class Specification {
 
   isAsyncAPI3() {
     const jsObj = this.toJson();
-    return jsObj.asyncapi === '3.0.0';
+    return jsObj.asyncapi.startsWith('3.');
   }
 
   toJson(): Record<string, any> {
