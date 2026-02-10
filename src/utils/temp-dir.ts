@@ -11,10 +11,9 @@ export function createTempDirectory() {
 
 export async function removeTempDirectory(tmpDir: string) {
   try {
-    // eslint-disable-next-line no-unused-expressions
-    tmpDir &&
-      fs.existsSync(tmpDir) &&
-      (await fsp.rm(tmpDir, { recursive: true }));
+    if (tmpDir && fs.existsSync(tmpDir)) {
+      await fsp.rm(tmpDir, { recursive: true });
+    }
   } catch (e) {
     logger.error(
       `An error has occurred while removing the temp folder at ${tmpDir}. Please remove it manually. Error: ${e}`,

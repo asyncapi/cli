@@ -3,7 +3,7 @@ import * as path from 'path';
 import { IContextFile, CONTEXT_FILE_PATH } from '../../src/domains/models/Context';
 import SpecificationFile from '../../src/domains/models/SpecificationFile';
 import http from 'http';
-import rimraf from 'rimraf';
+import { rimrafSync } from 'rimraf';
 import puppeteer from 'puppeteer';
 import { version as studioVersion } from '@asyncapi/studio/package.json';
 
@@ -71,7 +71,7 @@ export default class ContextTestingHelper {
   }
 
   deleteDummyProjectDirectory(): void {
-    rimraf.sync(PROJECT_DIRECTORY_PATH);
+    rimrafSync(PROJECT_DIRECTORY_PATH);
   }
 }
 
@@ -89,16 +89,10 @@ export async function testStudio(){
   await page.setViewport({width: 1080, height: 1024});
 
   const logo = await page.locator('body > div:nth-child(1) > div > div > div > div > img').waitHandle()
-  const sideBar = await page.locator('#sidebar').waitHandle()
-  const navigationPannel = await page.locator('#navigation-panel').waitHandle()
-  const editor = await page.locator('#editor').waitHandle()
 
   const logoTitle = await logo?.evaluate((e:any) => e.title)
-  const sideBarId = await sideBar?.evaluate((e:any)=> e.id)
-  const navigationPannelId = await navigationPannel?.evaluate((e:any)=> e.id)
-  const editorId = await editor?.evaluate((e:any)=> e.id)
   await browser.close();
-  return {logoTitle,sideBarId,navigationPannelId,editorId}
+  return {logoTitle}
 }
 
 export async function testPreview(){

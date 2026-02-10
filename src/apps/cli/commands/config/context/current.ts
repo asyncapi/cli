@@ -14,6 +14,7 @@ export default class ContextCurrent extends Command {
   static flags = helpFlag();
 
   async run() {
+    await this.parse(ContextCurrent);
     let fileContent;
 
     try {
