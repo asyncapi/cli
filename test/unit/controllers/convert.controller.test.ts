@@ -33,7 +33,7 @@ describe('ConvertController', () => {
             }
           },
           format: 'asyncapi',
-          'target-version': '3.0.0',
+          'target-version': '3.1.0',
           perspective: 'server'
         })
         .expect(200)

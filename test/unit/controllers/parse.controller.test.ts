@@ -120,7 +120,7 @@ describe('ParseController', () => {
             },
             {
               code: 'asyncapi-latest-version',
-              message: 'The latest version of AsyncAPi is not used. It is recommended update to the "3.0.0" version.',
+              message: 'The latest version of AsyncAPi is not used. It is recommended update to the "3.1.0" version.',
               path: [
                 'asyncapi'
               ],
