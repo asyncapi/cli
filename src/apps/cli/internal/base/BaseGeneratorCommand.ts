@@ -21,6 +21,7 @@ export interface GeneratorOptions {
   forceWrite: boolean;
   install: boolean;
   debug: boolean;
+  compile: boolean;
   templateParams: any;
   noOverwriteGlobs: string[];
   mapBaseUrlToFolder: any;
@@ -49,6 +50,7 @@ export abstract class BaseGeneratorCommand extends Command {
       forceWrite: flags['force-write'],
       install: flags.install,
       debug: flags.debug,
+      compile: flags.compile,
       templateParams: parsedFlags.params,
       noOverwriteGlobs: flags['no-overwrite'],
       mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
