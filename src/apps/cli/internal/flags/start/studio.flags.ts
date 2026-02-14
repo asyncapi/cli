@@ -17,6 +17,9 @@ export const studioFlags = () => {
       required: false,
       default: false,
     }),
-    noBrowser: Flags.boolean({char: 'B', description: 'Pass this to not open browser automatically upon running the command', default: false})
+    'no-browser': Flags.boolean({
+      description: 'Do not automatically open Studio in the browser',
+      default: false,
+    }),
   };
 };
