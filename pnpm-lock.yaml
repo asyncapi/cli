@@ -122,6 +122,9 @@ importers:
       js-yaml:
         specifier: ^4.1.1
         version: 4.1.1
+      jsonfile:
+        specifier: ^6.1.0
+        version: 6.2.0
       oclif:
         specifier: ^4.22.57
         version: 4.22.79(@types/node@25.2.3)
@@ -198,6 +201,9 @@ importers:
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
+      '@types/jsonfile':
+        specifier: ^6.1.4
+        version: 6.1.4
       '@types/mocha':
         specifier: ^10.0.10
         version: 10.0.10
