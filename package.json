@@ -30,6 +30,7 @@
     "@oclif/plugin-autocomplete": "^3.2.39",
     "@smoya/asyncapi-adoption-metrics": "^2.4.9",
     "@stoplight/spectral-cli": "6.15.0",
+    "@apidevtools/json-schema-ref-parser": "^9.1.0",
     "archiver": "^7.0.1",
     "body-parser": "^2.2.1",
     "chalk": "^4.1.2",
@@ -53,6 +54,12 @@
     "uuid": "^11.0.3",
     "winston": "^3.19.0",
     "ws": "^8.18.3",
+    "tslib": "^2.8.1",
+    "ajv": "^8.12.0",
+    "ajv-formats": "^2.1.1",
+    "@stoplight/spectral-core": "^1.15.0",
+    "@stoplight/spectral-formatters": "^1.0.0",
+    "jsonfile": "^6.1.0",
     "yaml": "^2.8.2"
   },
   "devDependencies": {
@@ -77,6 +84,7 @@
     "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
+    "@types/jsonfile": "^6.1.4",
     "c8": "^10.1.3",
     "chai": "^6.2.1",
     "cross-env": "^10.1.0",
