@@ -15,13 +15,9 @@ export async function registryValidation(registryUrl?: string, registryAuth?: st
     }
   } catch (err) {
     const causeMsg = err instanceof Error ? err.message : String(err);
-    const errToThrow = new Error(`Can't fetch registryURL: ${registryUrl}\nCaused by: ${causeMsg}`);
-    try {
-      // prefer using the standardized `cause` when available
-      (errToThrow as any).cause = err;
-    } catch (_) {
-      // ignore if we can't attach cause
-    }
-    throw errToThrow;
+    // Use a typed options object to avoid `any`/casts and remain Sonar-friendly.
+    type LocalErrorOptions = { cause?: unknown };
+    const opts: LocalErrorOptions = { cause: err instanceof Error ? err : undefined };
+    throw new Error(`Can't fetch registryURL: ${registryUrl}\nCaused by: ${causeMsg}`, opts as ErrorOptions);
   }
 }
