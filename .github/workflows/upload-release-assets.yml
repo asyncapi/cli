@@ -69,19 +69,15 @@ jobs:
         if: matrix.container == ''
         uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master
         id: lockversion
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
       
       - name: Setup Node.js
         if: matrix.container == ''
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "${{ steps.lockversion.outputs.version }}"
-      
-      - if: matrix.npm_script == 'pack:windows'
-        name: install nodejs for windows
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      
+
       - name: Get version from package.json
         uses: actions/github-script@v6
         id: extractver

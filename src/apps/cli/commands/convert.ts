@@ -16,7 +16,7 @@ const TARGET_VERSION_FLAG = 'target-version';
 
 export default class Convert extends Command {
   static description =
-    'Convert asyncapi documents older to newer versions or OpenAPI/postman-collection documents to AsyncAPI';
+    'Convert asyncapi documents older to newer versions or OpenAPI documents to AsyncAPI';
   private conversionService = new ConversionService();
   static flags = {
     ...convertFlags(latestVersion),
@@ -44,7 +44,7 @@ export default class Convert extends Command {
       this.specFile = await load(filePath);
       this.metricsMetadata.to_version = targetVersion;
       const conversionOptions = {
-        format: flags.format as 'asyncapi' | 'openapi' | 'postman-collection',
+        format: flags.format as 'asyncapi' | 'openapi',
         [TARGET_VERSION_FLAG]: (targetVersion ||
           latestVersion) as AsyncAPIConvertVersion,
         perspective: flags['perspective'] as 'client' | 'server',

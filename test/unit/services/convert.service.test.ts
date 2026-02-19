@@ -62,7 +62,7 @@ describe('ConversionService', () => {
       }
     });
 
-    it('should successfully convert AsyncAPI 2.0.0 to latest version (3.0.0)', async () => {
+    it('should successfully convert AsyncAPI 2.0.0 to latest version (3.1.0)', async () => {
       const specFile = new Specification(validJsonAsyncAPI2_0_0);
       const options = {
         format: 'asyncapi' as const
@@ -74,8 +74,8 @@ describe('ConversionService', () => {
       if (result.success) {
         expect(result.data).to.have.property('convertedDocument');
         expect(result.data).to.have.property('originalFormat', 'asyncapi');
-        // Should convert to 3.0.0 as default
-        expect(result.data?.convertedDocument).to.contain('3.0.0');
+        // Should convert to 3.1.0 as default
+        expect(result.data?.convertedDocument).to.contain('3.1.0');
       }
     });
 
@@ -124,30 +124,6 @@ describe('ConversionService', () => {
       const specFile = new Specification(openApiSpec);
       const options = {
         format: 'openapi' as const,
-        perspective: 'client' as const
-      };
-
-      const result = await conversionService.convertDocument(specFile, options);
-
-      // Should either succeed or fail gracefully
-      expect(result).to.have.property('success');
-      if (!result.success) {
-        expect(result.error).to.be.a('string');
-      }
-    });
-
-    it('should handle Postman collection conversion', async () => {
-      const postmanCollection = `{
-        "info": {
-          "name": "Test Collection",
-          "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-        },
-        "item": []
-      }`;
-      
-      const specFile = new Specification(postmanCollection);
-      const options = {
-        format: 'postman-collection' as const,
         perspective: 'client' as const
       };
 
