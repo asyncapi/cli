@@ -6,6 +6,11 @@
 
 - 7580cee: Removal of postman -> asyncapi conversion functionality
 
+### Patch Changes
+
+- cb8c08a: fix(generate): preserve underlying error when validating registry URL
+  - Preserve the original error message and attach it as `cause` when registry URL validation fails to improve diagnosability for DNS/network/SSL/proxy failures. Adds unit tests covering the behavior.
+
   ## ⚠ BREAKING CHANGES
 
   Remove postman conversion utilities due to unmaintained dependencies and compatibility issues.
