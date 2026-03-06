@@ -113,15 +113,65 @@ export class GeneratorService extends BaseService {
       });
     } catch (err: unknown) {
       s.stop('Generation failed');
-      const errorMessage = getErrorMessage(err, 'Generation failed');
-      const diagnostics = err && typeof err === 'object' && 'diagnostics' in err 
-        ? (err as { diagnostics?: unknown[] }).diagnostics as Parameters<typeof this.createErrorResult>[1]
-        : undefined;
+      let errorMessage = getErrorMessage(err, 'Generation failed');
+
+      if (
+        errorMessage.includes('404 Not Found') ||
+        errorMessage.includes('Installation failed')
+      ) {
+        errorMessage = `Template '${template}' not found in npm registry.
+
+The template you specified does not exist. This might be because:
+  • The template name is misspelled
+  • The template doesn't exist in the npm registry
+  • You need to use the full package name (e.g., @asyncapi/html-template)
+
+Popular templates: @asyncapi/html-template, @asyncapi/markdown-template, @asyncapi/nodejs-template`;
+      } else if (errorMessage.includes('not compatible with')) {
+        errorMessage = `${errorMessage}
+
+The template you're using is not compatible with your AsyncAPI document version or generator version.
+
+Possible solutions:
+  • Update the template to a newer version
+  • Use a different template that supports your AsyncAPI version
+  • Check template documentation for compatibility information
+
+Template compatibility info:
+  https://www.asyncapi.com/docs/tools/generator/versioning`;
+      } else if (
+        errorMessage.includes('ENOENT') &&
+        errorMessage.includes('template')
+      ) {
+        errorMessage = `Template '${template}' installation failed or is corrupted.
+
+This usually happens when:
+  • The package name is missing the scope (use @asyncapi/html-template instead of html-template)
+  • The template was partially downloaded but is incomplete
+  • The template package doesn't follow AsyncAPI template structure`;
+      } else if (
+        errorMessage.toLowerCase().includes('enotfound') ||
+        errorMessage.toLowerCase().includes('etimedout') ||
+        errorMessage.toLowerCase().includes('network')
+      ) {
+        errorMessage = `Failed to download template due to network issues.
+
+Possible causes:
+  • No internet connection
+  • Firewall blocking npm registry access
+  • npm registry is temporarily unavailable`;
+      }
+
+      const diagnostics =
+        err && typeof err === 'object' && 'diagnostics' in err
+          ? ((err as { diagnostics?: unknown[] }).diagnostics as Parameters<
+              typeof this.createErrorResult
+            >[1])
+          : undefined;
+
       return this.createErrorResult(errorMessage, diagnostics);
     }
-    s.stop(
-      this.getGenerationSuccessMessage(output),
-    );
+    s.stop(this.getGenerationSuccessMessage(output));
 
     return this.createSuccessResult({
       success: true,
