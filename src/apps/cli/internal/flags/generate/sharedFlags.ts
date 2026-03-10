@@ -54,4 +54,9 @@ export const sharedFlags = {
   'registry-token': Flags.string({
     description: 'The npm registry authentication token, that can be passed instead of base64 encoded username and password'
   }),
+  compile: Flags.boolean({
+    default: true,
+    allowNo: true,
+    description: 'Compile the template (set to false to use cached transpiled version, defaults to true)'
+  }),
 };
