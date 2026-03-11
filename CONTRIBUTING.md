@@ -40,7 +40,7 @@ The following is a summary of the ideal contribution flow. Please, note that Pul
 ```
 
 ## Code of Conduct
-AsyncAPI has adopted a Code of Conduct that we expect project participants to adhere to. Please [read the full text](./CODE_OF_CONDUCT.md) so that you can understand what sort of behaviour is expected.
+AsyncAPI has adopted a [Code of Conduct](./CODE_OF_CONDUCT.md) that we expect project participants to adhere to. Please read it carefully to understand what sort of behaviour is expected.
 
 ## Our Development Process
 We use Github to host code, to track issues and feature requests, as well as accept pull requests.
