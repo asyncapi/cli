@@ -106,6 +106,17 @@ export class GeneratorService extends BaseService {
       ? spinner()
       : { start: () => null, stop: (message: string) => logs.push(message) };
     s.start('Generation in progress. Keep calm and wait a bit');
+
+    // Prevent browserslist from walking directories to find a config file.
+    // When installed via pnpm, the global bin directory contains a shell wrapper
+    // named "browserslist" that gets mistakenly parsed as a browserslist config,
+    // causing: "Unknown browser query 'basedir=$(dirname ...'". Setting this env
+    // var makes browserslist use it directly instead of searching for config files.
+    const previousBrowserslist = process.env.BROWSERSLIST;
+    if (!process.env.BROWSERSLIST) {
+      process.env.BROWSERSLIST = 'defaults';
+    }
+
     try {
       await generator.generateFromString(asyncapi.text(), {
         ...genOption,
@@ -114,10 +125,17 @@ export class GeneratorService extends BaseService {
     } catch (err: unknown) {
       s.stop('Generation failed');
       const errorMessage = getErrorMessage(err, 'Generation failed');
-      const diagnostics = err && typeof err === 'object' && 'diagnostics' in err 
+      const diagnostics = err && typeof err === 'object' && 'diagnostics' in err
         ? (err as { diagnostics?: unknown[] }).diagnostics as Parameters<typeof this.createErrorResult>[1]
         : undefined;
       return this.createErrorResult(errorMessage, diagnostics);
+    } finally {
+      // Restore original BROWSERSLIST env var
+      if (previousBrowserslist === undefined) {
+        delete process.env.BROWSERSLIST;
+      } else {
+        process.env.BROWSERSLIST = previousBrowserslist;
+      }
     }
     s.stop(
       this.getGenerationSuccessMessage(output),
