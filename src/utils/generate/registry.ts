@@ -27,6 +27,7 @@ export async function registryValidation(registryUrl?: string, registryAuth?: st
     if (err.name === 'AbortError') {
       throw new Error(`Registry URL timed out after ${TIMEOUT_MS}ms: ${registryUrl}`);
     }
-    throw new Error(`Can't fetch registryURL: ${registryUrl}`);
+    const cause = err.cause ? `\nCaused by: ${err.cause}` : '';
+    throw new Error(`Can't fetch registryURL: ${registryUrl}${cause}`);
   }
 }
