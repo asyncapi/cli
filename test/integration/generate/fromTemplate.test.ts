@@ -228,4 +228,27 @@ describe('template', () => {
         }
       );
   });
+
+  describe('external $ref in subdirectory', () => {
+    test
+      .stdout()
+      .command([
+        'generate:fromTemplate',
+        './test/fixtures/external-refs/main.yaml',
+        '@asyncapi/minimaltemplate',
+        '--output=./test/docs/9',
+        '--force-write',
+        nonInteractive
+      ])
+      .it(
+        'should resolve external $ref files in the same subdirectory',
+        (ctx, done) => {
+          expect(ctx.stdout).to.contain(
+            'Check out your shiny new generated files at ./test/docs/9.\n\n'
+          );
+          cleanup('./test/docs/9');
+          done();
+        }
+      );
+  });
 });

@@ -17,7 +17,7 @@ import { getErrorMessage } from '@utils/error-handler';
  * Options passed to the generator for code generation.
  */
 interface GeneratorRunOptions {
-  path?: Specification;
+  path?: string;
   [key: string]: unknown;
 }
 
@@ -109,7 +109,7 @@ export class GeneratorService extends BaseService {
     try {
       await generator.generateFromString(asyncapi.text(), {
         ...genOption,
-        path: asyncapi,
+        path: asyncapi.getSource(),
       });
     } catch (err: unknown) {
       s.stop('Generation failed');
