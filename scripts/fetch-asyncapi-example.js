@@ -24,6 +24,26 @@ const parser = new Parser({
 const SPEC_EXAMPLES_ZIP_URL = 'https://github.com/asyncapi/spec/archive/refs/heads/master.zip';
 const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
 const TEMP_ZIP_NAME = 'spec-examples.zip';
+const EXAMPLES_JSON_PATH = path.join(EXAMPLE_DIRECTORY, 'examples.json');
+
+const shouldFetchExamples = (force = false) => {
+  if (force) {
+    console.log('Force flag detected, fetching examples...');
+    return true;
+  }
+  if (!fs.existsSync(EXAMPLE_DIRECTORY)) {
+    return true;
+  }
+  if (!fs.existsSync(EXAMPLES_JSON_PATH)) {
+    return true;
+  }
+  const content = fs.readFileSync(EXAMPLES_JSON_PATH, { encoding: 'utf-8' });
+  if (!content || content.trim() === '') {
+    return true;
+  }
+  console.log('Examples already exist, skipping fetch. Use --force to refresh.');
+  return false;
+};
 
 const fetchAsyncAPIExamplesFromExternalURL = () => {
   try {
@@ -119,6 +139,13 @@ const tidyUp = async () => {
 };
 
 (async () => {
+  const args = process.argv.slice(2);
+  const force = args.includes('--force') || args.includes('-f');
+
+  if (!shouldFetchExamples(force)) {
+    return;
+  }
+
   await fetchAsyncAPIExamplesFromExternalURL();
   await unzipAsyncAPIExamples();
   await buildCLIListFromExamples();
