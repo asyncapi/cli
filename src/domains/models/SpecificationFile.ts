@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs';
+import * as readline from 'readline';
 import path from 'path';
 import { URL } from 'url';
 import yaml from 'js-yaml';
@@ -18,6 +19,7 @@ const allowedFileNames: string[] = [
 const TYPE_CONTEXT_NAME = 'context-name';
 const TYPE_FILE_PATH = 'file-path';
 const TYPE_URL = 'url-path';
+const TYPE_STDIN = 'stdin';
 
 export class Specification {
   private readonly spec: string;
@@ -134,6 +136,33 @@ export class Specification {
       fileURL: targetUrl,
     });
   }
+
+  static async fromStdin(): Promise<Specification> {
+    return new Promise((resolve, reject) => {
+      const chunks: string[] = [];
+      const rl = readline.createInterface({
+        input: process.stdin,
+        crlfDelay: Infinity,
+      });
+
+      rl.on('line', (line) => {
+        chunks.push(line);
+      });
+
+      rl.on('close', () => {
+        const spec = chunks.join('\n');
+        if (!spec.trim()) {
+          reject(new Error('No input received from stdin'));
+          return;
+        }
+        resolve(new Specification(spec));
+      });
+
+      rl.on('error', (err) => {
+        reject(new ErrorLoadingSpec('stdin', '-'));
+      });
+    });
+  }
 }
 
 export default class SpecificationFile {
@@ -166,6 +195,11 @@ export async function load(
   // NOSONAR
   try {
     if (filePathOrContextName) {
+      // Handle stdin
+      if (filePathOrContextName === '-') {
+        return Specification.fromStdin();
+      }
+
       if (loadType?.file) {
         return Specification.fromFile(filePathOrContextName);
       }

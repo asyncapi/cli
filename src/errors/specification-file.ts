@@ -31,7 +31,7 @@ export class SpecificationURLNotFound extends SpecificationFileError {
   }
 }
 
-type From = 'file' | 'url' | 'context' | 'invalid file';
+type From = 'file' | 'url' | 'context' | 'invalid file' | 'stdin';
 
 export class ErrorLoadingSpec extends Error {
   private readonly errorMessages = {
@@ -54,6 +54,10 @@ export class ErrorLoadingSpec extends Error {
     if (from === 'invalid file') {
       this.name = 'Invalid AsyncAPI file type';
       this.message = 'cli only supports yml ,yaml ,json extension';
+    }
+    if (from === 'stdin') {
+      this.name = 'error loading AsyncAPI document from stdin';
+      this.message = 'Reading from stdin (-) is not supported.';
     }
 
     if (!from) {
