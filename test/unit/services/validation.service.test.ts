@@ -255,3 +255,37 @@ describe('ValidationService', () => {
     });
   });
 });
+
+describe('Multi-Document YAML Detection', () => {
+  let validationService: ValidationService;
+
+  beforeEach(() => {
+    validationService = new ValidationService();
+  });
+
+  const multiDocumentYAML = `asyncapi: '2.6.0'
+info:
+  title: Test API
+  version: '1.0.0'
+channels: {}
+
+---
+asyncapi: '2.6.0'
+info:
+  title: Second Doc
+  version: '1.0.0'
+channels: {}`;
+
+  it('should throw error for multiple YAML documents', async () => {
+    const specFile = new Specification(multiDocumentYAML);
+    
+    try {
+      specFile.toJson();
+      // If we get here, the error was not thrown
+      expect.fail('Expected MultipleYamlDocumentsError to be thrown');
+    } catch (err: any) {
+      expect(err.name).to.equal('MultipleYamlDocumentsError');
+      expect(err.message).to.include('multiple YAML documents');
+    }
+  });
+});

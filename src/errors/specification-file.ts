@@ -31,7 +31,15 @@ export class SpecificationURLNotFound extends SpecificationFileError {
   }
 }
 
-type From = 'file' | 'url' | 'context' | 'invalid file' | 'stdin';
+type From = 'file' | 'url' | 'context' | 'invalid file' | 'stdin' | 'multiple documents';
+
+export class MultipleYamlDocumentsError extends SpecificationFileError {
+  constructor() {
+    super();
+    this.name = 'MultipleYamlDocumentsError';
+    this.message = 'AsyncAPI files with multiple YAML documents are not supported. Please provide a single AsyncAPI document.';
+  }
+}
 
 export class ErrorLoadingSpec extends Error {
   private readonly errorMessages = {

@@ -4,7 +4,7 @@ import path from 'path';
 import { URL } from 'url';
 import yaml from 'js-yaml';
 import { loadContext } from './Context';
-import { ErrorLoadingSpec } from '@errors/specification-file';
+import { ErrorLoadingSpec, MultipleYamlDocumentsError } from '@errors/specification-file';
 import { MissingContextFileError } from '@errors/context-error';
 import { fileFormat } from '@cli/internal/flags/format.flags';
 import { HttpsProxyAgent } from 'https-proxy-agent';
@@ -20,6 +20,16 @@ const TYPE_CONTEXT_NAME = 'context-name';
 const TYPE_FILE_PATH = 'file-path';
 const TYPE_URL = 'url-path';
 const TYPE_STDIN = 'stdin';
+
+/**
+ * Checks if a YAML string contains multiple documents (separated by ---).
+ * @param content - The YAML content to check
+ * @returns true if the content contains multiple YAML documents
+ */
+function hasMultipleYamlDocuments(content: string): boolean {
+  const yamlDocs = content.split(/^---$/m);
+  return yamlDocs.length > 1;
+}
 
 export class Specification {
   private readonly spec: string;
@@ -48,8 +58,20 @@ export class Specification {
 
   toJson(): Record<string, any> {
     try {
-      return yaml.load(this.spec, { json: true }) as Record<string, any>;
-    } catch {
+      // Check for multiple YAML documents before parsing
+      if (hasMultipleYamlDocuments(this.spec)) {
+        throw new MultipleYamlDocumentsError();
+      }
+      const parsed = yaml.load(this.spec, { json: true });
+      // yaml.load can return an array if there are multiple documents with certain YAML configurations
+      if (Array.isArray(parsed)) {
+        throw new MultipleYamlDocumentsError();
+      }
+      return parsed as Record<string, any>;
+    } catch (err) {
+      if (err instanceof MultipleYamlDocumentsError) {
+        throw err;
+      }
       return JSON.parse(this.spec);
     }
   }
@@ -316,6 +338,10 @@ export function retrieveFileFormat(content: string): fileFormat | undefined {
     if (content.trimStart()[0] === '{') {
       JSON.parse(content);
       return 'json';
+    }
+    // Check for multiple YAML documents
+    if (hasMultipleYamlDocuments(content)) {
+      return undefined;
     }
     // below yaml.load is not a definitive way to determine if a file is yaml or not.
     // it is able to load .txt text files also.
