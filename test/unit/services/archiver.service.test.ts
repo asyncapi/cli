@@ -78,6 +78,42 @@ channels: {}`;
         archiverService.appendAsyncAPIDocument(zip, JSON.stringify(asyncapiDoc), 'custom-name');
       }).to.not.throw();
     });
+
+    it('should not double-stringify a YAML string input', () => {
+      const yamlDoc = 'asyncapi: 2.6.0\ninfo:\n  title: Example\n  version: 1.0.0';
+      const appended: Array<{ content: string; name: string }> = [];
+      const fakeArchive = {
+        append: (content: string, options: { name: string }) => {
+          appended.push({ content, name: options.name });
+        },
+      } as any;
+
+      archiverService.appendAsyncAPIDocument(fakeArchive, yamlDoc);
+
+      expect(appended).to.have.length(1);
+      // Content must equal the original string — not a JSON-escaped version of it
+      expect(appended[0].content).to.equal(yamlDoc);
+      expect(appended[0].content).to.not.include('\\n');
+      expect(appended[0].name).to.equal('asyncapi.yml');
+    });
+
+    it('should stringify an object input to JSON', () => {
+      const asyncapiObj = { asyncapi: '2.6.0', info: { title: 'Test', version: '1.0.0' }, channels: {} };
+      const appended: Array<{ content: string; name: string }> = [];
+      const fakeArchive = {
+        append: (content: string, options: { name: string }) => {
+          appended.push({ content, name: options.name });
+        },
+      } as any;
+
+      archiverService.appendAsyncAPIDocument(fakeArchive, asyncapiObj);
+
+      expect(appended).to.have.length(1);
+      // Content must be valid JSON, not double-escaped
+      const parsed = JSON.parse(appended[0].content);
+      expect(parsed).to.deep.equal(asyncapiObj);
+      expect(appended[0].name).to.equal('asyncapi.json');
+    });
   });
 
   describe('createTempDirectory()', () => {
