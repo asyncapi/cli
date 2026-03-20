@@ -8,12 +8,17 @@ export function registryURLParser(input?: string) {
 
 export async function registryValidation(registryUrl?: string, registryAuth?: string, registryToken?: string) {
   if (!registryUrl) { return; }
+  const authErrorMessage = 'You Need to pass either registryAuth in username:password encoded in Base64 or need to pass registryToken';
   try {
-    const response = await fetch(registryUrl as string);
+    const response = await fetch(registryUrl as string, { signal: AbortSignal.timeout(5000) });
     if (response.status === 401 && !registryAuth && !registryToken) {
-      throw new Error('You Need to pass either registryAuth in username:password encoded in Base64 or need to pass registryToken');
+      throw new Error(authErrorMessage);
     }
-  } catch {
-    throw new Error(`Can't fetch registryURL: ${registryUrl}`);
+  } catch (error) {
+    if (error instanceof Error && error.message === authErrorMessage) {
+      throw error;
+    }
+
+    throw new Error(`Registry URL is unreachable or timed out: ${registryUrl}`);
   }
 }
