@@ -11,7 +11,12 @@ export type DiagnosticsFormat =
   | 'html'
   | 'text'
   | 'teamcity'
-  | 'pretty';
+  | 'pretty'
+  | 'github-actions'
+  | 'sarif'
+  | 'code-climate'
+  | 'gitlab'
+  | 'markdown';
 
 /**
  * Severity levels for validation diagnostics.

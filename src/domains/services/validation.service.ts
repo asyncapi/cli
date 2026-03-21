@@ -14,10 +14,14 @@ import { RamlDTSchemaParser } from '@asyncapi/raml-dt-schema-parser';
 import { ProtoBuffSchemaParser } from '@asyncapi/protobuf-schema-parser';
 import { getDiagnosticSeverity } from '@stoplight/spectral-core';
 import {
+  codeClimate,
+  githubActions,
   html,
   json,
   junit,
+  markdown,
   pretty,
+  sarif,
   stylish,
   teamcity,
   text,
@@ -187,6 +191,11 @@ const formatExtensions: Record<DiagnosticsFormat, string> = {
   text: '.txt',
   teamcity: '.txt',
   pretty: '.txt',
+  'github-actions': '.txt',
+  sarif: '.json',
+  'code-climate': '.json',
+  gitlab: '.json',
+  markdown: '.md',
 };
 
 const validFormats = [
@@ -197,6 +206,11 @@ const validFormats = [
   'text',
   'teamcity',
   'pretty',
+  'github-actions',
+  'sarif',
+  'code-climate',
+  'gitlab',
+  'markdown',
 ];
 
 export class ValidationService extends BaseService {
@@ -512,6 +526,17 @@ export class ValidationService extends BaseService {
       return teamcity(diagnostics, options);
     case 'pretty':
       return pretty(diagnostics, options);
+    case 'github-actions':
+      return githubActions(diagnostics, options);
+    case 'sarif':
+      return sarif(diagnostics, options);
+    case 'code-climate':
+      return codeClimate(diagnostics, options);
+    case 'gitlab':
+      // GitLab CI uses Code Climate format
+      return codeClimate(diagnostics, options);
+    case 'markdown':
+      return markdown(diagnostics, options);
     default:
       return stylish(diagnostics, options);
     }
