@@ -115,6 +115,12 @@ export default abstract class extends Command {
   async finally(error: Error | undefined): Promise<any> {
     await super.finally(error);
     this.metricsMetadata['success'] = error === undefined;
+    // Skip metrics submission on fatal errors to avoid printing unrelated
+    // network errors (e.g. "Skipping submitting anonymous metrics due to …")
+    // that pollute the output after a hard failure. See #2010.
+    if (error !== undefined) {
+      return;
+    }
     await this.recordActionFinished(
       this.id as string,
       this.metricsMetadata,
