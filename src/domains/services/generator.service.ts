@@ -109,7 +109,7 @@ export class GeneratorService extends BaseService {
     try {
       await generator.generateFromString(asyncapi.text(), {
         ...genOption,
-        path: asyncapi,
+        path: asyncapi.getFilePath(),
       });
     } catch (err: unknown) {
       s.stop('Generation failed');
