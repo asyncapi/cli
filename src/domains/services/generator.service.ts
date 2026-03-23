@@ -106,6 +106,20 @@ export class GeneratorService extends BaseService {
       ? spinner()
       : { start: () => null, stop: (message: string) => logs.push(message) };
     s.start('Generation in progress. Keep calm and wait a bit');
+
+    // Workaround for pnpm global installs: when installed via pnpm, the global
+    // bin directory contains a shell-script shim also named "browserslist".
+    // The browserslist library walks up the directory tree looking for config
+    // files and mistakenly tries to parse that shim as a browser query, causing:
+    //   "Unknown browser query 'basedir=$(dirname \"$(echo \"$0\" | sed -e 's'\"'"
+    // Setting BROWSERSLIST_ROOT_PATH restricts config-file discovery to the
+    // output directory, preventing the upward traversal into pnpm's bin dir.
+    // See: https://github.com/asyncapi/cli/issues/1781
+    const previousBrowserslistRootPath = process.env['BROWSERSLIST_ROOT_PATH'];
+    if (!process.env['BROWSERSLIST_ROOT_PATH']) {
+      process.env['BROWSERSLIST_ROOT_PATH'] = output || path.resolve(os.tmpdir(), 'asyncapi-generator');
+    }
+
     try {
       await generator.generateFromString(asyncapi.text(), {
         ...genOption,
@@ -114,11 +128,20 @@ export class GeneratorService extends BaseService {
     } catch (err: unknown) {
       s.stop('Generation failed');
       const errorMessage = getErrorMessage(err, 'Generation failed');
-      const diagnostics = err && typeof err === 'object' && 'diagnostics' in err 
+      const diagnostics = err && typeof err === 'object' && 'diagnostics' in err
         ? (err as { diagnostics?: unknown[] }).diagnostics as Parameters<typeof this.createErrorResult>[1]
         : undefined;
       return this.createErrorResult(errorMessage, diagnostics);
+    } finally {
+      // Always restore the original BROWSERSLIST_ROOT_PATH to avoid side effects
+      // on subsequent calls or other parts of the process.
+      if (previousBrowserslistRootPath === undefined) {
+        delete process.env['BROWSERSLIST_ROOT_PATH'];
+      } else {
+        process.env['BROWSERSLIST_ROOT_PATH'] = previousBrowserslistRootPath;
+      }
     }
+
     s.stop(
       this.getGenerationSuccessMessage(output),
     );
