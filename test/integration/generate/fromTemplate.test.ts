@@ -228,4 +228,38 @@ describe('template', () => {
         }
       );
   });
+
+  /**
+   * Regression test for issue #1839:
+   * External $ref files in the same directory as the spec file were not
+   * resolved correctly since v3.3.0 when the spec was in a subdirectory.
+   *
+   * Root cause: `generate:fromTemplate` passed the Specification object
+   * (not the file path string) as the `path` option to `generateFromString`,
+   * causing $ref resolution to fall back to CWD instead of the spec's directory.
+   *
+   * Fix: pass `asyncapi.getSource()` (string) instead of `asyncapi` (object).
+   */
+  describe('external $ref resolution in subdirectory (regression #1839)', () => {
+    test
+      .stdout()
+      .command([
+        'generate:fromTemplate',
+        './test/fixtures/external-refs/main.yaml',
+        '@asyncapi/minimaltemplate',
+        '--output=./test/docs/9',
+        '--force-write',
+        nonInteractive,
+      ])
+      .it(
+        'should resolve external $ref files when spec is in a subdirectory',
+        (ctx, done) => {
+          expect(ctx.stdout).to.contain(
+            'Check out your shiny new generated files at ./test/docs/9.\n\n'
+          );
+          cleanup('./test/docs/9');
+          done();
+        }
+      );
+  });
 });

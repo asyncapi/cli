@@ -15,9 +15,12 @@ import { getErrorMessage } from '@utils/error-handler';
 
 /**
  * Options passed to the generator for code generation.
+ * The `path` field must be a string (file path or URL) so that the generator
+ * can resolve external $ref files relative to the spec file location.
+ * Passing a Specification object here breaks $ref resolution since v3.3.0.
  */
 interface GeneratorRunOptions {
-  path?: Specification;
+  path?: string;
   [key: string]: unknown;
 }
 
@@ -109,7 +112,12 @@ export class GeneratorService extends BaseService {
     try {
       await generator.generateFromString(asyncapi.text(), {
         ...genOption,
-        path: asyncapi,
+        // Pass the file path string (or URL) so the generator can resolve
+        // external $ref files relative to the spec file's directory.
+        // Before v3.3.0, a string was passed here. The regression occurred
+        // when this was changed to pass the Specification object, causing
+        // $refs to be resolved against CWD instead of the spec file location.
+        path: asyncapi.getSource(),
       });
     } catch (err: unknown) {
       s.stop('Generation failed');
