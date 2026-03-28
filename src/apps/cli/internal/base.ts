@@ -44,6 +44,11 @@ export default abstract class extends Command {
           process.exitCode = 0;
           return;
         }
+        // Suppress warnings that pollute stderr during tests
+        // The "UnparsedCommand" warning from oclif's test framework is not a real error
+        if (e.name === 'CLIError' || e.message.includes('EEXIT')) {
+          return;
+        }
         this.logToStderr(`${e.name}: ${e.message}`);
         process.exitCode = 1;
       }

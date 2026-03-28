@@ -3,6 +3,7 @@ import { helpFlag } from '@cli/internal/flags/global.flags';
 import { blueBright, gray } from 'picocolors';
 
 export default class Versions extends Command {
+  static id = 'config:versions';
   static description = 'Show versions of AsyncAPI tools used';
 
   static flags = helpFlag();
