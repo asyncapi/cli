@@ -6,10 +6,12 @@ export function registryURLParser(input?: string) {
   }
 }
 
+const REGISTRY_TIMEOUT_MS = 5000;
+
 export async function registryValidation(registryUrl?: string, registryAuth?: string, registryToken?: string) {
   if (!registryUrl) { return; }
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10_000); // 10 second timeout
+  const timeout = setTimeout(() => controller.abort(), REGISTRY_TIMEOUT_MS);
   try {
     const response = await fetch(registryUrl as string, {
       method: 'HEAD',
@@ -22,8 +24,8 @@ export async function registryValidation(registryUrl?: string, registryAuth?: st
   } catch (err: any) {
     clearTimeout(timeout);
     if (err.name === 'AbortError') {
-      throw new Error(`Registry URL timed out after 10 seconds: ${registryUrl}`);
+      throw new Error(`Registry URL timed out after ${REGISTRY_TIMEOUT_MS / 1000}s: ${registryUrl}. The host is unreachable or too slow.`);
     }
-    throw new Error(`Can't fetch registryURL: ${registryUrl} — ${err.message}`);
+    throw new Error(`Can't fetch registryURL: ${registryUrl}`);
   }
 }
