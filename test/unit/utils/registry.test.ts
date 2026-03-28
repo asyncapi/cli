@@ -25,25 +25,56 @@ describe('registryValidation()', () => {
   });
 
   it('should fail fast for unreachable URLs instead of hanging', async () => {
-    const start = Date.now();
+    // Stub fetch to simulate a timeout scenario without real network calls
+    const originalFetch = global.fetch;
+    global.fetch = () => new Promise((_, reject) => {
+      // Simulate abort after timeout
+      const abortError = new Error('The operation was aborted');
+      abortError.name = 'AbortError';
+      setTimeout(() => reject(abortError), 50);
+    });
+
     try {
-      // 10.255.255.1 is a non-routable IP that will trigger the timeout
-      await registryValidation('http://10.255.255.1');
+      await registryValidation('http://example.com');
       expect.fail('Should have thrown');
     } catch (error: unknown) {
-      const elapsed = Date.now() - start;
-      expect(elapsed).to.be.lessThan(15_000); // Must resolve within 15s (10s timeout + margin)
       expect(error).to.be.instanceOf(Error);
       const msg = (error as Error).message;
-      expect(msg).to.satisfy(
-        (m: string) => m.includes('timed out') || m.includes('Unable to reach'),
-        `Expected timeout or unreachable error, got: ${msg}`
-      );
+      expect(msg).to.include('timed out');
+    } finally {
+      global.fetch = originalFetch;
     }
-  }).timeout(20_000);
+  });
 
   it('should throw auth error for 401 without credentials', async () => {
-    // This test requires a reachable URL that returns 401
-    // We skip if no test server is available — the logic is unit-testable via the error path
+    const originalFetch = global.fetch;
+    global.fetch = () => Promise.resolve(new Response(null, { status: 401 }));
+
+    try {
+      await registryValidation('http://example.com');
+      expect.fail('Should have thrown');
+    } catch (error: unknown) {
+      expect(error).to.be.instanceOf(Error);
+      const msg = (error as Error).message;
+      expect(msg).to.include('registryAuth');
+    } finally {
+      global.fetch = originalFetch;
+    }
+  });
+
+  it('should throw unreachable error for network failures', async () => {
+    const originalFetch = global.fetch;
+    global.fetch = () => Promise.reject(new Error('Network error'));
+
+    try {
+      await registryValidation('http://example.com');
+      expect.fail('Should have thrown');
+    } catch (error: unknown) {
+      expect(error).to.be.instanceOf(Error);
+      const msg = (error as Error).message;
+      expect(msg).to.include('Unable to reach');
+    } finally {
+      global.fetch = originalFetch;
+    }
   });
 });
