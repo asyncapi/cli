@@ -1,7 +1,6 @@
 import { Args } from '@oclif/core';
 import { BaseGeneratorCommand } from '@cli/internal/base/BaseGeneratorCommand';
-import { load, Specification } from '@models/SpecificationFile';
-import { ValidationError } from '@errors/validation-error';
+import { Specification } from '@models/SpecificationFile';
 import { GeneratorError } from '@errors/generator-error';
 import { intro } from '@clack/prompts';
 import { inverse } from 'picocolors';
@@ -65,19 +64,8 @@ export default class Template extends BaseGeneratorCommand {
     const watchTemplate = flags['watch'];
     const genOption = this.buildGenOption(flags, parsedFlags);
 
-    let specification: Specification;
-    try {
-      specification = await load(asyncapi);
-    } catch {
-      return this.error(
-        new ValidationError({
-           
-          type: 'invalid-file',
-          filepath: asyncapi,
-        }),
-        { exit: 1 },
-      );
-    }
+    // Reuse the already-loaded specification to avoid duplicate parsing
+    const specification = this.specFile;
 
     const result = await this.generatorService.generate(
       specification,

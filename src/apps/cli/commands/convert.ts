@@ -15,6 +15,7 @@ const latestVersion = Object.keys(specs.schemas).pop() as string;
 const TARGET_VERSION_FLAG = 'target-version';
 
 export default class Convert extends Command {
+  static id = 'convert';
   static description =
     'Convert asyncapi documents older to newer versions or OpenAPI documents to AsyncAPI';
   private conversionService = new ConversionService();
