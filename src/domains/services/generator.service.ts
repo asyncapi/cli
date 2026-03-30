@@ -13,6 +13,13 @@ import os from 'os';
 import { yellow, magenta } from 'picocolors';
 import { getErrorMessage } from '@utils/error-handler';
 
+// Disable browserslist config lookup to prevent errors when using pnpm
+// pnpm creates shell wrapper scripts in node_modules/.bin that browserslist
+// may incorrectly try to parse as config files
+if (!process.env.BROWSERSLIST_CONFIG) {
+  process.env.BROWSERSLIST_DISABLE_CACHE = '1';
+}
+
 /**
  * Options passed to the generator for code generation.
  */
