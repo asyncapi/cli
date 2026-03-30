@@ -1,19 +1,33 @@
-export function registryURLParser(input?: string) {
-  if (!input) { return; }
-  const isURL = /^https?:/;
-  if (!isURL.test(input.toLowerCase())) {
-    throw new Error('Invalid --registry-url flag. The param requires a valid http/https url.');
-  }
-}
+import { AbortController } from 'abort-controller';
 
-export async function registryValidation(registryUrl?: string, registryAuth?: string, registryToken?: string) {
-  if (!registryUrl) { return; }
+const REGISTRY_TIMEOUT = 5000; // 5 seconds
+
+export async function checkRegistryUrl(registryUrl: string): Promise<void> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REGISTRY_TIMEOUT);
+  
   try {
-    const response = await fetch(registryUrl as string);
-    if (response.status === 401 && !registryAuth && !registryToken) {
-      throw new Error('You Need to pass either registryAuth in username:password encoded in Base64 or need to pass registryToken');
+    const response = await fetch(registryUrl, {
+      method: 'HEAD',
+      signal: controller.signal as AbortSignal,
+    });
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      throw new Error(`Registry returned status ${response.status}`);
     }
-  } catch {
-    throw new Error(`Can't fetch registryURL: ${registryUrl}`);
+  } catch (error) {
+    clearTimeout(timeoutId);
+    
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(
+        `Registry URL timeout after ${REGISTRY_TIMEOUT / 1000}s: ${registryUrl}. ` +
+        `Please check if the registry is accessible or use a different URL.`
+      );
+    }
+    
+    throw new Error(
+      `Failed to reach registry at ${registryUrl}: ${error instanceof Error ? error.message : String(error)}`
+    );
   }
 }
