@@ -107,10 +107,25 @@ export class GeneratorService extends BaseService {
       : { start: () => null, stop: (message: string) => logs.push(message) };
     s.start('Generation in progress. Keep calm and wait a bit');
     try {
-      await generator.generateFromString(asyncapi.text(), {
-        ...genOption,
-        path: asyncapi,
-      });
+      // Set BROWSERSLIST_ROOT_PATH to prevent browserslist from searching
+      // outside the template directory. This fixes issues with pnpm where
+      // browserslist would incorrectly parse pnpm shim files as config.
+      // See: https://github.com/asyncapi/cli/issues/1781
+      const previousRootPath = process.env.BROWSERSLIST_ROOT_PATH;
+      process.env.BROWSERSLIST_ROOT_PATH = output || path.resolve(os.tmpdir(), 'asyncapi-generator');
+      try {
+        await generator.generateFromString(asyncapi.text(), {
+          ...genOption,
+          path: asyncapi,
+        });
+      } finally {
+        // Restore previous value if it existed
+        if (previousRootPath === undefined) {
+          delete process.env.BROWSERSLIST_ROOT_PATH;
+        } else {
+          process.env.BROWSERSLIST_ROOT_PATH = previousRootPath;
+        }
+      }
     } catch (err: unknown) {
       s.stop('Generation failed');
       const errorMessage = getErrorMessage(err, 'Generation failed');
