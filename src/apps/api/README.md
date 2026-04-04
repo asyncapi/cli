@@ -33,8 +33,8 @@ This package is still under development and has not published and reached versio
 Run:
 
 ```bash
-npm install
-npm run api:prod
+pnpm install
+pnpm run api:prod
 ```
 
 server is ready to use on [http://localhost:80](http://localhost:80).
@@ -51,9 +51,9 @@ server is ready to use on [http://localhost:80](http://localhost:80).
 
 ## Development
 
-1. Setup project by installing dependencies `npm install`
+1. Setup project by installing dependencies `pnpm install`
 2. Write code and tests.
-3. Make sure all tests pass `npm test`
+3. Make sure all tests pass `pnpm test`
 
 ## Deployment
 

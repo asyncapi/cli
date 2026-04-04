@@ -1,14 +1,17 @@
 # Stage 1: Build stage with Node setup
 FROM node:24-alpine as build
 
+RUN corepack enable && corepack prepare pnpm@9.15.5 --activate
+
 # Copy the source code
 COPY ./ /tmp/source_code
 
 # Install dependencies
-RUN cd /tmp/source_code && npm install --ignore-scripts
+WORKDIR /tmp/source_code
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Build the source code
-RUN cd /tmp/source_code && npm run build
+RUN pnpm run build
 
 # create libraries directory
 RUN mkdir -p /libraries
@@ -17,7 +20,7 @@ RUN mkdir -p /libraries
 RUN cp -r /tmp/source_code/lib /libraries
 RUN cp -r /tmp/source_code/assets /libraries
 RUN cp /tmp/source_code/package.json /libraries
-RUN cp /tmp/source_code/package-lock.json /libraries
+RUN cp /tmp/source_code/pnpm-lock.yaml /libraries
 RUN cp /tmp/source_code/oclif.manifest.json /libraries
 
 # Copy the bin directory to the /libraries directory
@@ -28,13 +31,15 @@ RUN rm -rf /tmp/*
 
 FROM node:24-alpine
 
+RUN corepack enable && corepack prepare pnpm@9.15.5 --activate
+
 # Install necessary packages
 RUN apk add --no-cache bash git
 
 # Copy the libraries directory from the build stage
 COPY --from=build /libraries /libraries
 
-RUN cd /libraries && npm install --production --ignore-scripts
+RUN cd /libraries && pnpm install --frozen-lockfile --prod --ignore-scripts
 
 # Create a non-root user
 # RUN addgroup -S myuser && adduser -S myuser -G myuser
@@ -51,7 +56,7 @@ RUN chmod +x /usr/local/bin/asyncapi
 # Copy the entrypoint script
 COPY github-action/entrypoint.sh /entrypoint.sh
 
-# Make the entrypoint script executable
+# Make the entrypoint executable
 RUN chmod +x /entrypoint.sh
 
 # Set the entrypoint

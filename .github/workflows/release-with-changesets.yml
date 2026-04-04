@@ -42,27 +42,24 @@ jobs:
         run: test -e ./package.json && echo "exists=true" >> $GITHUB_OUTPUT || echo "exists=false" >> $GITHUB_OUTPUT
         shell: bash
       - if: steps.packagejson.outputs.exists == 'true'
-        name: Check package-lock version
-        uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master
-        id: lockversion
+        name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.5
       - if: steps.packagejson.outputs.exists == 'true'
         name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "${{ steps.lockversion.outputs.version }}"
+          node-version-file: '.nvmrc'
           registry-url: "https://registry.npmjs.org"
-      - if: steps.lockversion.outputs.version == '18' && matrix.os == 'windows-latest'
-        name: Install npm cli 8
-        shell: bash
-        # npm cli 10 is buggy because of some cache issues
-        run: npm install -g npm@8.19.4
+          cache: "pnpm"
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
         shell: bash
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - if: steps.packagejson.outputs.exists == 'true'
         name: Run test
-        run: npm test --if-present
+        run: pnpm test
       - if: failure() # Only, on failure, send a message on the 94_bot-failing-ci slack channel
         name: Report workflow run status to Slack
         uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 # v3.15.1
@@ -93,25 +90,20 @@ jobs:
         run: test -e ./package.json && echo "exists=true" >> $GITHUB_OUTPUT || echo "exists=false" >> $GITHUB_OUTPUT
         shell: bash
       - if: steps.packagejson.outputs.exists == 'true'
-        name: Check package-lock version
-        uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master
-        id: lockversion
+        name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: ${{ vars.NODE_VERSION }}
+          version: 9.15.5
       - if: steps.packagejson.outputs.exists == 'true'
         name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "${{ steps.lockversion.outputs.version }}"
+          node-version-file: '.nvmrc'
+          cache: "pnpm"
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
         shell: bash
-        run: npm ci
-      - if: steps.packagejson.outputs.exists == 'true'
-        name: Install changelog
-        shell: bash
-        # This step can be removed once the issue is fixed in the changeset package.
-        run: npm install @changesets/changelog-git@0.2.0
+        run: pnpm install --frozen-lockfile
 
       - if: steps.packagejson.outputs.exists == 'true'
         name: Publish to any of NPM, Github, and Docker Hub
@@ -120,11 +112,11 @@ jobs:
         uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1.5.3
         id: release
         with:
-          version: npm run bump:version
+          version: pnpm run bump:version
           commit: "chore(release): release and bump versions of packages"
           title: "chore(release): release and bump versions of packages"
           # Working around changesets action not supporting OIDC yet. Need to pass successful release output for triggering github release
-          publish: npm run publish:trusted
+          publish: pnpm run publish:trusted
           setupGitUser: false
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

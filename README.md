@@ -48,8 +48,8 @@ Read [DEVELOPMENT.md](/DEVELOPMENT.md) file for development setup.
 
 Additional steps:
 
-- Run `npm run test` to make sure everything is properly set up
-- Run `npm run build` and then `bin/run` to try new CLI locally
+- Run `pnpm test` to make sure everything is properly set up
+- Run `pnpm run build` and then `bin/run` to try new CLI locally
 
 The UX developed for the CLI should comply with the [Command Line Interface Guideline](https://clig.dev/)
 

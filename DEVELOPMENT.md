@@ -15,10 +15,11 @@ cd cli
 
 After cloning the repository, you should setup the fork properly and configure the `remote` repository as described [here](https://github.com/asyncapi/community/blob/master/git-workflow.md)
 
-2. Install dependencies:
+2. Install dependencies (Node 24+; enable Corepack so the repo’s pinned pnpm is used):
 
 ```bash
-npm install
+corepack enable
+pnpm install
 ```
 
 ## Running tests
@@ -27,10 +28,10 @@ npm install
 
 To run all tests locally:
 
-- CLI tests: `npm run cli:test`
-- Unit tests: `npm run unit:test`
-- Github action tests: `npm run action:test`
-- Single test file: `npm run test:one -- <path-to-test-file>`
+- CLI tests: `pnpm run cli:test`
+- Unit tests: `pnpm run unit:test`
+- Github action tests: `pnpm run action:test`
+- Single test file: `pnpm run test:one -- <path-to-test-file>`
 
 ### Adding tests
 
@@ -89,7 +90,7 @@ feat: add new feature
 
 1. Create a new release markdown file using changeset CLI. Below command will trigger an interactive prompt that you can use to specify release type and affected packages.
     ```cli 
-    npx -p @changesets/cli@2.27.7 changeset
+    pnpm exec changeset
     ```
 
 2. Include the file in your pull request.
@@ -133,18 +134,18 @@ feat: add new feature
 
 ## Additional commands
 
-- Lint the code: `npm run lint`
-- Build Docker image: `npm run docker:build`
+- Lint the code: `pnpm run lint`
+- Build Docker image: `pnpm run docker:build`
 
 ## Troubleshooting
 
 If you encounter any issues during development or testing, please check the following:
 
-1. Ensure you're using the correct Node.js version (24.0.0 or higher) and npm version (8.19.0 or higher).
+1. Ensure you're using Node.js 24.0.0 or higher and the pnpm version from `package.json` (`packageManager`); use `corepack enable` to activate it.
 2. Clear the `node_modules` directory and reinstall dependencies if you encounter unexpected behavior.
 3. For Docker-related issues, make sure Docker is running and you have sufficient permissions.
 4. For permission errors, try: `sudo chown -R $(whoami) ./lib ./node_modules`
-5. For path alias issues, rebuild the project: `npm run build`
+5. For path alias issues, rebuild the project: `pnpm run build`
 
 > 📘 **For comprehensive debugging help**, see the [Debugging & Testing Guide](/docs/debugging-testing.md).
 
