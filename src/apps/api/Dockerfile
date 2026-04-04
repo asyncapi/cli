@@ -1,6 +1,8 @@
 # ---- Base Alpine with Node ----
 FROM node:24-alpine AS base
 
+RUN corepack enable && corepack prepare pnpm@9.15.5 --activate
+
 # Install required system packages
 RUN apk add --update nghttp2
 
@@ -10,10 +12,10 @@ FROM base AS build
 WORKDIR /app
 
 # 1. Copy only package files first (for better caching)
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 
-# 2. Install dependencies (cached unless package*.json changes)
-RUN npm install --ignore-scripts
+# 2. Install dependencies (cached unless package files change)
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # 3. Copy the rest of the application code
 COPY ./assets ./assets
@@ -24,7 +26,7 @@ COPY openapi.yaml ./
 COPY *.json ./
 
 # 4. Build TypeScript or production-ready JS
-RUN npm run api:build
+RUN pnpm run api:build
 
 # ---- Templates stage ----
 FROM base AS templates
@@ -50,13 +52,14 @@ RUN addgroup -g 1001 -S nodejs \
 COPY --from=build /app/lib ./lib
 
 # Copy package files
-COPY --from=build /app/package*.json ./
+COPY --from=build /app/package.json ./
+COPY --from=build /app/pnpm-lock.yaml ./
 
 # Install production deps, then remove heavy ones
-RUN npm ci --omit=dev --ignore-scripts \
-  && npm uninstall @asyncapi/studio next \
-  && npm cache clean --force \
-  && npm prune --production
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts \
+  && pnpm remove @asyncapi/studio \
+  && rm -rf node_modules/next \
+  && pnpm store prune
 
 # Copy globally installed templates from templates stage
 COPY --from=templates /usr/local/lib/node_modules /usr/local/lib/node_modules

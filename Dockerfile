@@ -1,13 +1,17 @@
 FROM node:24-alpine AS build
 
+RUN corepack enable && corepack prepare pnpm@9.15.5 --activate
+
 # Copy the source code
 COPY ./ /tmp/source_code
 
+WORKDIR /tmp/source_code
+
 # Install dependencies
-RUN cd /tmp/source_code && npm install --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Build the source code
-RUN cd /tmp/source_code && npm run build
+RUN pnpm run build
 
 # create libraries directory
 RUN mkdir -p /libraries
@@ -16,7 +20,7 @@ RUN mkdir -p /libraries
 RUN cp -r /tmp/source_code/lib /libraries
 RUN cp -r /tmp/source_code/assets /libraries
 RUN cp /tmp/source_code/package.json /libraries
-RUN cp /tmp/source_code/package-lock.json /libraries
+RUN cp /tmp/source_code/pnpm-lock.yaml /libraries
 RUN cp /tmp/source_code/oclif.manifest.json /libraries
 
 # Copy the bin directory to the /libraries directory
@@ -26,6 +30,8 @@ RUN cp -r /tmp/source_code/bin /libraries
 RUN rm -rf /tmp/*
 
 FROM node:24-alpine
+
+RUN corepack enable && corepack prepare pnpm@9.15.5 --activate
 
 # Set ARG to explicit value to build chosen version. Default is "latest"
 ARG ASYNCAPI_CLI_VERSION=
@@ -50,7 +56,7 @@ RUN apk --update add git chromium && \
 COPY --from=build /libraries /libraries
 
 # Install the dependencies
-RUN cd /libraries && npm install --omit=dev --ignore-scripts
+RUN cd /libraries && pnpm install --frozen-lockfile --prod --ignore-scripts
 
 # Create a script that runs the desired command
 RUN ln -s /libraries/bin/run_bin /usr/local/bin/asyncapi

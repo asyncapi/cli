@@ -26,7 +26,7 @@ jobs:
             $version = "${{ github.event.inputs.version }}"
           }
           else {
-            $version = $(npm pkg get version)
+            $version = node -p "require('./package.json').version"
           }
 
           $version = $version.Replace("`"", "")

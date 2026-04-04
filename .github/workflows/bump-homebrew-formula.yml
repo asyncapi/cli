@@ -19,7 +19,7 @@ jobs:
       - name: Get version from package.json
         id: extractver
         run: |
-          VERSION=$(npm run get-version --silent)
+          VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
       - uses: mislav/bump-homebrew-formula-action@9d4d820e1d00b99927bd36e67d41fff1cfc8bd07 # v2
         with:
