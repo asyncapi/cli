@@ -147,7 +147,22 @@ export class Specification {
       throw new ErrorLoadingSpec('url', targetUrl);
     }
 
-    return new Specification((await response?.text()) as string, {
+    const urlSpec = (await response?.text()) as string;
+
+    // Detect multi-document YAML (same check as fromFile)
+    // See: https://github.com/asyncapi/cli/issues/1997
+    const trimmed = urlSpec.trim();
+    const docSeparators = (trimmed.match(/^---$/gm) || []).length;
+    if (docSeparators > 1) {
+      throw new ErrorLoadingSpec(
+        'url',
+        targetUrl,
+        `URL content contains multiple YAML documents (${docSeparators - 1} separators found). ` +
+          `AsyncAPI only supports single-document YAML files.`,
+      );
+    }
+
+    return new Specification(urlSpec, {
       fileURL: targetUrl,
     });
   }
