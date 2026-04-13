@@ -94,18 +94,37 @@ export abstract class BaseGeneratorCommand extends Command {
     interactive = true
   ): Promise<void> {
     const specification = await this.loadSpecificationSafely(asyncapi);
-    
-    const result = await this.generatorService.generate(
-      specification,
-      template,
-      output,
-      options as any, // GeneratorService expects different options interface
-      genOption,
-      interactive,
-    );
-    
-    if (!result.success) {
-      throw new GeneratorError(new Error(result.error));
+
+    // When installed via pnpm, the BROWSERSLIST env variable may contain
+    // shell script content (e.g., "basedir=$(dirname ...)") that gets
+    // misinterpreted by PostCSS/Autoprefixer inside HTML templates.
+    // Clear it before generator execution and restore afterwards.
+    // See: https://github.com/asyncapi/cli/issues/1781
+    const originalBrowserslist = process.env.BROWSERSLIST;
+    if (originalBrowserslist !== undefined) {
+      delete process.env.BROWSERSLIST;
+    }
+
+    try {
+      const result = await this.generatorService.generate(
+        specification,
+        template,
+        output,
+        options as any, // GeneratorService expects different options interface
+        genOption,
+        interactive,
+      );
+
+      if (!result.success) {
+        throw new GeneratorError(new Error(result.error));
+      }
+    } finally {
+      // Restore original BROWSERSLIST value
+      if (originalBrowserslist !== undefined) {
+        process.env.BROWSERSLIST = originalBrowserslist;
+      } else {
+        delete process.env.BROWSERSLIST;
+      }
     }
   }
 
