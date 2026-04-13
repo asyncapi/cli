@@ -290,7 +290,9 @@ export class ValidationService extends BaseService {
       const suppressedWarnings = options.suppressWarnings ?? [];
       let activeParser: Parser;
 
-      if (suppressAllWarnings || suppressedWarnings.length) {
+      if (options.ruleset) {
+        activeParser = this.buildParserWithCustomRuleset(options.ruleset);
+      } else if (suppressAllWarnings || suppressedWarnings.length) {
         activeParser = await this.buildAndRegisterCustomParser(
           specFile,
           suppressedWarnings,
@@ -340,6 +342,23 @@ export class ValidationService extends BaseService {
         },
       },
     });
+  }
+
+  /**
+   * Creates a parser with a custom ruleset file.
+   */
+  private buildParserWithCustomRuleset(rulesetPath: string): Parser {
+    const parser = new Parser({
+      ruleset: rulesetPath,
+      __unstable: {
+        resolver: {
+          cache: false,
+          resolvers: [createHttpWithAuthResolver()],
+        },
+      },
+    });
+    this.registerSchemaParsers(parser);
+    return parser;
   }
 
   /**
