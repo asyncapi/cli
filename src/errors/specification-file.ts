@@ -37,11 +37,11 @@ export class ErrorLoadingSpec extends Error {
   private readonly errorMessages = {
     default: NO_CONTEXTS_SAVED,
   };
-  constructor(from?: From, param?: string) {
+  constructor(from?: From, param?: string, customMessage?: string) {
     super();
     if (from === 'file') {
       this.name = 'error loading AsyncAPI document from file';
-      this.message = `${param} file does not exist.`;
+      this.message = customMessage ?? `${param} file does not exist.`;
     }
     if (from === 'url') {
       this.name = 'error loading AsyncAPI document from url';
