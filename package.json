@@ -1,201 +1,204 @@
 {
-  "name": "@asyncapi/cli",
-  "description": "All in one CLI for all AsyncAPI tools",
-  "version": "6.0.0",
-  "author": "@asyncapi",
-  "bin": {
-    "asyncapi": "./bin/run_bin"
-  },
-  "repository": {
-    "url": "git+https://github.com/asyncapi/cli.git",
-    "type": "git"
-  },
-  "bugs": "https://github.com/asyncapi/cli/issues",
-  "dependencies": {
-    "@asyncapi/avro-schema-parser": "^3.0.24",
-    "@asyncapi/bundler": "^1.0.1",
-    "@asyncapi/converter": "^2.0.1",
-    "@asyncapi/diff": "^0.5.0",
-    "@asyncapi/generator": "^3.1.1",
-    "@asyncapi/modelina-cli": "^5.10.1",
-    "@asyncapi/openapi-schema-parser": "^3.0.24",
-    "@asyncapi/optimizer": "^1.0.4",
-    "@asyncapi/parser": "^3.6.0",
-    "@asyncapi/problem": "^1.0.0",
-    "@asyncapi/protobuf-schema-parser": "^3.6.0",
-    "@asyncapi/raml-dt-schema-parser": "^4.0.24",
-    "@asyncapi/studio": "^1.2.0",
-    "@clack/prompts": "^0.11.0",
-    "@oclif/core": "^4.8.0",
-    "@oclif/plugin-autocomplete": "^3.2.39",
-    "@smoya/asyncapi-adoption-metrics": "^2.4.9",
-    "@stoplight/spectral-cli": "6.15.0",
-    "archiver": "^7.0.1",
-    "body-parser": "^2.2.1",
-    "chalk": "^4.1.2",
-    "chokidar": "^4.0.3",
-    "compression": "^1.8.1",
-    "config": "^4.1.1",
-    "cors": "^2.8.5",
-    "express": "^5.2.1",
-    "fast-levenshtein": "^3.0.0",
-    "fs-extra": "^11.3.2",
-    "generator-v2": "npm:@asyncapi/generator@3.0.1",
-    "helmet": "^8.1.0",
-    "https-proxy-agent": "^7.0.6",
-    "inquirer": "^8.2.6",
-    "js-yaml": "^4.1.1",
-    "oclif": "^4.22.57",
-    "open": "^8.4.2",
-    "picocolors": "^1.1.1",
-    "redoc-express": "^2.1.3",
-    "unzipper": "^0.12.3",
-    "uuid": "^11.0.3",
-    "winston": "^3.19.0",
-    "ws": "^8.18.3",
-    "yaml": "^2.8.2"
-  },
-  "devDependencies": {
-    "@asyncapi/minimaltemplate": "./test/fixtures/minimaltemplate",
-    "@asyncapi/newtemplate": "./test/fixtures/newtemplate",
-    "@eslint/js": "^9.39.2",
-    "@oclif/test": "^3.2.15",
-    "@types/archiver": "^7.0.0",
-    "@types/body-parser": "^1.19.6",
-    "@types/chai": "^5.2.3",
-    "@types/compression": "^1.8.1",
-    "@types/config": "^3.3.5",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/fast-levenshtein": "^0.0.4",
-    "@types/fs-extra": "^11.0.4",
-    "@types/inquirer": "^9.0.9",
-    "@types/js-yaml": "^4.0.9",
-    "@types/mocha": "^10.0.10",
-    "@types/node": "^25.0.3",
-    "@types/supertest": "^6.0.3",
-    "@types/ws": "^8.18.1",
-    "@typescript-eslint/eslint-plugin": "^8.50.0",
-    "@typescript-eslint/parser": "^8.50.0",
-    "c8": "^10.1.3",
-    "chai": "^6.2.1",
-    "cross-env": "^10.1.0",
-    "eslint": "^9.39.2",
-    "eslint-config-oclif": "^6",
-    "eslint-plugin-github": "^6.0.0",
-    "eslint-plugin-security": "^3.0.1",
-    "eslint-plugin-sonarjs": "^3.0.5",
-    "markdown-toc": "^1.2.0",
-    "mocha": "^11.7.5",
-    "nodemon": "^3.1.11",
-    "puppeteer": "^24.33.0",
-    "rimraf": "^6.1.2",
-    "simple-git": "^3.30.0",
-    "supertest": "^7.1.4",
-    "ts-node": "^10.9.2",
-    "tsc-alias": "^1.8.16",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3"
-  },
-  "engines": {
-    "node": ">=24.0.0"
-  },
-  "files": [
-    "/bin",
-    "/lib",
-    "/assets",
-    "/scripts",
-    "/npm-shrinkwrap.json",
-    "/openapi.yaml",
-    "/oclif.manifest.json"
-  ],
-  "homepage": "https://github.com/asyncapi/cli",
-  "keywords": [
-    "oclif"
-  ],
-  "license": "Apache-2.0",
-  "main": "lib/index.js",
-  "oclif": {
-    "commands": "./lib/apps/cli/commands",
-    "bin": "asyncapi",
-    "additionalVersionFlags": [
-      "--v"
-    ],
-    "hooks": {
-      "command_not_found": [
-        "./lib/apps/cli/internal/hooks/command_not_found/myhook"
-      ]
-    },
-    "macos": {
-      "identifier": "com.asyncapi.cli"
-    },
-    "topicSeparator": " ",
-    "topics": {
-      "config:context": {},
-      "config": {
-        "description": "CLI config settings"
-      },
-      "generate": {
-        "description": "Generate models and template"
-      }
-    },
-    "plugins": [
-      "@oclif/plugin-warn-if-update-available",
-      "@oclif/plugin-autocomplete"
-    ],
-    "warn-if-update-available": {
-      "frequency": 24,
-      "message": "\n<%= chalk.yellow('╭────────────────────────────────────────────────────────────────╮') %>\n<%= chalk.yellow('│                                                                │') %>\n<%= chalk.yellow('│') %>               Update available! <%= chalk.red(config.version) %> → <%= chalk.greenBright(latest) %>.                 <%= chalk.yellow('│') %>\n<%= chalk.yellow('│') %> <%= chalk.magentaBright('Changelog:') %> https://github.com/asyncapi/cli/releases/tag/v<%= latest %> <%= chalk.yellow('│') %>\n<%= chalk.yellow('│') %>      Run \"<%= chalk.magentaBright('npm install -g @asyncapi/cli@latest') %>\" to update.      <%= chalk.yellow('│') %>\n<%= chalk.yellow('│') %>                                                                <%= chalk.yellow('│') %>\n<%= chalk.yellow('╰────────────────────────────────────────────────────────────────╯') %>",
-      "frequencyUnit": "hours"
-    }
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "optionalDependencies": {
-    "fsevents": "^2.3.3"
-  },
-  "scripts": {
-    "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && npm run generate:languages && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
-    "bump:github-action": "cd github-action/lib/ && node bump-action-version.js",
-    "bump:version": "npx -p @changesets/cli@2.27.7 changeset version && npm run bump:github-action",
-    "dev": "tsc --watch",
-    "docker:build": "docker build -t asyncapi/cli:latest .",
-    "generate:readme:create": "node -e \"const fs = require('fs'); fs.writeFileSync('scripts/README.md', '# Usage\\n\\n<!-- usage -->\\n\\n# Commands\\n\\n<!-- commands -->\\n');\"",
-    "generate:readme:commands": "npm run build && cd scripts && cross-env DEBUG=* oclif readme",
-    "generate:assets": "npm run generate:readme:toc && npm run generate:commands",
-    "generate:commands": "npm run generate:readme:create && npm run generate:readme:commands && node ./scripts/updateUsageDocs.js && rimraf ./scripts/README.md",
-    "generate:readme:toc": "markdown-toc -i README.md",
-    "generate:languages": "node scripts/generateTypesForGenerateCommand.js",
-    "lint": "eslint --max-warnings 5 .",
-    "lint:fix": "eslint --max-warnings 5 . --fix",
-    "pack:macos": "oclif pack macos && npm run pack:rename",
-    "pack:linux": "oclif pack deb && npm run pack:rename",
-    "pack:tarballs": "oclif pack tarballs -t linux-x64 && npm run pack:rename",
-    "pack:tarballs:alpine": "oclif pack tarballs -t linux-x64 && npm run pack:rename alpine",
-    "pack:windows": "oclif pack win && npm run pack:rename",
-    "pack:rename": "node scripts/releasePackagesRename.js",
-    "publish:trusted": "echo \"Working around changesets action not supporting OIDC yet. Need to pass successful release output for triggering github release\";VERSION=$(node -p \"require('./package.json').version\"); PACKAGE_NAME=$(node -p \"require('./package.json').name\"); if npm view $PACKAGE_NAME@$VERSION > /dev/null 2>&1; then echo \"Version $VERSION of package $PACKAGE_NAME already published to NPM. Skipping GitHub release.\"; else git tag v$VERSION -m v$VERSION; echo \"New tag: $PACKAGE_NAME@$VERSION.\"; fi",
-    "prepublishOnly": "npm run build",
-    "pretest": "npm run build",
-    "pretest:coverage": "npm run build",
-    "posttest": "rimraf ./test.asyncapi-cli",
-    "postinstall": "node ./scripts/enableAutoComplete.js",
-    "test": "npm run cli:test && npm run action:test",
-    "cli:test": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/**/*.test.ts\"",
-    "unit:test": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/unit/**/*.test.ts\"",
-    "test:one": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\"  NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000",
-    "get-version": "echo $npm_package_version",
-    "createhook": "oclif generate hook myhook --event=command_not_found",
-    "createhookinit": "oclif generate hook inithook --event=init",
-    "action:docker:build": "docker build -f github-action/Dockerfile -t asyncapi/github-action-for-cli:latest .",
-    "action:test": "npm run build && cd github-action && make test",
-    "api:dev": "cross-env NODE_ENV=development PORT=3000 nodemon",
-    "api:prod": "npm run api:build && cross-env NODE_ENV=production PORT=80 node lib/apps/api/server.js",
-    "api:docker": "docker run -it -p 80:80 asyncapi/server-api",
-    "api:build:docker": "docker build -t asyncapi/server-api -f ./src/apps/api/Dockerfile .",
-    "api:build": "rimraf lib && npm run generate:languages && tsc && tsc-alias --project tsconfig.json",
-    "api:test": ""
-  },
-  "types": "lib/index.d.ts"
+    "name":  "@asyncapi/cli",
+    "description":  "All in one CLI for all AsyncAPI tools",
+    "version":  "6.0.0",
+    "author":  "@asyncapi",
+    "bin":  {
+                "asyncapi":  "./bin/run_bin"
+            },
+    "repository":  {
+                       "url":  "git+https://github.com/asyncapi/cli.git",
+                       "type":  "git"
+                   },
+    "bugs":  "https://github.com/asyncapi/cli/issues",
+    "dependencies":  {
+                         "@asyncapi/avro-schema-parser":  "^3.0.24",
+                         "@asyncapi/bundler":  "^1.0.1",
+                         "@asyncapi/converter":  "^2.0.1",
+                         "@asyncapi/diff":  "^0.5.0",
+                         "@asyncapi/generator":  "^3.1.1",
+                         "@asyncapi/modelina-cli":  "^5.10.1",
+                         "@asyncapi/openapi-schema-parser":  "^3.0.24",
+                         "@asyncapi/optimizer":  "^1.0.4",
+                         "@asyncapi/parser":  "^3.6.0",
+                         "@asyncapi/problem":  "^1.0.0",
+                         "@asyncapi/protobuf-schema-parser":  "^3.6.0",
+                         "@asyncapi/raml-dt-schema-parser":  "^4.0.24",
+                         "@asyncapi/studio":  "^1.2.0",
+                         "@clack/prompts":  "^0.11.0",
+                         "@oclif/core":  "^4.8.0",
+                         "@oclif/plugin-autocomplete":  "^3.2.39",
+                         "@smoya/asyncapi-adoption-metrics":  "^2.4.9",
+                         "@stoplight/spectral-cli":  "6.15.0",
+                         "archiver":  "^7.0.1",
+                         "body-parser":  "^2.2.1",
+                         "chalk":  "^4.1.2",
+                         "chokidar":  "^4.0.3",
+                         "compression":  "^1.8.1",
+                         "config":  "^4.1.1",
+                         "cors":  "^2.8.5",
+                         "express":  "^5.2.1",
+                         "fast-levenshtein":  "^3.0.0",
+                         "fs-extra":  "^11.3.2",
+                         "generator-v2":  "npm:@asyncapi/generator@3.0.1",
+                         "helmet":  "^8.1.0",
+                         "https-proxy-agent":  "^7.0.6",
+                         "inquirer":  "^8.2.6",
+                         "js-yaml":  "^4.1.1",
+                         "oclif":  "^4.22.57",
+                         "open":  "^8.4.2",
+                         "picocolors":  "^1.1.1",
+                         "redoc-express":  "^2.1.3",
+                         "unzipper":  "^0.12.3",
+                         "uuid":  "^11.0.3",
+                         "winston":  "^3.19.0",
+                         "ws":  "^8.18.3",
+                         "yaml":  "^2.8.2",
+                         "abort-controller":  "^3.0.0"
+                     },
+    "devDependencies":  {
+                            "@asyncapi/minimaltemplate":  "./test/fixtures/minimaltemplate",
+                            "@asyncapi/newtemplate":  "./test/fixtures/newtemplate",
+                            "@eslint/js":  "^9.39.2",
+                            "@oclif/test":  "^3.2.15",
+                            "@types/archiver":  "^7.0.0",
+                            "@types/body-parser":  "^1.19.6",
+                            "@types/chai":  "^5.2.3",
+                            "@types/compression":  "^1.8.1",
+                            "@types/config":  "^3.3.5",
+                            "@types/cors":  "^2.8.19",
+                            "@types/express":  "^5.0.6",
+                            "@types/fast-levenshtein":  "^0.0.4",
+                            "@types/fs-extra":  "^11.0.4",
+                            "@types/inquirer":  "^9.0.9",
+                            "@types/js-yaml":  "^4.0.9",
+                            "@types/mocha":  "^10.0.10",
+                            "@types/node":  "^25.0.3",
+                            "@types/supertest":  "^6.0.3",
+                            "@types/ws":  "^8.18.1",
+                            "@typescript-eslint/eslint-plugin":  "^8.50.0",
+                            "@typescript-eslint/parser":  "^8.50.0",
+                            "c8":  "^10.1.3",
+                            "chai":  "^6.2.1",
+                            "cross-env":  "^10.1.0",
+                            "eslint":  "^9.39.2",
+                            "eslint-config-oclif":  "^6",
+                            "eslint-plugin-github":  "^6.0.0",
+                            "eslint-plugin-security":  "^3.0.1",
+                            "eslint-plugin-sonarjs":  "^3.0.5",
+                            "markdown-toc":  "^1.2.0",
+                            "mocha":  "^11.7.5",
+                            "nodemon":  "^3.1.11",
+                            "puppeteer":  "^24.33.0",
+                            "rimraf":  "^6.1.2",
+                            "simple-git":  "^3.30.0",
+                            "supertest":  "^7.1.4",
+                            "ts-node":  "^10.9.2",
+                            "tsc-alias":  "^1.8.16",
+                            "tsconfig-paths":  "^4.2.0",
+                            "typescript":  "^5.9.3"
+                        },
+    "engines":  {
+                    "node":  "\u003e=24.0.0"
+                },
+    "files":  [
+                  "/bin",
+                  "/lib",
+                  "/assets",
+                  "/scripts",
+                  "/npm-shrinkwrap.json",
+                  "/openapi.yaml",
+                  "/oclif.manifest.json"
+              ],
+    "homepage":  "https://github.com/asyncapi/cli",
+    "keywords":  [
+                     "oclif"
+                 ],
+    "license":  "Apache-2.0",
+    "main":  "lib/index.js",
+    "oclif":  {
+                  "commands":  "./lib/apps/cli/commands",
+                  "bin":  "asyncapi",
+                  "additionalVersionFlags":  [
+                                                 "--v"
+                                             ],
+                  "hooks":  {
+                                "command_not_found":  [
+                                                          "./lib/apps/cli/internal/hooks/command_not_found/myhook"
+                                                      ]
+                            },
+                  "macos":  {
+                                "identifier":  "com.asyncapi.cli"
+                            },
+                  "topicSeparator":  " ",
+                  "topics":  {
+                                 "config:context":  {
+
+                                                    },
+                                 "config":  {
+                                                "description":  "CLI config settings"
+                                            },
+                                 "generate":  {
+                                                  "description":  "Generate models and template"
+                                              }
+                             },
+                  "plugins":  [
+                                  "@oclif/plugin-warn-if-update-available",
+                                  "@oclif/plugin-autocomplete"
+                              ],
+                  "warn-if-update-available":  {
+                                                   "frequency":  24,
+                                                   "message":  "\n\u003c%= chalk.yellow(\u0027╭────────────────────────────────────────────────────────────────╮\u0027) %\u003e\n\u003c%= chalk.yellow(\u0027│                                                                │\u0027) %\u003e\n\u003c%= chalk.yellow(\u0027│\u0027) %\u003e               Update available! \u003c%= chalk.red(config.version) %\u003e → \u003c%= chalk.greenBright(latest) %\u003e.                 \u003c%= chalk.yellow(\u0027│\u0027) %\u003e\n\u003c%= chalk.yellow(\u0027│\u0027) %\u003e \u003c%= chalk.magentaBright(\u0027Changelog:\u0027) %\u003e https://github.com/asyncapi/cli/releases/tag/v\u003c%= latest %\u003e \u003c%= chalk.yellow(\u0027│\u0027) %\u003e\n\u003c%= chalk.yellow(\u0027│\u0027) %\u003e      Run \"\u003c%= chalk.magentaBright(\u0027npm install -g @asyncapi/cli@latest\u0027) %\u003e\" to update.      \u003c%= chalk.yellow(\u0027│\u0027) %\u003e\n\u003c%= chalk.yellow(\u0027│\u0027) %\u003e                                                                \u003c%= chalk.yellow(\u0027│\u0027) %\u003e\n\u003c%= chalk.yellow(\u0027╰────────────────────────────────────────────────────────────────╯\u0027) %\u003e",
+                                                   "frequencyUnit":  "hours"
+                                               }
+              },
+    "publishConfig":  {
+                          "access":  "public"
+                      },
+    "optionalDependencies":  {
+                                 "fsevents":  "^2.3.3"
+                             },
+    "scripts":  {
+                    "build":  "rimraf lib \u0026\u0026 node scripts/fetch-asyncapi-example.js \u0026\u0026 npm run generate:languages \u0026\u0026 tsc \u0026\u0026 tsc-alias --project tsconfig.json \u0026\u0026 oclif manifest \u0026\u0026 echo \"Build Completed\"",
+                    "bump:github-action":  "cd github-action/lib/ \u0026\u0026 node bump-action-version.js",
+                    "bump:version":  "npx -p @changesets/cli@2.27.7 changeset version \u0026\u0026 npm run bump:github-action",
+                    "dev":  "tsc --watch",
+                    "docker:build":  "docker build -t asyncapi/cli:latest .",
+                    "generate:readme:create":  "node -e \"const fs = require(\u0027fs\u0027); fs.writeFileSync(\u0027scripts/README.md\u0027, \u0027# Usage\\n\\n\u003c!-- usage --\u003e\\n\\n# Commands\\n\\n\u003c!-- commands --\u003e\\n\u0027);\"",
+                    "generate:readme:commands":  "npm run build \u0026\u0026 cd scripts \u0026\u0026 cross-env DEBUG=* oclif readme",
+                    "generate:assets":  "npm run generate:readme:toc \u0026\u0026 npm run generate:commands",
+                    "generate:commands":  "npm run generate:readme:create \u0026\u0026 npm run generate:readme:commands \u0026\u0026 node ./scripts/updateUsageDocs.js \u0026\u0026 rimraf ./scripts/README.md",
+                    "generate:readme:toc":  "markdown-toc -i README.md",
+                    "generate:languages":  "node scripts/generateTypesForGenerateCommand.js",
+                    "lint":  "eslint --max-warnings 5 .",
+                    "lint:fix":  "eslint --max-warnings 5 . --fix",
+                    "pack:macos":  "oclif pack macos \u0026\u0026 npm run pack:rename",
+                    "pack:linux":  "oclif pack deb \u0026\u0026 npm run pack:rename",
+                    "pack:tarballs":  "oclif pack tarballs -t linux-x64 \u0026\u0026 npm run pack:rename",
+                    "pack:tarballs:alpine":  "oclif pack tarballs -t linux-x64 \u0026\u0026 npm run pack:rename alpine",
+                    "pack:windows":  "oclif pack win \u0026\u0026 npm run pack:rename",
+                    "pack:rename":  "node scripts/releasePackagesRename.js",
+                    "publish:trusted":  "echo \"Working around changesets action not supporting OIDC yet. Need to pass successful release output for triggering github release\";VERSION=$(node -p \"require(\u0027./package.json\u0027).version\"); PACKAGE_NAME=$(node -p \"require(\u0027./package.json\u0027).name\"); if npm view $PACKAGE_NAME@$VERSION \u003e /dev/null 2\u003e\u00261; then echo \"Version $VERSION of package $PACKAGE_NAME already published to NPM. Skipping GitHub release.\"; else git tag v$VERSION -m v$VERSION; echo \"New tag: $PACKAGE_NAME@$VERSION.\"; fi",
+                    "prepublishOnly":  "npm run build",
+                    "pretest":  "npm run build",
+                    "pretest:coverage":  "npm run build",
+                    "posttest":  "rimraf ./test.asyncapi-cli",
+                    "postinstall":  "node ./scripts/enableAutoComplete.js",
+                    "test":  "npm run cli:test \u0026\u0026 npm run action:test",
+                    "cli:test":  "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/**/*.test.ts\"",
+                    "unit:test":  "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/unit/**/*.test.ts\"",
+                    "test:one":  "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\"  NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000",
+                    "get-version":  "echo $npm_package_version",
+                    "createhook":  "oclif generate hook myhook --event=command_not_found",
+                    "createhookinit":  "oclif generate hook inithook --event=init",
+                    "action:docker:build":  "docker build -f github-action/Dockerfile -t asyncapi/github-action-for-cli:latest .",
+                    "action:test":  "npm run build \u0026\u0026 cd github-action \u0026\u0026 make test",
+                    "api:dev":  "cross-env NODE_ENV=development PORT=3000 nodemon",
+                    "api:prod":  "npm run api:build \u0026\u0026 cross-env NODE_ENV=production PORT=80 node lib/apps/api/server.js",
+                    "api:docker":  "docker run -it -p 80:80 asyncapi/server-api",
+                    "api:build:docker":  "docker build -t asyncapi/server-api -f ./src/apps/api/Dockerfile .",
+                    "api:build":  "rimraf lib \u0026\u0026 npm run generate:languages \u0026\u0026 tsc \u0026\u0026 tsc-alias --project tsconfig.json",
+                    "api:test":  ""
+                },
+    "types":  "lib/index.d.ts"
 }
