@@ -70,7 +70,10 @@ const convertGitHubWebUrl = (url: string): string => {
 
   // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
   // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  // Support slash-based branch names (e.g. 'feature/new-validation') by not restricting
+  // the branch segment to non-slash characters. The branch ends at the last /blob/ marker.
+  // Fixes: https://github.com/asyncapi/cli/issues/1940
+  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+?)\/([^?#]+(?:\?[^#]*)?)$/;
   const match = urlWithoutFragment.match(githubWebPattern);
 
   if (match) {
