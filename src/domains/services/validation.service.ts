@@ -69,8 +69,9 @@ const convertGitHubWebUrl = (url: string): string => {
   const urlWithoutFragment = url.split('#')[0];
 
   // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
+  // Updated to support branch names with slashes (e.g., feature/new-validation)
   // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+?)\/(.+)$/;
   const match = urlWithoutFragment.match(githubWebPattern);
 
   if (match) {
