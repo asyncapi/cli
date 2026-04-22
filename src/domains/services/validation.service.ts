@@ -62,26 +62,46 @@ const isValidGitHubBlobUrl = (url: string): boolean => {
 };
 
 /**
- * Convert GitHub web URL to API URL
+ * Convert GitHub web URL to API URL.
+ * Supports slash-based branch names (e.g. 'feature/new-validation').
+ * Uses URL parsing instead of regex to avoid potential ReDoS.
+ * Fixes: https://github.com/asyncapi/cli/issues/1940
  */
 const convertGitHubWebUrl = (url: string): string => {
-  // Remove fragment from URL before processing
-  const urlWithoutFragment = url.split('#')[0];
+  try {
+    // Strip fragment and parse URL
+    const parsed = new URL(url.split('#')[0]);
+    if (parsed.hostname !== 'github.com') {
+      return url;
+    }
 
-  // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
-  // eslint-disable-next-line no-useless-escape
-  // Support slash-based branch names (e.g. 'feature/new-validation') by not restricting
-  // the branch segment to non-slash characters. The branch ends at the last /blob/ marker.
-  // Fixes: https://github.com/asyncapi/cli/issues/1940
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+?)\/([^?#]+(?:\?[^#]*)?)$/;
-  const match = urlWithoutFragment.match(githubWebPattern);
+    // Path must contain /blob/ to be a GitHub blob URL
+    const blobMarker = '/blob/';
+    const blobIndex = parsed.pathname.indexOf(blobMarker);
+    if (blobIndex === -1) {
+      return url;
+    }
 
-  if (match) {
-    const [, owner, repo, branch, filePath] = match;
-    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+    // owner/repo is before /blob/
+    const ownerRepo = parsed.pathname.slice(1, blobIndex);
+    // Everything after /blob/ is branch-name/file-path
+    const afterBlob = parsed.pathname.slice(blobIndex + blobMarker.length);
+    const segments = afterBlob.split('/');
+
+    // Need at least two segments: one for branch root and one for filename
+    if (segments.length < 2) {
+      return url;
+    }
+
+    // The file is the last segment (plus any query params)
+    const fileName = segments[segments.length - 1] + (parsed.search || '');
+    // Everything before the last segment is the branch
+    const branch = segments.slice(0, -1).join('/');
+
+    return `https://api.github.com/repos/${ownerRepo}/contents/${fileName}?ref=${branch}`;
+  } catch {
+    return url;
   }
-
-  return url;
 };
 
 /**
