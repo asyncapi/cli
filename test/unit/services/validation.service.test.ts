@@ -253,5 +253,46 @@ describe('ValidationService', () => {
         expect(result.data?.diagnostics).to.be.an('array');
       }
     });
+
+    it('should handle GitHub URLs with slash-based branch names (e.g., feature/new-validation)', async () => {
+      // Test AsyncAPI document with slash-based branch name reference
+      const asyncAPIWithSlashBranch = `{
+  "asyncapi": "2.6.0",
+  "info": {
+    "title": "Test Service with Slash Branch",
+    "version": "1.0.0"
+  },
+  "channels": {
+    "user/event": {
+      "publish": {
+        "message": {
+          "payload": {
+            "$ref": "https://github.com/asyncapi/spec/blob/feature/new-validation/examples/streetlights.yml#/channels/light/measured/message/payload"
+          }
+        }
+      }
+    }
+  }
+}`;
+
+      const specFile = new Specification(asyncAPIWithSlashBranch);
+      const options = {
+        'diagnostics-format': 'stylish' as const
+      };
+
+      const result = await validationService.validateDocument(specFile, options);
+      
+      // Validation should execute successfully (may be invalid due to 404, but URL parsing works)
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.data).to.have.property('status');
+        expect(result.data).to.have.property('diagnostics');
+        // Should not have URL parsing errors - the branch name should be correctly extracted
+        const urlParseErrors = result.data?.diagnostics?.filter((d: any) => 
+          d.message?.includes('Failed to parse URL') || d.message?.includes('Invalid URL')
+        );
+        expect(urlParseErrors).to.have.lengthOf(0);
+      }
+    });
   });
 });
