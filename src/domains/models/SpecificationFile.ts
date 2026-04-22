@@ -81,12 +81,14 @@ export class Specification {
 
   static async fromFile(filepath: string) {
     let spec;
+    // Convert to absolute path to ensure relative $refs are resolved from the correct base directory
+    const absoluteFilepath = path.resolve(filepath);
     try {
-      spec = await readFile(filepath, { encoding: 'utf8' });
+      spec = await readFile(absoluteFilepath, { encoding: 'utf8' });
     } catch {
-      throw new ErrorLoadingSpec('file', filepath);
+      throw new ErrorLoadingSpec('file', absoluteFilepath);
     }
-    return new Specification(spec, { filepath });
+    return new Specification(spec, { filepath: absoluteFilepath });
   }
 
   static async fromURL(URLpath: string) {
