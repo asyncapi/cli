@@ -134,7 +134,16 @@ export class Specification {
       fileURL: targetUrl,
     });
   }
-}
+
+  static async fromStdin(): Promise<Specification> {
+    let spec = '';
+    process.stdin.setEncoding('utf8');
+    for await (const chunk of process.stdin) {
+      spec += chunk;
+    }
+    return new Specification(spec);
+  }
+
 
 export default class SpecificationFile {
   private readonly pathToFile: string;
@@ -166,6 +175,10 @@ export async function load(
   // NOSONAR
   try {
     if (filePathOrContextName) {
+      // Handle stdin input
+      if (filePathOrContextName === '-') {
+        return Specification.fromStdin();
+      }
       if (loadType?.file) {
         return Specification.fromFile(filePathOrContextName);
       }
