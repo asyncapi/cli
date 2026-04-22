@@ -70,7 +70,8 @@ const convertGitHubWebUrl = (url: string): string => {
 
   // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
   // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  // Bug fix #1940: Support slash-based branch names (e.g., feature/new-validation)
+  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+?)\/(.+)$/;
   const match = urlWithoutFragment.match(githubWebPattern);
 
   if (match) {

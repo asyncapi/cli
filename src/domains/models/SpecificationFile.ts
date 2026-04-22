@@ -237,7 +237,8 @@ export async function fileExists(name: string): Promise<boolean> {
       return true;
     }
 
-    const extension = name.split('.')[1];
+    // Bug fix #1940: Use path.extname() for multi-dot filenames (e.g., my.asyncapi.yaml)
+    const extension = path.extname(name).slice(1);
 
     const allowedExtenstion = ['yml', 'yaml', 'json'];
 
