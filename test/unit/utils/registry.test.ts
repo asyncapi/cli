@@ -99,7 +99,7 @@ describe('registryValidation()', () => {
       await registryValidation('https://registry.npmjs.org');
       expect.fail('expected throw');
     } catch (e: unknown) {
-      expect((e as Error).message).to.include("Can't fetch registryURL");
+      expect((e as Error).message).to.include('Can\'t fetch registryURL');
       expect((e as Error).message).to.include('fetch failed');
     }
   });
