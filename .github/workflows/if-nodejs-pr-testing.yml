@@ -8,6 +8,9 @@ on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
 
+permissions:
+  contents: read
+
 jobs:
   test-nodejs-pr:
     name: Test NodeJS PR - ${{ matrix.os }}
@@ -18,21 +21,21 @@ jobs:
     steps:
       - if: >
           !github.event.pull_request.draft && !(
-            (github.actor == 'asyncapi-bot' && (
+            (github.event.pull_request.user.login == 'asyncapi-bot' && (
               startsWith(github.event.pull_request.title, 'ci: update of files from global .github repo') || 
               startsWith(github.event.pull_request.title, 'chore(release):')
             )) ||
-            (github.actor == 'asyncapi-bot-eve' && (
+            (github.event.pull_request.user.login == 'asyncapi-bot-eve' && (
               startsWith(github.event.pull_request.title, 'ci: update of files from global .github repo') || 
               startsWith(github.event.pull_request.title, 'chore(release):')
             )) ||
-            (github.actor == 'allcontributors[bot]' && 
+            (github.event.pull_request.user.login == 'allcontributors[bot]' && 
               startsWith(github.event.pull_request.title, 'docs: add')
             )
           )
         id: should_run
         name: Should Run
-        run: echo "shouldrun=true" >> $GITHUB_OUTPUT
+        run: echo "shouldrun=true" >> "$GITHUB_OUTPUT"
         shell: bash
       - if: steps.should_run.outputs.shouldrun == 'true' 
         name: Set git to use LF #to once and for all finish neverending fight between Unix and Windows
@@ -43,10 +46,12 @@ jobs:
       - if: steps.should_run.outputs.shouldrun == 'true' 
         name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - if: steps.should_run.outputs.shouldrun == 'true' 
         name: Check if Node.js project and has package.json
         id: packagejson
-        run: test -e ./package.json && echo "exists=true" >> $GITHUB_OUTPUT || echo "exists=false" >> $GITHUB_OUTPUT
+        run: test -e ./package.json && echo "exists=true" >> "$GITHUB_OUTPUT" || echo "exists=false" >> "$GITHUB_OUTPUT"
         shell: bash
       - if: steps.packagejson.outputs.exists == 'true'
         name: Determine what node version to use

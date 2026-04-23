@@ -10,6 +10,9 @@ on:
 env:
   IMAGE_NAME: ${{ github.repository }}
 
+permissions:
+  contents: read
+
 jobs:
   test-docker-pr:
     name: Test Docker build
@@ -18,30 +21,32 @@ jobs:
     steps:
       - if: >
           !github.event.pull_request.draft && !(
-            (github.actor == 'asyncapi-bot' && (
+            (github.event.pull_request.user.login == 'asyncapi-bot' && (
               startsWith(github.event.pull_request.title, 'ci: update of files from global .github repo') || 
               startsWith(github.event.pull_request.title, 'chore(release):')
             )) ||
-            (github.actor == 'asyncapi-bot-eve' && (
+            (github.event.pull_request.user.login == 'asyncapi-bot-eve' && (
               startsWith(github.event.pull_request.title, 'ci: update of files from global .github repo') || 
               startsWith(github.event.pull_request.title, 'chore(release):')
             )) ||
-            (github.actor == 'allcontributors[bot]' && 
+            (github.event.pull_request.user.login == 'allcontributors[bot]' && 
               startsWith(github.event.pull_request.title, 'docs: add')
             )
           )
         id: should_run
         name: Should Run
-        run: echo "shouldrun=true" >> $GITHUB_OUTPUT
+        run: echo "shouldrun=true" >> "$GITHUB_OUTPUT"
 
       - if: steps.should_run.outputs.shouldrun == 'true' 
         name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - if: steps.should_run.outputs.shouldrun == 'true' 
         name: Check if project has a Dockerfile
         id: docker
-        run: test -e ./Dockerfile && echo "exists=true" >> $GITHUB_OUTPUT || echo "exists=false" >> $GITHUB_OUTPUT
+        run: test -e ./Dockerfile && echo "exists=true" >> "$GITHUB_OUTPUT" || echo "exists=false" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - if: steps.docker.outputs.exists == 'true'
