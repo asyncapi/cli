@@ -173,13 +173,11 @@ export async function validationMiddleware(
     }
 
     try {
+      // When no requestBody schema is defined for this path/method (e.g. pure GET endpoints),
+      // validation is not applicable — skip it gracefully instead of throwing a 422 error.
+      // Fixes: https://github.com/asyncapi/cli/issues/1987
       if (!validate) {
-        throw new ProblemException({
-          type: 'invalid-request-body',
-          title: 'Invalid Request Body',
-          status: 422,
-          detail: `Request body validation is not supported for "${options.path}" path with "${options.method}" method.`,
-        });
+        return next();
       }
 
       await validateRequestBody(validate, req.body);
