@@ -10,14 +10,16 @@ import AsyncAPIGenerator from '@asyncapi/generator';
 import { spinner } from '@clack/prompts';
 import path from 'path';
 import os from 'os';
+import { pathToFileURL } from 'url';
 import { yellow, magenta } from 'picocolors';
 import { getErrorMessage } from '@utils/error-handler';
 
 /**
  * Options passed to the generator for code generation.
+ * `path` must be a string (document base URI) for @asyncapi/generator to resolve local $ref files.
  */
 interface GeneratorRunOptions {
-  path?: Specification;
+  path?: string;
   [key: string]: unknown;
 }
 
@@ -73,6 +75,20 @@ export class GeneratorService extends BaseService {
   }
 
   /**
+   * Base URI for parsing, required so relative file $refs resolve next to the spec file (not cwd).
+   */
+  private getGeneratorParseSource(spec: Specification): string | undefined {
+    const filePath = spec.getFilePath();
+    if (filePath !== undefined) {
+      const absolute = path.isAbsolute(filePath)
+        ? filePath
+        : path.resolve(filePath);
+      return pathToFileURL(absolute).href;
+    }
+    return spec.getFileURL();
+  }
+
+  /**
    * Generates code from an AsyncAPI specification using the specified template.
    *
    * @param asyncapi - The AsyncAPI specification to generate from
@@ -107,9 +123,12 @@ export class GeneratorService extends BaseService {
       : { start: () => null, stop: (message: string) => logs.push(message) };
     s.start('Generation in progress. Keep calm and wait a bit');
     try {
+      const parseSource =
+        this.getGeneratorParseSource(asyncapi) ??
+        (typeof genOption.path === 'string' ? genOption.path : undefined);
       await generator.generateFromString(asyncapi.text(), {
         ...genOption,
-        path: asyncapi,
+        ...(parseSource !== undefined ? { path: parseSource } : {}),
       });
     } catch (err: unknown) {
       s.stop('Generation failed');
