@@ -81,12 +81,13 @@ export class Specification {
 
   static async fromFile(filepath: string) {
     let spec;
+    const absolutePath = path.resolve(process.cwd(), filepath);
     try {
-      spec = await readFile(filepath, { encoding: 'utf8' });
+      spec = await readFile(absolutePath, { encoding: 'utf8' });
     } catch {
-      throw new ErrorLoadingSpec('file', filepath);
+      throw new ErrorLoadingSpec('file', absolutePath);
     }
-    return new Specification(spec, { filepath });
+    return new Specification(spec, { filepath: absolutePath });
   }
 
   static async fromURL(URLpath: string) {
