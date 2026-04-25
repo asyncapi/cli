@@ -54,13 +54,16 @@ async function compileAjv(options: ValidationMiddlewareOptions) {
 
   const requestBody = method.requestBody;
   if (!requestBody) {
-    return;
+    return; // No request body defined - validation not needed
   }
 
-  let schema = requestBody.content['application/json'].schema;
-  if (!schema) {
-    return;
+  // Check if application/json content type exists
+  const jsonContent = requestBody.content?.['application/json'];
+  if (!jsonContent || !jsonContent.schema) {
+    return; // No JSON schema defined - validation not needed
   }
+
+  let schema = jsonContent.schema;
 
   schema = { ...schema };
   schema['$schema'] = 'http://json-schema.org/draft-07/schema';
@@ -173,16 +176,11 @@ export async function validationMiddleware(
     }
 
     try {
-      if (!validate) {
-        throw new ProblemException({
-          type: 'invalid-request-body',
-          title: 'Invalid Request Body',
-          status: 422,
-          detail: `Request body validation is not supported for "${options.path}" path with "${options.method}" method.`,
-        });
+      // If no requestBody schema is defined, skip validation
+      // This is valid - not all endpoints require request bodies
+      if (validate) {
+        await validateRequestBody(validate, req.body);
       }
-
-      await validateRequestBody(validate, req.body);
     } catch (error: unknown) {
       if (error instanceof ProblemException) {
         return next(error);
