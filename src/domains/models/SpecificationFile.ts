@@ -237,7 +237,11 @@ export async function fileExists(name: string): Promise<boolean> {
       return true;
     }
 
-    const extension = name.split('.')[1];
+    // Use the last segment after a dot to get the actual file extension.
+    // This correctly handles filenames with multiple dots (e.g. my.asyncapi.yaml)
+    // and avoids crashes on filenames without an extension.
+    const dotIndex = name.lastIndexOf('.');
+    const extension = dotIndex !== -1 ? name.slice(dotIndex + 1) : '';
 
     const allowedExtenstion = ['yml', 'yaml', 'json'];
 

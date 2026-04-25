@@ -62,20 +62,41 @@ const isValidGitHubBlobUrl = (url: string): boolean => {
 };
 
 /**
- * Convert GitHub web URL to API URL
+ * Convert GitHub web URL to a raw.githubusercontent.com URL.
+ *
+ * The GitHub "blob" view URL format is:
+ *   https://github.com/<owner>/<repo>/blob/<ref>/<path>
+ * where <ref> may contain slashes (e.g. feature/my-branch) and <path> may
+ * span multiple directory levels (e.g. schemas/events/my.asyncapi.yaml).
+ *
+ * Because both the ref and the path can contain slashes it is impossible to
+ * split them apart without querying the GitHub API.  Converting to the raw
+ * content URL sidesteps the problem entirely – raw.githubusercontent.com
+ * preserves the exact branch+path structure and is already handled by the
+ * resolver below with the correct Accept header.
+ *
+ * Examples:
+ *   github.com/org/repo/blob/main/spec.yaml
+ *     → raw.githubusercontent.com/org/repo/main/spec.yaml
+ *   github.com/org/repo/blob/feature/my-branch/spec.yaml
+ *     → raw.githubusercontent.com/org/repo/feature/my-branch/spec.yaml
+ *   github.com/org/repo/blob/main/my.asyncapi.yaml#/fragment
+ *     → raw.githubusercontent.com/org/repo/main/my.asyncapi.yaml
+ *
+ * Exported for unit-testing only – internal use via the resolver.
  */
-const convertGitHubWebUrl = (url: string): string => {
-  // Remove fragment from URL before processing
+export const convertGitHubWebUrl = (url: string): string => {
+  // Remove URL fragment before processing (fragments are client-side only)
   const urlWithoutFragment = url.split('#')[0];
 
-  // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
   // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+)$/;
   const match = urlWithoutFragment.match(githubWebPattern);
 
   if (match) {
-    const [, owner, repo, branch, filePath] = match;
-    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+    const [, owner, repo, branchAndPath] = match;
+    // Convert to raw content URL — preserves branch-with-slashes and nested paths
+    return `https://raw.githubusercontent.com/${owner}/${repo}/${branchAndPath}`;
   }
 
   return url;

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ValidationService } from '../../../src/domains/services/validation.service';
+import { ValidationService, convertGitHubWebUrl } from '../../../src/domains/services/validation.service';
 import { Specification } from '../../../src/domains/models/SpecificationFile';
 import { ConfigService } from '../../../src/domains/services/config.service';
 import { promises as fs } from 'fs';
@@ -225,15 +225,20 @@ describe('ValidationService', () => {
         expect(result.data).to.have.property('diagnostics');
         expect(result.data?.diagnostics).to.be.an('array');
         
-        // Should have an invalid-ref diagnostic for the private GitHub URL
+        // Should have an invalid-ref diagnostic for the private GitHub URL.
+        // The resolver converts github.com/...blob/... to raw.githubusercontent.com so the
+        // error message will reference the converted raw URL.
         const invalidRefDiagnostic = result.data?.diagnostics?.find((d: any) => d.code === 'invalid-ref');
         // eslint-disable-next-line no-unused-expressions
         expect(invalidRefDiagnostic).to.exist;
         // Error message varies by platform - macOS shows FetchError, Linux/Windows show "Page not found"
-        expect(invalidRefDiagnostic?.message).to.satisfy((msg: string) => 
-          msg.includes('Page not found') || msg.includes('FetchError')
+        expect(invalidRefDiagnostic?.message).to.satisfy((msg: string) =>
+          msg.includes('Page not found') || msg.includes('FetchError') || msg.includes('404')
         );
-        expect(invalidRefDiagnostic?.message).to.include('https://github.com/private-org/private-repo/blob/main/schema.yaml');
+        expect(invalidRefDiagnostic?.message).to.satisfy((msg: string) =>
+          msg.includes('raw.githubusercontent.com/private-org/private-repo/main/schema.yaml') ||
+          msg.includes('https://github.com/private-org/private-repo/blob/main/schema.yaml')
+        );
       }
     });
 
@@ -253,5 +258,61 @@ describe('ValidationService', () => {
         expect(result.data?.diagnostics).to.be.an('array');
       }
     });
+  });
+});
+
+describe('convertGitHubWebUrl()', () => {
+  it('converts a simple GitHub blob URL to a raw content URL', () => {
+    const input = 'https://github.com/org/repo/blob/main/spec.yaml';
+    const result = convertGitHubWebUrl(input);
+    expect(result).to.equal('https://raw.githubusercontent.com/org/repo/main/spec.yaml');
+  });
+
+  it('handles branch names with slashes (e.g. feature/my-branch) — the reported bug', () => {
+    const input = 'https://github.com/org/repo/blob/feature/new-validation/spec.yaml';
+    const result = convertGitHubWebUrl(input);
+    expect(result).to.equal('https://raw.githubusercontent.com/org/repo/feature/new-validation/spec.yaml');
+  });
+
+  it('handles deeply nested file paths with slashed branch', () => {
+    const input = 'https://github.com/org/repo/blob/fix/my-fix/docs/api/asyncapi.yaml';
+    const result = convertGitHubWebUrl(input);
+    expect(result).to.equal('https://raw.githubusercontent.com/org/repo/fix/my-fix/docs/api/asyncapi.yaml');
+  });
+
+  it('handles files with multiple dots in the filename (e.g. my.asyncapi.yaml) — the reported bug', () => {
+    const input = 'https://github.com/org/repo/blob/main/my.asyncapi.yaml';
+    const result = convertGitHubWebUrl(input);
+    expect(result).to.equal('https://raw.githubusercontent.com/org/repo/main/my.asyncapi.yaml');
+  });
+
+  it('handles slashed branch and multi-dot filename together', () => {
+    const input = 'https://github.com/org/repo/blob/feature/new-validation/my.asyncapi.yaml';
+    const result = convertGitHubWebUrl(input);
+    expect(result).to.equal('https://raw.githubusercontent.com/org/repo/feature/new-validation/my.asyncapi.yaml');
+  });
+
+  it('strips URL fragments before converting', () => {
+    const input = 'https://github.com/org/repo/blob/main/spec.yaml#/components/schemas/Foo';
+    const result = convertGitHubWebUrl(input);
+    expect(result).to.equal('https://raw.githubusercontent.com/org/repo/main/spec.yaml');
+  });
+
+  it('returns non-GitHub URLs unchanged', () => {
+    const input = 'https://example.com/spec.yaml';
+    const result = convertGitHubWebUrl(input);
+    expect(result).to.equal(input);
+  });
+
+  it('returns raw.githubusercontent.com URLs unchanged', () => {
+    const input = 'https://raw.githubusercontent.com/org/repo/main/spec.yaml';
+    const result = convertGitHubWebUrl(input);
+    expect(result).to.equal(input);
+  });
+
+  it('handles subdirectory file paths on simple branches', () => {
+    const input = 'https://github.com/org/repo/blob/main/schemas/events.yaml';
+    const result = convertGitHubWebUrl(input);
+    expect(result).to.equal('https://raw.githubusercontent.com/org/repo/main/schemas/events.yaml');
   });
 });
