@@ -175,7 +175,10 @@ export default class NewFile extends Command {
     if (!fileName.includes('.')) {
       fileNameToWriteToDisk = `${fileName}.yaml`;
     } else {
-      const extension = fileName.split('.')[1];
+      // Use lastIndexOf to correctly handle filenames with multiple dots
+      // (e.g. my.asyncapi.yaml) – split('.')[1] would return "asyncapi" instead of "yaml".
+      const dotIndex = fileName.lastIndexOf('.');
+      const extension = dotIndex !== -1 ? fileName.slice(dotIndex + 1) : '';
 
       if (extension === 'yml' || extension === 'yaml' || extension === 'json') {
         fileNameToWriteToDisk = fileName;
