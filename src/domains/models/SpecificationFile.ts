@@ -62,7 +62,7 @@ export class Specification {
 
   getFileURL() {
     return this.fileURL;
-  }
+    }
 
   getKind() {
     return this.kind;
@@ -95,18 +95,15 @@ export class Specification {
     let targetUrl = URLpath;
     let proxyUrl = '';
 
-    // Check if URLpath contains a proxy URL
     if (URLpath.includes(delimiter)) {
       [targetUrl, proxyUrl] = URLpath.split(delimiter);
     }
 
     try {
-      // Validate the target URL
       new URL(targetUrl);
 
       const fetchOptions: RequestInit & { agent?: HttpsProxyAgent<string> } = { method: 'GET' };
 
-      // If proxy URL is provided, create a proxy agent
       if (proxyUrl) {
         try {
           new URL(proxyUrl);
@@ -158,12 +155,10 @@ interface LoadType {
   context?: boolean;
 }
 
-/* eslint-disable sonarjs/cognitive-complexity */
 export async function load(
   filePathOrContextName?: string,
   loadType?: LoadType,
 ): Promise<Specification> {
-  // NOSONAR
   try {
     if (filePathOrContextName) {
       if (loadType?.file) {
@@ -237,7 +232,8 @@ export async function fileExists(name: string): Promise<boolean> {
       return true;
     }
 
-    const extension = name.split('.')[1];
+    // FIX (Issue #1940): Verwende path.extname() statt name.split('.')[1]
+    const extension = path.extname(name).replace(/^\./, '');
 
     const allowedExtenstion = ['yml', 'yaml', 'json'];
 
@@ -283,8 +279,6 @@ export function retrieveFileFormat(content: string): fileFormat | undefined {
       JSON.parse(content);
       return 'json';
     }
-    // below yaml.load is not a definitive way to determine if a file is yaml or not.
-    // it is able to load .txt text files also.
     yaml.load(content);
     return 'yaml';
   } catch {
@@ -292,15 +286,8 @@ export function retrieveFileFormat(content: string): fileFormat | undefined {
   }
 }
 
-/**
- * Converts a JSON or YAML specification to YAML format.
- * 
- * @param spec - The specification content as a string
- * @returns The YAML formatted string, or undefined if conversion fails
- */
 export function convertToYaml(spec: string): string | undefined {
   try {
-    // JS object -> YAML string
     const jsonContent = yaml.load(spec);
     return yaml.dump(jsonContent);
   } catch (err: unknown) {
@@ -309,17 +296,9 @@ export function convertToYaml(spec: string): string | undefined {
   }
 }
 
-/**
- * Converts a JSON or YAML specification to JSON format.
- * 
- * @param spec - The specification content as a string
- * @returns The JSON formatted string, or undefined if conversion fails
- */
 export function convertToJSON(spec: string): string | undefined {
   try {
-    // JSON or YAML String -> JS object
     const jsonContent = yaml.load(spec);
-    // JS Object -> pretty JSON string
     return JSON.stringify(jsonContent, null, 2);
   } catch (err: unknown) {
     logger.error(`Failed to convert spec to JSON: ${getErrorMessage(err)}`);
