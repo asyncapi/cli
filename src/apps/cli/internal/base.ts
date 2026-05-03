@@ -114,12 +114,15 @@ export default abstract class extends Command {
   }
   async finally(error: Error | undefined): Promise<any> {
     await super.finally(error);
-    this.metricsMetadata['success'] = error === undefined;
-    await this.recordActionFinished(
-      this.id as string,
-      this.metricsMetadata,
-      this.specFile?.text(),
-    );
+    // Only submit metrics when there's no fatal error
+    if (error === undefined) {
+      this.metricsMetadata['success'] = true;
+      await this.recordActionFinished(
+        this.id as string,
+        this.metricsMetadata,
+        this.specFile?.text(),
+      );
+    }
   }
 
   async recorderFromEnv(prefix: string): Promise<Recorder> {
