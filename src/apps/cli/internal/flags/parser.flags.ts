@@ -1,5 +1,4 @@
 import { Flags } from '@oclif/core';
-import { OutputFormat } from '@stoplight/spectral-cli/dist/services/config';
 
 export interface ValidationFlagsOptions {
   logDiagnostics?: boolean;
@@ -16,8 +15,8 @@ export function parserFlags({
     }),
     'diagnostics-format': Flags.option({
       description: 'format to use for validation diagnostics',
-      options: Object.values(OutputFormat),
-      default: OutputFormat.STYLISH,
+      options: ['stylish', 'json', 'junit', 'html', 'text', 'teamcity', 'pretty'] as const,
+      default: 'stylish',
     })(),
     'fail-severity': Flags.option({
       description:
