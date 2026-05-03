@@ -7,7 +7,7 @@ export default class Versions extends Command {
 
   static flags = helpFlag();
 
-  static args = {};
+  static readonly args = {};
 
   async run() {
     const dependencies: string[] = [];
