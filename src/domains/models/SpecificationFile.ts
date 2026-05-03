@@ -45,6 +45,14 @@ export class Specification {
   }
 
   toJson(): Record<string, any> {
+    // Check for multi-document YAML (contains --- separator)
+    const trimmed = this.spec.trim();
+    if (trimmed.includes('\n---\n') || trimmed.startsWith('---\n')) {
+      throw new Error(
+        'The provided AsyncAPI file contains multiple YAML documents (separated by ---). ' +
+        'AsyncAPI supports only a single document per file. Please remove the extra document separators.'
+      );
+    }
     try {
       return yaml.load(this.spec, { json: true }) as Record<string, any>;
     } catch {
