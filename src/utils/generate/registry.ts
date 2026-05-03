@@ -75,6 +75,10 @@ export async function registryValidation(registryUrl?: string, registryAuth?: st
       );
     }
     const detail = err instanceof Error ? err.message : String(err);
-    throw new Error(`Can't fetch registryURL: ${registryUrl} (${detail})`);
+    const wrappedError = new Error(`Can't fetch registryURL: ${registryUrl} (${detail})`);
+    if (err instanceof Error) {
+      wrappedError.cause = err;
+    }
+    throw wrappedError;
   }
 }
