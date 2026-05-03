@@ -157,7 +157,11 @@ export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:
       const listenPort = (addr && typeof addr === 'object' && 'port' in addr) ? (addr as any).port : port;
       const url = `http://localhost:${listenPort}?liveServer=${listenPort}&studio-version=${studioVersion}`;
       console.log(`🎉 Connected to Live Server running at ${blueBright(url)}.`);
-      console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
+      if (noBrowser) {
+        console.log(`🔗 Studio is running at ${blueBright(url)}`);
+      } else {
+        console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
+      }
       console.log(
         `🛑 If needed, press ${redBright('Ctrl + C')} to stop the process.`,
       );
