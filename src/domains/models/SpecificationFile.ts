@@ -86,6 +86,9 @@ export class Specification {
     } catch {
       throw new ErrorLoadingSpec('file', filepath);
     }
+    if (!spec || spec.trim().length === 0) {
+      throw new ErrorLoadingSpec('empty-file', filepath);
+    }
     return new Specification(spec, { filepath });
   }
 

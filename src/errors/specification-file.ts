@@ -31,7 +31,7 @@ export class SpecificationURLNotFound extends SpecificationFileError {
   }
 }
 
-type From = 'file' | 'url' | 'context' | 'invalid file';
+type From = 'file' | 'url' | 'context' | 'invalid file' | 'empty-file';
 
 export class ErrorLoadingSpec extends Error {
   private readonly errorMessages = {
@@ -54,6 +54,10 @@ export class ErrorLoadingSpec extends Error {
     if (from === 'invalid file') {
       this.name = 'Invalid AsyncAPI file type';
       this.message = 'cli only supports yml ,yaml ,json extension';
+    }
+    if (from === 'empty-file') {
+      this.name = 'Empty AsyncAPI file';
+      this.message = `The provided AsyncAPI file ${param} is empty. Please provide a valid AsyncAPI document.`;
     }
 
     if (!from) {
