@@ -115,10 +115,22 @@ const listAllProtocolsForFile = (document) => {
 };
 
 const tidyUp = async () => {
-  fs.unlinkSync(TEMP_ZIP_NAME);
+  if (fs.existsSync(TEMP_ZIP_NAME)) {
+    fs.unlinkSync(TEMP_ZIP_NAME);
+  }
+};
+
+const examplesAlreadyExist = () => {
+  const examplesJsonPath = path.join(EXAMPLE_DIRECTORY, 'examples.json');
+  return fs.existsSync(examplesJsonPath) && fs.existsSync(EXAMPLE_DIRECTORY);
 };
 
 (async () => {
+  if (examplesAlreadyExist()) {
+    console.log('Examples already exist, skipping fetch. Delete assets/examples/ to force re-fetch.');
+    return;
+  }
+
   await fetchAsyncAPIExamplesFromExternalURL();
   await unzipAsyncAPIExamples();
   await buildCLIListFromExamples();
