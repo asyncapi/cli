@@ -46,11 +46,11 @@ WORKDIR /app
 RUN addgroup -g 1001 -S nodejs \
   && adduser -S asyncapi -u 1001
 
-# Copy built code
-COPY --from=build /app/lib ./lib
+# Copy built code with correct ownership
+COPY --from=build --chown=asyncapi:nodejs /app/lib ./lib
 
 # Copy package files
-COPY --from=build /app/package*.json ./
+COPY --from=build --chown=asyncapi:nodejs /app/package*.json ./
 
 # Install production deps, then remove heavy ones
 RUN npm ci --omit=dev --ignore-scripts \
@@ -58,18 +58,12 @@ RUN npm ci --omit=dev --ignore-scripts \
   && npm cache clean --force \
   && npm prune --production
 
-# Copy globally installed templates from templates stage
-COPY --from=templates /usr/local/lib/node_modules /usr/local/lib/node_modules
-COPY --from=templates /usr/local/bin /usr/local/bin
+# Copy globally installed templates from templates stage with correct ownership
+COPY --from=templates --chown=asyncapi:nodejs /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=templates --chown=asyncapi:nodejs /usr/local/bin /usr/local/bin
 
-# Copy OpenAPI document
-COPY openapi.yaml ./
-
-# Change ownership of the app directory to the non-root user
-RUN chown -R asyncapi:nodejs /app
-
-# Change ownership of node_modules to the non-root user
-RUN chown -R asyncapi:nodejs /usr/local/lib/node_modules
+# Copy OpenAPI document with correct ownership
+COPY --chown=asyncapi:nodejs openapi.yaml ./
 
 # Switch to non-root user
 USER asyncapi

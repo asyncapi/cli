@@ -46,8 +46,8 @@ RUN apk --update add git chromium && \
     rm -rf /var/lib/apt/lists/* && \
     rm /var/cache/apk/*
 
-# Copy the libraries directory from the build stage
-COPY --from=build /libraries /libraries
+# Copy the libraries directory from the build stage with correct ownership
+COPY --from=build --chown=myuser:myuser /libraries /libraries
 
 # Install the dependencies
 RUN cd /libraries && npm install --omit=dev --ignore-scripts
@@ -58,11 +58,8 @@ RUN ln -s /libraries/bin/run_bin /usr/local/bin/asyncapi
 # Make the script executable
 RUN chmod +x /usr/local/bin/asyncapi
 
-# Change ownership to non-root user
-RUN chown -R myuser:myuser /libraries /usr/local/bin/asyncapi || echo "Failed to change ownership"
-
-RUN chown -R myuser:myuser /usr/local/lib/node_modules && \
-chown -R myuser:myuser /usr/local/bin
+# Change ownership only for the symlink, avoiding recursive chown on large directories
+RUN chown myuser:myuser /usr/local/bin/asyncapi
 
 # Switch to the non-root user
 USER myuser
