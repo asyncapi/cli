@@ -82,6 +82,9 @@ export abstract class BaseGeneratorCommand extends Command {
     if (flags['map-base-url']) {
       genOption.resolve = { resolve: getMapBaseUrlToFolderResolver(parsedFlags.mapBaseUrlToFolder) };
     }
+    if (flags.compile !== undefined) {
+      genOption.compile = flags.compile;
+    }
     return genOption;
   }
 
