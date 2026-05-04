@@ -42,7 +42,7 @@ Make use of newly created `.asyncapi-cli` by executing command:
 
 ### Setup example in a real project
 
-Below you can see an example of context setup for [Event Driven Flight status notification service](https://github.com/amadeus4dev-examples/amadeus-async-flight-status/tree/ff433b6d320a3a6a2499976cbf0782353bc57c16) of the [Amadeus Airline Platform](https://amadeus.com/en/industries/airlines/airline-platform), with multiple microservices and their AsyncAPI documents.
+Below you can see an example of context setup for [Event Driven Flight status notification service](https://github.com/amadeus4dev-examples/amadeus-async-flight-status/tree/ff433b6d320a3a6a2499976cbf0782353bc57c16) of the [Amadeus Airline Platform](https://amadeus.com/en/industries/airlines), with multiple microservices and their AsyncAPI documents.
 
 ```bash
 # One-time initialization of '.asyncapi-cli' file
@@ -139,7 +139,7 @@ Stringified JSON:
 
 ### Context File Example
 
-Example of a context file for [Event Driven Flight status notification service](https://github.com/amadeus4dev-examples/amadeus-async-flight-status/tree/ff433b6d320a3a6a2499976cbf0782353bc57c16) of the [Amadeus Airline Platform](https://amadeus.com/en/industries/airlines/airline-platform), with multiple microservices and their AsyncAPI documents:
+Example of a context file for [Event Driven Flight status notification service](https://github.com/amadeus4dev-examples/amadeus-async-flight-status/tree/ff433b6d320a3a6a2499976cbf0782353bc57c16) of the [Amadeus Airline Platform](https://amadeus.com/en/industries/airlines), with multiple microservices and their AsyncAPI documents:
 ```
 {
   "current": "monitor",

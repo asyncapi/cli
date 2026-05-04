@@ -13,7 +13,7 @@ git clone https://github.com/{your_username}/cli.git
 cd cli
 ```
 
-After cloning the repository, you should setup the fork properly and configure the `remote` repository as described [here](https://github.com/asyncapi/community/blob/master/git-workflow.md)
+After cloning the repository, you should setup the fork properly and configure the `remote` repository as described [here](https://www.asyncapi.com/docs/community/010-contribution-guidelines/git-workflow)
 
 2. Install dependencies:
 
