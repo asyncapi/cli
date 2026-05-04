@@ -88,7 +88,24 @@ export default class Template extends BaseGeneratorCommand {
       interactive,
     );
     if (!result.success) {
-      throw new GeneratorError(new Error(result.error));
+      const errorMsg = result.error || 'Unknown error';
+      const suggestions: string[] = [];
+
+      if (errorMsg.includes('ENOENT') || errorMsg.includes('not found') || errorMsg.includes('Cannot find')) {
+        suggestions.push('The template may not be installed. Try installing it first with: npm install <template-name>');
+      }
+      if (errorMsg.includes('invalid') || errorMsg.includes('parse') || errorMsg.includes('syntax')) {
+        suggestions.push('The AsyncAPI document may be invalid or unsupported. Verify it with: asyncapi validate <document>');
+      }
+      if (errorMsg.includes('E404') || errorMsg.includes('404')) {
+        suggestions.push('The template was not found on npm. Check the template name and try again.');
+      }
+
+      const fullMessage = suggestions.length > 0
+        ? `${errorMsg}\n\nPossible causes:\n${suggestions.map(s => `  - ${s}`).join('\n')}`
+        : errorMsg;
+
+      throw new GeneratorError(new Error(fullMessage));
     }
 
     // Output logs in non-interactive mode
