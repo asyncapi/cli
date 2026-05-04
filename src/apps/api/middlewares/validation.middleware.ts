@@ -57,7 +57,26 @@ async function compileAjv(options: ValidationMiddlewareOptions) {
     return;
   }
 
-  let schema = requestBody.content['application/json'].schema;
+  // Find the first supported content type with a schema
+  const content = requestBody.content;
+  if (!content) {
+    return;
+  }
+
+  // Try application/json first, then fall back to any content type with a schema
+  let schema;
+  if (content['application/json']?.schema) {
+    schema = content['application/json'].schema;
+  } else {
+    // Fall back to the first content type that has a schema
+    for (const contentType of Object.keys(content)) {
+      if (content[contentType]?.schema) {
+        schema = content[contentType].schema;
+        break;
+      }
+    }
+  }
+
   if (!schema) {
     return;
   }
