@@ -180,7 +180,7 @@ export default class NewFile extends Command {
       if (extension === 'yml' || extension === 'yaml' || extension === 'json') {
         fileNameToWriteToDisk = fileName;
       } else {
-        console.log('CLI Support only yml, yaml and json extension for file');
+        this.log('CLI Support only yml, yaml and json extension for file');
 
         return;
       }
@@ -191,7 +191,7 @@ export default class NewFile extends Command {
         encoding: 'utf8',
       });
       if (content !== undefined) {
-        console.log(
+        this.log(
           `A file named ${fileNameToWriteToDisk} already exists. Please choose a different name.`,
         );
         return;
@@ -202,7 +202,7 @@ export default class NewFile extends Command {
       }
     }
     await writeFile(fileNameToWriteToDisk, asyncApiFile, { encoding: 'utf8' });
-    console.log(
+    this.log(
       `The ${cyan(fileNameToWriteToDisk)} has been successfully created.`,
     );
     this.specFile = await load(fileNameToWriteToDisk);
