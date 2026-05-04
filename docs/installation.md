@@ -47,7 +47,25 @@ To refresh the variables:
 
 ## Docker
 
-Install [Docker](https://docs.docker.com/get-docker/) first, then use docker to build the image using the following command :
+Install [Docker](https://docs.docker.com/get-docker/) first.
+
+### Using the pre-built image from Docker Hub
+
+The official image is available at [asyncapi/cli](https://hub.docker.com/r/asyncapi/cli) on Docker Hub. Pull and run it directly:
+
+```bash
+docker pull asyncapi/cli:latest
+
+docker run --rm -it \
+  --user=root \
+  -v [ASYNCAPI SPEC FILE LOCATION]:/app/asyncapi.yml \
+  -v [GENERATED FILES LOCATION]:/app/output \
+  asyncapi/cli [COMMAND HERE]
+```
+
+### Building from source
+
+Alternatively, build the image locally:
 ``` 
 docker build -t asyncapi/cli:latest . 
 ``` 
