@@ -12,6 +12,8 @@ const unoptimizedYamlFile = './test/fixtures/dummyspec/unoptimizedSpec.yml';
 const unoptimizedJsonFile = './test/fixtures/dummyspec/unoptimizedSpec.json';
 const invalidFile = './test/fixtures/specification-invalid.yml';
 const asyncapiv3 = './test/fixtures/specification-v3.yml';
+const tempOverwriteFile = './test/fixtures/dummyspec/unoptimizedSpec_copy.yml';
+const tempOverwriteJsonFile = './test/fixtures/dummyspec/unoptimizedSpec_copy.json';
 
 describe('optimize', () => {
   describe('no optimization needed', () => {
@@ -164,6 +166,38 @@ describe('optimize', () => {
         expect(ctx.stderr).to.equal('');
         expect(fs.readFileSync(optimizedFile, 'utf8')).to.contain('"asyncapi": "2.0.0"');
         fs.unlinkSync(optimizedFile);
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .do(() => {
+        fs.copySync(unoptimizedYamlFile, tempOverwriteFile);
+      })
+      .command(['optimize', tempOverwriteFile, '--no-tty', '-o', 'overwrite'])
+      .it('overwrite original file in place with --output=overwrite', (ctx, done) => {
+        expect(ctx.stdout).to.contain(`✅ Success! Your original file at ${tempOverwriteFile} has been updated.`);
+        expect(ctx.stderr).to.equal('');
+        const content = fs.readFileSync(tempOverwriteFile, 'utf8');
+        expect(content).to.contain('asyncapi: 2.0.0');
+        fs.unlinkSync(tempOverwriteFile);
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .do(() => {
+        fs.copySync(unoptimizedJsonFile, tempOverwriteJsonFile);
+      })
+      .command(['optimize', tempOverwriteJsonFile, '--no-tty', '-o', 'overwrite'])
+      .it('overwrite original JSON file in place with --output=overwrite', (ctx, done) => {
+        expect(ctx.stdout).to.contain(`✅ Success! Your original file at ${tempOverwriteJsonFile} has been updated.`);
+        expect(ctx.stderr).to.equal('');
+        const content = fs.readFileSync(tempOverwriteJsonFile, 'utf8');
+        expect(content).to.contain('"asyncapi": "2.0.0"');
+        fs.unlinkSync(tempOverwriteJsonFile);
         done();
       });
   });
