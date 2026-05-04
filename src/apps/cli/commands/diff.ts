@@ -132,9 +132,27 @@ export default class Diff extends Command {
         return;
       }
 
+      let firstJson: Record<string, any>;
+      let secondJson: Record<string, any>;
+
+      try {
+        firstJson = parsed.firstDocumentParsed.json();
+        secondJson = parsed.secondDocumentParsed.json();
+      } catch (jsonError) {
+        if (jsonError instanceof TypeError && jsonError.message.includes('circular')) {
+          this.error(
+            new Error(
+              'Cannot diff documents with circular references. ' +
+              'Please resolve the circular $ref references in your AsyncAPI documents before running diff.'
+            )
+          );
+        }
+        throw jsonError;
+      }
+
       const diffOutput = diff.diff(
-        parsed.firstDocumentParsed.json(),
-        parsed.secondDocumentParsed.json(),
+        firstJson,
+        secondJson,
         {
           override: overrides,
           outputType: outputFormat as diff.OutputType, // NOSONAR
