@@ -1,0 +1,85 @@
+name: Duplicate Issue Detection
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  detect-duplicates:
+    name: Detect duplicate issues
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for similar issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.issue.title.toLowerCase();
+            const body = (context.payload.issue.body || '').toLowerCase().slice(0, 500);
+            const issueNumber = context.payload.issue.number;
+
+            // Fetch recent open issues
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+              sort: 'created',
+              direction: 'desc'
+            });
+
+            const duplicates = [];
+            for (const issue of issues) {
+              if (issue.number === issueNumber) continue;
+              if (issue.pull_request) continue;
+
+              const existingTitle = issue.title.toLowerCase();
+              const existingBody = (issue.body || '').toLowerCase().slice(0, 500);
+
+              // Check title similarity
+              const titleWords = title.split(/\s+/).filter(w => w.length > 3);
+              const existingWords = existingTitle.split(/\s+/).filter(w => w.length > 3);
+              const commonWords = titleWords.filter(w => existingWords.includes(w));
+
+              if (commonWords.length >= 3 || title === existingTitle) {
+                duplicates.push({
+                  number: issue.number,
+                  title: issue.title,
+                  url: issue.html_url,
+                  similarity: commonWords.length
+                });
+              }
+            }
+
+            if (duplicates.length > 0) {
+              const topDuplicates = duplicates
+                .sort((a, b) => b.similarity - a.similarity)
+                .slice(0, 3);
+
+              const comment = [
+                '🔍 **Potential duplicate issues detected:**',
+                '',
+                ...topDuplicates.map(d => `- [#${d.number}](${d.url}): ${d.title}`),
+                '',
+                'Please check if your issue is already addressed in the linked issues above.',
+                'If not, feel free to ignore this message.'
+              ].join('\n');
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: comment
+              });
+
+              // Add label
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: ['possible-duplicate']
+              });
+            }
