@@ -29,7 +29,7 @@
     "@oclif/core": "^4.8.0",
     "@oclif/plugin-autocomplete": "^3.2.39",
     "@smoya/asyncapi-adoption-metrics": "^2.4.9",
-    "@stoplight/spectral-cli": "6.15.0",
+    "@stoplight/spectral-cli": "6.15.1",
     "archiver": "^7.0.1",
     "body-parser": "^2.2.1",
     "chalk": "^4.1.2",
