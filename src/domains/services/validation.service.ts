@@ -62,20 +62,23 @@ const isValidGitHubBlobUrl = (url: string): boolean => {
 };
 
 /**
- * Convert GitHub web URL to API URL
+ * Convert GitHub web URL to raw content URL
  */
 const convertGitHubWebUrl = (url: string): string => {
   // Remove fragment from URL before processing
   const urlWithoutFragment = url.split('#')[0];
 
   // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
-  // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  // Also handles branch names with slashes like: https://github.com/owner/repo/blob/feature/new-validation/spec.yaml
+  // Using raw.githubusercontent.com avoids the need to split branch/path at the regex level,
+  // since branch names can contain slashes (e.g. "feature/new-validation") and the raw URL
+  // format handles this correctly.
+  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+)$/;
   const match = urlWithoutFragment.match(githubWebPattern);
 
   if (match) {
-    const [, owner, repo, branch, filePath] = match;
-    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+    const [, owner, repo, refAndPath] = match;
+    return `https://raw.githubusercontent.com/${owner}/${repo}/${refAndPath}`;
   }
 
   return url;
