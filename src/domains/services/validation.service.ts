@@ -62,23 +62,44 @@ const isValidGitHubBlobUrl = (url: string): boolean => {
 };
 
 /**
- * Convert GitHub web URL to API URL
+ * Convert GitHub web URL to API URL candidates.
+ * Since branch names may contain slashes (e.g., feature/new-validation),
+ * we cannot deterministically split branch from file path from the URL alone.
+ * Instead, return all candidate interpretations sorted by likelihood
+ * (shortest branch first, most common case).
  */
-const convertGitHubWebUrl = (url: string): string => {
+const convertGitHubWebUrl = (url: string): string[] => {
   // Remove fragment from URL before processing
   const urlWithoutFragment = url.split('#')[0];
 
-  // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
+  // Handle GitHub web URLs: capture everything after /blob/ as a single string
   // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+)$/;
   const match = urlWithoutFragment.match(githubWebPattern);
 
-  if (match) {
-    const [, owner, repo, branch, filePath] = match;
-    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+  if (!match) {
+    return [url];
   }
 
-  return url;
+  const [, owner, repo, rest] = match;
+  const segments = rest.split('/');
+
+  // Generate candidates: try each split point as the branch/path boundary.
+  // candidates[0]: branch=segments[0],            path=segments[1:]
+  // candidates[1]: branch=segments[0..1],         path=segments[2:]
+  // candidates[i]: branch=segments[0..i+1],      path=segments[i+1:]
+  const candidates: string[] = [];
+  for (let i = 0; i < segments.length; i++) {
+    const branch = segments.slice(0, i + 1).join('/');
+    const filePath = segments.slice(i + 1).join('/');
+    if (filePath) {
+      candidates.push(
+        `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`
+      );
+    }
+  }
+
+  return candidates.length > 0 ? candidates : [url];
 };
 
 /**
@@ -142,13 +163,27 @@ const createHttpWithAuthResolver = () => ({
 
     const authInfo = await ConfigService.getAuthForUrl(url);
 
-    if (isValidGitHubBlobUrl(url)) {
-      url = convertGitHubWebUrl(url);
-    }
-
     if (authInfo) {
       headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
       Object.assign(headers, authInfo.headers); // merge custom headers
+    }
+
+    if (isValidGitHubBlobUrl(url)) {
+      const candidateUrls = convertGitHubWebUrl(url);
+      // Try each candidate URL until one succeeds
+      let lastError: Error | undefined;
+      for (const candidateUrl of candidateUrls) {
+        try {
+          if (candidateUrl.includes('api.github.com')) {
+            return await fetchGitHubApiContent(candidateUrl, headers);
+          }
+          // Should not happen, but handle gracefully
+        } catch (err: unknown) {
+          lastError = err as Error;
+          continue;
+        }
+      }
+      throw lastError || new Error(`Failed to fetch content from GitHub URL: ${url}`);
     }
 
     if (url.includes('api.github.com')) {
