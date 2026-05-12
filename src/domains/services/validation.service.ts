@@ -62,6 +62,23 @@ const isValidGitHubBlobUrl = (url: string): boolean => {
 };
 
 /**
+ * Split the full path after blob/ into branch and file path.
+ * Last path segment is always the file; everything before is the branch.
+ * Example: "feature/new-validation/spec.yaml" → branch="feature/new-validation", file="spec.yaml"
+ */
+const splitBranchAndPath = (fullPath: string): { branch: string; filePath: string } => {
+  const lastSlash = fullPath.lastIndexOf('/');
+  if (lastSlash === -1) {
+    // No branch in URL — use empty branch (API defaults to repo default branch)
+    return { branch: '', filePath: fullPath };
+  }
+  return {
+    branch: fullPath.substring(0, lastSlash),
+    filePath: fullPath.substring(lastSlash + 1),
+  };
+};
+
+/**
  * Convert GitHub web URL to API URL
  */
 const convertGitHubWebUrl = (url: string): string => {
@@ -69,13 +86,16 @@ const convertGitHubWebUrl = (url: string): string => {
   const urlWithoutFragment = url.split('#')[0];
 
   // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
+  // Branch names can contain slashes (e.g. feature/new-validation)
   // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+)$/;
   const match = urlWithoutFragment.match(githubWebPattern);
 
   if (match) {
-    const [, owner, repo, branch, filePath] = match;
-    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+    const [, owner, repo, fullPath] = match;
+    const { branch, filePath } = splitBranchAndPath(fullPath);
+    const refParam = branch ? `?ref=${branch}` : '';
+    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}${refParam}`;
   }
 
   return url;
