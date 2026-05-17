@@ -30,6 +30,31 @@ export interface ValidationMiddlewareOptions {
 const ajvInstance = createAjvInstance();
 
 /**
+ * Find a schema from the request body content types.
+ * Prioritizes application/json, but falls back to any content type with a schema.
+ */
+function findContentSchema(requestBody: any): any | undefined {
+  const content = requestBody?.content;
+  if (!content) {
+    return undefined;
+  }
+
+  // First try application/json (most common)
+  if (content['application/json']?.schema) {
+    return content['application/json'].schema;
+  }
+
+  // Fall back to any content type that has a schema
+  for (const contentType of Object.keys(content)) {
+    if (content[contentType]?.schema) {
+      return content[contentType].schema;
+    }
+  }
+
+  return undefined;
+}
+
+/**
  * Create AJV's validator function for given path in the OpenAPI document.
  */
 async function compileAjv(options: ValidationMiddlewareOptions) {
@@ -54,12 +79,13 @@ async function compileAjv(options: ValidationMiddlewareOptions) {
 
   const requestBody = method.requestBody;
   if (!requestBody) {
-    return;
+    return undefined;
   }
 
-  let schema = requestBody.content['application/json'].schema;
+  // Use safe access to find schema from any content type
+  let schema = findContentSchema(requestBody);
   if (!schema) {
-    return;
+    return undefined;
   }
 
   schema = { ...schema };
@@ -68,7 +94,7 @@ async function compileAjv(options: ValidationMiddlewareOptions) {
   if (options.documents && schema.properties) {
     schema.properties = { ...schema.properties };
     for (const field of options.documents) {
-      if (schema.properties[String(field)].items) {
+      if (schema.properties[String(field)]?.items) {
         schema.properties[String(field)] = {
           ...schema.properties[String(field)],
         };
@@ -173,16 +199,12 @@ export async function validationMiddleware(
     }
 
     try {
-      if (!validate) {
-        throw new ProblemException({
-          type: 'invalid-request-body',
-          title: 'Invalid Request Body',
-          status: 422,
-          detail: `Request body validation is not supported for "${options.path}" path with "${options.method}" method.`,
-        });
+      // If no validator was created (no request body schema defined),
+      // skip body validation and continue to document validation.
+      // This is correct behavior - not all endpoints require request bodies.
+      if (validate) {
+        await validateRequestBody(validate, req.body);
       }
-
-      await validateRequestBody(validate, req.body);
     } catch (error: unknown) {
       if (error instanceof ProblemException) {
         return next(error);
@@ -317,3 +339,6 @@ function tryConvertToProblemException(err: any) {
 
   return error;
 }
+
+// Export for testing
+export { compileAjv, findContentSchema };
