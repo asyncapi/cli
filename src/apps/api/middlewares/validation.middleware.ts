@@ -57,7 +57,20 @@ async function compileAjv(options: ValidationMiddlewareOptions) {
     return;
   }
 
-  let schema = requestBody.content['application/json'].schema;
+  const content = requestBody.content;
+  if (!content) {
+    return;
+  }
+
+  // Try to find schema across all content types, not just application/json
+  let schema: any;
+  const contentTypes = Object.keys(content);
+  for (const contentType of contentTypes) {
+    if (content[contentType]?.schema) {
+      schema = content[contentType].schema;
+      break;
+    }
+  }
   if (!schema) {
     return;
   }
@@ -167,22 +180,21 @@ export async function validationMiddleware(
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
-    // Check if the condition is met
-    if (options.condition && !options.condition(req)) {
-      return next();
-    }
+    // Check if the condition is met for body validation
+    const skipBodyValidation = options.condition && !options.condition(req);
 
     try {
-      if (!validate) {
-        throw new ProblemException({
-          type: 'invalid-request-body',
-          title: 'Invalid Request Body',
-          status: 422,
-          detail: `Request body validation is not supported for "${options.path}" path with "${options.method}" method.`,
-        });
+      if (!skipBodyValidation) {
+        if (!validate) {
+          throw new ProblemException({
+            type: 'invalid-request-body',
+            title: 'Invalid Request Body',
+            status: 422,
+            detail: `Request body validation is not supported for "${options.path}" path with "${options.method}" method.`,
+          });
+        }
+        await validateRequestBody(validate, req.body);
       }
-
-      await validateRequestBody(validate, req.body);
     } catch (error: unknown) {
       if (error instanceof ProblemException) {
         return next(error);
