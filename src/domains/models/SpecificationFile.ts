@@ -232,23 +232,26 @@ export async function isURL(urlpath: string): Promise<boolean> {
 }
 
 export async function fileExists(name: string): Promise<boolean> {
+  let isFile = false;
   try {
-    if ((await lstat(name)).isFile()) {
-      return true;
-    }
-
-    const extension = name.split('.')[1];
-
-    const allowedExtenstion = ['yml', 'yaml', 'json'];
-
-    if (!allowedExtenstion.includes(extension)) {
-      throw new ErrorLoadingSpec('invalid file', name);
-    }
-
-    throw new ErrorLoadingSpec('file', name);
+    isFile = (await lstat(name)).isFile();
   } catch {
     throw new ErrorLoadingSpec('file', name);
   }
+
+  if (isFile) {
+    return true;
+  }
+
+  const extension = name.split('.').pop()?.toLowerCase();
+
+  const allowedExtenstion = ['yml', 'yaml', 'json'];
+
+  if (!extension || !allowedExtenstion.includes(extension)) {
+    throw new ErrorLoadingSpec('invalid file', name);
+  }
+
+  throw new ErrorLoadingSpec('file', name);
 }
 
 async function loadFromContext(contextName?: string): Promise<Specification> {

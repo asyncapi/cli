@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { ValidationService } from '../../../src/domains/services/validation.service';
-import { Specification } from '../../../src/domains/models/SpecificationFile';
+import { ValidationService, convertGitHubWebUrl } from '../../../src/domains/services/validation.service';
+import { Specification, fileExists } from '../../../src/domains/models/SpecificationFile';
 import { ConfigService } from '../../../src/domains/services/config.service';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -251,6 +251,97 @@ describe('ValidationService', () => {
         expect(result.data).to.have.property('status');
         expect(result.data).to.have.property('diagnostics');
         expect(result.data?.diagnostics).to.be.an('array');
+      }
+    });
+  });
+
+  describe('convertGitHubWebUrl()', () => {
+    it('should correctly convert branch with no slash', () => {
+      const result = convertGitHubWebUrl('https://github.com/asyncapi/cli/blob/master/package.json');
+      expect(result).to.equal('https://raw.githubusercontent.com/asyncapi/cli/master/package.json');
+    });
+
+    it('should correctly convert branch with slashes', () => {
+      const result = convertGitHubWebUrl('https://github.com/asyncapi/cli/blob/feature/new-validation/src/specs/spec.yaml');
+      expect(result).to.equal('https://raw.githubusercontent.com/asyncapi/cli/feature/new-validation/src/specs/spec.yaml');
+    });
+
+    it('should correctly convert commit SHA URLs', () => {
+      const result = convertGitHubWebUrl('https://github.com/asyncapi/cli/blob/fe44dba1ba07b964f20dcb9a6b006ae9d61c1ec9/spec.yaml');
+      expect(result).to.equal('https://raw.githubusercontent.com/asyncapi/cli/fe44dba1ba07b964f20dcb9a6b006ae9d61c1ec9/spec.yaml');
+    });
+
+    it('should ignore non-github blob URLs', () => {
+      const result = convertGitHubWebUrl('https://other.com/asyncapi/cli/blob/master/spec.yaml');
+      expect(result).to.equal('https://other.com/asyncapi/cli/blob/master/spec.yaml');
+    });
+  });
+
+  describe('fileExists()', () => {
+    it('should return true for valid files that exist', async () => {
+      const tempFile = path.join(os.tmpdir(), 'valid.asyncapi.yaml');
+      await fs.writeFile(tempFile, 'asyncapi: 2.0.0', 'utf8');
+      try {
+        const exists = await fileExists(tempFile);
+        expect(exists).to.equal(true);
+      } finally {
+        await fs.unlink(tempFile).catch(() => {});
+      }
+    });
+
+    it('should extract correct extension from multi-dot file names that are directories', async () => {
+      const tempDirYaml = path.join(os.tmpdir(), 'my.asyncapi.yaml');
+      const tempDirJson = path.join(os.tmpdir(), 'my.spec.json');
+      await fs.mkdir(tempDirYaml, { recursive: true });
+      await fs.mkdir(tempDirJson, { recursive: true });
+      
+      try {
+        try {
+          await fileExists(tempDirYaml);
+          expect.fail('Should have failed');
+        } catch (err: any) {
+          expect(err.name).to.equal('error loading AsyncAPI document from file');
+        }
+
+        try {
+          await fileExists(tempDirJson);
+          expect.fail('Should have failed');
+        } catch (err: any) {
+          expect(err.name).to.equal('error loading AsyncAPI document from file');
+        }
+      } finally {
+        await fs.rmdir(tempDirYaml).catch(() => {});
+        await fs.rmdir(tempDirJson).catch(() => {});
+      }
+    });
+
+    it('should throw invalid file error for invalid extensions on directories', async () => {
+      const tempDirTxt = path.join(os.tmpdir(), 'my.asyncapi.txt');
+      await fs.mkdir(tempDirTxt, { recursive: true });
+
+      try {
+        await fileExists(tempDirTxt);
+        expect.fail('Should have failed');
+      } catch (err: any) {
+        expect(err.name).to.equal('Invalid AsyncAPI file type');
+        expect(err.message).to.equal('cli only supports yml ,yaml ,json extension');
+      } finally {
+        await fs.rmdir(tempDirTxt).catch(() => {});
+      }
+    });
+
+    it('should throw invalid file error for directories with no extension', async () => {
+      const tempDirNoExt = path.join(os.tmpdir(), 'asyncapi_noext');
+      await fs.mkdir(tempDirNoExt, { recursive: true });
+
+      try {
+        await fileExists(tempDirNoExt);
+        expect.fail('Should have failed');
+      } catch (err: any) {
+        expect(err.name).to.equal('Invalid AsyncAPI file type');
+        expect(err.message).to.equal('cli only supports yml ,yaml ,json extension');
+      } finally {
+        await fs.rmdir(tempDirNoExt).catch(() => {});
       }
     });
   });

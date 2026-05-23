@@ -64,18 +64,17 @@ const isValidGitHubBlobUrl = (url: string): boolean => {
 /**
  * Convert GitHub web URL to API URL
  */
-const convertGitHubWebUrl = (url: string): string => {
+export const convertGitHubWebUrl = (url: string): string => {
   // Remove fragment from URL before processing
   const urlWithoutFragment = url.split('#')[0];
 
-  // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
-  // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  // Match: https://github.com/owner/repo/blob/rest
+  const githubWebPattern = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/(.+)$/;
   const match = urlWithoutFragment.match(githubWebPattern);
 
   if (match) {
-    const [, owner, repo, branch, filePath] = match;
-    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+    const [, owner, repo, rest] = match;
+    return `https://raw.githubusercontent.com/${owner}/${repo}/${rest}`;
   }
 
   return url;
