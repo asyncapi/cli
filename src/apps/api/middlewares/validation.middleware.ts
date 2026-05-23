@@ -30,9 +30,36 @@ export interface ValidationMiddlewareOptions {
 const ajvInstance = createAjvInstance();
 
 /**
+ * Find a schema from the request body content types.
+ * Prioritizes application/json, but falls back to any content type with a schema.
+ */
+function findContentSchema(requestBody: any): any | undefined {
+  const content = requestBody?.content;
+  if (!content) {
+    return undefined;
+  }
+
+  // First try application/json (most common)
+  if (content['application/json']?.schema) {
+    return content['application/json'].schema;
+  }
+
+  // Fall back to any content type that has a schema
+  for (const contentType of Object.keys(content)) {
+    if (content[contentType]?.schema) {
+      return content[contentType].schema;
+    }
+  }
+
+  return undefined;
+}
+
+/**
  * Create AJV's validator function for given path in the OpenAPI document.
  */
-async function compileAjv(options: ValidationMiddlewareOptions) {
+async function compileAjv(
+  options: ValidationMiddlewareOptions,
+): Promise<ValidateFunction | undefined> {
   const appOpenAPI = await getAppOpenAPI();
   const paths = appOpenAPI.paths || {};
 
@@ -54,27 +81,35 @@ async function compileAjv(options: ValidationMiddlewareOptions) {
 
   const requestBody = method.requestBody;
   if (!requestBody) {
-    return;
+    return undefined;
   }
 
-  let schema = requestBody.content['application/json'].schema;
-  if (!schema) {
-    return;
+  const contentSchema = findContentSchema(requestBody);
+  if (!contentSchema || typeof contentSchema !== 'object') {
+    return undefined;
   }
 
-  schema = { ...schema };
+  const schema = { ...(contentSchema as Record<string, unknown>) };
   schema['$schema'] = 'http://json-schema.org/draft-07/schema';
 
   if (options.documents && schema.properties) {
-    schema.properties = { ...schema.properties };
+    schema.properties = { ...(schema.properties as Record<string, unknown>) };
     for (const field of options.documents) {
-      if (schema.properties[String(field)].items) {
-        schema.properties[String(field)] = {
-          ...schema.properties[String(field)],
+      const property = (schema.properties as Record<string, unknown>)[
+        String(field)
+      ];
+      if (!property || typeof property !== 'object') {
+        continue;
+      }
+
+      const propertySchema = property as Record<string, unknown>;
+      if (propertySchema.items) {
+        (schema.properties as Record<string, unknown>)[String(field)] = {
+          ...propertySchema,
+          items: true,
         };
-        schema.properties[String(field)].items = true;
       } else {
-        schema.properties[String(field)] = true;
+        (schema.properties as Record<string, unknown>)[String(field)] = true;
       }
     }
   }
@@ -167,22 +202,10 @@ export async function validationMiddleware(
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
-    // Check if the condition is met
-    if (options.condition && !options.condition(req)) {
-      return next();
-    }
-
     try {
-      if (!validate) {
-        throw new ProblemException({
-          type: 'invalid-request-body',
-          title: 'Invalid Request Body',
-          status: 422,
-          detail: `Request body validation is not supported for "${options.path}" path with "${options.method}" method.`,
-        });
+      if (validate) {
+        await validateRequestBody(validate, req.body);
       }
-
-      await validateRequestBody(validate, req.body);
     } catch (error: unknown) {
       if (error instanceof ProblemException) {
         return next(error);
@@ -197,6 +220,11 @@ export async function validationMiddleware(
           detail: `An unexpected error occurred during request validation: ${(error as Error).message ?? 'Unknown error'}`,
         }),
       );
+    }
+
+    // Check if the condition is met
+    if (options.condition && !options.condition(req)) {
+      return next();
     }
 
     const parserConfig: ParserOptions = {
@@ -317,3 +345,5 @@ function tryConvertToProblemException(err: any) {
 
   return error;
 }
+
+export { compileAjv, findContentSchema };
