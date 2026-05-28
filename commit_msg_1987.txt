@@ -1,0 +1,7 @@
+fix: skip request body validation gracefully when no schema is defined (#1987)
+
+- When compileAjv returns undefined (no requestBody in OpenAPI spec),
+  the middleware should proceed without error instead of throwing.
+- This allows paths without request body definitions to pass through
+  to document validation without false 'unsupported' errors.
+- Fixes asyncapi/cli#1987

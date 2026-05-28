@@ -173,16 +173,12 @@ export async function validationMiddleware(
     }
 
     try {
+      // If no requestBody schema is defined for this path/method, skip validation
       if (!validate) {
-        throw new ProblemException({
-          type: 'invalid-request-body',
-          title: 'Invalid Request Body',
-          status: 422,
-          detail: `Request body validation is not supported for "${options.path}" path with "${options.method}" method.`,
-        });
+        // No request body schema to validate against - proceed to document validation
+      } else {
+        await validateRequestBody(validate, req.body);
       }
-
-      await validateRequestBody(validate, req.body);
     } catch (error: unknown) {
       if (error instanceof ProblemException) {
         return next(error);
