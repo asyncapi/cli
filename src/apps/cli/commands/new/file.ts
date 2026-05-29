@@ -175,7 +175,7 @@ export default class NewFile extends Command {
     if (!fileName.includes('.')) {
       fileNameToWriteToDisk = `${fileName}.yaml`;
     } else {
-      const extension = fileName.split('.')[1];
+      const extension = fileName.split('.').pop();
 
       if (extension === 'yml' || extension === 'yaml' || extension === 'json') {
         fileNameToWriteToDisk = fileName;

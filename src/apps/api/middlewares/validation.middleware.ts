@@ -57,7 +57,18 @@ async function compileAjv(options: ValidationMiddlewareOptions) {
     return;
   }
 
-  let schema = requestBody.content['application/json'].schema;
+  // Support multiple content types, not just application/json
+  // This fixes the bug where request body validation was skipped for
+  // paths/methods using other content types (application/xml, etc.)
+  const contentTypes = Object.keys(requestBody.content || {});
+  let schema: any = null;
+  for (const contentType of contentTypes) {
+    const contentEntry = requestBody.content[contentType];
+    if (contentEntry?.schema) {
+      schema = contentEntry.schema;
+      break;
+    }
+  }
   if (!schema) {
     return;
   }

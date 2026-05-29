@@ -69,12 +69,39 @@ const convertGitHubWebUrl = (url: string): string => {
   const urlWithoutFragment = url.split('#')[0];
 
   // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
+  // Use (.+) for branch+path to support branches with slashes (e.g., feature/new-validation)
   // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+)$/;
   const match = urlWithoutFragment.match(githubWebPattern);
 
   if (match) {
-    const [, owner, repo, branch, filePath] = match;
+    const [, owner, repo, branchAndPath] = match;
+    const parts = branchAndPath.split('/');
+    if (parts.length < 2) {
+      return url;
+    }
+
+    // Heuristic to handle branches with slashes:
+    // If first segment is a known branch prefix, extend branch to include
+    // all segments except the last (which is the file)
+    const branchPrefixes = [
+      'feature', 'fix', 'bugfix', 'hotfix', 'release',
+      'chore', 'docs', 'test', 'refactor', 'wip',
+    ];
+    const firstPart = parts[0].toLowerCase();
+
+    let branch: string;
+    let filePath: string;
+    if (branchPrefixes.includes(firstPart)) {
+      // Multi-part branch: use all segments except last as branch
+      branch = parts.slice(0, -1).join('/');
+      filePath = parts[parts.length - 1];
+    } else {
+      // Simple branch: first segment is branch, rest is file path
+      branch = parts[0];
+      filePath = parts.slice(1).join('/');
+    }
+
     return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
   }
 
