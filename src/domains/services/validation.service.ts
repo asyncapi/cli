@@ -69,12 +69,29 @@ const convertGitHubWebUrl = (url: string): string => {
   const urlWithoutFragment = url.split('#')[0];
 
   // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
-  // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  // Branch names can contain slashes (e.g., feature/new-validation)
+  // We match owner/repo then greedily capture everything after /blob/
+  // and split on the last occurrence that yields a valid file path
+  const githubWebPattern = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/(.+)$/;
   const match = urlWithoutFragment.match(githubWebPattern);
 
   if (match) {
-    const [, owner, repo, branch, filePath] = match;
+    const [, owner, repo, branchAndPath] = match;
+    // The branch/path boundary is ambiguous for branches with slashes.
+    // Use the GitHub Contents API which accepts the full path and ref separately.
+    // Strategy: find the last segment that looks like a file (has extension or is the shortest valid split)
+    const segments = branchAndPath.split('/');
+    // Try progressively longer branch names until we find one where the remainder looks like a file path
+    for (let i = 1; i < segments.length; i++) {
+      const possiblePath = segments.slice(i).join('/');
+      if (possiblePath.includes('.') || i === segments.length - 1) {
+        const branch = segments.slice(0, i).join('/');
+        return `https://api.github.com/repos/${owner}/${repo}/contents/${possiblePath}?ref=${branch}`;
+      }
+    }
+    // Fallback: assume first segment is branch
+    const branch = segments[0];
+    const filePath = segments.slice(1).join('/');
     return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
   }
 
