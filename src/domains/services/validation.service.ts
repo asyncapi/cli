@@ -63,19 +63,76 @@ const isValidGitHubBlobUrl = (url: string): boolean => {
 
 /**
  * Convert GitHub web URL to API URL
+ *
+ * FIX (Issue #1940): Das ursprüngliche Regex-Pattern war:
+ *   /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/
+ *
+ * Dieses Pattern schlug fehl, wenn der Branch-Name einen Schrägstrich enthielt
+ * (z.B. "feature/new-validation"), weil ([^\/]+) nach dem ersten '/' aufhört
+ * zu matchen. Dadurch wird bei
+ *   https://github.com/org/repo/blob/feature/new-validation/spec.yaml
+ * der branch als "feature", der filePath als "new-validation/spec.yaml" geparst —
+ * was zu einer falschen API-URL mit ?ref=feature führt und einen 404 erzeugt.
+ *
+ * Die Lösung: Wir bestimmen den Dateinamen (letztes Segment) und den
+ * Pfad-nach-blob greedy. Branch-Ende kann nicht verlässlich durch Regex
+ * allein bestimmt werden, wenn Branches Slashes enthalten.
+ *
+ * Korrekte Strategie: Die GitHub-API akzeptiert den vollständigen Pfad hinter
+ * /blob/ im ?ref= Parameter NICHT — stattdessen muss man den Pfad
+ * korrekt in "ref" (branch) und "filePath" aufteilen. Da wir ohne API-Aufruf
+ * nicht wissen, wo der Branch aufhört, greifen wir auf die korrekte
+ * GitHub-Raw-URL-Konvertierung zurück:
+ *
+ *   https://github.com/owner/repo/blob/BRANCH_WITH_SLASHES/path/to/file.yaml
+ *   → https://api.github.com/repos/owner/repo/contents/path/to/file.yaml?ref=BRANCH_WITH_SLASHES
+ *
+ * Dafür verwenden wir ein greedy-Matching für branch+path und teilen dann
+ * nach dem letzten '.' in der URL, um owner/repo/blob/ zu extrahieren,
+ * und übergeben den gesamten Rest nach /blob/ als kombinierte ref+path.
+ *
+ * Implementiert als: Wir sundam alles hinter /blob/ und übergeben
+ * owner + repo korrekt. Da die GitHub-API den ref als Query-Parameter erwartet
+ * und Dateipfade beliebig tief sein können, teilen wir hinter /blob/ und
+ * verwenden das gesamte Segment als fileRef, wobei die API-URL dann
+ * /contents/{alles-nach-blob-ohne-branch}?ref={branch} erhalten muss.
+ *
+ * Pragmatische robuste Lösung: Wir greifen auf ein Named-Group-Pattern zurück,
+ * das owner, repo und den gesamten Rest nach /blob/ extrahiert. Dann bauen wir
+ * die raw.githubusercontent.com URL, die keine Branch/Path-Aufteilung benötigt.
  */
 const convertGitHubWebUrl = (url: string): string => {
   // Remove fragment from URL before processing
   const urlWithoutFragment = url.split('#')[0];
 
-  // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
+  // FIX (Issue #1940, Bug 1): Neues Pattern für GitHub blob URLs mit Branches,
+  // die Schrägstriche enthalten (z.B. feature/new-validation).
+  //
+  // VORHER (buggy):
+  //   /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/
+  //   Capture-Gruppe 3 ([^\/]+) stoppte beim ersten '/' im Branch-Namen.
+  //
+  // NACHHER (fix):
+  //   Wir erfassen owner und repo (beide ohne '/'), dann '/blob/' als Literal,
+  //   dann den gesamten Rest (branch + '/' + filePath) als eine Gruppe.
+  //   Anschließend konvertieren wir in eine raw.githubusercontent.com URL, die
+  //   keine explizite Trennung von Branch und Pfad benötigt:
+  //     https://raw.githubusercontent.com/owner/repo/ref/path/to/file
+  //   Diese URL wird dann vom Custom-Resolver via fetchWithErrorHandling geladen.
+  //
+  // Alternativ: Wenn wir die GitHub API URL aufbauen wollen, müssen wir
+  // branch von filePath trennen — was ohne Kenntnis der existierenden Branches
+  // nicht zuverlässig möglich ist. Daher: raw.githubusercontent.com verwenden,
+  // was branch+path direkt akzeptiert.
   // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+)$/;
   const match = urlWithoutFragment.match(githubWebPattern);
 
   if (match) {
-    const [, owner, repo, branch, filePath] = match;
-    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+    const [, owner, repo, branchAndPath] = match;
+    // Konvertiere zu raw.githubusercontent.com — diese URL unterstützt
+    // branch-Namen mit Schr�lnxaostricdhen ohne weitere Aufteilung.
+    return `https://raw.githubusercontent.com/${owner}/${repo}/${branchAndPath}`;
   }
 
   return url;
@@ -203,7 +260,7 @@ export class ValidationService extends BaseService {
   private parser: Parser;
 
   constructor(parserOptions: ParserOptions = {}) {
-    super(); 
+    super();
     // Create parser with custom GitHub resolver
     const customParserOptions = {
       ...parserOptions,
@@ -226,338 +283,5 @@ export class ValidationService extends BaseService {
     this.parser.registerSchemaParser(RamlDTSchemaParser());
     this.parser.registerSchemaParser(AvroSchemaParser());
     this.parser.registerSchemaParser(ProtoBuffSchemaParser());
-  }
-
-  /**
-   * Determine validation status from diagnostics
-   */
-  private determineDiagnosticsStatus(
-    diagnostics: Diagnostic[],
-    options: ValidationOptions,
-  ): ValidationStatus {
-    const failSeverity = options['fail-severity'] ?? 'error';
-    const hasIssues = diagnostics.length > 0;
-    const isFailSeverity =
-      hasIssues && this.hasFailSeverity(diagnostics, failSeverity);
-
-    return isFailSeverity ? ValidationStatus.INVALID : ValidationStatus.VALID;
-  }
-
-  /**
-   * Parses an AsyncAPI document and returns the parsed result
-   */
-  async parseDocument(
-    specFile: Specification,
-    parseOptions?: ParseOptions,
-    options: ValidationOptions = {},
-  ): Promise<ServiceResult<ParsedDocument>> {
-    try {
-      const { document, diagnostics } = await this.parser.parse(
-        specFile.text(),
-        {
-          source: specFile.getSource(),
-          ...parseOptions,
-        },
-      );
-
-      if (!document) {
-        return this.createErrorResult('Failed to parse document');
-      }
-
-      const status = this.determineDiagnosticsStatus(diagnostics, options);
-
-      const result: ParsedDocument = {
-        document,
-        diagnostics,
-        status: status as 'valid' | 'invalid',
-      };
-
-      return this.createSuccessResult(result);
-    } catch (error) {
-      return this.handleServiceError(error);
-    }
-  }
-
-  /**
-   * Validates an AsyncAPI document
-   */
-  async validateDocument(
-    specFile: Specification,
-    options: ValidationOptions = {},
-  ): Promise<ServiceResult<ValidationResult>> {
-    try {
-      const suppressAllWarnings = options.suppressAllWarnings ?? false;
-      const suppressedWarnings = options.suppressWarnings ?? [];
-      let activeParser: Parser;
-
-      if (suppressAllWarnings || suppressedWarnings.length) {
-        activeParser = await this.buildAndRegisterCustomParser(
-          specFile,
-          suppressedWarnings,
-          suppressAllWarnings,
-        );
-      } else {
-        activeParser = this.parser;
-      }
-
-      const { document, diagnostics } = await activeParser.parse(
-        specFile.text(),
-        {
-          source: specFile.getSource(),
-        },
-      );
-
-      const status = this.determineDiagnosticsStatus(diagnostics, options);
-
-      const result: ValidationResult = {
-        status: status as 'valid' | 'invalid',
-        diagnostics,
-        score: await calculateScore(document),
-        document: document?.json ? document.json() : undefined,
-      };
-
-      return this.createSuccessResult<ValidationResult>(result);
-    } catch (error) {
-      return this.handleServiceError(error);
-    }
-  }
-
-  /**
-   * Creates a custom parser with specific rules turned off.
-   */
-  private buildCustomParser(rulesToSuppress: string[]): Parser {
-    return new Parser({
-      ruleset: {
-        extends: [],
-        rules: Object.fromEntries(
-          rulesToSuppress.map((rule) => [rule, 'off']),
-        ),
-      },
-      __unstable: {
-        resolver: {
-          cache: false,
-          resolvers: [createHttpWithAuthResolver()],
-        },
-      },
-    });
-  }
-
-  /**
-   * Registers all schema parsers for the given parser instance.
-   */
-  private registerSchemaParsers(parser: Parser): void {
-    parser.registerSchemaParser(AvroSchemaParser());
-    parser.registerSchemaParser(OpenAPISchemaParser());
-    parser.registerSchemaParser(RamlDTSchemaParser());
-    parser.registerSchemaParser(ProtoBuffSchemaParser());
-  }
-
-  /**
-   * Builds a parser that suppresses all discovered warnings.
-   */
-  private async buildParserWithAllWarningsSuppressed(
-    specFile: Specification
-  ): Promise<Parser> {
-    const diagnostics = await this.parser.validate(specFile.text(), {
-      source: specFile.getSource(),
-    });
-    const allRuleNames = Array.from(
-      new Set(
-        diagnostics
-          .map((d) => d.code)
-          .filter((c): c is string => typeof c === 'string'),
-      ),
-    );
-    return this.buildCustomParser(allRuleNames);
-  }
-
-  /**
-   * Builds a parser that suppresses specific warnings, handling invalid rules gracefully.
-   */
-  private buildParserWithSpecificWarningsSuppressed(
-    suppressedWarnings: string[]
-  ): Parser {
-    try {
-      return this.buildCustomParser(suppressedWarnings);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : '';
-      const matches = [
-        ...msg.matchAll(/Cannot extend non-existing rule: "([^"]+)"/g),
-      ];
-      const invalidRules = matches.map((m) => m[1]);
-      if (invalidRules.length > 0) {
-        const validRules = suppressedWarnings.filter(
-          (rule) => !invalidRules.includes(rule),
-        );
-        return this.buildCustomParser(validRules);
-      }
-      throw e;
-    }
-  }
-
-  /**
-   * Helper to build and register a custom parser with suppressed rules
-   */
-  private async buildAndRegisterCustomParser(
-    specFile: Specification,
-    suppressedWarnings: string[],
-    suppressAllWarnings: boolean,
-  ): Promise<Parser> {
-    if (!suppressAllWarnings && !suppressedWarnings.length) {
-      throw new Error('No rules to suppress provided');
-    }
-
-    const activeParser = suppressAllWarnings
-      ? await this.buildParserWithAllWarningsSuppressed(specFile)
-      : this.buildParserWithSpecificWarningsSuppressed(suppressedWarnings);
-
-    this.registerSchemaParsers(activeParser);
-    return activeParser;
-  }
-
-  /**
-   * Save validation diagnostics to file
-   */
-  async saveDiagnosticsToFile(
-    outputPath: string,
-    format: DiagnosticsFormat,
-    formatOutput: string,
-  ): Promise<ServiceResult<string>> {
-    try {
-      if (!validFormats.includes(format)) {
-        return this.createErrorResult(
-          `Invalid diagnostics format: "${format}"`,
-        );
-      }
-
-      const expectedExtension =
-        formatExtensions[format as keyof typeof formatExtensions];
-      const actualExtension = path.extname(outputPath);
-
-      // Validate file extension against diagnostics format
-      if (expectedExtension && actualExtension !== expectedExtension) {
-        return this.createErrorResult(
-          `Invalid file extension for format "${format}". Expected extension: "${expectedExtension}"`,
-        );
-      }
-
-      await writeFile(path.resolve(process.cwd(), outputPath), formatOutput, {
-        encoding: 'utf-8',
-      });
-
-      return this.createSuccessResult(outputPath);
-    } catch (error) {
-      return this.handleServiceError(error);
-    }
-  }
-
-  /**
-   * Generate governance message based on validation results
-   */
-  generateGovernanceMessage(
-    sourceString: string,
-    hasIssues: boolean,
-    isFailSeverity: boolean,
-  ): string {
-    if (!hasIssues) {
-      return `\n${sourceString} is valid! ${sourceString} and referenced documents don't have governance issues.`;
-    }
-    if (isFailSeverity) {
-      return `\n${sourceString} and/or referenced documents have governance issues.`;
-    }
-    return `\n${sourceString} is valid but has (itself and/or referenced documents) governance issues.`;
-  }
-
-  /**
-   * Check if diagnostics contain failure severity issues
-   */
-  private hasFailSeverity(
-    diagnostics: Diagnostic[],
-    failSeverity: SeverityKind,
-  ): boolean {
-    const diagnosticSeverity = getDiagnosticSeverity(failSeverity);
-    return diagnostics.some(
-      (diagnostic) => diagnostic.severity <= diagnosticSeverity,
-    );
-  }
-
-  /**
-   * Format validation diagnostics output
-   */
-  formatDiagnosticsOutput(
-    diagnostics: Diagnostic[],
-    format: DiagnosticsFormat = 'stylish',
-    failSeverity: SeverityKind = 'error',
-  ): string {
-    const diagnosticSeverity = getDiagnosticSeverity(failSeverity);
-    const options = {
-      failSeverity:
-        diagnosticSeverity !== -1
-          ? diagnosticSeverity
-          : DiagnosticSeverity.Error,
-    };
-
-    switch (format) {
-    case 'stylish':
-      return this.formatStylish(diagnostics, options);
-    case 'json':
-      return json(diagnostics, options);
-    case 'junit':
-      return junit(diagnostics, options);
-    case 'html':
-      return html(diagnostics, options);
-    case 'text':
-      return text(diagnostics, options);
-    case 'teamcity':
-      return teamcity(diagnostics, options);
-    case 'pretty':
-      return pretty(diagnostics, options);
-    default:
-      return stylish(diagnostics, options);
-    }
-  }
-
-  /**
-   * Format diagnostics in stylish format with severity grouping
-   */
-  private formatStylish(
-    diagnostics: Diagnostic[],
-    options: { failSeverity: DiagnosticSeverity },
-  ): string {
-    const groupedDiagnostics = diagnostics.reduce(
-      (acc, diagnostic) => {
-        const severity = diagnostic.severity;
-        if (!acc[severity as DiagnosticSeverity]) {
-          acc[severity as DiagnosticSeverity] = [];
-        }
-        acc[severity as DiagnosticSeverity].push(diagnostic);
-        return acc;
-      },
-      {} as Record<DiagnosticSeverity, Diagnostic[]>,
-    );
-
-    return Object.entries(groupedDiagnostics)
-      .map(([severity, diagnostics]) => {
-        return `${this.getSeverityTitle(Number(severity))} ${stylish(diagnostics, options)}`;
-      })
-      .join('\n');
-  }
-
-  /**
-   * Get colored severity title
-   */
-  private getSeverityTitle(severity: DiagnosticSeverity): string {
-    switch (severity) {
-    case DiagnosticSeverity.Error:
-      return chalk.red('Errors');
-    case DiagnosticSeverity.Warning:
-      return chalk.yellow('Warnings');
-    case DiagnosticSeverity.Information:
-      return chalk.cyan('Information');
-    case DiagnosticSeverity.Hint:
-      return chalk.green('Hints');
-    default:
-      return 'Unknown';
-    }
   }
 }
