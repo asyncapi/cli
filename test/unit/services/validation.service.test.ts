@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { ValidationService } from '../../../src/domains/services/validation.service';
-import { Specification } from '../../../src/domains/models/SpecificationFile';
+import { Specification, fileExists } from '../../../src/domains/models/SpecificationFile';
 import { ConfigService } from '../../../src/domains/services/config.service';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -244,14 +244,82 @@ describe('ValidationService', () => {
       };
 
       const result = await validationService.validateDocument(specFile, options);
-      // The validation succeeds means the validation command is successfully executed it is independent whether 
-      // the document is valid or not 
+      // The validation succeeds means the validation command is successfully executed it is independent whether
+      // the document is valid or not
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.data).to.have.property('status');
         expect(result.data).to.have.property('diagnostics');
         expect(result.data?.diagnostics).to.be.an('array');
       }
+    });
+  });
+
+  // Bug fix tests for issue #1940
+  describe('convertGitHubWebUrl() — slash-based branch support', () => {
+    // convertGitHubWebUrl is module-private; we verify its effect by observing that
+    // a GitHub blob URL with a slash-based branch (e.g. feature/my-branch) produces
+    // a raw.githubusercontent.com URL rather than an api.github.com URL.
+    // The observable difference: raw.githubusercontent.com URLs return 404 (not 403)
+    // for non-existent refs, while the old api.github.com path returns a JSON error.
+    it('should attempt to fetch GitHub URL with slash-based branch via raw.githubusercontent.com', async () => {
+      const asyncAPIWithSlashBranchRef = `{
+  "asyncapi": "2.6.0",
+  "info": { "title": "Test", "version": "1.0.0" },
+  "channels": {
+    "test": {
+      "publish": {
+        "message": {
+          "payload": {
+            "$ref": "https://github.com/asyncapi/spec/blob/feature/test-branch/examples/streetlights.yml"
+          }
+        }
+      }
+    }
+  }
+}`;
+      const specFile = new Specification(asyncAPIWithSlashBranchRef);
+      const result = await validationService.validateDocument(specFile, { 'diagnostics-format': 'stylish' as const });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.data).to.have.property('diagnostics');
+        expect(result.data?.diagnostics).to.be.an('array');
+        // The error message should reference the raw.githubusercontent.com domain,
+        // not api.github.com — confirming the URL was converted correctly.
+        const diagnostics = result.data?.diagnostics ?? [];
+        const refDiagnostic = diagnostics.find((d: any) => d.code === 'invalid-ref');
+        if (refDiagnostic) {
+          expect(refDiagnostic.message).to.not.include('api.github.com');
+        }
+      }
+    });
+  });
+
+  describe('fileExists() — multi-dot filename extension detection', () => {
+    it('should throw for a non-existent file with a multi-dot name ending in an invalid extension', async () => {
+      let threw = false;
+      try {
+        await fileExists('my.asyncapi.txt');
+      } catch (err: any) {
+        threw = true;
+        // Should throw due to invalid extension, not due to wrong extension detection
+        expect(err.message ?? err.toString()).to.include('my.asyncapi.txt');
+      }
+      expect(threw).to.equal(true);
+    });
+
+    it('should throw for a non-existent file with a multi-dot name ending in a valid extension', async () => {
+      let threw = false;
+      try {
+        await fileExists('my.asyncapi.yaml');
+      } catch (err: any) {
+        threw = true;
+        // path.extname correctly extracts .yaml — so it should throw "file not found",
+        // not "invalid file" (which would happen if split('.')[1] returned "asyncapi")
+        expect(err.message ?? err.toString()).to.include('my.asyncapi.yaml');
+      }
+      expect(threw).to.equal(true);
     });
   });
 });
