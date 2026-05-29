@@ -62,23 +62,33 @@ const isValidGitHubBlobUrl = (url: string): boolean => {
 };
 
 /**
- * Convert GitHub web URL to API URL
+ * Generate all candidate GitHub API URLs for a blob URL by trying every possible
+ * branch/path split. GitHub branch names may contain slashes (e.g. feature/my-fix),
+ * so the split point is ambiguous without querying the API.
+ *
+ * Returns candidates ordered from shortest branch (most common case) to longest.
  */
-const convertGitHubWebUrl = (url: string): string => {
-  // Remove fragment from URL before processing
+const generateGitHubApiCandidates = (url: string): string[] => {
   const urlWithoutFragment = url.split('#')[0];
-
-  // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
   // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
-  const match = urlWithoutFragment.match(githubWebPattern);
+  const match = urlWithoutFragment.match(
+    /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+)$/
+  );
+  if (!match) return [];
 
-  if (match) {
-    const [, owner, repo, branch, filePath] = match;
-    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+  const [, owner, repo, blobPath] = match;
+  const segments = blobPath.split('/');
+  if (segments.length < 2) return [];
+
+  const candidates: string[] = [];
+  for (let i = 0; i < segments.length - 1; i++) {
+    const branch = segments.slice(0, i + 1).join('/');
+    const filePath = segments.slice(i + 1).join('/');
+    candidates.push(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`
+    );
   }
-
-  return url;
+  return candidates;
 };
 
 /**
@@ -142,13 +152,27 @@ const createHttpWithAuthResolver = () => ({
 
     const authInfo = await ConfigService.getAuthForUrl(url);
 
-    if (isValidGitHubBlobUrl(url)) {
-      url = convertGitHubWebUrl(url);
-    }
-
     if (authInfo) {
       headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
       Object.assign(headers, authInfo.headers); // merge custom headers
+    }
+
+    if (isValidGitHubBlobUrl(url)) {
+      const candidates = generateGitHubApiCandidates(url);
+      let lastError: Error | undefined;
+      for (const candidate of candidates) {
+        try {
+          return await fetchGitHubApiContent(candidate, headers);
+        } catch (err: any) {
+          // Only retry on 404 — other errors (auth, server) should propagate immediately
+          if (/\b(404|Not Found)\b/.test(err?.message ?? '')) {
+            lastError = err;
+            continue;
+          }
+          throw err;
+        }
+      }
+      throw lastError ?? new Error(`Failed to resolve GitHub URL: ${url}`);
     }
 
     if (url.includes('api.github.com')) {
