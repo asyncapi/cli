@@ -174,12 +174,9 @@ export async function validationMiddleware(
 
     try {
       if (!validate) {
-        throw new ProblemException({
-          type: 'invalid-request-body',
-          title: 'Invalid Request Body',
-          status: 422,
-          detail: `Request body validation is not supported for "${options.path}" path with "${options.method}" method.`,
-        });
+        // Fix #1987: Routes without a requestBody (e.g. GET, DELETE) have no schema to validate.
+        // Silently pass through rather than throwing a misleading 422 error.
+        return next();
       }
 
       await validateRequestBody(validate, req.body);

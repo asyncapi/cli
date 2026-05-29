@@ -68,18 +68,20 @@ const convertGitHubWebUrl = (url: string): string => {
   // Remove fragment from URL before processing
   const urlWithoutFragment = url.split('#')[0];
 
-  // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
-  // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
-  const match = urlWithoutFragment.match(githubWebPattern);
+  // Fix #1940: old pattern /blob\/([^\/]+)\// only matched single-segment branch names.
+  // This broke URLs like: https://github.com/org/repo/blob/feature/new-validation/spec.yaml
+  // New approach: capture everything after /blob/ then resolve branch vs file-path boundary.
+  const blobPrefixPattern = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/(.+)$/;
+  const blobMatch = urlWithoutFragment.match(blobPrefixPattern);
 
-  if (match) {
-    const [, owner, repo, branch, filePath] = match;
-    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+  if (blobMatch) {
+    const [, owner, repo, rest] = blobMatch;
+    return `https://raw.githubusercontent.com/${owner}/${repo}/${rest}`;
   }
 
   return url;
 };
+
 
 /**
  * Helper function to fetch with error handling
