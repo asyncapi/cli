@@ -244,13 +244,42 @@ describe('ValidationService', () => {
       };
 
       const result = await validationService.validateDocument(specFile, options);
-      // The validation succeeds means the validation command is successfully executed it is independent whether 
-      // the document is valid or not 
+      // The validation succeeds means the validation command is successfully executed it is independent whether
+      // the document is valid or not
       expect(result.success).to.equal(true);
       if (result.success) {
         expect(result.data).to.have.property('status');
         expect(result.data).to.have.property('diagnostics');
         expect(result.data?.diagnostics).to.be.an('array');
+      }
+    });
+
+    it('should correctly parse GitHub URLs with slash-based branch names', async () => {
+      const specWithSlashBranch = `{
+        "asyncapi": "2.6.0",
+        "info": { "title": "Test", "version": "1.0.0" },
+        "channels": {
+          "user/event": {
+            "publish": {
+              "message": {
+                "payload": {
+                  "$ref": "https://github.com/private-org/private-repo/blob/feature/new-validation/schema.yaml#/payload"
+                }
+              }
+            }
+          }
+        }
+      }`;
+      const specFile = new Specification(specWithSlashBranch);
+      const options = { 'diagnostics-format': 'stylish' as const };
+
+      const result = await validationService.validateDocument(specFile, options);
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        const invalidRefDiagnostic = result.data?.diagnostics?.find((d: any) => d.code === 'invalid-ref');
+        // eslint-disable-next-line no-unused-expressions
+        expect(invalidRefDiagnostic).to.exist;
+        expect(invalidRefDiagnostic?.message).to.include('feature/new-validation');
       }
     });
   });
