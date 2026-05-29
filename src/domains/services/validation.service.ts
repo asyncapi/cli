@@ -69,13 +69,37 @@ const convertGitHubWebUrl = (url: string): string => {
   const urlWithoutFragment = url.split('#')[0];
 
   // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
-  // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
-  const match = urlWithoutFragment.match(githubWebPattern);
-
-  if (match) {
-    const [, owner, repo, branch, filePath] = match;
-    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+  // Support branch names with slashes (e.g., feature/new-validation)
+  const githubUrlPrefix = 'https://github.com/';
+  if (urlWithoutFragment.startsWith(githubUrlPrefix)) {
+    const afterPrefix = urlWithoutFragment.slice(githubUrlPrefix.length);
+    const parts = afterPrefix.split('/');
+    
+    if (parts.length >= 4 && parts[2] === 'blob') {
+      const owner = parts[0];
+      const repo = parts[1];
+      // Everything after 'blob/' is branch + file path
+      const branchAndPath = parts.slice(3).join('/');
+      
+      // Find the file path by looking for the last segment with an extension
+      // or assume the last segment is the file
+      const segments = branchAndPath.split('/');
+      let filePathIndex = segments.length - 1;
+      
+      // Work backwards to find where file path likely starts
+      // (look for segments with file extensions)
+      for (let i = segments.length - 1; i >= 0; i--) {
+        if (segments[i].includes('.') || i === segments.length - 1) {
+          filePathIndex = i;
+          break;
+        }
+      }
+      
+      const branch = segments.slice(0, filePathIndex).join('/');
+      const filePath = segments.slice(filePathIndex).join('/');
+      
+      return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+    }
   }
 
   return url;
