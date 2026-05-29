@@ -54,13 +54,19 @@ async function compileAjv(options: ValidationMiddlewareOptions) {
 
   const requestBody = method.requestBody;
   if (!requestBody) {
-    return;
+    // No request body defined for this method (e.g., GET, DELETE) — skip validation
+    return undefined;
   }
 
-  let schema = requestBody.content['application/json'].schema;
-  if (!schema) {
-    return;
+  // Handle cases where content type is not application/json
+  // (e.g., multipart/form-data, text/plain, or missing content type)
+  const jsonContent = requestBody.content?.['application/json'];
+  if (!jsonContent?.schema) {
+    // Request body exists but no JSON schema to validate against — skip validation
+    return undefined;
   }
+
+  let schema = jsonContent.schema;
 
   schema = { ...schema };
   schema['$schema'] = 'http://json-schema.org/draft-07/schema';
@@ -174,15 +180,14 @@ export async function validationMiddleware(
 
     try {
       if (!validate) {
-        throw new ProblemException({
-          type: 'invalid-request-body',
-          title: 'Invalid Request Body',
-          status: 422,
-          detail: `Request body validation is not supported for "${options.path}" path with "${options.method}" method.`,
-        });
+        // No validator compiled for this path/method — either:
+        // 1. Method has no requestBody (e.g., GET) — validation not needed, pass through
+        // 2. RequestBody has no JSON schema — nothing to validate, pass through
+        // Do NOT throw "not supported" error for endpoints that simply don't need body validation
+        // Fall through to document validation below
+      } else {
+        await validateRequestBody(validate, req.body);
       }
-
-      await validateRequestBody(validate, req.body);
     } catch (error: unknown) {
       if (error instanceof ProblemException) {
         return next(error);
