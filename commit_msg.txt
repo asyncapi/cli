@@ -1,0 +1,7 @@
+fix: support branch names with slashes in GitHub URL parsing and multi-dot filenames (#1940)
+
+- Replace [^\/]+ with lazy .+? for branch capture group in GitHub URL regex
+  to support branch names containing slashes (e.g. feature/new-validation)
+- Replace name.split('.')[1] with name.split('.').pop() to correctly
+  extract extension from multi-dot filenames (e.g. my.asyncapi.yaml)
+- Fixes asyncapi/cli#1940

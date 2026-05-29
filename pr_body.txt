@@ -1,0 +1,19 @@
+## Fixes #1940
+
+### Problem 1: GitHub URL Parsing
+The regex in `convertGitHubWebUrl()` uses `[^\/]+` for the branch capture group, which cannot match branch names containing slashes (e.g., `feature/new-validation`). This causes valid URLs like `https://github.com/org/repo/blob/feature/new-validation/spec.yaml` to fail parsing, resulting in 404 errors.
+
+### Problem 2: File Extension Detection
+`fileExists()` uses `name.split('.')[1]` to extract file extension, which returns `asyncapi` for `my.asyncapi.yaml` instead of the actual extension `yaml`. Additionally, files without extensions cause `undefined` to be checked against the allowed list.
+
+### Solution
+1. Changed branch capture group from `([^\/]+)` to `(.+?)` with lazy matching, followed by `([^\/].*)` for the file path to ensure at least one path segment remains.
+2. Changed `name.split('.')[1]` to `name.split('.').pop()` which correctly extracts the last extension segment.
+
+### Testing
+- `https://github.com/org/repo/blob/feature/new-validation/spec.yaml` now correctly parses branch as `feature/new-validation`
+- `my.asyncapi.yaml` now correctly returns `yaml` as extension
+- Regular branch names like `main` still work correctly
+- Single-segment filenames like `asyncapi.yaml` still work correctly
+
+This PR addresses both issues from the bounty aggregate #2125.
