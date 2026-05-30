@@ -237,7 +237,8 @@ export async function fileExists(name: string): Promise<boolean> {
       return true;
     }
 
-    const extension = name.split('.')[1];
+    const parts = name.split('.');
+    const extension = parts.length > 1 ? parts[parts.length - 1] : '';
 
     const allowedExtenstion = ['yml', 'yaml', 'json'];
 
