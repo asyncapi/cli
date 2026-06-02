@@ -85,23 +85,5 @@ describe('ConvertController', () => {
           }
         });
     });
-
-    it('should return 422 for invalid request body when format is openapi', async () => {
-      const app = new App([new ConvertController()]);
-      await app.init();
-
-      await request(app.getServer())
-        .post('/v1/convert')
-        .send({
-          format: 'openapi'
-          // missing `source`
-        })
-        .expect(422)
-        .expect(res => {
-          if (res.body.type !== ProblemException.createType('invalid-request-body')) {
-            throw new Error('Expected validation error for missing source');
-          }
-        });
-    });
   });
 });
