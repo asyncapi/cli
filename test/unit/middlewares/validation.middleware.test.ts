@@ -84,12 +84,20 @@ describe('ValidationMiddleware', () => {
     });
 
     it('should return a validator for all API POST endpoints with request bodies', async () => {
-      const postPaths = ['/validate', '/parse', '/generate', '/convert', '/bundle', '/diff'];
+      const endpoints: Array<{ path: string; documents?: string[] }> = [
+        { path: '/validate', documents: ['asyncapi'] },
+        { path: '/parse', documents: ['asyncapi'] },
+        { path: '/generate', documents: ['asyncapi'] },
+        { path: '/convert', documents: ['source'] },
+        { path: '/bundle', documents: ['asyncapis', 'base'] },
+        { path: '/diff', documents: ['asyncapis'] },
+      ];
 
-      for (const path of postPaths) {
+      for (const { path, documents } of endpoints) {
         const validate = await compileAjv({
           path,
           method: 'post',
+          documents,
         });
 
         expect(validate, `expected validator for ${path}`).to.be.a('function');
