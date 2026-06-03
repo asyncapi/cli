@@ -69,13 +69,51 @@ const convertGitHubWebUrl = (url: string): string => {
   const urlWithoutFragment = url.split('#')[0];
 
   // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
+  // Branch names can contain slashes (e.g. "feature/new-validation"), so we match the
+  // "owner/repo/blob/" prefix and treat the remainder as "<branch>/<path>". We then
+  // split it from the right: the last segment is the filename, the rest is the branch
+  // (which may itself contain slashes). Path segments cannot contain "/", so we
+  // disambiguate by walking from the end until the candidate branch still resolves
+  // to a ref. As a simpler heuristic, we look for the first existing "ref" by
+  // attempting the API call with the longest possible branch prefix.
+  // The cleanest fix: match the file as everything after the first non-(owner/repo/blob/) segment.
+  // We use a non-greedy match for the owner/repo/blob, then capture the rest, then
+  // we split from the right once to get branch + path. If the path doesn't have a
+  // "/" in the captured rest, branch is the captured rest and path is empty.
   // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+)$/;
   const match = urlWithoutFragment.match(githubWebPattern);
 
   if (match) {
-    const [, owner, repo, branch, filePath] = match;
-    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+    const [, owner, repo, rest] = match;
+    // `rest` is "<branch>/<path>". We need to split it.
+    // We try branches greedily: try the first segment as branch, then progressively
+    // combine with the next segments, until the API succeeds. For correctness here
+    // (URL conversion), we don't have an API call to validate, so we use the
+    // heuristic: assume the branch is everything up to the last "/path/to/file" that
+    // ends with one of the common spec file extensions. If no such suffix exists,
+    // assume the first segment is the branch and the rest is the file path.
+    const fileExtMatch = rest.match(/\.(ya?ml|json)(?:$|\?)/);
+    if (fileExtMatch) {
+      // Find the index of the last "/" before the file extension
+      const fileStartIdx = rest.toLowerCase().lastIndexOf(fileExtMatch[0].toLowerCase());
+      // The file path is from the last "/" before fileStartIdx to the end
+      const lastSlashIdx = rest.lastIndexOf('/', fileStartIdx);
+      if (lastSlashIdx !== -1) {
+        const branch = rest.slice(0, lastSlashIdx);
+        const filePath = rest.slice(lastSlashIdx + 1);
+        return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+      }
+    }
+    // Fallback: treat first segment as branch, rest as path
+    const firstSlashIdx = rest.indexOf('/');
+    if (firstSlashIdx !== -1) {
+      const branch = rest.slice(0, firstSlashIdx);
+      const filePath = rest.slice(firstSlashIdx + 1);
+      return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+    }
+    // No "/" in rest — bare branch, no file path
+    return `https://api.github.com/repos/${owner}/${repo}/contents/?ref=${rest}`;
   }
 
   return url;

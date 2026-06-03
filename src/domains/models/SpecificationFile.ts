@@ -237,7 +237,10 @@ export async function fileExists(name: string): Promise<boolean> {
       return true;
     }
 
-    const extension = name.split('.')[1];
+    // Use path.extname to correctly handle multi-dot filenames like "spec.test.yaml".
+    // `name.split('.')[1]` only returned the *second* segment, so "spec.test.yaml"
+    // yielded "test" instead of "yaml".
+    const extension = path.extname(name).slice(1).toLowerCase();
 
     const allowedExtenstion = ['yml', 'yaml', 'json'];
 
