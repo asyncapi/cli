@@ -173,13 +173,10 @@ export async function validationMiddleware(
     }
 
     try {
-      if (!validate) {
-        throw new ProblemException({
-          type: 'invalid-request-body',
-          title: 'Invalid Request Body',
-          status: 422,
-          detail: `Request body validation is not supported for "${options.path}" path with "${options.method}" method.`,
-        });
+      if (validate === undefined) {
+        // `validate` is `undefined` only when the endpoint has no `requestBody`
+        // schema. There is nothing to validate, so let the request continue.
+        return next();
       }
 
       await validateRequestBody(validate, req.body);
