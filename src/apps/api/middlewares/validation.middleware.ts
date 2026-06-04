@@ -54,12 +54,12 @@ async function compileAjv(options: ValidationMiddlewareOptions) {
 
   const requestBody = method.requestBody;
   if (!requestBody) {
-    return;
+    return null;
   }
 
-  let schema = requestBody.content['application/json'].schema;
+  let schema = requestBody.content?.['application/json']?.schema;
   if (!schema) {
-    return;
+    return null;
   }
 
   schema = { ...schema };
@@ -82,7 +82,12 @@ async function compileAjv(options: ValidationMiddlewareOptions) {
   return ajvInstance.compile(schema);
 }
 
-async function validateRequestBody(validate: ValidateFunction, body: any) {
+async function validateRequestBody(validate: ValidateFunction | null | undefined, body: any) {
+  // If no validator is provided (no request body schema), skip validation
+  if (!validate) {
+    return;
+  }
+
   const valid = validate(body);
   const errors = validate.errors && [...validate.errors];
 
