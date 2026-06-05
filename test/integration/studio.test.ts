@@ -10,7 +10,7 @@ describe('Test live studio', () => {
     ]).finally(async () => {
       await closeStudioServer(3210);
     })
-    .it('should successfully open and navigate the site', async () => {
+    .it('should successfully open and navigate to the site', async () => {
       const {logoTitle} = await testStudio();
       expect(logoTitle).to.equal('AsyncAPI Logo');
     });
