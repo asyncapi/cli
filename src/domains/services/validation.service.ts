@@ -69,12 +69,30 @@ const convertGitHubWebUrl = (url: string): string => {
   const urlWithoutFragment = url.split('#')[0];
 
   // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
+  // Branch names can contain slashes (e.g. feature/new-validation)
   // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
+  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+)$/;
   const match = urlWithoutFragment.match(githubWebPattern);
 
   if (match) {
-    const [, owner, repo, branch, filePath] = match;
+    const [, owner, repo, branchAndPath] = match;
+    // Split on the first '/' after the branch name segment to separate branch from file path.
+    // Since branch names can contain '/', we need to find where the branch ends and the file path begins.
+    // We try progressively longer prefixes until the GitHub API confirms a valid path.
+    // Simple heuristic: try each possible split point from left to right.
+    const segments = branchAndPath.split('/');
+    // Try each possible split: branch = segments[0..i], filePath = segments[i+1..]
+    for (let i = 0; i < segments.length - 1; i++) {
+      const branch = segments.slice(0, i + 1).join('/');
+      const filePath = segments.slice(i + 1).join('/');
+      // If the filePath contains a dot (likely a file), use this split
+      if (filePath.includes('.')) {
+        return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+      }
+    }
+    // Fallback: treat everything after the first segment as filePath
+    const branch = segments[0];
+    const filePath = segments.slice(1).join('/');
     return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
   }
 
