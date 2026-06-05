@@ -237,11 +237,12 @@ export async function fileExists(name: string): Promise<boolean> {
       return true;
     }
 
-    const extension = name.split('.')[1];
+    // Get file extension properly (handle multiple dots like my.asyncapi.yaml)
+    const extension = name.split('.').pop()?.toLowerCase();
 
     const allowedExtenstion = ['yml', 'yaml', 'json'];
 
-    if (!allowedExtenstion.includes(extension)) {
+    if (!extension || !allowedExtenstion.includes(extension)) {
       throw new ErrorLoadingSpec('invalid file', name);
     }
 
