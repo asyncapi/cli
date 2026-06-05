@@ -79,10 +79,30 @@ export function fileCleanup(filepath: string) {
   unlinkSync(filepath);
 }
 
+function puppeteerLaunchOptions() {
+  return {
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+    ],
+  };
+}
+
+export async function isChromeAvailable(): Promise<boolean> {
+  try {
+    const browser = await puppeteer.launch(puppeteerLaunchOptions());
+    await browser.close();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function testStudio(){
-  const browser = await puppeteer.launch({
-    args: ['--no-sandbox']
-  });
+  const browser = await puppeteer.launch(puppeteerLaunchOptions());
   const page = await browser.newPage();
 
   await page.goto(`http://127.0.0.1:3210?liveServer=3210&studio-version=${studioVersion}`);
@@ -96,9 +116,7 @@ export async function testStudio(){
 }
 
 export async function testPreview(){
-  const browser = await puppeteer.launch({
-    args: ['--no-sandbox']
-  });
+  const browser = await puppeteer.launch(puppeteerLaunchOptions());
   const page = await browser.newPage();
 
   await page.goto(`http://127.0.0.1:4321?previewServer=4321&studio-version=${studioVersion}`);
