@@ -30,36 +30,9 @@ export interface ValidationMiddlewareOptions {
 const ajvInstance = createAjvInstance();
 
 /**
- * Find a schema from the request body content types.
- * Prioritizes application/json, but falls back to any content type with a schema.
- */
-function findContentSchema(requestBody: {
-  content?: Record<string, { schema?: unknown }>;
-}): unknown | undefined {
-  const content = requestBody?.content;
-  if (!content) {
-    return undefined;
-  }
-
-  if (content['application/json']?.schema) {
-    return content['application/json'].schema;
-  }
-
-  for (const contentType of Object.keys(content)) {
-    if (content[contentType]?.schema) {
-      return content[contentType].schema;
-    }
-  }
-
-  return undefined;
-}
-
-/**
  * Create AJV's validator function for given path in the OpenAPI document.
  */
-async function compileAjv(
-  options: ValidationMiddlewareOptions,
-): Promise<ValidateFunction | undefined> {
+async function compileAjv(options: ValidationMiddlewareOptions) {
   const appOpenAPI = await getAppOpenAPI();
   const paths = appOpenAPI.paths || {};
 
@@ -81,35 +54,33 @@ async function compileAjv(
 
   const requestBody = method.requestBody;
   if (!requestBody) {
+    // No request body defined for this method (e.g., GET, DELETE) — skip validation
     return undefined;
   }
 
-  const contentSchema = findContentSchema(requestBody);
-  if (!contentSchema || typeof contentSchema !== 'object') {
+  // Handle cases where content type is not application/json
+  // (e.g., multipart/form-data, text/plain, or missing content type)
+  const jsonContent = requestBody.content?.['application/json'];
+  if (!jsonContent?.schema) {
+    // Request body exists but no JSON schema to validate against — skip validation
     return undefined;
   }
 
-  const schema = { ...(contentSchema as Record<string, unknown>) };
+  let schema = jsonContent.schema;
+
+  schema = { ...schema };
   schema['$schema'] = 'http://json-schema.org/draft-07/schema';
 
   if (options.documents && schema.properties) {
-    schema.properties = { ...(schema.properties as Record<string, unknown>) };
+    schema.properties = { ...schema.properties };
     for (const field of options.documents) {
-      const property = (schema.properties as Record<string, unknown>)[
-        String(field)
-      ];
-      if (!property || typeof property !== 'object') {
-        continue;
-      }
-
-      const propertySchema = property as Record<string, unknown>;
-      if (propertySchema.items) {
-        (schema.properties as Record<string, unknown>)[String(field)] = {
-          ...propertySchema,
-          items: true,
+      if (schema.properties[String(field)].items) {
+        schema.properties[String(field)] = {
+          ...schema.properties[String(field)],
         };
+        schema.properties[String(field)].items = true;
       } else {
-        (schema.properties as Record<string, unknown>)[String(field)] = true;
+        schema.properties[String(field)] = true;
       }
     }
   }
@@ -202,7 +173,14 @@ export async function validationMiddleware(
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
+    // Check if the condition is met
+    if (options.condition && !options.condition(req)) {
+      return next();
+    }
+
     try {
+      // No validator compiled for this path/method when the method has no
+      // requestBody or the requestBody has no JSON schema — pass through.
       if (validate) {
         await validateRequestBody(validate, req.body);
       }
@@ -220,10 +198,6 @@ export async function validationMiddleware(
           detail: `An unexpected error occurred during request validation: ${(error as Error).message ?? 'Unknown error'}`,
         }),
       );
-    }
-
-    if (options.condition && !options.condition(req)) {
-      return next();
     }
 
     const parserConfig: ParserOptions = {
@@ -344,5 +318,3 @@ function tryConvertToProblemException(err: any) {
 
   return error;
 }
-
-export { compileAjv, findContentSchema };
