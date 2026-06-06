@@ -6,6 +6,10 @@ import { resolve } from 'path';
 import { load } from '@models/SpecificationFile';
 import { cyan } from 'picocolors';
 import { fileFlags } from '@cli/internal/flags/new/file.flags';
+import {
+  getSpecFileExtension,
+  isAllowedSpecExtension,
+} from '@utils/spec-file';
 
 const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
@@ -175,9 +179,9 @@ export default class NewFile extends Command {
     if (!fileName.includes('.')) {
       fileNameToWriteToDisk = `${fileName}.yaml`;
     } else {
-      const extension = fileName.split('.')[1];
+      const extension = getSpecFileExtension(fileName);
 
-      if (extension === 'yml' || extension === 'yaml' || extension === 'json') {
+      if (isAllowedSpecExtension(extension)) {
         fileNameToWriteToDisk = fileName;
       } else {
         console.log('CLI Support only yml, yaml and json extension for file');
