@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
@@ -13,10 +13,10 @@
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
     "@asyncapi/avro-schema-parser": "^3.0.24",
-    "@asyncapi/bundler": "^0.6.4",
+    "@asyncapi/bundler": "^1.0.1",
     "@asyncapi/converter": "^2.0.1",
     "@asyncapi/diff": "^0.5.0",
-    "@asyncapi/generator": "^3.1.1",
+    "@asyncapi/generator": "^3.2.0",
     "@asyncapi/modelina-cli": "^5.10.1",
     "@asyncapi/openapi-schema-parser": "^3.0.24",
     "@asyncapi/optimizer": "^1.0.4",
@@ -29,7 +29,7 @@
     "@oclif/core": "^4.8.0",
     "@oclif/plugin-autocomplete": "^3.2.39",
     "@smoya/asyncapi-adoption-metrics": "^2.4.9",
-    "@stoplight/spectral-cli": "6.15.0",
+    "@stoplight/spectral-cli": "6.15.1",
     "archiver": "^7.0.1",
     "body-parser": "^2.2.1",
     "chalk": "^4.1.2",
@@ -50,7 +50,7 @@
     "picocolors": "^1.1.1",
     "redoc-express": "^2.1.3",
     "unzipper": "^0.12.3",
-    "uuid": "^11.0.3",
+    "uuid": "^14.0.0",
     "winston": "^3.19.0",
     "ws": "^8.18.3",
     "yaml": "^2.8.2"

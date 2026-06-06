@@ -15,8 +15,6 @@ const messageQueue: string[] = [];
 const filePathsToWatch: Set<string> = new Set<string>();
 const defaultErrorMessage = 'error occured while bundling files. use --detailedLog or -l flag to get more details.';
 
-let bundleError = true;
-
 export const DEFAULT_PORT = 0;
 
 function isValidFilePath(filePath: string): boolean {
@@ -37,18 +35,8 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
     throw new SpecificationFileNotFound(filePath);
   }
   
-  const baseDir = path.dirname(path.resolve(filePath));
-  bundle(filePath).then((doc) => {
-    if (doc) {
-      bundleError = false;
-    }
-  }).catch((err) => {
-    if (suppressLogs) {
-      console.log(defaultErrorMessage);
-    } else {
-      console.log(err);
-    }
-  });
+  const resolvedFilePath = path.resolve(filePath);
+  const baseDir = path.dirname(resolvedFilePath);
 
   const studioPath = path.dirname(require.resolve('@asyncapi/studio/package.json'));
   const nextInstance = resolveStudioNextInstance(studioPath);
@@ -73,15 +61,28 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
     sockets.splice(sockets.findIndex(s => s === socket));
   });
 
-  app.prepare().then(() => {
-    if (filePath && !bundleError) {
+  app.prepare().then(async () => {
+    let bundled = false;
+
+    try {
+      const doc = await bundle(filePath);
+      bundled = !!doc;
+    } catch (err) {
+      if (suppressLogs) {
+        console.log(defaultErrorMessage);
+      } else {
+        console.log(err);
+      }
+    }
+
+    if (filePath && bundled) {
       messageQueue.push(JSON.stringify({
         type: 'preview:connected',
         code: 'Preview server connected'
       }));
       sendQueuedMessages();
-      findPathsToWatchFromSchemaRef(filePath,baseDir);
-      filePathsToWatch.add(path.resolve(baseDir, filePath));
+      findPathsToWatchFromSchemaRef(filePath, baseDir);
+      filePathsToWatch.add(resolvedFilePath);
       chokidar.watch([...filePathsToWatch]).on('all',(event) => {
         switch (event) {
         case 'add':
@@ -153,7 +154,13 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
     });
 
     server.on('upgrade', (request, socket, head) => {
-      if (request.url === '/preview-server' && request.headers['origin'] === `http://localhost:${port}`) {
+      const origin = request.headers.origin;
+      const allowedOrigins = new Set([
+        `http://localhost:${port}`,
+        `http://127.0.0.1:${port}`,
+      ]);
+
+      if (request.url === '/preview-server' && origin && allowedOrigins.has(origin)) {
         console.log('🔗 WebSocket connection established for the preview.');
         wsServer.handleUpgrade(request, socket, head, (sock: any) => {
           wsServer.emit('connection', sock, request);
@@ -164,7 +171,7 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
       }
     });
     
-    if (!bundleError) {
+    if (bundled) {
       server.listen(port, () => {
         const previewServerAddr = server.address();
         const currentPort = (previewServerAddr && typeof previewServerAddr === 'object' && 'port' in previewServerAddr) ? (previewServerAddr as any).port : port;
@@ -182,7 +189,7 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
             'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
           );
         }
-        if (!bundleError && !noBrowser) {
+        if (!noBrowser) {
           open(url);
         }
       }).on('error', (error) => {

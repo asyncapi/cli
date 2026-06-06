@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 6.0.1
+
+### Patch Changes
+
+- e6e6c95: Fix GitHub URL parsing for branches with slashes and file extension detection for multi-dot filenames
+
 ## 6.0.0
 
 ### Major Changes

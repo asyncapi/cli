@@ -1,0 +1,4 @@
+messages:
+  TestMessage:
+    payload:
+      type: string

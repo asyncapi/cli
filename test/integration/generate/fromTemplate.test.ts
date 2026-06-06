@@ -228,4 +228,27 @@ describe('template', () => {
         }
       );
   });
+
+  describe('same-directory file $ref', () => {
+    test
+      .stdout()
+      .command([
+        'generate:fromTemplate',
+        './test/fixtures/generate-same-dir-ref/asyncapi.yaml',
+        '@asyncapi/minimaltemplate',
+        '--output=./test/docs/same-dir-ref-out',
+        '--force-write',
+        nonInteractive,
+      ])
+      .it(
+        'resolves relative file refs next to the spec file, not cwd (issue #1839)',
+        (ctx, done) => {
+          expect(ctx.stdout).to.contain(
+            'Check out your shiny new generated files at ./test/docs/same-dir-ref-out.\n\n'
+          );
+          cleanup('./test/docs/same-dir-ref-out');
+          done();
+        }
+      );
+  }).timeout(200000);
 });

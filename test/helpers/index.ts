@@ -79,13 +79,51 @@ export function fileCleanup(filepath: string) {
   unlinkSync(filepath);
 }
 
-export async function testStudio(){
+export async function waitForServer(port: number, timeoutMs = 60000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}`, {
+        redirect: 'manual',
+      });
+      if (response.status < 500) {
+        return;
+      }
+    } catch (error: unknown) {
+      const cause = (error as { cause?: { code?: string } })?.cause;
+      if (cause?.code !== 'ECONNREFUSED') {
+        throw error;
+      }
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+
+  throw new Error(`Server on port ${port} did not start within ${timeoutMs}ms`);
+}
+
+export async function isChromeAvailable(): Promise<boolean> {
+  try {
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox'],
+      headless: true,
+    });
+    await browser.close();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function testStudio(port = 3210){
+  await waitForServer(port);
   const browser = await puppeteer.launch({
     args: ['--no-sandbox']
   });
   const page = await browser.newPage();
 
-  await page.goto(`http://127.0.0.1:3210?liveServer=3210&studio-version=${studioVersion}`);
+  await page.goto(`http://127.0.0.1:${port}?liveServer=${port}&studio-version=${studioVersion}`);
   await page.setViewport({width: 1080, height: 1024});
 
   const logo = await page.locator('body > div:nth-child(1) > div > div > div > div > img').waitHandle()
@@ -95,13 +133,14 @@ export async function testStudio(){
   return {logoTitle}
 }
 
-export async function testPreview(){
+export async function testPreview(port = 4321){
+  await waitForServer(port);
   const browser = await puppeteer.launch({
     args: ['--no-sandbox']
   });
   const page = await browser.newPage();
 
-  await page.goto(`http://127.0.0.1:4321?previewServer=4321&studio-version=${studioVersion}`);
+  await page.goto(`http://127.0.0.1:${port}?previewServer=${port}&studio-version=${studioVersion}`);
   await page.setViewport({width: 1080, height: 1024});
 
   const logo = await page.locator('body > div:nth-child(1) > div > div > div > div > img').waitHandle()
@@ -139,15 +178,37 @@ export function stopMockServer() {
   server.close();
 }
 
+function isConnectionRefused(error: unknown): boolean {
+  if (!error || typeof error !== 'object') {
+    return false;
+  }
+
+  const err = error as { code?: string; cause?: unknown; errors?: unknown[] };
+  if (err.code === 'ECONNREFUSED') {
+    return true;
+  }
+  if (err.cause) {
+    return isConnectionRefused(err.cause);
+  }
+  if (Array.isArray(err.errors)) {
+    return err.errors.some(isConnectionRefused);
+  }
+
+  return false;
+}
+
 export async function closeStudioServer(port = 3210): Promise<void> {
   try {
-    const response = await fetch(`http://localhost:${port}/close`);
+    const response = await fetch(`http://127.0.0.1:${port}/close`);
     if (response.ok) {
-      const text = await response.text();
+      await response.text();
     } else {
       console.log(`Failed to close server. Status: ${response.status}`);
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    if (isConnectionRefused(error)) {
+      return;
+    }
     console.error('Error closing studio server:', error);
   }
 }
