@@ -9,6 +9,10 @@ import { fileFormat } from '@cli/internal/flags/format.flags';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { logger } from '@utils/logger';
 import { getErrorMessage } from '@utils/error-handler';
+import {
+  getSpecFileExtension,
+  isAllowedSpecExtension,
+} from '@utils/spec-file';
 const { readFile, lstat } = fs;
 const allowedFileNames: string[] = [
   'asyncapi.json',
@@ -237,11 +241,9 @@ export async function fileExists(name: string): Promise<boolean> {
       return true;
     }
 
-    const extension = name.split('.')[1];
+    const extension = getSpecFileExtension(name);
 
-    const allowedExtenstion = ['yml', 'yaml', 'json'];
-
-    if (!allowedExtenstion.includes(extension)) {
+    if (!isAllowedSpecExtension(extension)) {
       throw new ErrorLoadingSpec('invalid file', name);
     }
 
