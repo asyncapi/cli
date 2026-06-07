@@ -1,5 +1,11 @@
 # @asyncapi/cli
 
+## 6.0.2
+
+### Patch Changes
+
+- c3a77ba: fix: skip request body validation gracefully instead of throwing error for unsupported paths
+
 ## 6.0.1
 
 ### Patch Changes
