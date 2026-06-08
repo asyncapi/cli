@@ -1,5 +1,17 @@
 # @asyncapi/cli
 
+## 6.0.2
+
+### Patch Changes
+
+- c3a77ba: fix: skip request body validation gracefully instead of throwing error for unsupported paths
+
+## 6.0.1
+
+### Patch Changes
+
+- e6e6c95: Fix GitHub URL parsing for branches with slashes and file extension detection for multi-dot filenames
+
 ## 6.0.0
 
 ### Major Changes
