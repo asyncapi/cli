@@ -33,6 +33,10 @@ import { ParserOptions } from '@asyncapi/parser/cjs/parser';
 import { calculateScore } from '@/utils/scoreCalculator';
 
 import { ConfigService } from './config.service';
+import {
+  isValidGitHubBlobUrl,
+  resolveGitHubBlobUrl,
+} from '@/utils/github-url';
 
 // GitHub API response type
 interface GitHubFileInfo {
@@ -45,41 +49,6 @@ interface GitHubFileInfo {
   size: number;
   type: string;
 }
-
-/**
- * Helper function to validate if a URL is a GitHub blob URL
- */
-const isValidGitHubBlobUrl = (url: string): boolean => {
-  try {
-    const parsedUrl = new URL(url);
-    return (
-      parsedUrl.hostname === 'github.com' &&
-      parsedUrl.pathname.split('/')[3] === 'blob'
-    );
-  } catch {
-    return false;
-  }
-};
-
-/**
- * Convert GitHub web URL to API URL
- */
-const convertGitHubWebUrl = (url: string): string => {
-  // Remove fragment from URL before processing
-  const urlWithoutFragment = url.split('#')[0];
-
-  // Handle GitHub web URLs like: https://github.com/owner/repo/blob/branch/path
-  // eslint-disable-next-line no-useless-escape
-  const githubWebPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/;
-  const match = urlWithoutFragment.match(githubWebPattern);
-
-  if (match) {
-    const [, owner, repo, branch, filePath] = match;
-    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
-  }
-
-  return url;
-};
 
 /**
  * Helper function to fetch with error handling
@@ -142,13 +111,13 @@ const createHttpWithAuthResolver = () => ({
 
     const authInfo = await ConfigService.getAuthForUrl(url);
 
-    if (isValidGitHubBlobUrl(url)) {
-      url = convertGitHubWebUrl(url);
-    }
-
     if (authInfo) {
       headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
       Object.assign(headers, authInfo.headers); // merge custom headers
+    }
+
+    if (isValidGitHubBlobUrl(url)) {
+      url = await resolveGitHubBlobUrl(url, headers);
     }
 
     if (url.includes('api.github.com')) {
