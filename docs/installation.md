@@ -47,27 +47,60 @@ To refresh the variables:
 
 ## Docker
 
-Install [Docker](https://docs.docker.com/get-docker/) first, then use docker to build the image using the following command :
-``` 
-docker build -t asyncapi/cli:latest . 
-``` 
-and run the image using the following command :
+Install [Docker](https://docs.docker.com/get-docker/) first. There are two ways to use the AsyncAPI CLI with Docker: pulling the official image from Docker Hub (recommended) or building the image from source.
 
+### Using the official Docker Hub image (recommended)
+
+The AsyncAPI CLI is available as an official image on [Docker Hub](https://hub.docker.com/r/asyncapi/cli). You can pull and use it directly without building from source.
+
+To pull the latest version:
+```sh
+docker pull asyncapi/cli
+```
+
+To pull a specific version:
+```sh
+docker pull asyncapi/cli:2.12.0
+```
+
+You can find all available tags on the [Docker Hub tags page](https://hub.docker.com/r/asyncapi/cli/tags).
+
+To run the CLI using the Docker Hub image:
 ```bash
 docker run --rm -it \
 --user=root \
 -v [ASYNCAPI SPEC FILE LOCATION]:/app/asyncapi.yml \
 -v [GENERATED FILES LOCATION]:/app/output \
 asyncapi/cli [COMMAND HERE]
+```
 
-# Example that you can run inside the cli directory after cloning this repository. First, you specify the mount in the location of your AsyncAPI specification file and then you mount it in the directory where the generation result should be saved.
+For example, to validate an AsyncAPI specification file:
+```bash
+docker run --rm -it \
+--user=root \
+-v ${PWD}/asyncapi.yml:/app/asyncapi.yml \
+asyncapi/cli validate /app/asyncapi.yml
+```
+
+To generate output from a template:
+```bash
 docker run --rm -it \
    --user=root \
-   -v ${PWD}/test/integration/fixtures/asyncapi_v1.yml:/app/asyncapi.yml \
+   -v ${PWD}/asyncapi.yml:/app/asyncapi.yml \
    -v ${PWD}/output:/app/output \
    asyncapi/cli generate fromTemplate -o /app/output /app/asyncapi.yml @asyncapi/html-template --force-write
 ```
+
 Note: Use ``` ` ``` instead of `\` for Windows.
+
+### Building from source
+
+If you prefer to build the Docker image from the source code, clone the repository and run:
+```sh
+docker build -t asyncapi/cli:latest .
+```
+
+Then run it using the same commands shown above.
 
 
 ## Mac
