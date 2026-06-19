@@ -170,31 +170,43 @@ const validFormats = [
 
 export class ValidationService extends BaseService {
   private parser: Parser;
+  private readonly parserOptions: ParserOptions;
+  private readonly customRuleset?: Record<string, unknown>;
 
-  constructor(parserOptions: ParserOptions = {}) {
+  constructor(
+    parserOptions: ParserOptions = {},
+    ruleset?: Record<string, unknown>,
+  ) {
     super(); 
+    this.parserOptions = parserOptions;
+    this.customRuleset = ruleset;
+
+    this.parser = this.createParser(this.customRuleset);
+    this.parser.registerSchemaParser(OpenAPISchemaParser());
+    this.parser.registerSchemaParser(RamlDTSchemaParser());
+    this.parser.registerSchemaParser(AvroSchemaParser());
+    this.parser.registerSchemaParser(ProtoBuffSchemaParser());
+  }
+
+  private createParser(ruleset?: Record<string, unknown>): Parser {
     // Create parser with custom GitHub resolver
     const customParserOptions = {
-      ...parserOptions,
+      ...this.parserOptions,
+      ...(ruleset ? { ruleset } : {}),
       __unstable: {
-        ...parserOptions.__unstable,
+        ...this.parserOptions.__unstable,
         resolver: {
-          ...parserOptions.__unstable?.resolver,
+          ...this.parserOptions.__unstable?.resolver,
           cache: false,
           resolvers: [
             createHttpWithAuthResolver(),
-            ...(parserOptions.__unstable?.resolver?.resolvers || [])
+            ...(this.parserOptions.__unstable?.resolver?.resolvers || [])
           ],
         },
       },
     };
 
-    this.parser = new Parser(customParserOptions);
-
-    this.parser.registerSchemaParser(OpenAPISchemaParser());
-    this.parser.registerSchemaParser(RamlDTSchemaParser());
-    this.parser.registerSchemaParser(AvroSchemaParser());
-    this.parser.registerSchemaParser(ProtoBuffSchemaParser());
+    return new Parser(customParserOptions);
   }
 
   /**
@@ -295,20 +307,10 @@ export class ValidationService extends BaseService {
    * Creates a custom parser with specific rules turned off.
    */
   private buildCustomParser(rulesToSuppress: string[]): Parser {
-    return new Parser({
-      ruleset: {
-        extends: [],
-        rules: Object.fromEntries(
-          rulesToSuppress.map((rule) => [rule, 'off']),
-        ),
-      },
-      __unstable: {
-        resolver: {
-          cache: false,
-          resolvers: [createHttpWithAuthResolver()],
-        },
-      },
-    });
+    const ruleset = this.mergeRulesetWithOverrides(
+      Object.fromEntries(rulesToSuppress.map((rule) => [rule, 'off'])),
+    );
+    return this.createParser(ruleset);
   }
 
   /**
@@ -331,13 +333,32 @@ export class ValidationService extends BaseService {
       source: specFile.getSource(),
     });
     const allRuleNames = Array.from(
-      new Set(
+      new Set<string>(
         diagnostics
-          .map((d) => d.code)
-          .filter((c): c is string => typeof c === 'string'),
+          .map((diagnostic: Diagnostic) => diagnostic.code)
+          .filter((code: unknown): code is string => typeof code === 'string'),
       ),
     );
     return this.buildCustomParser(allRuleNames);
+  }
+
+  private mergeRulesetWithOverrides(
+    rulesToOverride: Record<string, unknown>,
+  ): Record<string, unknown> {
+    const baseRuleset = (this.customRuleset ?? {}) as Record<string, unknown>;
+    const baseRules = (baseRuleset.rules ?? {}) as Record<string, unknown>;
+    const baseExtends = Array.isArray(baseRuleset.extends)
+      ? baseRuleset.extends
+      : [];
+
+    return {
+      ...baseRuleset,
+      extends: baseExtends,
+      rules: {
+        ...baseRules,
+        ...rulesToOverride,
+      },
+    };
   }
 
   /**
