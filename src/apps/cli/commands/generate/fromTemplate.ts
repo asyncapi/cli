@@ -1,6 +1,6 @@
 import { Args } from '@oclif/core';
 import { BaseGeneratorCommand } from '@cli/internal/base/BaseGeneratorCommand';
-import { load, Specification } from '@models/SpecificationFile';
+import { Specification } from '@models/SpecificationFile';
 import { ValidationError } from '@errors/validation-error';
 import { GeneratorError } from '@errors/generator-error';
 import { intro } from '@clack/prompts';
@@ -57,27 +57,24 @@ export default class Template extends BaseGeneratorCommand {
     // Apply proxy configuration using base class method
     asyncapi = this.applyProxyConfiguration(asyncapi, proxyHost, proxyPort);
     
-    const asyncapiInput = await this.loadAsyncAPIInput(asyncapi);
-
-    this.specFile = asyncapiInput;
-    this.metricsMetadata.template = template;
-
-    const watchTemplate = flags['watch'];
-    const genOption = this.buildGenOption(flags, parsedFlags);
-
     let specification: Specification;
     try {
-      specification = await load(asyncapi);
+      specification = await this.loadAsyncAPIInput(asyncapi);
     } catch {
       return this.error(
         new ValidationError({
-           
           type: 'invalid-file',
           filepath: asyncapi,
         }),
         { exit: 1 },
       );
     }
+
+    this.specFile = specification;
+    this.metricsMetadata.template = template;
+
+    const watchTemplate = flags['watch'];
+    const genOption = this.buildGenOption(flags, parsedFlags);
 
     const result = await this.generatorService.generate(
       specification,
