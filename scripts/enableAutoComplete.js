@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { spawnSync } = require('child_process');
-const os = require('os');
-const fs = require('fs');
-const path = require('path');
+const { spawnSync } = require('node:child_process');
+const os = require('node:os');
+const fs = require('node:fs');
+const path = require('node:path');
 
-const allowedShells = ['zsh', 'bash'];
+const allowedShells = new Set(['zsh', 'bash']);
 
 // Helper function to find the first existing file among a list of paths
 function findExistingFile(possibleFiles) {
@@ -58,7 +58,7 @@ if (shellConfigs.bash.detectFile) {
 }
 
 function getShellConfig(shell) {
-  if (!allowedShells.includes(shell)) {
+  if (!allowedShells.has(shell)) {
     throw new Error(`Unsupported shell: ${shell}. Autocomplete only supports zsh and bash.`);
   }
   return shellConfigs[shell];
@@ -133,7 +133,7 @@ function generateAutocompleteScript(shell) {
 }
 
 function setupAutocomplete(shell) {
-  if (!allowedShells.includes(shell)) {
+  if (!allowedShells.has(shell)) {
     console.error(`❌ Autocomplete only supports zsh and bash. Skipping setup for ${shell}.`);
     return;
   }
