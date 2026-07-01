@@ -360,6 +360,22 @@ describe('validate', () => {
       });
   });
 
+  describe('validate command with a custom ruleset', () => {
+    test
+      .stdout()
+      .command([
+        'validate',
+        path.join('test', 'fixtures', 'specification.yml'),
+        '--ruleset',
+        path.join('test', 'fixtures', 'custom-ruleset.yml')
+      ])
+      .it('should apply custom Spectral rules from the provided ruleset file', (ctx, done) => {
+        expect(ctx.stdout).to.not.include('asyncapi-id');
+        expect(ctx.stdout).to.include('File ./test/fixtures/specification.yml is valid but has (itself and/or referenced documents) governance issues.');
+        done();
+      });
+  });
+
   describe('with --save-output flag', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();

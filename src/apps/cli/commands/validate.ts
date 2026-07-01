@@ -1,4 +1,7 @@
 import { Args } from '@oclif/core';
+import { promises as fs } from 'fs';
+import yaml from 'js-yaml';
+import path from 'path';
 import Command from '@cli/internal/base';
 import { load } from '@models/SpecificationFile';
 import { specWatcher } from '@cli/internal/globals';
@@ -41,6 +44,11 @@ export default class Validate extends Command {
 
     this.specFile = await load(filePath);
     const watchMode = flags.watch;
+    const customRuleset = flags.ruleset
+      ? await this.loadCustomRuleset(flags.ruleset)
+      : undefined;
+
+    this.validationService = new ValidationService({}, customRuleset);
 
     if (watchMode) {
       specWatcher({
@@ -78,6 +86,24 @@ export default class Validate extends Command {
 
     if (result.data?.status === ValidationStatus.INVALID) {
       process.exitCode = 1;
+    }
+  }
+
+  private async loadCustomRuleset(rulesetPath: string): Promise<Record<string, unknown>> {
+    const absolutePath = path.resolve(rulesetPath);
+    const rulesetContent = await fs.readFile(absolutePath, 'utf8');
+
+    try {
+      const parsedRuleset = yaml.load(rulesetContent) as Record<string, unknown>;
+
+      if (!parsedRuleset || typeof parsedRuleset !== 'object' || Array.isArray(parsedRuleset)) {
+        throw new Error('The ruleset file must resolve to an object.');
+      }
+
+      return parsedRuleset;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to load custom ruleset from ${absolutePath}: ${message}`);
     }
   }
 

@@ -905,8 +905,8 @@ validate asyncapi file
 USAGE
   $ asyncapi validate [SPEC-FILE] [-h] [-w] [--log-diagnostics] [--diagnostics-format
     json|stylish|junit|html|text|teamcity|pretty|github-actions|sarif|code-climate|gitlab|markdown] [--fail-severity
-    error|warn|info|hint] [-s <value>] [--score] [--suppressWarnings <value>...] [--suppressAllWarnings] [--proxyHost
-    <value>] [--proxyPort <value>]
+    error|warn|info|hint] [-s <value>] [--score] [--suppressWarnings <value>...] [--suppressAllWarnings] [--ruleset
+    <value>] [--proxyHost <value>] [--proxyPort <value>]
 
 ARGUMENTS
   [SPEC-FILE]  spec path, url, or context-name
@@ -928,6 +928,7 @@ FLAGS
                                      document has description, license, server and/or channels.
       --suppressAllWarnings          Suppress all warnings from the validation output.
       --suppressWarnings=<value>...  List of warning codes to suppress from the validation output.
+      --ruleset=<value>              Path to a custom Spectral ruleset file used during validation.
 
 DESCRIPTION
   validate asyncapi file
