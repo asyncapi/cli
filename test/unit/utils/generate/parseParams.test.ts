@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import path from 'path';
 import { paramParser, disableHooksParser, mapBaseURLParser } from '../../../../src/utils/generate/parseParams';
 
 describe('parseParams utilities', () => {
@@ -86,13 +87,13 @@ describe('parseParams utilities', () => {
     it('should parse valid http URL mapping', () => {
       const result = mapBaseURLParser('http://example.com/schemas:/local/schemas');
       expect(result.url).to.equal('http://example.com/schemas');
-      expect(result.folder).to.include('/local/schemas');
+      expect(result.folder).to.equal(path.resolve('/local/schemas'));
     });
 
     it('should parse valid https URL mapping', () => {
       const result = mapBaseURLParser('https://api.example.com:/tmp/local');
       expect(result.url).to.equal('https://api.example.com');
-      expect(result.folder).to.include('/tmp/local');
+      expect(result.folder).to.equal(path.resolve('/tmp/local'));
     });
 
     it('should strip trailing slash from URL', () => {

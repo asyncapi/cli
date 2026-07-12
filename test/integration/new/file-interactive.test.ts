@@ -12,6 +12,11 @@ describe('new:file - interactive mode', () => {
   });
 
   describe('interactive prompts with inquirer stub', () => {
+    // The new:file command checks `process.stdout.isTTY` to decide whether to
+    // run the interactive prompt path. In CI/test environments isTTY is undefined
+    // (piped output, not a real terminal), so the command would skip the interactive
+    // path entirely. We temporarily set it to true so the inquirer stub is actually
+    // exercised, then restore the original value so other tests aren't affected.
     let originalIsTTY: boolean | undefined;
 
     beforeEach(() => {
