@@ -42,3 +42,4 @@ coverage
 
 # Modelina
 test/fixtures/generate/models
+asyncapi.yaml

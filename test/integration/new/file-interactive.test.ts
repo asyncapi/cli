@@ -7,7 +7,7 @@ describe('new:file - interactive mode', () => {
   const uniqueTestFile = `test-new-file-interactive-${Date.now()}.yaml`;
   const testFilePath = path.resolve(process.cwd(), uniqueTestFile);
 
-  afterEach(async () => {
+  after(async () => {
     try { await fs.unlink(testFilePath); } catch { /* ignore */ }
   });
 
