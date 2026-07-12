@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { start as startStudio } from '../../src/domains/models/Studio';
 import { startPreview } from '../../src/domains/models/Preview';
 import {
-  closeStudioServer,
+  // closeStudioServer,
   isChromeAvailable,
   testPreview,
   testStudio,
@@ -23,9 +23,9 @@ describe('Test live studio', function () {
     await waitForServer(port);
   });
 
-  after(async () => {
-    await closeStudioServer(port);
-  });
+  // after(async () => {
+  //   await closeStudioServer(port);
+  // });
 
   it('should successfully open and navigate the site', async () => {
     const { logoTitle } = await testStudio(port);
@@ -55,9 +55,9 @@ describe('Test preview mode', function () {
     await waitForServer(port);
   });
 
-  after(async () => {
-    await closeStudioServer(port);
-  });
+  // after(async () => {
+  //   await closeStudioServer(port);
+  // });
 
   it('should successfully open and navigate the site', async () => {
     const { logoTitle, introductionSectionId } = await testPreview(port);
