@@ -59,9 +59,9 @@ describe('ConfigService', () => {
 
       await ConfigService.saveConfig(config);
 
-      expect(mkdirStub.calledOnce).to.be.true;
+      expect(mkdirStub.calledOnce).to.equal(true);
       expect(mkdirStub.firstCall.args[1]).to.deep.equal({ recursive: true });
-      expect(writeFileStub.calledOnce).to.be.true;
+      expect(writeFileStub.calledOnce).to.equal(true);
       const writtenContent = writeFileStub.firstCall.args[1];
       expect(JSON.parse(writtenContent)).to.deep.equal(config);
     });
@@ -75,7 +75,7 @@ describe('ConfigService', () => {
       const newEntry = { pattern: 'new', token: 'tok2' };
       await ConfigService.addAuthEntry(newEntry);
 
-      expect(writeFileStub.calledOnce).to.be.true;
+      expect(writeFileStub.calledOnce).to.equal(true);
       const savedConfig = JSON.parse(writeFileStub.firstCall.args[1]);
       expect(savedConfig.auth).to.have.lengthOf(2);
       expect(savedConfig.auth[1]).to.deep.equal(newEntry);
@@ -110,15 +110,15 @@ describe('ConfigService', () => {
       readFileStub.resolves(JSON.stringify({}));
 
       const result = await ConfigService.getAuthForUrl('https://example.com/spec.yaml');
-      expect(result).to.be.null;
-      expect(warnStub.called).to.be.true;
+      expect(result).to.equal(null);
+      expect(warnStub.called).to.equal(true);
     });
 
     it('should return null when auth is not an array', async () => {
       readFileStub.resolves(JSON.stringify({ auth: 'invalid' }));
 
       const result = await ConfigService.getAuthForUrl('https://example.com/spec.yaml');
-      expect(result).to.be.null;
+      expect(result).to.equal(null);
     });
 
     it('should return matching auth entry for URL', async () => {
@@ -130,7 +130,7 @@ describe('ConfigService', () => {
       readFileStub.resolves(JSON.stringify(config));
 
       const result = await ConfigService.getAuthForUrl('https://github.com/org/repo/file.yaml');
-      expect(result).to.not.be.null;
+      expect(result).to.not.equal(null);
       expect(result!.token).to.equal('ghp_token');
       expect(result!.authType).to.equal('token');
     });
@@ -142,7 +142,7 @@ describe('ConfigService', () => {
       readFileStub.resolves(JSON.stringify(config));
 
       const result = await ConfigService.getAuthForUrl('https://public.com/spec.yaml');
-      expect(result).to.be.null;
+      expect(result).to.equal(null);
     });
 
     it('should use Bearer as default authType', async () => {
@@ -190,11 +190,11 @@ describe('ConfigService', () => {
       // * becomes [^/]* in regex, but regex.test() only checks if pattern matches from start
       // so it will match any URL starting with the prefix
       const result1 = await ConfigService.getAuthForUrl('https://github.com/org/repo');
-      expect(result1).to.not.be.null;
+      expect(result1).to.not.equal(null);
 
       // Also matches because test() finds a match from position 0
       const result2 = await ConfigService.getAuthForUrl('https://github.com/org/repo/file.yaml');
-      expect(result2).to.not.be.null;
+      expect(result2).to.not.equal(null);
     });
 
     it('should NOT match when URL does not start with pattern', async () => {
@@ -204,7 +204,7 @@ describe('ConfigService', () => {
       readFileStub.resolves(JSON.stringify(config));
 
       const result = await ConfigService.getAuthForUrl('https://gitlab.com/org/repo');
-      expect(result).to.be.null;
+      expect(result).to.equal(null);
     });
 
     it('should match ** for multiple path segments', async () => {
@@ -214,7 +214,7 @@ describe('ConfigService', () => {
       readFileStub.resolves(JSON.stringify(config));
 
       const result = await ConfigService.getAuthForUrl('https://github.com/org/repo/deep/nested/file.yaml');
-      expect(result).to.not.be.null;
+      expect(result).to.not.equal(null);
     });
   });
 });

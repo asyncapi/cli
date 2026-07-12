@@ -39,9 +39,9 @@ describe('problemMiddleware', () => {
 
     problemMiddleware(error, req as Request, res as Response, next as NextFunction);
 
-    expect(statusStub.calledOnce).to.be.true;
+    expect(statusStub.calledOnce).to.equal(true);
     expect(statusStub.firstCall.args[0]).to.equal(400);
-    expect(jsonStub.calledOnce).to.be.true;
+    expect(jsonStub.calledOnce).to.equal(true);
     const responseBody = jsonStub.firstCall.args[0];
     expect(responseBody).to.have.property('type');
     expect(responseBody).to.have.property('title', 'Invalid Request');
@@ -57,7 +57,7 @@ describe('problemMiddleware', () => {
 
     problemMiddleware(error, req as Request, res as Response, next as NextFunction);
 
-    expect(statusStub.calledOnce).to.be.true;
+    expect(statusStub.calledOnce).to.equal(true);
     expect(statusStub.firstCall.args[0]).to.equal(500);
   });
 
@@ -71,9 +71,9 @@ describe('problemMiddleware', () => {
 
     problemMiddleware(error, req as Request, res as Response, next as NextFunction);
 
-    expect(next.calledOnce).to.be.true;
+    expect(next.calledOnce).to.equal(true);
     expect(next.firstCall.args[0]).to.equal(error);
-    expect(statusStub.called).to.be.false;
+    expect(statusStub.called).to.equal(false);
   });
 
   it('should include stack for 500+ errors', () => {

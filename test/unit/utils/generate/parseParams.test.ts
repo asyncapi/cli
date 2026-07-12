@@ -80,7 +80,7 @@ describe('parseParams utilities', () => {
 
   describe('mapBaseURLParser()', () => {
     it('should return undefined when input is undefined', () => {
-      expect(mapBaseURLParser(undefined)).to.be.undefined;
+      expect(mapBaseURLParser(undefined)).to.equal(undefined);
     });
 
     it('should parse valid http URL mapping', () => {

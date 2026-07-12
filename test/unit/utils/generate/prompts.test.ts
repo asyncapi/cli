@@ -38,7 +38,7 @@ describe('generate prompts utilities - validation logic', () => {
       };
 
       expect(validate('/nonexistent/path.yaml')).to.equal('The file does not exist');
-      expect(existsStub.calledWith('/nonexistent/path.yaml')).to.be.true;
+      expect(existsStub.calledWith('/nonexistent/path.yaml')).to.equal(true);
     });
 
     it('should validate that existing file passes validation', () => {
@@ -52,7 +52,7 @@ describe('generate prompts utilities - validation logic', () => {
         }
       };
 
-      expect(validate('/valid/spec.yaml')).to.be.undefined;
+      expect(validate('/valid/spec.yaml')).to.equal(undefined);
     });
   });
 
@@ -78,8 +78,8 @@ describe('generate prompts utilities - validation logic', () => {
         }
       };
 
-      expect(validate('./output')).to.be.undefined;
-      expect(validate('/absolute/path')).to.be.undefined;
+      expect(validate('./output')).to.equal(undefined);
+      expect(validate('/absolute/path')).to.equal(undefined);
     });
   });
 });

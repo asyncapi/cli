@@ -57,51 +57,51 @@ describe('error-handler utilities', () => {
     });
 
     it('should return undefined for non-Error values', () => {
-      expect(getErrorStack('string')).to.be.undefined;
-      expect(getErrorStack(null)).to.be.undefined;
-      expect(getErrorStack(42)).to.be.undefined;
-      expect(getErrorStack({ stack: 'fake stack' })).to.be.undefined;
+      expect(getErrorStack('string')).to.equal(undefined);
+      expect(getErrorStack(null)).to.equal(undefined);
+      expect(getErrorStack(42)).to.equal(undefined);
+      expect(getErrorStack({ stack: 'fake stack' })).to.equal(undefined);
     });
   });
 
   describe('isError()', () => {
     it('should return true for Error instances', () => {
-      expect(isError(new Error('test'))).to.be.true;
-      expect(isError(new TypeError('test'))).to.be.true;
-      expect(isError(new RangeError('test'))).to.be.true;
+      expect(isError(new Error('test'))).to.equal(true);
+      expect(isError(new TypeError('test'))).to.equal(true);
+      expect(isError(new RangeError('test'))).to.equal(true);
     });
 
     it('should return false for non-Error values', () => {
-      expect(isError('string')).to.be.false;
-      expect(isError(null)).to.be.false;
-      expect(isError(undefined)).to.be.false;
-      expect(isError({})).to.be.false;
-      expect(isError({ message: 'fake' })).to.be.false;
+      expect(isError('string')).to.equal(false);
+      expect(isError(null)).to.equal(false);
+      expect(isError(undefined)).to.equal(false);
+      expect(isError({})).to.equal(false);
+      expect(isError({ message: 'fake' })).to.equal(false);
     });
   });
 
   describe('hasErrorCode()', () => {
     it('should return true when error has matching code', () => {
       const err = Object.assign(new Error('not found'), { code: 'ENOENT' });
-      expect(hasErrorCode(err, 'ENOENT')).to.be.true;
+      expect(hasErrorCode(err, 'ENOENT')).to.equal(true);
     });
 
     it('should return false when code does not match', () => {
       const err = Object.assign(new Error('denied'), { code: 'EACCES' });
-      expect(hasErrorCode(err, 'ENOENT')).to.be.false;
+      expect(hasErrorCode(err, 'ENOENT')).to.equal(false);
     });
 
     it('should return false for null', () => {
-      expect(hasErrorCode(null, 'ENOENT')).to.be.false;
+      expect(hasErrorCode(null, 'ENOENT')).to.equal(false);
     });
 
     it('should return false for non-objects', () => {
-      expect(hasErrorCode('string', 'ENOENT')).to.be.false;
-      expect(hasErrorCode(42, 'ENOENT')).to.be.false;
+      expect(hasErrorCode('string', 'ENOENT')).to.equal(false);
+      expect(hasErrorCode(42, 'ENOENT')).to.equal(false);
     });
 
     it('should return false for objects without code property', () => {
-      expect(hasErrorCode({ message: 'test' }, 'ENOENT')).to.be.false;
+      expect(hasErrorCode({ message: 'test' }, 'ENOENT')).to.equal(false);
     });
   });
 
@@ -120,7 +120,7 @@ describe('error-handler utilities', () => {
       const handler = (err: unknown) => { capturedError = err; };
       const wrapped = withErrorHandling(fn, handler);
       const result = await wrapped();
-      expect(result).to.be.undefined;
+      expect(result).to.equal(undefined);
       expect(capturedError).to.be.instanceOf(Error);
       expect((capturedError as Error).message).to.equal('boom');
     });
@@ -136,13 +136,13 @@ describe('error-handler utilities', () => {
   describe('success()', () => {
     it('should create a success result', () => {
       const result = success({ id: 1 });
-      expect(result.success).to.be.true;
+      expect(result.success).to.equal(true);
       expect(result.data).to.deep.equal({ id: 1 });
     });
 
     it('should work with primitive data', () => {
       const result = success('done');
-      expect(result.success).to.be.true;
+      expect(result.success).to.equal(true);
       expect(result.data).to.equal('done');
     });
   });
@@ -150,7 +150,7 @@ describe('error-handler utilities', () => {
   describe('failure()', () => {
     it('should create an error result', () => {
       const result = failure('something failed');
-      expect(result.success).to.be.false;
+      expect(result.success).to.equal(false);
       expect(result.error).to.equal('something failed');
     });
 
@@ -166,15 +166,15 @@ describe('error-handler utilities', () => {
 
     it('should have undefined code and details when not provided', () => {
       const result = failure('error');
-      expect(result.code).to.be.undefined;
-      expect(result.details).to.be.undefined;
+      expect(result.code).to.equal(undefined);
+      expect(result.details).to.equal(undefined);
     });
   });
 
   describe('failureFromError()', () => {
     it('should extract message from Error', () => {
       const result = failureFromError(new Error('oops'));
-      expect(result.success).to.be.false;
+      expect(result.success).to.equal(false);
       expect(result.error).to.equal('oops');
       expect(result.details).to.have.property('stack');
     });
@@ -182,7 +182,7 @@ describe('error-handler utilities', () => {
     it('should use fallback for non-Error values', () => {
       const result = failureFromError(null, 'fallback msg');
       expect(result.error).to.equal('fallback msg');
-      expect(result.details).to.be.undefined;
+      expect(result.details).to.equal(undefined);
     });
 
     it('should use default fallback message', () => {

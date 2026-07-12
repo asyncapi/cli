@@ -30,7 +30,7 @@ describe('proxy utilities', () => {
 
     it('should return undefined when filePath is undefined', () => {
       const result = applyProxyToPath(undefined, 'localhost', '8080');
-      expect(result).to.be.undefined;
+      expect(result).to.equal(undefined);
     });
 
     it('should return undefined when filePath is empty string (falsy)', () => {
@@ -54,15 +54,15 @@ describe('proxy utilities', () => {
     });
 
     it('should return undefined when host is missing', () => {
-      expect(buildProxyUrl(undefined, '8080')).to.be.undefined;
+      expect(buildProxyUrl(undefined, '8080')).to.equal(undefined);
     });
 
     it('should return undefined when port is missing', () => {
-      expect(buildProxyUrl('localhost', undefined)).to.be.undefined;
+      expect(buildProxyUrl('localhost', undefined)).to.equal(undefined);
     });
 
     it('should return undefined when both are missing', () => {
-      expect(buildProxyUrl(undefined, undefined)).to.be.undefined;
+      expect(buildProxyUrl(undefined, undefined)).to.equal(undefined);
     });
   });
 });
