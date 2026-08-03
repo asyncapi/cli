@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import { start as startStudio } from '../../src/domains/models/Studio';
 import { startPreview } from '../../src/domains/models/Preview';
 import {
-  closeStudioServer,
   isChromeAvailable,
   testPreview,
   testStudio,
@@ -21,10 +20,6 @@ describe('Test live studio', function () {
 
     startStudio('./test/fixtures/specification-v3.yml', port, true);
     await waitForServer(port);
-  });
-
-  after(async () => {
-    await closeStudioServer(port);
   });
 
   it('should successfully open and navigate the site', async () => {
@@ -53,10 +48,6 @@ describe('Test preview mode', function () {
       true,
     );
     await waitForServer(port);
-  });
-
-  after(async () => {
-    await closeStudioServer(port);
   });
 
   it('should successfully open and navigate the site', async () => {
