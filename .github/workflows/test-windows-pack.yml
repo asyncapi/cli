@@ -1,0 +1,49 @@
+name: Build Windows installer (test artifact)
+
+# Manual/PR-triggered build to validate the Windows installer without cutting a release.
+# Builds on ubuntu-latest (same as the official release) and uploads the .exe
+# files as downloadable workflow artifacts.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/pretarball.js'
+      - 'package.json'
+      - '.github/workflows/test-windows-pack.yml'
+
+jobs:
+  build-windows:
+    name: Build Windows installer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install NSIS and 7zip
+        run: sudo apt-get update && sudo apt-get install -y p7zip-full nsis
+
+      # npm cli 10 has a caching bug that can break the pack step
+      - name: Install latest npm
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Pack Windows installer
+        run: npm run pack:windows
+
+      - name: Upload installer artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: asyncapi-windows-installers
+          path: dist/win32/*.exe
+          if-no-files-found: error
