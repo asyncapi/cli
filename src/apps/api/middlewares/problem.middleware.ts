@@ -26,9 +26,10 @@ export function problemMiddleware(
     );
 
     const isError = status >= 500;
+    const isDevelopment = process.env.NODE_ENV === 'development';
     const problem = error.toObject({
-      includeStack: isError,
-      includeCause: isError,
+      includeStack: isError && isDevelopment,
+      includeCause: isError && isDevelopment,
     });
     res.status(status).json(problem);
   } catch (err: unknown) {
