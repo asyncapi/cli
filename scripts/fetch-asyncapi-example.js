@@ -119,10 +119,9 @@ const tidyUp = async () => {
 };
 
 (async () => {
-  // Skips the network download if examples already exists locally
   const exampleJsonPath = path.join(EXAMPLE_DIRECTORY, 'examples.json');
   if (fs.existsSync(exampleJsonPath) && !process.env.FORCE_FETCH_EXAMPLES) {
-    console.log('AsyncAPI spec examples already exists. Skipping download.')
+    console.log('AsyncAPI spec examples already exists. Skipping download.');
     return;
   }
 
