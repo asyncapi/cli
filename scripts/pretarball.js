@@ -18,8 +18,8 @@
  * See: https://github.com/asyncapi/cli/issues/2239
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 // Paths are relative to the oclif workspace root (process.cwd()).
 const targets = [
