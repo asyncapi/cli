@@ -1,22 +1,4 @@
 /* eslint-disable no-console */
-/*
- * scripts/pretarball.js
- *
- * It removes the Next.js `output: 'standalone'` build that is shipped inside
- * the published `@asyncapi/studio` package. The CLI launches Studio/Preview
- * via the programmatic Next server with `distDir: 'build'`
- * (see src/domains/models/Studio.ts and src/domains/models/Preview.ts), which
- * reads from `build/` as described by `build/required-server-files.json` and
- * never uses `build/standalone`.
- *
- * That standalone folder contains a deeply-nested, pnpm-structured
- * `node_modules/.pnpm/next@.../...` tree with paths exceeding the Windows
- * 260-character MAX_PATH limit, which breaks the NSIS Windows installer with
- * "Error opening file for writing". Pruning it here keeps those paths out of
- * every packed artifact (win/macos/linux) without affecting runtime behaviour.
- *
- * See: https://github.com/asyncapi/cli/issues/2239
- */
 
 const fs = require('node:fs');
 const path = require('node:path');
