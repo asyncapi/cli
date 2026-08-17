@@ -109,6 +109,7 @@
     "/assets",
     "/scripts",
     "/npm-shrinkwrap.json",
+    "/NOTICE",
     "/openapi.yaml",
     "/oclif.manifest.json"
   ],
