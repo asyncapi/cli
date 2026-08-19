@@ -5,7 +5,18 @@ import SpecificationFile from '../../src/domains/models/SpecificationFile';
 import http from 'http';
 import { rimrafSync } from 'rimraf';
 import puppeteer from 'puppeteer';
-import { version as studioVersion } from '@asyncapi/studio/package.json';
+
+// @asyncapi/studio is now an optional, on-demand dependency and may be absent.
+// Resolve its version lazily so this helper module loads even when Studio is
+// not installed. testStudio/testPreview (the only callers) run only when Studio
+// is present, so the version resolves correctly there.
+function getStudioVersion(): string {
+  try {
+    return require('@asyncapi/studio/package.json').version;
+  } catch {
+    return 'unknown';
+  }
+}
 
 const ASYNCAPI_FILE_PATH = path.resolve(process.cwd(), 'specification.yaml');
 const SERVER_DIRECTORY= path.join(__dirname, '../fixtures/dummyspec');
@@ -123,7 +134,7 @@ export async function testStudio(port = 3210){
   });
   const page = await browser.newPage();
 
-  await page.goto(`http://127.0.0.1:${port}?liveServer=${port}&studio-version=${studioVersion}`);
+  await page.goto(`http://127.0.0.1:${port}?liveServer=${port}&studio-version=${getStudioVersion()}`);
   await page.setViewport({width: 1080, height: 1024});
 
   const logo = await page.locator('body > div:nth-child(1) > div > div > div > div > img').waitHandle()
@@ -140,7 +151,7 @@ export async function testPreview(port = 4321){
   });
   const page = await browser.newPage();
 
-  await page.goto(`http://127.0.0.1:${port}?previewServer=${port}&studio-version=${studioVersion}`);
+  await page.goto(`http://127.0.0.1:${port}?previewServer=${port}&studio-version=${getStudioVersion()}`);
   await page.setViewport({width: 1080, height: 1024});
 
   const logo = await page.locator('body > div:nth-child(1) > div > div > div > div > img').waitHandle()
