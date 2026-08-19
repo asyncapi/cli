@@ -5,7 +5,6 @@ import { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
 import open from 'open';
 import path from 'path';
-import { version as studioVersion } from '@asyncapi/studio/package.json';
 import { blueBright, redBright } from 'picocolors';
 
 const { readFile, writeFile } = fPromises;
@@ -21,6 +20,31 @@ function isValidFilePath(filePath: string): boolean {
 
 type NextFactory = (config?: any) => any;
 
+// @asyncapi/studio is an optional, on-demand dependency (installed on first use
+// into the CLI data directory, see studio-installer.ts). Resolving it lazily
+// means commands which only reference this module (like `new file` without
+// `--studio`) keep working even when Studio is not installed.
+function resolveStudioPath(): string {
+  try {
+    return path.dirname(require.resolve('@asyncapi/studio/package.json'));
+  } catch {
+    throw new Error(
+      'Studio is not available in this installation. Run the command in an interactive terminal to install it on-demand, or pass "--yes" to install automatically.',
+    );
+  }
+}
+
+function getStudioVersion(studioPath?: string): string {
+  try {
+    const pkgPath = studioPath
+      ? path.join(studioPath, 'package.json')
+      : require.resolve('@asyncapi/studio/package.json');
+    return require(pkgPath).version;
+  } catch {
+    return 'unknown';
+  }
+}
+
 // Using require here is necessary for dynamic module resolution
 function resolveStudioNextInstance(studioPath: string): NextFactory {
   const resolvedNextPath = require.resolve('next', { paths: [studioPath] });
@@ -28,19 +52,18 @@ function resolveStudioNextInstance(studioPath: string): NextFactory {
   return nextModule.default ?? nextModule;
 }
  
-export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:boolean): void {
+export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:boolean, studioPath?: string): void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
 
-  // Locate @asyncapi/studio package
-  const studioPath = path.dirname(
-    require.resolve('@asyncapi/studio/package.json'),
-  );
-  const nextInstance = resolveStudioNextInstance(studioPath);
+  // Locate @asyncapi/studio package (resolved on-demand by the command, or
+  // fall back to node_modules resolution for bundled installs).
+  const resolvedStudioPath = studioPath ?? resolveStudioPath();
+  const nextInstance = resolveStudioNextInstance(resolvedStudioPath);
   const app = nextInstance({
     dev: false,
-    dir: studioPath,
+    dir: resolvedStudioPath,
     conf: {
       distDir: 'build',
     } as any,
@@ -155,7 +178,7 @@ export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:
     server.listen(port, () => {
       const addr = server.address();
       const listenPort = (addr && typeof addr === 'object' && 'port' in addr) ? (addr as any).port : port;
-      const url = `http://localhost:${listenPort}?liveServer=${listenPort}&studio-version=${studioVersion}`;
+      const url = `http://localhost:${listenPort}?liveServer=${listenPort}&studio-version=${getStudioVersion(resolvedStudioPath)}`;
       console.log(`🎉 Connected to Live Server running at ${blueBright(url)}.`);
       console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
       console.log(

@@ -8,7 +8,6 @@ import open from 'open';
 import path from 'path';
 import yaml from 'js-yaml';
 import { blueBright, redBright } from 'picocolors';
-import { version as studioVersion } from '@asyncapi/studio/package.json';
 
 const sockets: any[] = [];
 const messageQueue: string[] = [];
@@ -23,6 +22,30 @@ function isValidFilePath(filePath: string): boolean {
 
 type NextFactory = (config?: any) => any;
 
+// @asyncapi/studio is an optional, on-demand dependency (installed on first use
+// into the CLI data directory, see studio-installer.ts). Resolving it lazily
+// keeps unrelated commands working when Studio is not installed.
+function resolveStudioPath(): string {
+  try {
+    return path.dirname(require.resolve('@asyncapi/studio/package.json'));
+  } catch {
+    throw new Error(
+      'Preview is not available in this installation. Run the command in an interactive terminal to install Studio on-demand, or pass "--yes" to install automatically.',
+    );
+  }
+}
+
+function getStudioVersion(studioPath?: string): string {
+  try {
+    const pkgPath = studioPath
+      ? path.join(studioPath, 'package.json')
+      : require.resolve('@asyncapi/studio/package.json');
+    return require(pkgPath).version;
+  } catch {
+    return 'unknown';
+  }
+}
+
 // Using require here is necessary for dynamic module resolution
 function resolveStudioNextInstance(studioPath: string): NextFactory {
   const resolvedNextPath = require.resolve('next', { paths: [studioPath] });
@@ -30,7 +53,7 @@ function resolveStudioNextInstance(studioPath: string): NextFactory {
   return nextModule.default ?? nextModule;
 }
  
-export function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,suppressLogs:boolean|undefined,port: number = DEFAULT_PORT, noBrowser?: boolean):void {
+export function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,suppressLogs:boolean|undefined,port: number = DEFAULT_PORT, noBrowser?: boolean, studioPath?: string):void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
@@ -38,11 +61,11 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
   const resolvedFilePath = path.resolve(filePath);
   const baseDir = path.dirname(resolvedFilePath);
 
-  const studioPath = path.dirname(require.resolve('@asyncapi/studio/package.json'));
-  const nextInstance = resolveStudioNextInstance(studioPath);
+  const resolvedStudioPath = studioPath ?? resolveStudioPath();
+  const nextInstance = resolveStudioNextInstance(resolvedStudioPath);
   const app = nextInstance({
     dev: false,
-    dir: studioPath,
+    dir: resolvedStudioPath,
     conf: {
       distDir: 'build',
     } as any,
@@ -175,7 +198,7 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
       server.listen(port, () => {
         const previewServerAddr = server.address();
         const currentPort = (previewServerAddr && typeof previewServerAddr === 'object' && 'port' in previewServerAddr) ? (previewServerAddr as any).port : port;
-        const url = `http://localhost:${currentPort}?previewServer=${currentPort}&studio-version=${studioVersion}`;
+        const url = `http://localhost:${currentPort}?previewServer=${currentPort}&studio-version=${getStudioVersion(resolvedStudioPath)}`;
         console.log(`🎉 Connected to Preview Server running at ${blueBright(url)}.`);
         console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
         console.log(`🛑 If needed, press ${redBright('Ctrl + C')} to stop the server.`);

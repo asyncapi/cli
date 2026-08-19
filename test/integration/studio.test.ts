@@ -1,3 +1,4 @@
+import path from 'path';
 import { expect } from 'chai';
 import { start as startStudio } from '../../src/domains/models/Studio';
 import { startPreview } from '../../src/domains/models/Preview';
@@ -8,13 +9,30 @@ import {
   waitForServer,
 } from '../helpers/index';
 
+// @asyncapi/studio is now an optional, on-demand dependency (it is not bundled
+// with the CLI by default). These live integration tests require Studio (and
+// its `next` runtime) to be present in node_modules; when it is not installed,
+// they are skipped rather than failing. The on-demand install logic itself is
+// covered by test/unit/models/studio-installer.test.ts.
+function isStudioInstalled(): boolean {
+  try {
+    const studioPath = path.dirname(
+      require.resolve('@asyncapi/studio/package.json'),
+    );
+    require.resolve('next', { paths: [studioPath] });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 describe('Test live studio', function () {
   this.timeout(120000);
 
   const port = 3210;
 
   before(async function () {
-    if (!(await isChromeAvailable())) {
+    if (!isStudioInstalled() || !(await isChromeAvailable())) {
       this.skip();
     }
 
@@ -34,7 +52,7 @@ describe('Test preview mode', function () {
   const port = 4321;
 
   before(async function () {
-    if (!(await isChromeAvailable())) {
+    if (!isStudioInstalled() || !(await isChromeAvailable())) {
       this.skip();
     }
 

@@ -3,10 +3,11 @@ import Command from '@cli/internal/base';
 import { previewFlags } from '@cli/internal/flags/start/preview.flags';
 import { load } from '@models/SpecificationFile';
 import { startPreview } from '@models/Preview';
+import { ensureStudio } from '@models/studio-installer';
 
 export default class PreviewStudio extends Command {
   static readonly description =
-    'starts a new local instance of Studio in minimal state bundling all the refs of the schema file and with no editing allowed.';
+    'starts a new local instance of Studio in minimal state bundling all the refs of the schema file and with no editing allowed. Studio (~450MB) is installed on-demand on first use; pass --yes to install without prompting.';
 
   static readonly flags = previewFlags();
 
@@ -37,6 +38,7 @@ export default class PreviewStudio extends Command {
       }
     }
     this.metricsMetadata.port = previewPort;
+    const studioPath = await ensureStudio(this.config, { yes: flags.yes });
     startPreview(
       filePath as string,
       flags.base,
@@ -44,7 +46,8 @@ export default class PreviewStudio extends Command {
       flags.xOrigin,
       flags.suppressLogs,
       previewPort,
-      flags.noBrowser
+      flags.noBrowser,
+      studioPath
     );
   }
 }
