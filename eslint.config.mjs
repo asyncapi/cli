@@ -203,7 +203,7 @@ export default [
     },
   },
   {
-    files: ['src/domains/models/Preview.ts', 'src/domains/models/Studio.ts', 'test/jest.setup.ts'],
+    files: ['src/domains/models/Preview.ts', 'src/domains/models/Studio.ts', 'src/domains/models/studio-runtime.ts', 'test/jest.setup.ts'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-var-requires': 'off',
