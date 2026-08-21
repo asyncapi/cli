@@ -577,4 +577,19 @@ describe('diff', () => {
         });
     });
   });
+
+  describe('when one of the documents cannot be parsed', () => {
+    test
+      .stderr()
+      .stdout()
+      .command(['diff', './test/fixtures/specification.yml', './test/fixtures/specification-invalid.yml'])
+      .it('surfaces a non-empty ValidationError message instead of a bare "ValidationError:"', (ctx, done) => {
+        expect(ctx.stderr).to.contain('ValidationError');
+        // The historical bug emitted a literal "ValidationError:" with no
+        // diagnostic body; ensure at least one informative token follows.
+        expect(ctx.stderr).to.not.match(/ValidationError:\s*\n/);
+        expect(ctx.stderr).to.contain('parse');
+        done();
+      });
+  });
 });
