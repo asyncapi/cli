@@ -8,6 +8,7 @@ export default class Versions extends Command {
   static flags = helpFlag();
 
   async run() {
+    await this.parse(Versions);
     const dependencies: string[] = [];
     let dependency = '';
 
