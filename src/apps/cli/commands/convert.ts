@@ -8,7 +8,7 @@ import { cyan } from 'picocolors';
 import { proxyFlags } from '@cli/internal/flags/proxy.flags';
 import specs from '@asyncapi/specs';
 import { convertFlags } from '@cli/internal/flags/convert.flags';
-import { ConversionService } from '@services/convert.service';
+import type { ConversionService } from '@services/convert.service';
 import { applyProxyToPath } from '@utils/proxy';
 
 const latestVersion = Object.keys(specs.schemas).pop() as string;
@@ -17,7 +17,7 @@ const TARGET_VERSION_FLAG = 'target-version';
 export default class Convert extends Command {
   static description =
     'Convert asyncapi documents older to newer versions or OpenAPI documents to AsyncAPI';
-  private conversionService = new ConversionService();
+  private _conversionService?: ConversionService;
   static flags = {
     ...convertFlags(latestVersion),
     ...proxyFlags(),
@@ -29,6 +29,15 @@ export default class Convert extends Command {
       required: false,
     }),
   };
+
+  private async getConversionService(): Promise<ConversionService> {
+    if (!this._conversionService) {
+      const { ConversionService: cService } = await import('@services/convert.service');
+      this._conversionService = new cService();
+    }
+
+    return this._conversionService;
+  }
 
   async run() {
     const { args, flags } = await this.parse(Convert);
@@ -50,7 +59,8 @@ export default class Convert extends Command {
         perspective: flags['perspective'] as 'client' | 'server',
       };
 
-      const result = await this.conversionService.convertDocument(
+      const cService = await this.getConversionService();
+      const result = await cService.convertDocument(
         this.specFile,
         conversionOptions,
       );
@@ -62,11 +72,11 @@ export default class Convert extends Command {
       this.metricsMetadata.conversion_result = result;
 
       this.log(
-        this.conversionService.handleLogging(this.specFile, conversionOptions),
+        cService.handleLogging(this.specFile, conversionOptions),
       );
 
       if (flags['output']) {
-        await this.conversionService.handleOutput(
+        await cService.handleOutput(
           flags['output'],
           result.data.convertedDocument,
         );
