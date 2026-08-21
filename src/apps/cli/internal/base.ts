@@ -114,7 +114,10 @@ export default abstract class extends Command {
   }
   async finally(error: Error | undefined): Promise<any> {
     await super.finally(error);
-    this.metricsMetadata['success'] = error === undefined;
+    if (error) {
+      return;
+    }
+    this.metricsMetadata['success'] = true;
     await this.recordActionFinished(
       this.id as string,
       this.metricsMetadata,
