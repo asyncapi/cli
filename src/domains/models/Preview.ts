@@ -23,7 +23,28 @@ const messageQueue: string[] = [];
 const filePathsToWatch: Set<string> = new Set<string>();
 const defaultErrorMessage = 'error occured while bundling files. use --detailedLog or -l flag to get more details.';
 
-export function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,suppressLogs:boolean|undefined,port: number = DEFAULT_PORT, noBrowser?: boolean, studioPath?: string):void {
+export interface PreviewOptions {
+  base?: string;
+  baseDirectory?: string;
+  xOrigin?: boolean;
+  suppressLogs?: boolean;
+  port?: number;
+  noBrowser?: boolean;
+  /** Resolved @asyncapi/studio path (from ensureStudio); falls back to lazy resolution. */
+  studioPath?: string;
+}
+
+export function startPreview(filePath: string, options: PreviewOptions = {}): void {
+  const {
+    base,
+    baseDirectory,
+    xOrigin,
+    suppressLogs,
+    port = DEFAULT_PORT,
+    noBrowser,
+    studioPath,
+  } = options;
+
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }

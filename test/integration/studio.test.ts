@@ -56,15 +56,10 @@ describe('Test preview mode', function () {
       this.skip();
     }
 
-    startPreview(
-      './test/fixtures/asyncapi_v2.yml',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
+    startPreview('./test/fixtures/asyncapi_v2.yml', {
       port,
-      true,
-    );
+      noBrowser: true,
+    });
     await waitForServer(port);
   });
 

@@ -39,15 +39,14 @@ export default class PreviewStudio extends Command {
     }
     this.metricsMetadata.port = previewPort;
     const studioPath = await ensureStudio(this.config, { yes: flags.yes });
-    startPreview(
-      filePath as string,
-      flags.base,
-      flags.baseDir,
-      flags.xOrigin,
-      flags.suppressLogs,
-      previewPort,
-      flags.noBrowser,
-      studioPath
-    );
+    startPreview(filePath as string, {
+      base: flags.base,
+      baseDirectory: flags.baseDir,
+      xOrigin: flags.xOrigin,
+      suppressLogs: flags.suppressLogs,
+      port: previewPort,
+      noBrowser: flags.noBrowser,
+      studioPath,
+    });
   }
 }

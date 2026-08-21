@@ -5,29 +5,42 @@ import { confirm, isCancel, cancel, spinner } from '@clack/prompts';
 import { blueBright } from 'picocolors';
 import type { Config } from '@oclif/core';
 
-/**
- * Pinned version of @asyncapi/studio installed on-demand.
- *
- * @asyncapi/studio (and its transitive `next` dependency) is intentionally NOT
- * a hard dependency of the CLI because it adds ~450MB to every install while
- * only being needed by `start studio`, `start preview` and `new --studio`.
- * Instead it is installed on first use into the CLI's per-user data directory.
- *
- * Bump this via the changeset/version flow whenever the bundled Studio version
- * should change.
- */
-export const STUDIO_VERSION = '1.2.0';
-
 /** Approximate on-disk size of @asyncapi/studio + deps, shown in the prompt. */
 const STUDIO_DOWNLOAD_SIZE = '~450MB';
 
 const STUDIO_PKG = '@asyncapi/studio';
+
+/** Fallback version spec if the CLI package.json does not declare Studio. */
+const DEFAULT_STUDIO_VERSION_SPEC = 'latest';
 
 class StudioInstallError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'StudioInstallError';
   }
+}
+
+/**
+ * The @asyncapi/studio version spec to install on-demand.
+ *
+ * @asyncapi/studio (and its transitive `next` dependency) is intentionally NOT
+ * a runtime dependency of the CLI because it adds ~450MB to every install while
+ * only being needed by `start studio`, `start preview` and `new --studio`. It
+ * is declared as a devDependency instead, so the version stays tracked (by
+ * Dependabot) and locked (in package-lock.json) for development, while end-user
+ * and Docker installs (`--omit=dev`) stay slim. The declared range is read here
+ * and installed on first use into the CLI's per-user data directory.
+ */
+export function getStudioVersionSpec(config: Pick<Config, 'pjson'>): string {
+  const pjson = config.pjson as {
+    devDependencies?: Record<string, string>;
+    dependencies?: Record<string, string>;
+  };
+  return (
+    pjson?.devDependencies?.[STUDIO_PKG] ??
+    pjson?.dependencies?.[STUDIO_PKG] ??
+    DEFAULT_STUDIO_VERSION_SPEC
+  );
 }
 
 /**
@@ -51,16 +64,16 @@ function isStudioInstalledInDataDir(dataDir: string): boolean {
   return existsSync(path.join(dataDirStudioPath(dataDir), 'package.json'));
 }
 
-function installStudio(dataDir: string): void {
+function installStudio(dataDir: string, versionSpec: string): void {
   const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
   const s = spinner();
-  s.start(`Installing ${STUDIO_PKG}@${STUDIO_VERSION} (${STUDIO_DOWNLOAD_SIZE})`);
+  s.start(`Installing ${STUDIO_PKG}@${versionSpec} (${STUDIO_DOWNLOAD_SIZE})`);
 
   const result = spawnSync(
     npm,
     [
       'install',
-      `${STUDIO_PKG}@${STUDIO_VERSION}`,
+      `${STUDIO_PKG}@${versionSpec}`,
       '--prefix',
       dataDir,
       '--no-audit',
@@ -74,7 +87,7 @@ function installStudio(dataDir: string): void {
   if (result.status !== 0) {
     s.stop('Studio installation failed.');
     throw new StudioInstallError(
-      `Failed to install ${STUDIO_PKG}@${STUDIO_VERSION}. Please check your network connection and npm setup, or install the CLI with Studio bundled via "npm install -g @asyncapi/cli".`,
+      `Failed to install ${STUDIO_PKG}@${versionSpec}. Please check your network connection and npm setup, or install the CLI with Studio bundled via "npm install -g @asyncapi/cli".`,
     );
   }
 
@@ -148,6 +161,8 @@ export async function ensureStudio(
     return dataDirStudioPath(dataDir);
   }
 
+  const versionSpec = getStudioVersionSpec(config);
+
   const decision = decideStudioInstall({
     yes: options.yes,
     noInteractive: options.noInteractive,
@@ -166,18 +181,18 @@ export async function ensureStudio(
 
   if (decision === 'prompt') {
     const proceed = await confirm({
-      message: `Studio requires an additional ${STUDIO_DOWNLOAD_SIZE} download (${STUDIO_PKG}@${STUDIO_VERSION}). Proceed?`,
+      message: `Studio requires an additional ${STUDIO_DOWNLOAD_SIZE} download (${STUDIO_PKG}@${versionSpec}). Proceed?`,
       initialValue: true,
     });
 
     if (isCancel(proceed) || proceed === false) {
       cancel(
-        `Studio is required to run this command. Install it later by re-running and accepting the prompt, or run "npm install ${STUDIO_PKG}@${STUDIO_VERSION} --prefix ${blueBright(dataDir)}".`,
+        `Studio is required to run this command. Install it later by re-running and accepting the prompt, or run "npm install ${STUDIO_PKG}@${versionSpec} --prefix ${blueBright(dataDir)}".`,
       );
       throw new StudioInstallError('Studio installation declined by user.');
     }
   }
 
-  installStudio(dataDir);
+  installStudio(dataDir, versionSpec);
   return dataDirStudioPath(dataDir);
 }

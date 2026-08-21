@@ -1,14 +1,32 @@
 import { expect } from 'chai';
+import type { Config } from '@oclif/core';
 import {
   decideStudioInstall,
-  STUDIO_VERSION,
+  getStudioVersionSpec,
 } from '../../../src/domains/models/studio-installer';
 
-describe('studio-installer - decideStudioInstall', () => {
-  it('pins a concrete Studio version for on-demand installs', () => {
-    expect(STUDIO_VERSION).to.match(/^\d+\.\d+\.\d+$/);
+describe('studio-installer - getStudioVersionSpec', () => {
+  it('reads the Studio version range from devDependencies', () => {
+    const config = {
+      pjson: { devDependencies: { '@asyncapi/studio': '^1.2.0' } },
+    } as unknown as Config;
+    expect(getStudioVersionSpec(config)).to.equal('^1.2.0');
   });
 
+  it('falls back to dependencies when not in devDependencies', () => {
+    const config = {
+      pjson: { dependencies: { '@asyncapi/studio': '1.3.0' } },
+    } as unknown as Config;
+    expect(getStudioVersionSpec(config)).to.equal('1.3.0');
+  });
+
+  it('falls back to "latest" when Studio is not declared', () => {
+    const config = { pjson: {} } as unknown as Config;
+    expect(getStudioVersionSpec(config)).to.equal('latest');
+  });
+});
+
+describe('studio-installer - decideStudioInstall', () => {
   describe('auto-accept (install without prompting)', () => {
     it('installs when --yes is passed, even without a TTY', () => {
       const decision = decideStudioInstall({

@@ -7,7 +7,7 @@ import { Args } from '@oclif/core';
 import { isCancel, text, cancel } from '@clack/prompts';
 
 export default class StartStudio extends Command {
-  static description = 'starts a new local instance of Studio. Studio (~450MB) is installed on-demand on first use; pass --yes to install without prompting.';
+  static readonly description = 'starts a new local instance of Studio. Studio (~450MB) is installed on-demand on first use; pass --yes to install without prompting.';
 
   static flags = studioFlags();
 
