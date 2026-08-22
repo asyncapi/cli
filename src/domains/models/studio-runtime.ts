@@ -1,5 +1,5 @@
-import { existsSync } from 'fs';
-import path from 'path';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 
 export const DEFAULT_PORT = 0;
 
@@ -9,14 +9,6 @@ export function isValidFilePath(filePath: string): boolean {
   return existsSync(filePath);
 }
 
-/**
- * @asyncapi/studio is an optional, on-demand dependency (installed on first use
- * into the CLI data directory, see studio-installer.ts). Resolving it lazily
- * means commands which only reference the Studio/Preview modules (like
- * `new file` without `--studio`) keep working even when Studio is not installed.
- *
- * @param feature label used in the error message ("Studio" or "Preview").
- */
 export function resolveStudioPath(feature: 'Studio' | 'Preview' = 'Studio'): string {
   try {
     return path.dirname(require.resolve('@asyncapi/studio/package.json'));

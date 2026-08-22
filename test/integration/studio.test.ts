@@ -9,11 +9,6 @@ import {
   waitForServer,
 } from '../helpers/index';
 
-// @asyncapi/studio is now an optional, on-demand dependency (it is not bundled
-// with the CLI by default). These live integration tests require Studio (and
-// its `next` runtime) to be present in node_modules; when it is not installed,
-// they are skipped rather than failing. The on-demand install logic itself is
-// covered by test/unit/models/studio-installer.test.ts.
 function isStudioInstalled(): boolean {
   try {
     const studioPath = path.dirname(

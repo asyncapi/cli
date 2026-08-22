@@ -6,10 +6,6 @@ import http from 'http';
 import { rimrafSync } from 'rimraf';
 import puppeteer from 'puppeteer';
 
-// @asyncapi/studio is now an optional, on-demand dependency and may be absent.
-// Resolve its version lazily so this helper module loads even when Studio is
-// not installed. testStudio/testPreview (the only callers) run only when Studio
-// is present, so the version resolves correctly there.
 function getStudioVersion(): string {
   try {
     return require('@asyncapi/studio/package.json').version;

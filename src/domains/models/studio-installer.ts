@@ -1,16 +1,14 @@
-import { existsSync } from 'fs';
-import path from 'path';
-import { spawnSync } from 'child_process';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { confirm, isCancel, cancel, spinner } from '@clack/prompts';
 import { blueBright } from 'picocolors';
 import type { Config } from '@oclif/core';
 
-/** Approximate on-disk size of @asyncapi/studio + deps, shown in the prompt. */
 const STUDIO_DOWNLOAD_SIZE = '~450MB';
 
 const STUDIO_PKG = '@asyncapi/studio';
 
-/** Fallback version spec if the CLI package.json does not declare Studio. */
 const DEFAULT_STUDIO_VERSION_SPEC = 'latest';
 
 class StudioInstallError extends Error {
@@ -20,17 +18,6 @@ class StudioInstallError extends Error {
   }
 }
 
-/**
- * The @asyncapi/studio version spec to install on-demand.
- *
- * @asyncapi/studio (and its transitive `next` dependency) is intentionally NOT
- * a runtime dependency of the CLI because it adds ~450MB to every install while
- * only being needed by `start studio`, `start preview` and `new --studio`. It
- * is declared as a devDependency instead, so the version stays tracked (by
- * Dependabot) and locked (in package-lock.json) for development, while end-user
- * and Docker installs (`--omit=dev`) stay slim. The declared range is read here
- * and installed on first use into the CLI's per-user data directory.
- */
 export function getStudioVersionSpec(config: Pick<Config, 'pjson'>): string {
   const pjson = config.pjson as {
     devDependencies?: Record<string, string>;
@@ -43,10 +30,7 @@ export function getStudioVersionSpec(config: Pick<Config, 'pjson'>): string {
   );
 }
 
-/**
- * Resolve @asyncapi/studio from the normal node_modules resolution (present if
- * the CLI is installed with Studio bundled, e.g. an older/full install).
- */
+// Resolve bundled @asyncapi/studio path from node_modules if present like in case of an older cli install.
 function resolveBundledStudioPath(): string | undefined {
   try {
     return path.dirname(require.resolve(`${STUDIO_PKG}/package.json`));
@@ -55,7 +39,7 @@ function resolveBundledStudioPath(): string | undefined {
   }
 }
 
-/** Path to Studio inside the CLI's per-user data directory. */
+// Install studio per user data directory
 function dataDirStudioPath(dataDir: string): string {
   return path.join(dataDir, 'node_modules', '@asyncapi', 'studio');
 }
@@ -95,33 +79,19 @@ function installStudio(dataDir: string, versionSpec: string): void {
 }
 
 export interface EnsureStudioOptions {
-  /** Auto-accept the install prompt (from --yes flag or env). */
   yes?: boolean;
-  /** Disable interactive prompts. */
   noInteractive?: boolean;
 }
 
 export type StudioInstallDecision = 'install' | 'prompt' | 'decline';
 
 export interface StudioInstallContext {
-  /** `--yes` flag was passed. */
   yes?: boolean;
-  /** `--no-interactive` flag was passed. */
   noInteractive?: boolean;
-  /** Whether stdout is an interactive terminal. */
   isTTY: boolean;
-  /** Whether ASYNCAPI_STUDIO_AUTO_INSTALL=1 is set. */
   envAutoInstall: boolean;
 }
 
-/**
- * Pure decision for how to obtain consent to install Studio on-demand:
- *   - `install`: auto-accepted (`--yes` or ASYNCAPI_STUDIO_AUTO_INSTALL=1).
- *   - `prompt`:  ask the user interactively (TTY, no auto-accept).
- *   - `decline`: cannot prompt (no TTY or --no-interactive) and not auto-accepted.
- *
- * Kept pure (no I/O) so the branching matrix is unit-testable.
- */
 export function decideStudioInstall(
   ctx: StudioInstallContext,
 ): StudioInstallDecision {
@@ -134,19 +104,6 @@ export function decideStudioInstall(
   return 'prompt';
 }
 
-/**
- * Ensures @asyncapi/studio is available and returns the absolute path to its
- * package directory.
- *
- * Resolution order:
- *   1. Bundled in node_modules (full install).
- *   2. Previously installed into the CLI data directory.
- *   3. Install on-demand (after confirmation) into the data directory.
- *
- * In non-interactive contexts (no TTY or --no-interactive) it will not prompt;
- * it either auto-installs when `--yes`/ASYNCAPI_STUDIO_AUTO_INSTALL=1 is set, or
- * throws a clear, actionable error.
- */
 export async function ensureStudio(
   config: Config,
   options: EnsureStudioOptions = {},
