@@ -1,0 +1,56 @@
+asyncapi: 3.0.0
+id: urn:com:example
+info:
+  title: x
+  version: 1.4.0
+operations:
+  A:
+    action: send
+    description: ''
+    channel:
+      $ref: '#/channels/A'
+    messages:
+      - $ref: '#/channels/A/messages/A'
+channels:
+  A:
+    address: ''
+    title: ''
+    messages:
+      A:
+        $ref: '#/components/messages/A'
+components:
+  messages:
+    A:
+      contentType: application/json
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/EventEnvelope'
+          - $ref: '#/components/schemas/EnvelopeOverrides'
+          - type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/A'
+  schemas:
+    A:
+      description: ''
+      type: object
+      properties:
+        a:
+          type: string
+          minLength: 1
+          examples:
+            - 669e01d59ba47d8e3e21cf13
+      required:
+        - a
+    EnvelopeOverrides:
+      description: Envelope overrides for this event
+      type: object
+      properties:
+        type:
+          type: string
+          const: a
+      required:
+        - type
+    EventEnvelope:
+      allOf:
+        - $ref: https://raw.githubusercontent.com/cloudevents/spec/v1.0.2/cloudevents/formats/cloudevents.json
