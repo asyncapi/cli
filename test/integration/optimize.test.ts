@@ -1,4 +1,5 @@
 import path from 'path';
+import os from 'os';
 import { test } from '@oclif/test';
 import TestHelper, { createMockServer, stopMockServer } from '../helpers/index';
 import fs from 'fs-extra';
@@ -12,6 +13,9 @@ const unoptimizedYamlFile = './test/fixtures/dummyspec/unoptimizedSpec.yml';
 const unoptimizedJsonFile = './test/fixtures/dummyspec/unoptimizedSpec.json';
 const invalidFile = './test/fixtures/specification-invalid.yml';
 const asyncapiv3 = './test/fixtures/specification-v3.yml';
+// Stable temp paths (evaluated at load time so oclif `.command([...])` captures them).
+const tempOverwriteYamlFile = path.join(os.tmpdir(), `asyncapi-optimize-overwrite-${process.pid}.yml`);
+const tempOverwriteJsonFile = path.join(os.tmpdir(), `asyncapi-optimize-overwrite-${process.pid}.json`);
 
 describe('optimize', () => {
   describe('no optimization needed', () => {
@@ -129,6 +133,11 @@ describe('optimize', () => {
   });
 
   describe('no-tty flag', () => {
+    afterEach(() => {
+      fs.removeSync(tempOverwriteYamlFile);
+      fs.removeSync(tempOverwriteJsonFile);
+    });
+
     test
       .stderr()
       .stdout()
@@ -164,6 +173,42 @@ describe('optimize', () => {
         expect(ctx.stderr).to.equal('');
         expect(fs.readFileSync(optimizedFile, 'utf8')).to.contain('"asyncapi": "2.0.0"');
         fs.unlinkSync(optimizedFile);
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .do(() => {
+        fs.copySync(unoptimizedYamlFile, tempOverwriteYamlFile);
+      })
+      .command(['optimize', tempOverwriteYamlFile, '--no-tty', '-o', 'overwrite'])
+      .it('overwrite original YAML file in place with --output=overwrite', (ctx, done) => {
+        const originalContent = fs.readFileSync(unoptimizedYamlFile, 'utf8');
+        const updatedContent = fs.readFileSync(tempOverwriteYamlFile, 'utf8');
+
+        expect(ctx.stdout).to.contain(`✅ Success! Your original file at ${tempOverwriteYamlFile} has been updated.`);
+        expect(ctx.stderr).to.equal('');
+        expect(updatedContent).to.contain('asyncapi: 2.0.0');
+        expect(updatedContent).to.not.equal(originalContent);
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
+      .do(() => {
+        fs.copySync(unoptimizedJsonFile, tempOverwriteJsonFile);
+      })
+      .command(['optimize', tempOverwriteJsonFile, '--no-tty', '-o', 'overwrite'])
+      .it('overwrite original JSON file in place with --output=overwrite', (ctx, done) => {
+        const originalContent = fs.readFileSync(unoptimizedJsonFile, 'utf8');
+        const updatedContent = fs.readFileSync(tempOverwriteJsonFile, 'utf8');
+
+        expect(ctx.stdout).to.contain(`✅ Success! Your original file at ${tempOverwriteJsonFile} has been updated.`);
+        expect(ctx.stderr).to.equal('');
+        expect(updatedContent).to.contain('"asyncapi": "2.0.0"');
+        expect(updatedContent).to.not.equal(originalContent);
         done();
       });
   });
