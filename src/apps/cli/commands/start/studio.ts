@@ -1,12 +1,13 @@
 import Command from '@cli/internal/base';
 import { start as startStudio } from '@models/Studio';
+import { ensureStudio } from '@models/studio-installer';
 import { load } from '@models/SpecificationFile';
 import { studioFlags } from '@cli/internal/flags/start/studio.flags';
 import { Args } from '@oclif/core';
 import { isCancel, text, cancel } from '@clack/prompts';
 
 export default class StartStudio extends Command {
-  static description = 'starts a new local instance of Studio';
+  static readonly description = 'starts a new local instance of Studio. Studio (~450MB) is installed on-demand on first use; pass --yes to install without prompting.';
 
   static flags = studioFlags();
 
@@ -55,7 +56,11 @@ export default class StartStudio extends Command {
       }
     }
     this.metricsMetadata.port = port;
-    startStudio(filePath as string, port,flags.noBrowser);
+    const studioPath = await ensureStudio(this.config, {
+      yes: flags.yes,
+      noInteractive: flags['no-interactive'],
+    });
+    startStudio(filePath as string, port, flags.noBrowser, studioPath);
   }
 
   private async parseArgs(args: Record<string, any>, port?: string) {

@@ -2,6 +2,7 @@ import { promises as fPromises, readFileSync } from 'fs';
 import Command from '@cli/internal/base';
 import inquirer from 'inquirer';
 import { start as startStudio, DEFAULT_PORT } from '@models/Studio';
+import { ensureStudio } from '@models/studio-installer';
 import { resolve } from 'path';
 import { load } from '@models/SpecificationFile';
 import { cyan } from 'picocolors';
@@ -70,7 +71,8 @@ export default class NewFile extends Command {
 
     if (flags.studio) {
       if (isTTY) {
-        startStudio(fileName, flags.port || DEFAULT_PORT);
+        const studioPath = await ensureStudio(this.config, { yes: flags.yes });
+        startStudio(fileName, flags.port || DEFAULT_PORT, undefined, studioPath);
       } else {
         this.warn(
           'Warning: --studio flag was passed but the terminal is not interactive. Ignoring...',
@@ -164,7 +166,8 @@ export default class NewFile extends Command {
     await this.createAsyncapiFile(fileName, selectedTemplate);
     fileName = fileName.includes('.') ? fileName : `${fileName}.yaml`;
     if (openStudio) {
-      startStudio(fileName, flags.port || DEFAULT_PORT);
+      const studioPath = await ensureStudio(this.config, { yes: flags.yes });
+      startStudio(fileName, flags.port || DEFAULT_PORT, undefined, studioPath);
     }
   }
 
