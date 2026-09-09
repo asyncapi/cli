@@ -12,6 +12,7 @@
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "dependencies": {
+    "@apidevtools/json-schema-ref-parser": "^9.1.0",
     "@asyncapi/avro-schema-parser": "^3.0.24",
     "@asyncapi/bundler": "^1.0.1",
     "@asyncapi/converter": "^2.0.1",
@@ -29,6 +30,10 @@
     "@oclif/plugin-autocomplete": "^3.2.39",
     "@smoya/asyncapi-adoption-metrics": "^2.4.9",
     "@stoplight/spectral-cli": "6.15.1",
+    "@stoplight/spectral-core": "^1.15.0",
+    "@stoplight/spectral-formatters": "^1.0.0",
+    "ajv": "^8.12.0",
+    "ajv-formats": "^2.1.1",
     "archiver": "^7.0.1",
     "body-parser": "^2.2.1",
     "chalk": "^4.1.2",
@@ -43,10 +48,12 @@
     "https-proxy-agent": "^7.0.6",
     "inquirer": "^8.2.6",
     "js-yaml": "^4.1.1",
+    "jsonfile": "^6.1.0",
     "oclif": "^4.22.57",
     "open": "^8.4.2",
     "picocolors": "^1.1.1",
     "redoc-express": "^2.1.3",
+    "tslib": "^2.8.1",
     "unzipper": "^0.12.3",
     "uuid": "^14.0.0",
     "winston": "^3.19.0",
@@ -70,6 +77,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/inquirer": "^9.0.9",
     "@types/js-yaml": "^4.0.9",
+    "@types/jsonfile": "^6.1.4",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.0.3",
     "@types/sinon": "^22.0.0",
@@ -97,7 +105,8 @@
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.0"
   },
   "engines": {
     "node": ">=24.0.0"
