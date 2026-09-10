@@ -2,19 +2,20 @@
 FROM node:24-alpine AS base
 
 # Install required system packages
-RUN apk add --update nghttp2
+RUN apk add --update nghttp2 \
+  && corepack enable
 
 # ---- Build stage ----
 FROM base AS build
 
 WORKDIR /app
 
-# 1. Copy package files + workspace packages first (needed to resolve the "*" workspace dependency)
-COPY package*.json ./
+# 1. Copy package files + workspace packages first
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY ./packages ./packages
 
-# 2. Install dependencies (cached unless package*.json / packages change)
-RUN npm install --ignore-scripts
+# 2. Install dependencies (cached unless the package files change)
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # 3. Copy the rest of the application code
 COPY ./assets ./assets
@@ -25,8 +26,8 @@ COPY openapi.yaml ./
 COPY *.json ./
 
 # 4. Build the workspace optimizer first (api:build compiles optimize.ts, which imports it), then the API
-RUN npm run optimizer:build
-RUN npm run api:build
+RUN pnpm optimizer:build
+RUN pnpm api:build
 
 # ---- Templates stage ----
 FROM base AS templates
@@ -51,20 +52,19 @@ RUN addgroup -g 1001 -S nodejs \
 # Copy built code
 COPY --from=build /app/lib ./lib
 
-# Copy package files
-COPY --from=build /app/package*.json ./
+# Copy package files and workspace definition
+COPY --from=build /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
 
-# Copy workspace packages (incl. the built @asyncapi/optimizer) so the "*" workspace dependency
+# Copy workspace packages (including the built @asyncapi/optimizer)
 COPY --from=build /app/packages ./packages
 
 # package.json "postinstall" points at scripts/enableAutoComplete.js — copy it so npm cannot fail looking for it
 COPY --from=build /app/scripts ./scripts
 
-# Install production deps, then remove heavy ones
-RUN npm ci --omit=dev --ignore-scripts \
-  && npm uninstall @asyncapi/studio next \
-  && npm cache clean --force \
-  && npm prune --production
+# Install production dependencies and clean the pnpm store. Studio is now a
+# development-only dependency, so it is excluded automatically.
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts \
+  && pnpm store prune
 
 # Copy globally installed templates from templates stage
 COPY --from=templates /usr/local/lib/node_modules /usr/local/lib/node_modules

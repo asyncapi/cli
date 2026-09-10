@@ -48,8 +48,8 @@ Read [DEVELOPMENT.md](/DEVELOPMENT.md) file for development setup.
 
 Additional steps:
 
-- Run `npm run test` to make sure everything is properly set up
-- Run `npm run build` and then `bin/run` to try new CLI locally
+- Run `pnpm test` to make sure everything is properly set up
+- Run `pnpm build` and then `bin/run` to try new CLI locally
 
 > This repository is an npm-workspaces + Turbo monorepo. The root package is `@asyncapi/cli` (workspaces
 > include `"."` so Changesets still versions it like today), and `@asyncapi/optimizer` lives in

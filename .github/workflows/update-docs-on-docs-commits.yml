@@ -27,22 +27,18 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Determine what node version to use
-        # This workflow is from our own org repo and safe to reference by 'master'.
-        uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master # //NOSONAR
-        with:
-          node-version: ${{ vars.NODE_VERSION }}
-        id: lockversion
+      - name: Set up pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
       - name: Use Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "${{ steps.lockversion.outputs.version }}"
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          node-version: 24
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - name: Regenerate docs
-        run: npm run generate:assets --if-present
+        run: pnpm run --if-present generate:assets
       - name: Create Pull Request with updated docs
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
@@ -62,4 +58,4 @@ jobs:
           text: 'AsyncAPI docs generation workflow failed'
           author_name: asyncapi-bot
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_CI_FAIL_NOTIFY }}     
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_CI_FAIL_NOTIFY }}
