@@ -31,7 +31,6 @@ export default class Convert extends Command {
   };
 
   async run() {
-    await this.parse(Convert);
     const { args, flags } = await this.parse(Convert);
     const filePath = applyProxyToPath(
       args['spec-file'],

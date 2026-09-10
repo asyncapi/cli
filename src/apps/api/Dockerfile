@@ -2,7 +2,8 @@
 FROM node:24-alpine AS base
 
 # Install required system packages
-RUN apk add --update nghttp2
+RUN apk add --update nghttp2 \
+  && corepack enable
 
 # ---- Build stage ----
 FROM base AS build
@@ -10,10 +11,10 @@ FROM base AS build
 WORKDIR /app
 
 # 1. Copy only package files first (for better caching)
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 
-# 2. Install dependencies (cached unless package*.json changes)
-RUN npm install --ignore-scripts
+# 2. Install dependencies (cached unless the package files change)
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # 3. Copy the rest of the application code
 COPY ./assets ./assets
@@ -24,7 +25,7 @@ COPY openapi.yaml ./
 COPY *.json ./
 
 # 4. Build TypeScript or production-ready JS
-RUN npm run api:build
+RUN pnpm api:build
 
 # ---- Templates stage ----
 FROM base AS templates
@@ -50,13 +51,12 @@ RUN addgroup -g 1001 -S nodejs \
 COPY --from=build /app/lib ./lib
 
 # Copy package files
-COPY --from=build /app/package*.json ./
+COPY --from=build /app/package.json /app/pnpm-lock.yaml ./
 
-# Install production deps, then remove heavy ones
-RUN npm ci --omit=dev --ignore-scripts \
-  && npm uninstall @asyncapi/studio next \
-  && npm cache clean --force \
-  && npm prune --production
+# Install production dependencies and clean the pnpm store. Studio is now a
+# development-only dependency, so it is excluded automatically.
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts \
+  && pnpm store prune
 
 # Copy globally installed templates from templates stage
 COPY --from=templates /usr/local/lib/node_modules /usr/local/lib/node_modules
