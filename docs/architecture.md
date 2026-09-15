@@ -154,7 +154,9 @@ HTTP Request → Express → Controller → Domain Service → HTTP Response
 ## Workspace packages (monorepo)
 
 This repository is an npm-workspaces + [Turborepo](https://turbo.build/) monorepo. The root package is
-`@asyncapi/cli`; additional publishable packages live under `packages/*`:
+`@asyncapi/cli` (still published from the repo root). `workspaces` includes both `"."` and `packages/*`
+so Changesets versions the CLI the same way it does today (`npx changeset` → select `@asyncapi/cli`)
+and also versions workspace packages such as `@asyncapi/optimizer`. Additional publishable packages live under `packages/*`:
 
 | Package | Path | Notes |
 |---------|------|-------|

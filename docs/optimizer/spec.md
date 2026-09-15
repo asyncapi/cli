@@ -150,13 +150,17 @@ Turbo builds `@asyncapi/optimizer` before the root CLI build, because the CLI's 
 
 ## 8. Releases (Changesets)
 
-Published from **`asyncapi/cli`** (not the old standalone repo).
+Published from **`asyncapi/cli`** (not the old standalone repo). The CLI stays at the **repo root**;
+`package.json` workspaces are `[".", "packages/*"]` so Changesets still sees `@asyncapi/cli` (same
+contributor flow as today) plus `@asyncapi/optimizer`.
 
-1. Change code under `packages/optimizer/`.
-2. `npx changeset` -> select `@asyncapi/optimizer`, choose the bump, write a summary; commit the `.changeset/*.md`.
-3. On merge, the Changesets action opens/updates a **Version Packages** PR (version + CHANGELOG).
-4. Merging that PR publishes changed packages to npm via `changeset publish` (with provenance), from
-   `.github/workflows/release-with-changesets.yml`.
+1. Change code. For optimizer-only work, select `@asyncapi/optimizer`. For CLI work, select
+   `@asyncapi/cli` (unchanged). A PR can name both.
+2. `npx changeset` → choose the package(s), bump, write a summary; commit the `.changeset/*.md`.
+3. On merge, the Changesets action opens/updates a **Version Packages** PR (`changeset version` +
+   `bump:github-action`). That bumps each named package's `package.json` and CHANGELOG.
+4. Merging that PR publishes changed packages to npm (`changeset publish`, with a root
+   `npm publish --provenance` fallback) from `.github/workflows/release-with-changesets.yml`.
 
 `@asyncapi/optimizer` must be registered as a **Trusted Publisher** on npm for `asyncapi/cli` before the first
 publish. Package metadata: `private: false`, `publishConfig.access: public`.

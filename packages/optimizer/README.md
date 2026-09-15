@@ -27,11 +27,11 @@ AsyncAPI offers many ways to reuse certain parts of the document like messages o
 
 ## Testing
 
-1. Clone the project
-   `git clone https://github.com/asyncapi/optimizer.git`
-2. Install the dependencies
+1. Clone the CLI monorepo
+   `git clone https://github.com/asyncapi/cli.git`
+2. Install the dependencies from the repo root
    `npm i`
-3. for a quick check you can run `npm run example`. You can open `examples/index.js` modify it or add your own AsyncAPI document for optimization.
+3. Build this package with `npm run optimizer:build`, or from `packages/optimizer` run `npm run example`. You can open `examples/index.js` and modify it or add your own AsyncAPI document.
 
 ## Usage
 
@@ -88,46 +88,50 @@ const optimizer = new Optimizer(yaml)
 ### Generating report
 
 ```typescript
-const report: Report = await optimizer.getReport()
+const report = await optimizer.getReport()
 /*
-the report value will be:
-{
-  removeComponents: [],
-  reuseComponents: [],
-  moveAllToComponents: [
-    {
-      path: 'channels.commentLikedChannel.messages.commentLikedMessage.payload.properties.commentId',
-      action: 'move',
-      target: 'components.schemas.idSchema'
-    },
-    {
-      path: 'channels.commentLikedChannel.messages.commentLikedMessage.payload',
-      action: 'move',
-      target: 'components.schemas.commentLikedSchema'
-    },
-    {
-      path: 'channels.commentLikedChannel.messages.commentLikedMessage',
-      action: 'move',
-      target: 'components.messages.commentLikedMessage'
-    },
-    {
-      path: 'operations.user/deleteAccount.subscribe',
-      action: 'move',
-      target: 'components.operations.subscribe'
-    },
-    {
-      path: 'channels.commentLikedChannel',
-      action: 'move',
-      target: 'components.channels.commentLikedChannel'
-    },
-    {
-      path: 'servers.production',
-      action: 'move',
-      target: 'components.servers.production'
-    }
-  ],
-  moveDuplicatesToComponents: []
-}
+v2: getReport() returns { type, elements }[] (not a keyed object).
+
+[
+  { type: 'removeComponents', elements: [] },
+  { type: 'reuseComponents', elements: [] },
+  {
+    type: 'moveAllToComponents',
+    elements: [
+      {
+        path: 'channels.commentLikedChannel.messages.commentLikedMessage.payload.properties.commentId',
+        action: 'move',
+        target: 'components.schemas.idSchema'
+      },
+      {
+        path: 'channels.commentLikedChannel.messages.commentLikedMessage.payload',
+        action: 'move',
+        target: 'components.schemas.commentLikedSchema'
+      },
+      {
+        path: 'channels.commentLikedChannel.messages.commentLikedMessage',
+        action: 'move',
+        target: 'components.messages.commentLikedMessage'
+      },
+      {
+        path: 'operations.user/deleteAccount.subscribe',
+        action: 'move',
+        target: 'components.operations.subscribe'
+      },
+      {
+        path: 'channels.commentLikedChannel',
+        action: 'move',
+        target: 'components.channels.commentLikedChannel'
+      },
+      {
+        path: 'servers.production',
+        action: 'move',
+        target: 'components.servers.production'
+      }
+    ]
+  },
+  { type: 'moveDuplicatesToComponents', elements: [] }
+]
  */
 ```
 

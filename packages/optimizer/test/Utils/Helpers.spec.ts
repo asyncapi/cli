@@ -1,6 +1,7 @@
 import YAML from 'yaml'
 import _ from 'lodash'
 import { compareComponents, isEqual, isInComponents, isInChannels, toJS } from '../../src/Utils'
+import { OptimizerErrorCode, OptimizerInputError } from '../../src/errors'
 
 describe('Helpers', () => {
   const testObject1 = {
@@ -55,6 +56,16 @@ describe('Helpers', () => {
       expect(_.isEqual(toJS(json_object), json_object)).toEqual(true)
       expect(_.isEqual(toJS(json_string), json_object)).toEqual(true)
       expect(_.isEqual(toJS(yaml_string), json_object)).toEqual(true)
+    })
+
+    test('should throw OptimizerInputError for unsupported input types.', () => {
+      expect(() => toJS(42)).toThrow(OptimizerInputError)
+      try {
+        toJS(42)
+      } catch (err) {
+        expect(err).toBeInstanceOf(OptimizerInputError)
+        expect((err as OptimizerInputError).code).toEqual(OptimizerErrorCode.INPUT_INVALID)
+      }
     })
   })
   describe('isInChannels', () => {

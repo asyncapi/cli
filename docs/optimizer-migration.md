@@ -70,14 +70,15 @@ also shipped **optimizer v2**, a deliberate breaking change for people who use t
 
 ## How releases work now
 
-Both packages publish from this repo via Changesets:
+The CLI stays at the repo root. Workspaces are `[".", "packages/*"]` so Changesets versions **both**
+`@asyncapi/cli` (same `npx changeset` flow as today) and `@asyncapi/optimizer`.
 
-1. A PR changes code and includes a `.changeset/*.md` entry describing the bump.
+1. A PR includes a `.changeset/*.md` entry. Name `@asyncapi/cli` and/or `@asyncapi/optimizer`.
 2. After merge, a bot opens a **"Version Packages"** PR that applies version bumps + changelogs.
-3. Merging that PR runs `changeset publish`, which publishes each changed package to npm (with provenance).
+3. Merging that PR publishes each bumped package to npm (with provenance).
 
-`@asyncapi/optimizer` is registered as a Trusted Publisher on npm for `asyncapi/cli`, so it can be published
-from here.
+`@asyncapi/optimizer` must be registered as a Trusted Publisher on npm for `asyncapi/cli` before the first
+publish from this repo.
 
 ## For maintainers: working on the optimizer locally
 

@@ -12,6 +12,7 @@
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
   "workspaces": [
+    ".",
     "packages/*"
   ],
   "dependencies": {
