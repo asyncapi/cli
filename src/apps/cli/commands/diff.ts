@@ -13,6 +13,38 @@ import {
   DiffOverrideFileError,
   DiffOverrideJSONError,
 } from '@errors/diff-error';
+
+/**
+ * Safely converts a parsed document to a plain JSON object.
+ * Handles circular references by replacing them with a path reference string,
+ * preventing "Converting circular structure to JSON" TypeError.
+ */
+function safeJson(doc: Record<string, unknown>): Record<string, unknown> {
+  const seen = new WeakSet();
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(doc)) {
+    result[key] = safeValue(value, seen);
+  }
+  return result;
+}
+
+function safeValue(value: unknown, seen: WeakSet<object>): unknown {
+  if (value === null || typeof value !== 'object') {
+    return value;
+  }
+  if (seen.has(value)) {
+    return '[Circular]';
+  }
+  seen.add(value);
+  if (Array.isArray(value)) {
+    return value.map((item) => safeValue(item, seen));
+  }
+  const obj: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(value)) {
+    obj[k] = safeValue(v, seen);
+  }
+  return obj;
+}
 import { specWatcher } from '@cli/internal/globals';
 
 import type { SpecWatcherParams } from '@cli/internal/globals';
@@ -133,8 +165,8 @@ export default class Diff extends Command {
       }
 
       const diffOutput = diff.diff(
-        parsed.firstDocumentParsed.json(),
-        parsed.secondDocumentParsed.json(),
+        safeJson(parsed.firstDocumentParsed.json()),
+        safeJson(parsed.secondDocumentParsed.json()),
         {
           override: overrides,
           outputType: outputFormat as diff.OutputType, // NOSONAR
