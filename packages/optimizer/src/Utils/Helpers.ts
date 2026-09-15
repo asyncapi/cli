@@ -18,9 +18,9 @@ export const createReport = (
   optimizeableComponents: OptimizableComponentGroup[],
   reporterType: string
 ): Report => {
-  const elements = optimizeableComponents
-    .map((optimizeableComponent) => reportFn(optimizeableComponent))
-    .flat()
+  const elements = optimizeableComponents.flatMap((optimizeableComponent) =>
+    reportFn(optimizeableComponent)
+  )
 
   const type = reporterType
   return { type, elements }
@@ -147,10 +147,10 @@ const isInChannels = (component: OptimizableComponent): boolean => {
  * Converts JSON or YAML string object.
  */
 const toJS = (asyncapiYAMLorJSON: any): any => {
-  if (asyncapiYAMLorJSON.constructor && asyncapiYAMLorJSON.constructor.name === 'Object') {
-    //NOTE: this approach can have problem with circular references between object and JSON.stringify doesn't support it.
-    //more info: https://github.com/asyncapi/parser-js/issues/293
-    return JSON.parse(JSON.stringify(asyncapiYAMLorJSON))
+  if (asyncapiYAMLorJSON.constructor?.name === 'Object') {
+    return (globalThis as unknown as { structuredClone: <T>(value: T) => T }).structuredClone(
+      asyncapiYAMLorJSON
+    )
   }
   if (typeof asyncapiYAMLorJSON === 'string') {
     return YAML.load(asyncapiYAMLorJSON)

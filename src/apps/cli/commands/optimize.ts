@@ -65,6 +65,43 @@ export default class Optimize extends Command {
       flags['proxyHost'],
       flags['proxyPort']
     );
+    await this.loadSpecFile(filePath);
+    const specFile = this.requireSpecFile();
+    const { optimizer, report } = await this.buildOptimizerReport(specFile);
+
+    this.isInteractive = !flags['no-tty'];
+    this.selectedOptimizations = flags.optimization as Optimizations[];
+    this.disableOptimizations = flags.ignore as DisableOptimizations[];
+    this.outputMethod = flags.output as Outputs;
+    this.metricsMetadata.optimized = false;
+
+    if (!this.hasAvailableOptimizations(report)) {
+      this.log(
+        `🎉 Great news! Your file at ${specFile.getFilePath() ?? specFile.getFileURL()} is already optimized.`,
+      );
+      return;
+    }
+
+    if (this.isInteractive && process.stdout.isTTY) {
+      await this.interactiveRun(report);
+    }
+
+    await this.writeOptimizedDocument(optimizer, report, specFile);
+  }
+
+  private requireSpecFile() {
+    const specFile = this.specFile;
+    if (!specFile) {
+      this.error(
+        new ValidationError({
+          type: 'no-spec-found',
+        }),
+      );
+    }
+    return specFile;
+  }
+
+  private async loadSpecFile(filePath: string | undefined): Promise<void> {
     try {
       this.specFile = await load(filePath);
     } catch (err: any) {
@@ -72,29 +109,29 @@ export default class Optimize extends Command {
         throw new Error(
           'Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.',
         );
-      } else if (filePath) {
+      }
+      if (filePath) {
         this.error(
           new ValidationError({
             type: 'invalid-file',
             filepath: filePath,
           }),
         );
-      } else {
-        this.error(
-          new ValidationError({
-            type: 'no-spec-found',
-          }),
-        );
       }
+      this.error(
+        new ValidationError({
+          type: 'no-spec-found',
+        }),
+      );
     }
+  }
 
-    let optimizer: Optimizer;
-    let report: Report[];
+  private async buildOptimizerReport(specFile: NonNullable<Optimize['specFile']>): Promise<{ optimizer: Optimizer; report: Report[] }> {
     try {
-      optimizer = new Optimizer(this.specFile.text());
-      report = await optimizer.getReport();
+      const optimizer = new Optimizer(specFile.text());
+      const report = await optimizer.getReport();
+      return { optimizer, report };
     } catch (err) {
-      // In v2 the optimizer no longer prints parser diagnostics itself; surface them here.
       if (err instanceof OptimizerParseError && err.details) {
         this.logToStderr(
           typeof err.details === 'string'
@@ -105,53 +142,46 @@ export default class Optimize extends Command {
       this.error(
         new ValidationError({
           type: 'invalid-syntax-file',
-          filepath: this.specFile.getFilePath(),
+          filepath: specFile.getFilePath(),
         }),
       );
     }
-    this.isInteractive = !flags['no-tty'];
-    this.selectedOptimizations = flags.optimization as Optimizations[];
-    this.disableOptimizations = flags.ignore as DisableOptimizations[];
-    this.outputMethod = flags.output as Outputs;
-    this.metricsMetadata.optimized = false;
+  }
 
-    if (
-      !(
-        this.getElements(report, 'moveDuplicatesToComponents').length ||
+  private hasAvailableOptimizations(report: Report[]): boolean {
+    return Boolean(
+      this.getElements(report, 'moveDuplicatesToComponents').length ||
         this.getElements(report, 'removeComponents').length ||
-        this.getElements(report, 'reuseComponents').length
-      )
-    ) {
-      this.log(
-        `🎉 Great news! Your file at ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} is already optimized.`,
-      );
-      return;
-    }
+        this.getElements(report, 'reuseComponents').length,
+    );
+  }
 
-    const isTTY = process.stdout.isTTY;
-    if (this.isInteractive && isTTY) {
-      await this.interactiveRun(report);
-    }
-
+  private async writeOptimizedDocument(
+    optimizer: Optimizer,
+    report: Report[],
+    specFile: NonNullable<Optimize['specFile']>,
+  ): Promise<void> {
+    const selectedOptimizations = this.selectedOptimizations ?? [];
+    const disableOptimizations = this.disableOptimizations ?? [];
     try {
-      const fileFormat = retrieveFileFormat(this.specFile.text());
+      const fileFormat = retrieveFileFormat(specFile.text());
       let optimizedDocument = optimizer.getOptimizedDocument({
         rules: {
-          moveDuplicatesToComponents: this.selectedOptimizations.includes(
+          moveDuplicatesToComponents: selectedOptimizations.includes(
             Optimizations.MOVE_DUPLICATES_TO_COMPONENTS,
           ),
-          moveAllToComponents: this.selectedOptimizations.includes(
+          moveAllToComponents: selectedOptimizations.includes(
             Optimizations.MOVE_ALL_TO_COMPONENTS,
           ),
-          removeComponents: this.selectedOptimizations.includes(
+          removeComponents: selectedOptimizations.includes(
             Optimizations.REMOVE_COMPONENTS,
           ),
-          reuseComponents: this.selectedOptimizations.includes(
+          reuseComponents: selectedOptimizations.includes(
             Optimizations.REUSE_COMPONENTS,
           ),
         },
         disableOptimizationFor: {
-          schema: this.disableOptimizations.includes(
+          schema: disableOptimizations.includes(
             DisableOptimizations.SCHEMA,
           ),
         },
@@ -163,7 +193,7 @@ export default class Optimize extends Command {
 
       this.collectMetricsData(report);
 
-      const specPath = this.specFile.getFilePath();
+      const specPath = specFile.getFilePath();
       let newPath = '';
 
       if (specPath) {

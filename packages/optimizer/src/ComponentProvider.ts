@@ -4,7 +4,7 @@ import type { AsyncAPIDocumentInterface } from '@asyncapi/parser'
 import { OptimizableComponentGroup, OptimizableComponent } from 'types'
 
 import { JSONPath } from 'jsonpath-plus'
-import _ from 'lodash'
+import chain from 'lodash/chain'
 
 export const toLodashPath = (jsonPointer: string): string => {
   // Remove leading slash if present
@@ -36,7 +36,7 @@ export const parseComponentsFromPath = (
   asyncAPIDocument: AsyncAPIDocumentInterface,
   paths: string[]
 ): OptimizableComponent[] => {
-  return _.chain(paths)
+  return chain(paths)
     .map((path) => {
       return JSONPath({
         resultType: 'all',

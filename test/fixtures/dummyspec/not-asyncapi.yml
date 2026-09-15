@@ -1,0 +1,5 @@
+# Valid YAML that looks like an AsyncAPI file, but the required top-level
+# `asyncapi` version field is missing, so the parser rejects it.
+info:
+  title: Streetlights API
+  version: 1.0.0

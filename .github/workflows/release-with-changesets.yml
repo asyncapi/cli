@@ -111,7 +111,9 @@ jobs:
         name: Install changelog
         shell: bash
         # This step can be removed once the issue is fixed in the changeset package.
-        run: npm install @changesets/changelog-git@0.2.0
+        run: |
+          npm install @changesets/changelog-git@0.2.0
+          npm install @changesets/cli@2.27.7
 
       - if: steps.packagejson.outputs.exists == 'true'
         name: Publish to any of NPM, Github, and Docker Hub
@@ -139,7 +141,7 @@ jobs:
         env:
           NPM_CONFIG_PROVENANCE: 'true'
         run: |
-          npx -p @changesets/cli@2.27.7 changeset publish
+          ./node_modules/.bin/changeset publish
           VERSION=$(node -p "require('./package.json').version")
           PACKAGE_NAME=$(node -p "require('./package.json').name")
           if npm view "$PACKAGE_NAME@$VERSION" > /dev/null 2>&1; then

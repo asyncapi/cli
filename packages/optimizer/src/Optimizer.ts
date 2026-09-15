@@ -43,14 +43,14 @@ export enum Output {
  */
 export class Optimizer {
   private components!: OptimizableComponentGroup[]
-  private reporters: Reporter[]
+  private readonly reporters: Reporter[]
   private reports: Report[] | undefined
-  private outputObject = {}
+  private readonly outputObject: any
 
   /**
    * @param {any} YAMLorJSON - YAML or JSON document that you want to optimize. You can pass Object, YAML or JSON version of your AsyncAPI document here.
    */
-  constructor(private YAMLorJSON: any) {
+  constructor(private readonly YAMLorJSON: any) {
     this.outputObject = toJS(this.YAMLorJSON)
     this.reporters = [
       removeComponents,

@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { Optimizer } = require('../lib/Optimizer')
-const fs = require('fs')
-const path = require('path')
+const fs = require('node:fs')
+const path = require('node:path')
 
 // Construct absolute paths to input and output files
 const inputFilePath = path.join(__dirname, 'input.yaml')

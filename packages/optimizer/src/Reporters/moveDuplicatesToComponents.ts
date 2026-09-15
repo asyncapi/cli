@@ -20,22 +20,24 @@ const findDuplicateComponents = (
   for (const [index, component] of outsideComponentsSection.entries()) {
     for (const compareComponent of outsideComponentsSection.slice(index + 1)) {
       if (isEqual(component.component, compareComponent.component, false)) {
-        const existingResult = resultElements.filter(
+        const existingResult = resultElements.find(
           (reportElement) => component.path === reportElement.path
-        )[0]
+        )
         if (!existingResult) {
           const componentName = getComponentName(component)
           const target = `components.${optimizableComponentGroup.type}.${componentName}`
-          resultElements.push({
-            path: component.path,
-            action: Action.Move,
-            target,
-          })
-          resultElements.push({
-            path: compareComponent.path,
-            action: Action.Reuse,
-            target,
-          })
+          resultElements.push(
+            {
+              path: component.path,
+              action: Action.Move,
+              target,
+            },
+            {
+              path: compareComponent.path,
+              action: Action.Reuse,
+              target,
+            }
+          )
         } else {
           resultElements.push({
             path: component.path,

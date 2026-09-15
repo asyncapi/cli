@@ -18,9 +18,9 @@ const findAllComponents = (
   const resultElements: ReportElement[] = []
 
   for (const component of outsideComponentsSection.values()) {
-    const existingResult = resultElements.filter(
+    const existingResult = resultElements.find(
       (reportElement) => component.path === reportElement.path
-    )[0]
+    )
     if (!existingResult) {
       const componentName = getComponentName(component)
       const target = `components.${optimizableComponentGroup.type}.${componentName}`
