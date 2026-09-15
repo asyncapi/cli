@@ -24,5 +24,10 @@ export const validateFlags = () => {
       required: false,
       default: false,
     }),
+    ruleset: Flags.string({
+      char: 'r',
+      description: 'Path to a custom Spectral ruleset file for validation.',
+      required: false,
+    }),
   };
 };
