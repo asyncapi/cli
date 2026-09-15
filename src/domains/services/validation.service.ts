@@ -94,52 +94,66 @@ const fetchGitHubApiContent = async (
   return await contentRes.text();
 };
 
+export interface HttpResolverOptions {
+  /** Optional Cookie header value to forward when fetching remote $refs */
+  cookie?: string;
+}
+
 /**
- * Custom resolver for private repositories
+ * Custom HTTPS resolver for private repositories and cookie-authenticated refs.
+ * When `cookie` is provided (e.g. from an API request), it is forwarded on fetch.
  */
-const createHttpWithAuthResolver = () => ({
-  schema: 'https',
-  order: 1,
+export const createHttpWithAuthResolver = (cookieHeader?: string) => {
+  const cookie = cookieHeader?.trim() || undefined;
 
-  read: async (uri: any) => {
-    let url = uri.toString();
+  return {
+    schema: 'https' as const,
+    order: 1,
 
-    // Default headers
-    const headers: Record<string, string> = {
-      'User-Agent': 'AsyncAPI-CLI',
-    };
+    read: async (uri: any) => {
+      let url = uri.toString();
 
-    const authInfo = await ConfigService.getAuthForUrl(url);
+      // Default headers
+      const headers: Record<string, string> = {
+        'User-Agent': 'AsyncAPI-CLI',
+      };
 
-    if (authInfo) {
-      headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
-      Object.assign(headers, authInfo.headers); // merge custom headers
-    }
+      if (cookie) {
+        headers['Cookie'] = cookie;
+      }
 
-    if (isValidGitHubBlobUrl(url)) {
-      url = await resolveGitHubBlobUrl(url, headers);
-    }
+      const authInfo = await ConfigService.getAuthForUrl(url);
 
-    if (url.includes('api.github.com')) {
-      return await fetchGitHubApiContent(url, headers);
-    }
-    if (url.includes('raw.githubusercontent.com')) {
-      headers['Accept'] = 'application/vnd.github.v3.raw';
+      if (authInfo) {
+        headers['Authorization'] = `${authInfo.authType} ${authInfo.token}`;
+        Object.assign(headers, authInfo.headers); // merge custom headers
+      }
+
+      if (isValidGitHubBlobUrl(url)) {
+        url = await resolveGitHubBlobUrl(url, headers);
+      }
+
+      if (url.includes('api.github.com')) {
+        return await fetchGitHubApiContent(url, headers);
+      }
+      if (url.includes('raw.githubusercontent.com')) {
+        headers['Accept'] = 'application/vnd.github.v3.raw';
+        const res = await fetchWithErrorHandling(
+          url,
+          headers,
+          'Failed to fetch GitHub URL',
+        );
+        return await res.text();
+      }
       const res = await fetchWithErrorHandling(
         url,
         headers,
-        'Failed to fetch GitHub URL',
+        'Failed to fetch URL',
       );
       return await res.text();
-    }
-    const res = await fetchWithErrorHandling(
-      url,
-      headers,
-      'Failed to fetch URL',
-    );
-    return await res.text();
-  },
-});
+    },
+  };
+};
 
 const { writeFile } = promises;
 
@@ -170,10 +184,15 @@ const validFormats = [
 
 export class ValidationService extends BaseService {
   private parser: Parser;
+  private readonly httpOptions: HttpResolverOptions;
 
-  constructor(parserOptions: ParserOptions = {}) {
-    super(); 
-    // Create parser with custom GitHub resolver
+  constructor(
+    parserOptions: ParserOptions = {},
+    httpOptions: HttpResolverOptions = {},
+  ) {
+    super();
+    this.httpOptions = httpOptions;
+    // Create parser with custom GitHub / cookie-aware HTTP resolver
     const customParserOptions = {
       ...parserOptions,
       __unstable: {
@@ -182,7 +201,7 @@ export class ValidationService extends BaseService {
           ...parserOptions.__unstable?.resolver,
           cache: false,
           resolvers: [
-            createHttpWithAuthResolver(),
+            createHttpWithAuthResolver(httpOptions.cookie),
             ...(parserOptions.__unstable?.resolver?.resolvers || [])
           ],
         },
@@ -305,7 +324,7 @@ export class ValidationService extends BaseService {
       __unstable: {
         resolver: {
           cache: false,
-          resolvers: [createHttpWithAuthResolver()],
+          resolvers: [createHttpWithAuthResolver(this.httpOptions.cookie)],
         },
       },
     });
