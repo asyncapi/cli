@@ -191,7 +191,7 @@
     "pretest:coverage": "npm run build",
     "posttest": "rimraf ./test.asyncapi-cli",
     "postinstall": "node ./scripts/enableAutoComplete.js",
-    "test": "npm run cli:test && npm run action:test",
+    "test": "npm run optimizer:test && npm run cli:test && npm run action:test",
     "cli:test": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/**/*.test.ts\"",
     "unit:test": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/unit/**/*.test.ts\"",
     "test:one": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\"  NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000",

@@ -86,6 +86,7 @@ publish from this repo.
 npm install                 # links the workspace
 npm run optimizer:build     # build just the optimizer
 npm run optimizer:test      # test just the optimizer
+npm test                    # optimizer + CLI + GitHub Action tests (PR CI)
 npm run build               # full CLI build (builds optimizer first)
 ```
 
