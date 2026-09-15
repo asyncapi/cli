@@ -247,7 +247,7 @@ export default class Diff extends Command {
     if (!firstResult.success || !secondResult.success) {
       this.error(
         new ValidationError({
-          type: 'invalid-file',
+          type: 'parser-error',
           filepath: firstDocument.getFilePath() || secondDocument.getFilePath(),
           err: firstResult.error || secondResult.error,
         }),
