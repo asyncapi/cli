@@ -3,7 +3,7 @@ We love your input! We want to make contributing to this project as easy and tra
 
 ## Contribution recogniton
 
-We use [All Contributors](https://allcontributors.org/docs/en/specification) specification to handle recognitions. For more details read [this](https://www.asyncapi.com/docs/community/010-contribution-guidelines/recognize-contributors#main-content) document.
+We use [All Contributors](https://allcontributors.org/en/reference/specification/) specification to handle recognitions. For more details read [this](https://www.asyncapi.com/docs/community/010-contribution-guidelines/recognize-contributors#main-content) document.
 
 
 
