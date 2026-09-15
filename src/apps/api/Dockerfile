@@ -57,6 +57,9 @@ COPY --from=build /app/package*.json ./
 # Copy workspace packages (incl. the built @asyncapi/optimizer) so the "*" workspace dependency
 COPY --from=build /app/packages ./packages
 
+# package.json "postinstall" points at scripts/enableAutoComplete.js — copy it so npm cannot fail looking for it
+COPY --from=build /app/scripts ./scripts
+
 # Install production deps, then remove heavy ones
 RUN npm ci --omit=dev --ignore-scripts \
   && npm uninstall @asyncapi/studio next \
