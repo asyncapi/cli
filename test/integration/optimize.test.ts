@@ -10,6 +10,7 @@ const testHelper = new TestHelper();
 const optimizedFilePath = './test/fixtures/specification.yml';
 const unoptimizedYamlFile = './test/fixtures/dummyspec/unoptimizedSpec.yml';
 const unoptimizedJsonFile = './test/fixtures/dummyspec/unoptimizedSpec.json';
+const unoptimizedV3File = './test/fixtures/dummyspec/optimize-v3-invalid-output.yml';
 const invalidFile = './test/fixtures/specification-invalid.yml';
 const asyncapiv3 = './test/fixtures/specification-v3.yml';
 
@@ -166,6 +167,23 @@ describe('optimize', () => {
         fs.unlinkSync(optimizedFile);
         done();
       });
+
+    test
+      .stderr()
+      .stdout()
+      .command(['optimize', unoptimizedV3File, '--no-tty', '-o', 'new-file'])
+      .it('does not emit invalid schema refs for AsyncAPI v3 documents', (ctx, done) => {
+        const pos = unoptimizedV3File.lastIndexOf('.');
+        const optimizedFile = `${unoptimizedV3File.substring(0, pos)}_optimized.${unoptimizedV3File.substring(pos + 1)}`;
+        const optimizedDocument = fs.readFileSync(optimizedFile, 'utf8');
+
+        expect(ctx.stdout).to.contain(`✅ Success! Your optimized file has been created at ${optimizedFile}.`);
+        expect(ctx.stderr).to.equal('');
+        expect(optimizedDocument).to.not.contain('#/components/schemas/[');
+        expect(optimizedDocument).to.not.contain('#/components/schemas/type');
+        fs.unlinkSync(optimizedFile);
+        done();
+      });
   });
 
   describe('interactive terminal', () => {
@@ -192,4 +210,3 @@ describe('optimize', () => {
       });
   });
 });
-

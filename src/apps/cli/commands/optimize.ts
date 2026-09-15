@@ -7,6 +7,7 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import { promises } from 'fs';
 import { Parser } from '@asyncapi/parser';
+import { load as loadYaml } from 'js-yaml';
 import { optimizeFlags } from '@cli/internal/flags/optimize.flags';
 import { proxyFlags } from '@cli/internal/flags/proxy.flags';
 import { applyProxyToPath } from '@utils/proxy';
@@ -29,6 +30,24 @@ export enum Outputs {
   NEW_FILE = 'new-file',
   OVERWRITE = 'overwrite',
 }
+
+function isAsyncApiV3Document(document: string): boolean {
+  try {
+    const parsedDocument = loadYaml(document) as { asyncapi?: unknown } | null;
+    return typeof parsedDocument?.asyncapi === 'string' && parsedDocument.asyncapi.startsWith('3.');
+  } catch {
+    return false;
+  }
+}
+
+function getDisabledOptimizationsForDocument(document: string, disabledOptimizations: DisableOptimizations[]): DisableOptimizations[] {
+  if (!isAsyncApiV3Document(document)) {
+    return disabledOptimizations;
+  }
+
+  return Array.from(new Set([...disabledOptimizations, DisableOptimizations.SCHEMA]));
+}
+
 export default class Optimize extends Command {
   static description = 'optimize asyncapi specification file';
   isInteractive = false;
@@ -103,7 +122,8 @@ export default class Optimize extends Command {
     }
     this.isInteractive = !flags['no-tty'];
     this.selectedOptimizations = flags.optimization as Optimizations[];
-    this.disableOptimizations = flags.ignore as DisableOptimizations[];
+    const disabledOptimizations = flags.ignore as DisableOptimizations[];
+    this.disableOptimizations = getDisabledOptimizationsForDocument(this.specFile.text(), disabledOptimizations);
     this.outputMethod = flags.output as Outputs;
     this.metricsMetadata.optimized = false;
 
