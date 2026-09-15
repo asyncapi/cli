@@ -1,5 +1,5 @@
 import { Args } from '@oclif/core';
-import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
+import { Optimizer, Output, Report, ReportElement, OptimizerParseError } from '@asyncapi/optimizer';
 import Command from '@cli/internal/base';
 import { ValidationError } from '@errors/validation-error';
 import { load, retrieveFileFormat } from '@models/SpecificationFile';
@@ -89,11 +89,19 @@ export default class Optimize extends Command {
     }
 
     let optimizer: Optimizer;
-    let report: Report;
+    let report: Report[];
     try {
       optimizer = new Optimizer(this.specFile.text());
       report = await optimizer.getReport();
-    } catch {
+    } catch (err) {
+      // In v2 the optimizer no longer prints parser diagnostics itself; surface them here.
+      if (err instanceof OptimizerParseError && err.details) {
+        this.logToStderr(
+          typeof err.details === 'string'
+            ? err.details
+            : JSON.stringify(err.details, null, 2),
+        );
+      }
       this.error(
         new ValidationError({
           type: 'invalid-syntax-file',
@@ -109,9 +117,9 @@ export default class Optimize extends Command {
 
     if (
       !(
-        report.moveDuplicatesToComponents?.length ||
-        report.removeComponents?.length ||
-        report.reuseComponents?.length
+        this.getElements(report, 'moveDuplicatesToComponents').length ||
+        this.getElements(report, 'removeComponents').length ||
+        this.getElements(report, 'reuseComponents').length
       )
     ) {
       this.log(
@@ -193,6 +201,10 @@ export default class Optimize extends Command {
     }
   }
 
+  private getElements(report: Report[], type: string): ReportElement[] {
+    return report.find((group) => group.type === type)?.elements ?? [];
+  }
+
   private showOptimizations(elements: ReportElement[] | undefined) {
     if (!elements) {
       return;
@@ -216,56 +228,60 @@ export default class Optimize extends Command {
     this.log('\n');
   }
 
-  private async interactiveRun(report: Report) {
-    const canMoveDuplicates = report.moveDuplicatesToComponents?.length;
-    const canMoveAll = report.moveAllToComponents?.length;
-    const canRemove = report.removeComponents?.length;
-    const canReuse = report.reuseComponents?.length;
+  private async interactiveRun(report: Report[]) {
+    const moveAll = this.getElements(report, 'moveAllToComponents');
+    const moveDuplicates = this.getElements(report, 'moveDuplicatesToComponents');
+    const remove = this.getElements(report, 'removeComponents');
+    const reuse = this.getElements(report, 'reuseComponents');
+    const canMoveDuplicates = moveDuplicates.length;
+    const canMoveAll = moveAll.length;
+    const canRemove = remove.length;
+    const canReuse = reuse.length;
     const choices = [];
 
     if (canMoveAll) {
-      const totalMove = report.moveAllToComponents?.filter(
+      const totalMove = moveAll.filter(
         (e: ReportElement) => e.action === 'move',
       ).length;
       this.log(
         `${chalk.green(totalMove)} components can be moved to the components sections.\nthe following changes will be made:`,
       );
-      this.showOptimizations(report.moveAllToComponents);
+      this.showOptimizations(moveAll);
       choices.push({
         name: 'move all $refs to components section',
         value: Optimizations.MOVE_ALL_TO_COMPONENTS,
       });
     }
     if (canMoveDuplicates) {
-      const totalMove = report.moveDuplicatesToComponents?.filter(
+      const totalMove = moveDuplicates.filter(
         (e: ReportElement) => e.action === 'move',
       ).length;
       this.log(
         `\n${chalk.green(totalMove)} components can be moved to the components sections.\nthe following changes will be made:`,
       );
-      this.showOptimizations(report.moveDuplicatesToComponents);
+      this.showOptimizations(moveDuplicates);
       choices.push({
         name: 'move to components section',
         value: Optimizations.MOVE_DUPLICATES_TO_COMPONENTS,
       });
     }
     if (canRemove) {
-      const totalMove = report.removeComponents?.length;
+      const totalMove = remove.length;
       this.log(
         `${chalk.green(totalMove)} unused components can be removed.\nthe following changes will be made:`,
       );
-      this.showOptimizations(report.removeComponents);
+      this.showOptimizations(remove);
       choices.push({
         name: 'remove components',
         value: Optimizations.REMOVE_COMPONENTS,
       });
     }
     if (canReuse) {
-      const totalMove = report.reuseComponents?.length;
+      const totalMove = reuse.length;
       this.log(
         `${chalk.green(totalMove)} components can be reused.\nthe following changes will be made:`,
       );
-      this.showOptimizations(report.reuseComponents);
+      this.showOptimizations(reuse);
       choices.push({
         name: 'reuse components',
         value: Optimizations.REUSE_COMPONENTS,
@@ -325,8 +341,9 @@ export default class Optimize extends Command {
     this.outputMethod = outputRes.output;
   }
 
-  private collectMetricsData(report: Report) {
-    for (const availableOptimization in report) {
+  private collectMetricsData(report: Report[]) {
+    for (const group of report) {
+      const availableOptimization = group.type;
       const availableOptimizationKebabCase = availableOptimization
         .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
         .toLowerCase(); // optimization flags are kebab case

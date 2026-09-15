@@ -133,11 +133,13 @@ jobs:
           GIT_COMMITTER_NAME: asyncapi-bot
           GIT_COMMITTER_EMAIL: info@asyncapi.io
 
-      - name: Publish to NPM directly (skip if version already published)
+      - name: Publish to NPM (root @asyncapi/cli + workspace packages)
         if: steps.packagejson.outputs.exists == 'true' && steps.release.outputs.hasChangesets == 'false'
         shell: bash
+        env:
+          NPM_CONFIG_PROVENANCE: 'true'
         run: |
-          # Check if the version in package.json is already published
+          npx -p @changesets/cli@2.27.7 changeset publish
           VERSION=$(node -p "require('./package.json').version")
           PACKAGE_NAME=$(node -p "require('./package.json').name")
           if npm view "$PACKAGE_NAME@$VERSION" > /dev/null 2>&1; then

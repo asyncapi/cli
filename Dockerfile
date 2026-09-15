@@ -22,6 +22,9 @@ RUN cp /tmp/source_code/oclif.manifest.json /libraries
 # Copy the bin directory to the /libraries directory
 RUN cp -r /tmp/source_code/bin /libraries
 
+# Copy workspace packages (incl. the built @asyncapi/optimizer) so the "*" workspace dependency
+RUN cp -r /tmp/source_code/packages /libraries/packages
+
 # Remove everything inside /tmp
 RUN rm -rf /tmp/*
 

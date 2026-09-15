@@ -51,6 +51,11 @@ Additional steps:
 - Run `npm run test` to make sure everything is properly set up
 - Run `npm run build` and then `bin/run` to try new CLI locally
 
+> This repository is an npm-workspaces + Turbo monorepo. The root package is `@asyncapi/cli`, and
+> `@asyncapi/optimizer` lives in [`packages/optimizer/`](/packages/optimizer) (published separately to npm).
+> Use `npm run optimizer:build` and `npm run optimizer:test` to work on that package. See its
+> [spec](/docs/optimizer/spec.md).
+
 The UX developed for the CLI should comply with the [Command Line Interface Guideline](https://clig.dev/)
 
 ### Command Structure and Patterns

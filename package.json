@@ -11,6 +11,9 @@
     "type": "git"
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
+  "workspaces": [
+    "packages/*"
+  ],
   "dependencies": {
     "@asyncapi/avro-schema-parser": "^3.0.24",
     "@asyncapi/bundler": "^1.0.1",
@@ -19,7 +22,7 @@
     "@asyncapi/generator": "^3.2.0",
     "@asyncapi/modelina-cli": "^5.10.1",
     "@asyncapi/openapi-schema-parser": "^3.1.0",
-    "@asyncapi/optimizer": "^1.0.4",
+    "@asyncapi/optimizer": "*",
     "@asyncapi/parser": "^3.6.2",
     "@asyncapi/problem": "^1.0.0",
     "@asyncapi/protobuf-schema-parser": "^3.8.3",
@@ -98,6 +101,7 @@
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
+    "turbo": "^1.13.4",
     "typescript": "^5.9.3"
   },
   "engines": {
@@ -159,7 +163,9 @@
     "fsevents": "^2.3.3"
   },
   "scripts": {
-    "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && npm run generate:languages && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
+    "build": "npm run optimizer:build && rimraf lib && node scripts/fetch-asyncapi-example.js && npm run generate:languages && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
+    "optimizer:build": "turbo run build --filter=@asyncapi/optimizer",
+    "optimizer:test": "turbo run test --filter=@asyncapi/optimizer",
     "bump:github-action": "cd github-action/lib/ && node bump-action-version.js",
     "bump:version": "npx -p @changesets/cli@2.27.7 changeset version && npm run bump:github-action",
     "dev": "tsc --watch",
