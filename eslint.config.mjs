@@ -17,6 +17,7 @@ export default [
       '.github/workflows/scripts',
       'github-action',
       'scripts/**/*.js',
+      'packages/optimizer/**',
     ],
   },
   js.configs.recommended,

@@ -111,7 +111,8 @@ jobs:
         name: Install changelog
         shell: bash
         # This step can be removed once the issue is fixed in the changeset package.
-        run: npm install @changesets/changelog-git@0.2.0
+        # --ignore-scripts: do not run package lifecycle scripts during this extra install.
+        run: npm install --ignore-scripts @changesets/changelog-git@0.2.0 @changesets/cli@2.27.7
 
       - if: steps.packagejson.outputs.exists == 'true'
         name: Publish to any of NPM, Github, and Docker Hub
@@ -133,11 +134,13 @@ jobs:
           GIT_COMMITTER_NAME: asyncapi-bot
           GIT_COMMITTER_EMAIL: info@asyncapi.io
 
-      - name: Publish to NPM directly (skip if version already published)
+      - name: Publish to NPM (root @asyncapi/cli + workspace packages)
         if: steps.packagejson.outputs.exists == 'true' && steps.release.outputs.hasChangesets == 'false'
         shell: bash
+        env:
+          NPM_CONFIG_PROVENANCE: 'true'
         run: |
-          # Check if the version in package.json is already published
+          ./node_modules/.bin/changeset publish
           VERSION=$(node -p "require('./package.json').version")
           PACKAGE_NAME=$(node -p "require('./package.json').name")
           if npm view "$PACKAGE_NAME@$VERSION" > /dev/null 2>&1; then

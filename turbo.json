@@ -1,0 +1,9 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "build": { "cache": false },
+    "@asyncapi/optimizer#build": { "cache": false },
+    "test": { "cache": false, "dependsOn": ["build"] },
+    "lint": { "cache": false }
+  }
+}

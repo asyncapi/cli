@@ -22,6 +22,12 @@ RUN cp /tmp/source_code/oclif.manifest.json /libraries
 # Copy the bin directory to the /libraries directory
 RUN cp -r /tmp/source_code/bin /libraries
 
+# package.json "postinstall" points at scripts/enableAutoComplete.js — copy it so npm cannot fail looking for it
+RUN cp -r /tmp/source_code/scripts /libraries
+
+# Copy workspace packages (incl. the built @asyncapi/optimizer) so the "*" workspace dependency
+RUN cp -r /tmp/source_code/packages /libraries/packages
+
 # Remove everything inside /tmp
 RUN rm -rf /tmp/*
 
@@ -58,7 +64,7 @@ COPY --from=build /libraries /libraries
 # because they are no longer runtime dependencies (installed on-demand instead).
 RUN cd /libraries && \
     npm install --omit=dev --ignore-scripts && \
-    npm dedupe && \
+    npm dedupe --ignore-scripts && \
     npm cache clean --force
 
 # Create a script that runs the desired command

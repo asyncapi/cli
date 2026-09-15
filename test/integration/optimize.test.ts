@@ -190,6 +190,19 @@ describe('optimize', () => {
         expect(ctx.stdout).to.equal('');
         done();
       });
+
+    // v2: parser diagnostics are returned on OptimizerParseError.details instead of console.error
+    test
+      .stderr()
+      .stdout()
+      .command(['optimize', './test/fixtures/dummyspec/not-asyncapi.yml'])
+      .it('surfaces parser diagnostics then ValidationError when the asyncapi version field is missing', (ctx, done) => {
+        expect(ctx.stdout).to.equal('');
+        expect(ctx.stderr).to.contain('ValidationError: Syntax Error in "./test/fixtures/dummyspec/not-asyncapi.yml".');
+        expect(ctx.stderr).to.contain('This is not an AsyncAPI document.');
+        expect(ctx.stderr).to.contain('field as string is missing');
+        done();
+      });
   });
 });
 
