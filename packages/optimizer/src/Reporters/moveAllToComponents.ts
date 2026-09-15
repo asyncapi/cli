@@ -18,10 +18,10 @@ const findAllComponents = (
   const resultElements: ReportElement[] = []
 
   for (const component of outsideComponentsSection.values()) {
-    const existingResult = resultElements.find(
+    const alreadyReported = resultElements.some(
       (reportElement) => component.path === reportElement.path
     )
-    if (!existingResult) {
+    if (!alreadyReported) {
       const componentName = getComponentName(component)
       const target = `components.${optimizableComponentGroup.type}.${componentName}`
       resultElements.push({
