@@ -59,13 +59,13 @@ test/
 ### 1. Install Dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 2. Build the Project
 
 ```bash
-npm run build
+pnpm build
 ```
 
 ### 3. Set Up Environment Variables for Debugging
@@ -177,7 +177,7 @@ async run() {
 
 ```bash
 # Start with hot-reload
-npm run api:dev
+pnpm api:dev
 
 # Or manually with debugging
 NODE_ENV=development DEBUG=* node ./lib/apps/api/server.js
@@ -421,31 +421,31 @@ describe('MyTest', () => {
 ### Run All Tests
 
 ```bash
-npm test
+pnpm test
 ```
 
 ### Run Only CLI Tests
 
 ```bash
-npm run cli:test
+pnpm cli:test
 ```
 
 ### Run Only Unit Tests
 
 ```bash
-npm run unit:test
+pnpm unit:test
 ```
 
 ### Run a Single Test File
 
 ```bash
-npm run test:one -- test/integration/validate.test.ts
+pnpm test:one -- test/integration/validate.test.ts
 ```
 
 ### Run Tests with Coverage
 
 ```bash
-npm run cli:test
+pnpm cli:test
 # Coverage report is generated in ./coverage/
 ```
 
@@ -453,10 +453,10 @@ npm run cli:test
 
 ```bash
 # Using nodemon for file watching
-npm run dev
+pnpm dev
 
 # Then run tests manually when needed
-npm run unit:test
+pnpm unit:test
 ```
 
 ---
@@ -470,7 +470,7 @@ npm run unit:test
 **Solution:**
 ```bash
 # Rebuild the project
-npm run build
+pnpm build
 ```
 
 ### Issue 2: Permission Denied Errors
@@ -602,7 +602,7 @@ if (result.success && result.data) {
 
 ```bash
 # Build and run immediately
-npm run build && ./bin/run validate ./test/fixtures/specification.yml
+pnpm build && ./bin/run validate ./test/fixtures/specification.yml
 ```
 
 ---
@@ -611,14 +611,14 @@ npm run build && ./bin/run validate ./test/fixtures/specification.yml
 
 | Task | Command |
 |------|---------|
-| Build project | `npm run build` |
-| Run all tests | `npm test` |
-| Run CLI tests | `npm run cli:test` |
-| Run unit tests | `npm run unit:test` |
-| Run single test | `npm run test:one -- <path>` |
-| Lint code | `npm run lint` |
-| Fix lint issues | `npm run lint:fix` |
-| Start API dev server | `npm run api:dev` |
+| Build project | `pnpm build` |
+| Run all tests | `pnpm test` |
+| Run CLI tests | `pnpm cli:test` |
+| Run unit tests | `pnpm unit:test` |
+| Run single test | `pnpm test:one -- <path>` |
+| Lint code | `pnpm lint` |
+| Fix lint issues | `pnpm lint:fix` |
+| Start API dev server | `pnpm api:dev` |
 | Debug CLI command | `./bin/run <command> <args>` |
 | Debug with inspector | `node --inspect-brk ./bin/run <command>` |
 
@@ -632,4 +632,3 @@ If you're still stuck:
 2. Look at the error messages and stack traces
 3. Search for similar issues in the [GitHub Issues](https://github.com/asyncapi/cli/issues)
 4. Ask in the [AsyncAPI Slack](https://asyncapi.com/slack-invite) `#tooling` channel
-

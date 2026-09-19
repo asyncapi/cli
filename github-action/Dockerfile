@@ -1,14 +1,16 @@
 # Stage 1: Build stage with Node setup
-FROM node:24-alpine as build
+FROM node:24-alpine AS build
+
+RUN corepack enable
 
 # Copy the source code
 COPY ./ /tmp/source_code
 
 # Install dependencies
-RUN cd /tmp/source_code && npm install --ignore-scripts
+RUN cd /tmp/source_code && pnpm install --frozen-lockfile --ignore-scripts
 
 # Build the source code
-RUN cd /tmp/source_code && npm run build
+RUN cd /tmp/source_code && pnpm build
 
 # create libraries directory
 RUN mkdir -p /libraries
@@ -17,7 +19,7 @@ RUN mkdir -p /libraries
 RUN cp -r /tmp/source_code/lib /libraries
 RUN cp -r /tmp/source_code/assets /libraries
 RUN cp /tmp/source_code/package.json /libraries
-RUN cp /tmp/source_code/package-lock.json /libraries
+RUN cp /tmp/source_code/pnpm-lock.yaml /libraries
 RUN cp /tmp/source_code/oclif.manifest.json /libraries
 
 # Copy the bin directory to the /libraries directory
@@ -28,13 +30,18 @@ RUN rm -rf /tmp/*
 
 FROM node:24-alpine
 
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+RUN corepack enable
+
 # Install necessary packages
 RUN apk add --no-cache bash git
 
 # Copy the libraries directory from the build stage
 COPY --from=build /libraries /libraries
 
-RUN cd /libraries && npm install --production --ignore-scripts
+RUN cd /libraries && pnpm install --prod --frozen-lockfile --ignore-scripts
 
 # Create a non-root user
 # RUN addgroup -S myuser && adduser -S myuser -G myuser
