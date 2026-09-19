@@ -1,0 +1,8 @@
+allowBuilds:
+  '@hyperjump/json-pointer': false
+  '@hyperjump/json-schema': false
+  '@hyperjump/json-schema-core': false
+  '@hyperjump/pact': false
+  puppeteer: false
+  unrs-resolver: false
+  yarn: false
