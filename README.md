@@ -54,7 +54,7 @@ Additional steps:
 > This repository is an npm-workspaces + Turbo monorepo. The root package is `@asyncapi/cli` (workspaces
 > include `"."` so Changesets still versions it like today), and `@asyncapi/optimizer` lives in
 > [`packages/optimizer/`](/packages/optimizer) (published separately to npm).
-> Use `npm run optimizer:build` and `npm run optimizer:test` to work on that package. See its
+> Use `pnpm optimizer:build` and `pnpm optimizer:test` to work on that package. See its
 > [spec](/docs/optimizer/spec.md).
 
 The UX developed for the CLI should comply with the [Command Line Interface Guideline](https://clig.dev/)

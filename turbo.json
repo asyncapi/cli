@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "pipeline": {
+  "tasks": {
     "build": { "cache": false },
     "@asyncapi/optimizer#build": { "cache": false },
     "test": { "cache": false, "dependsOn": ["build"] },

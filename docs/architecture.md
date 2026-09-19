@@ -163,5 +163,5 @@ and also versions workspace packages such as `@asyncapi/optimizer`. Additional p
 | `@asyncapi/optimizer` | `packages/optimizer/` | The optimization library used by the `asyncapi optimize` command. Published independently to npm; the CLI depends on it via the workspace (`"@asyncapi/optimizer": "*"`). `@asyncapi/parser` is a `peerDependency` of this package. |
 
 Turbo orders builds so `@asyncapi/optimizer` is built before the root CLI (whose build compiles the
-`optimize` command that imports it). Use `npm run optimizer:build` / `npm run optimizer:test` to work on it
+`optimize` command that imports it). Use `pnpm optimizer:build` / `pnpm optimizer:test` to work on it
 in isolation. See [`docs/optimizer/spec.md`](/docs/optimizer/spec.md).
