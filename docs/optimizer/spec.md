@@ -105,8 +105,8 @@ No new CLI codes were required; see `optimizer-migration/v2-error-codes-mapping.
 | `src/index.ts` | Public exports. |
 | `src/Optimizer.ts` | `Optimizer` class, `Output`/`Action` enums, `getReport`/`getOptimizedDocument`/`applyReport`. |
 | `src/ComponentProvider.ts` | Collects optimizable components from the parsed document. |
-| `src/Reporters/*` | The four reporters (`removeComponents`, `reuseComponents`, `moveAllToComponents`, `moveDuplicatesToComponents`). |
-| `src/Utils/Helpers.ts` | `toJS`, equality checks, report filtering/sorting. |
+| `src/reporters/*` | The four reporters (`removeComponents`, `reuseComponents`, `moveAllToComponents`, `moveDuplicatesToComponents`). |
+| `src/utils/Helpers.ts` | `toJS`, equality checks, report filtering/sorting. |
 | `src/errors.ts` | `OptimizerError` hierarchy + `OptimizerErrorCode`. |
 | `src/types.ts` | `Report`, `ReportElement`, `Options`, internal types. |
 

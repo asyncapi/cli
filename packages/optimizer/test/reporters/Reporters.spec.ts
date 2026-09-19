@@ -3,7 +3,7 @@ import {
   moveDuplicatesToComponents,
   reuseComponents,
   removeComponents,
-} from '../../src/Reporters'
+} from '../../src/reporters'
 import { inputYAML } from '../fixtures'
 import { Parser } from '@asyncapi/parser'
 import { getOptimizableComponents } from '../../src/ComponentProvider'

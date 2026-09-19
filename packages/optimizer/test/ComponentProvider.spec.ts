@@ -1,6 +1,6 @@
 import { asyncapiYAMLWithoutComponents, inputYAML } from './fixtures'
 import { Parser } from '@asyncapi/parser'
-import { isInComponents } from '../src/Utils'
+import { isInComponents } from '../src/utils'
 import { getOptimizableComponents } from '../src/ComponentProvider'
 
 describe('ComponentProvider', () => {

@@ -5,7 +5,7 @@ import {
   ReportElement,
   Reporter,
 } from '../types'
-import { createReport, isEqual, isInChannels, isInComponents } from '../Utils'
+import { createReport, isEqual, isInChannels, isInComponents } from '../utils'
 import Debug from 'debug'
 const debug = Debug('reporter:reuseComponents')
 

@@ -1,5 +1,5 @@
 import { Action } from '../Optimizer'
-import { createReport, isEqual, isInComponents, getComponentName } from '../Utils'
+import { createReport, isEqual, isInComponents, getComponentName } from '../utils'
 import { OptimizableComponent, OptimizableComponentGroup, ReportElement, Reporter } from 'types'
 import Debug from 'debug'
 const debug = Debug('reporter:moveDuplicatesToComponents')

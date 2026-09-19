@@ -17,12 +17,12 @@ import {
   reuseComponents,
   moveAllToComponents,
   moveDuplicatesToComponents,
-} from './Reporters'
+} from './reporters'
 import YAML from 'js-yaml'
 import merge from 'merge-deep'
 import * as _ from 'lodash'
 import { getOptimizableComponents } from './ComponentProvider'
-import { filterReportElements, hasParent, sortReportElements, toJS } from './Utils'
+import { filterReportElements, hasParent, sortReportElements, toJS } from './utils'
 import Debug from 'debug'
 
 export enum Action {

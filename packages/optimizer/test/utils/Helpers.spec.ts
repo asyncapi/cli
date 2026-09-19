@@ -1,6 +1,6 @@
 import YAML from 'yaml'
 import _ from 'lodash'
-import { compareComponents, isEqual, isInComponents, isInChannels, toJS } from '../../src/Utils'
+import { compareComponents, isEqual, isInComponents, isInChannels, toJS } from '../../src/utils'
 import { OptimizerErrorCode, OptimizerInputError } from '../../src/errors'
 
 describe('Helpers', () => {
