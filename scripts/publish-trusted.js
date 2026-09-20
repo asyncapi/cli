@@ -6,9 +6,12 @@
  * `New tag: <name>@<version>` for each. npm publish is the next workflow step.
  */
 
-const fs = require('fs');
-const path = require('path');
-const { spawnSync } = require('child_process');
+const fs = require('node:fs');
+const path = require('node:path');
+const { spawnSync } = require('node:child_process');
+
+const GIT = '/usr/bin/git';
+const GH = '/usr/bin/gh';
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 const MAX_WORKSPACE_PATTERNS = 16;
@@ -154,7 +157,11 @@ function assertVersion(version) {
 }
 
 function isVersionOnNpm(name, version) {
-  const result = spawnSync('npm', ['view', `${name}@${version}`, 'version'], {
+  const npmCli = path.join(path.dirname(process.execPath), '..', 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js');
+  if (!fs.existsSync(npmCli)) {
+    throw new Error('npm CLI not found next to the Node executable.');
+  }
+  const result = spawnSync(process.execPath, [npmCli, 'view', `${name}@${version}`, 'version'], {
     encoding: 'utf8',
     cwd: ROOT_DIR,
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -163,7 +170,7 @@ function isVersionOnNpm(name, version) {
 }
 
 function gitRefExists(ref) {
-  const result = spawnSync('git', ['rev-parse', '-q', '--verify', ref], {
+  const result = spawnSync(GIT, ['rev-parse', '-q', '--verify', ref], {
     cwd: ROOT_DIR,
     stdio: 'ignore',
   });
@@ -177,7 +184,7 @@ function createGitTag(tag) {
     return;
   }
 
-  const result = spawnSync('git', ['tag', tag, '-m', tag], {
+  const result = spawnSync(GIT, ['tag', tag, '-m', tag], {
     cwd: ROOT_DIR,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -203,14 +210,14 @@ function createGithubRelease(tag) {
     return;
   }
 
-  const ghCheck = spawnSync('gh', ['--version'], { stdio: 'ignore' });
+  const ghCheck = spawnSync(GH, ['--version'], { stdio: 'ignore' });
   if (ghCheck.status !== 0) {
     console.log('gh CLI not available; skipping GitHub Release creation.');
     return;
   }
 
   const env = { ...process.env, GH_TOKEN: token };
-  const existing = spawnSync('gh', ['release', 'view', tag], {
+  const existing = spawnSync(GH, ['release', 'view', tag], {
     cwd: ROOT_DIR,
     encoding: 'utf8',
     env,
@@ -221,7 +228,7 @@ function createGithubRelease(tag) {
     return;
   }
 
-  const created = spawnSync('gh', ['release', 'create', tag, '--title', tag, '--generate-notes'], {
+  const created = spawnSync(GH, ['release', 'create', tag, '--title', tag, '--generate-notes'], {
     cwd: ROOT_DIR,
     encoding: 'utf8',
     env,
