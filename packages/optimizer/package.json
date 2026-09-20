@@ -1,0 +1,65 @@
+{
+  "name": "@asyncapi/optimizer",
+  "version": "1.0.4",
+  "description": "This library will optimize the AsyncAPI specification file.",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "files": [
+    "/lib",
+    "./README.md",
+    "./LICENSE"
+  ],
+  "scripts": {
+    "test": "cross-env NODE_OPTIONS=--max-old-space-size=4096 jest --coverage",
+    "test:watch": "cross-env NODE_OPTIONS=--max-old-space-size=4096 jest --watch",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "docs": "jsdoc2md lib/Optimizer.js -f lib/**/*.js > API.md",
+    "example": "tsc && node examples/index.js",
+    "get:version": "echo $npm_package_version",
+    "get:name": "echo $npm_package_name",
+    "generate:readme:toc": "doctoc --notitle README.md",
+    "generate:assets": "npm run build && npm run docs && npm run generate:readme:toc",
+    "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asyncapi/cli.git",
+    "directory": "packages/optimizer"
+  },
+  "author": "Khuda Dad Nomani",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/asyncapi/cli/issues"
+  },
+  "homepage": "https://github.com/asyncapi/cli/tree/master/packages/optimizer#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@types/debug": "^4.1.8",
+    "debug": "^4.3.4",
+    "js-yaml": "^4.1.0",
+    "jsonpath-plus": "^10.1.0",
+    "lodash": "^4.17.21",
+    "merge-deep": "^3.0.3"
+  },
+  "peerDependencies": {
+    "@asyncapi/parser": "^3.6.0"
+  },
+  "devDependencies": {
+    "@asyncapi/parser": "^3.6.0",
+    "@types/jest": "^26.0.23",
+    "@types/js-yaml": "^4.0.3",
+    "@types/lodash": "^4.14.171",
+    "@types/merge-deep": "^3.0.0",
+    "@types/node": "^15.12.1",
+    "cross-env": "^10.1.0",
+    "doctoc": "^2.2.1",
+    "jest": "^29.6.1",
+    "jsdoc-to-markdown": "^7.0.1",
+    "ts-jest": "^29.1.1",
+    "typescript": "^4.3.2"
+  }
+}

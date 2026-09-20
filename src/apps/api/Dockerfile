@@ -9,10 +9,11 @@ FROM base AS build
 
 WORKDIR /app
 
-# 1. Copy only package files first (for better caching)
+# 1. Copy package files + workspace packages first (needed to resolve the "*" workspace dependency)
 COPY package*.json ./
+COPY ./packages ./packages
 
-# 2. Install dependencies (cached unless package*.json changes)
+# 2. Install dependencies (cached unless package*.json / packages change)
 RUN npm install --ignore-scripts
 
 # 3. Copy the rest of the application code
@@ -23,7 +24,8 @@ COPY ./scripts ./scripts
 COPY openapi.yaml ./
 COPY *.json ./
 
-# 4. Build TypeScript or production-ready JS
+# 4. Build the workspace optimizer first (api:build compiles optimize.ts, which imports it), then the API
+RUN npm run optimizer:build
 RUN npm run api:build
 
 # ---- Templates stage ----
@@ -51,6 +53,12 @@ COPY --from=build /app/lib ./lib
 
 # Copy package files
 COPY --from=build /app/package*.json ./
+
+# Copy workspace packages (incl. the built @asyncapi/optimizer) so the "*" workspace dependency
+COPY --from=build /app/packages ./packages
+
+# package.json "postinstall" points at scripts/enableAutoComplete.js — copy it so npm cannot fail looking for it
+COPY --from=build /app/scripts ./scripts
 
 # Install production deps, then remove heavy ones
 RUN npm ci --omit=dev --ignore-scripts \
