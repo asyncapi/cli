@@ -18,7 +18,8 @@ After cloning the repository, you should setup the fork properly and configure t
 2. Install dependencies:
 
 ```bash
-npm install
+corepack enable
+pnpm install
 ```
 
 ## Running tests
@@ -27,10 +28,10 @@ npm install
 
 To run all tests locally:
 
-- CLI tests: `npm run cli:test`
-- Unit tests: `npm run unit:test`
-- Github action tests: `npm run action:test`
-- Single test file: `npm run test:one -- <path-to-test-file>`
+- CLI tests: `pnpm cli:test`
+- Unit tests: `pnpm unit:test`
+- Github action tests: `pnpm action:test`
+- Single test file: `pnpm test:one -- <path-to-test-file>`
 
 ### Adding tests
 
@@ -89,7 +90,7 @@ feat: add new feature
 
 1. Create a new release markdown file using changeset CLI. Below command will trigger an interactive prompt that you can use to specify release type and affected packages.
     ```cli 
-    npx -p @changesets/cli@2.27.7 changeset
+    pnpm dlx @changesets/cli@2.27.7 changeset
     ```
 
 2. Include the file in your pull request.
@@ -133,18 +134,18 @@ feat: add new feature
 
 ## Additional commands
 
-- Lint the code: `npm run lint`
-- Build Docker image: `npm run docker:build` (the image excludes AsyncAPI Studio to stay small; `start studio`/`preview` install it on-demand)
+- Lint the code: `pnpm lint`
+- Build Docker image: `pnpm docker:build` (the image excludes AsyncAPI Studio to stay small; `start studio`/`preview` install it on-demand)
 
 ## Troubleshooting
 
 If you encounter any issues during development or testing, please check the following:
 
-1. Ensure you're using the correct Node.js version (24.0.0 or higher) and npm version (8.19.0 or higher).
+1. Ensure you're using Node.js 24.0.0 or higher. The required pnpm version is selected automatically from `package.json` through Corepack.
 2. Clear the `node_modules` directory and reinstall dependencies if you encounter unexpected behavior.
 3. For Docker-related issues, make sure Docker is running and you have sufficient permissions.
 4. For permission errors, try: `sudo chown -R $(whoami) ./lib ./node_modules`
-5. For path alias issues, rebuild the project: `npm run build`
+5. For path alias issues, rebuild the project: `pnpm build`
 
 > 📘 **For comprehensive debugging help**, see the [Debugging & Testing Guide](/docs/debugging-testing.md).
 

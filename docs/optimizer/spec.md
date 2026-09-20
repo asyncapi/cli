@@ -140,15 +140,15 @@ Published npm files: `/lib`, `README.md`, `LICENSE` (`main`/`types` point at `li
 From the **repo root** (npm workspaces + Turborepo):
 
 ```bash
-npm install
-npm run optimizer:build   # turbo run build --filter=@asyncapi/optimizer
-npm run optimizer:test    # turbo run test  --filter=@asyncapi/optimizer
-npm test                  # optimizer Jest + CLI Mocha + GitHub Action tests (what PR CI runs)
+pnpm install
+pnpm optimizer:build      # turbo run build --filter=@asyncapi/optimizer
+pnpm optimizer:test       # turbo run test  --filter=@asyncapi/optimizer
+pnpm test                 # optimizer Jest + CLI Mocha + GitHub Action tests (what PR CI runs)
 ```
 
 Turbo builds `@asyncapi/optimizer` before the root CLI build, because the CLI's build compiles
-`src/apps/cli/commands/optimize.ts`, which imports this package. Root `pretest` is `npm run build`,
-so `npm test` always builds the optimizer first. Do **not** use unfiltered `turbo run test`: workspaces
+`src/apps/cli/commands/optimize.ts`, which imports this package. Root `pretest` is `pnpm build`,
+so `pnpm test` always builds the optimizer first. Do **not** use unfiltered `turbo run test`: workspaces
 include `"."`, so that would recurse into the root `test` script.
 
 ## 8. Releases (Changesets)

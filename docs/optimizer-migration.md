@@ -83,11 +83,11 @@ publish from this repo.
 ## For maintainers: working on the optimizer locally
 
 ```bash
-npm install                 # links the workspace
-npm run optimizer:build     # build just the optimizer
-npm run optimizer:test      # test just the optimizer
-npm test                    # optimizer + CLI + GitHub Action tests (PR CI)
-npm run build               # full CLI build (builds optimizer first)
+pnpm install                # links the workspace
+pnpm optimizer:build        # build just the optimizer
+pnpm optimizer:test         # test just the optimizer
+pnpm test                   # optimizer + CLI + GitHub Action tests (PR CI)
+pnpm build                  # full CLI build (builds optimizer first)
 ```
 
 ## References

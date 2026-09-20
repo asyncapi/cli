@@ -40,9 +40,9 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 **Before submitting:**
 - [ ] Branch synced with `main`
-- [ ] `npm run build` passes
-- [ ] `npm run cli:test` passes
-- [ ] `npm run lint` passes (max 5 warnings)
+- [ ] `pnpm build` passes
+- [ ] `pnpm cli:test` passes
+- [ ] `pnpm lint` passes (max 5 warnings)
 - [ ] Documentation updated (if needed)
 
 **Code quality:**
@@ -74,8 +74,8 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 - Complex business logic
 
 ```bash
-npm run cli:test      # All tests
-npm run unit:test     # Unit tests only
+pnpm cli:test      # All tests
+pnpm unit:test     # Unit tests only
 ```
 
 ---
@@ -105,10 +105,12 @@ npm run unit:test     # Unit tests only
 
 ```bash
 # Setup
-npm install && npx lefthook install
+corepack enable
+pnpm install
+pnpm exec lefthook install
 
 # Before PR
-npm run build && npm run lint && npm run cli:test
+pnpm build && pnpm lint && pnpm cli:test
 ```
 
 **Quality over speed** — Write good code, tests, and documentation.
