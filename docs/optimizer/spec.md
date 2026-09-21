@@ -6,7 +6,7 @@
 This document describes what the package is, what problem it solves, how it works, how to develop and release
 it inside the `asyncapi/cli` monorepo, and the v2 contract. Consumer-facing install/usage examples live in
 [`packages/optimizer/README.md`](/packages/optimizer/README.md). A beginner-oriented migration walkthrough
-lives in [`docs/optimizer-migration.md`](/docs/optimizer-migration.md).
+lives in [`optimizer-migration.md`](./optimizer-migration.md).
 
 ---
 
@@ -199,7 +199,7 @@ publish. Package metadata: `private: false`, `publishConfig.access: public`.
 | Source | [`packages/optimizer/src/`](/packages/optimizer/src) |
 | Tests | [`packages/optimizer/test/`](/packages/optimizer/test) |
 | npm README | [`packages/optimizer/README.md`](/packages/optimizer/README.md) |
-| Migration guide | [`docs/optimizer-migration.md`](/docs/optimizer-migration.md) |
+| Migration guide | [`optimizer-migration.md`](./optimizer-migration.md) |
 | Exit-code convention | [`codes_reference-cleanup-docs.md`](/codes_reference-cleanup-docs.md) |
 | Release workflow | [`.github/workflows/release-with-changesets.yml`](/.github/workflows/release-with-changesets.yml) |
 | Tracking issue | https://github.com/asyncapi/optimizer/issues/306 |

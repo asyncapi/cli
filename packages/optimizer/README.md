@@ -9,7 +9,7 @@ AsyncAPI offers many ways to reuse certain parts of the document like messages o
 > `.code` (`OptimizerError` / `OptimizerErrorCode`) instead of plain `Error` + `console.error`; `getReport()`
 > now returns `{ type, elements }[]`; and `@asyncapi/parser` is now a **peerDependency** (install it alongside).
 > The optimization algorithm and `getOptimizedDocument()` behaviour are unchanged. See the migration guide:
-> [`docs/optimizer-migration.md`](https://github.com/asyncapi/cli/blob/master/docs/optimizer-migration.md).
+> [`docs/optimizer/optimizer-migration.md`](https://github.com/asyncapi/cli/blob/master/docs/optimizer/optimizer-migration.md).
 
 ![npm](https://img.shields.io/npm/v/@asyncapi/optimizer?style=for-the-badge) ![npm](https://img.shields.io/npm/dt/@asyncapi/optimizer?style=for-the-badge)
 
