@@ -1,7 +1,10 @@
 # Migrating `@asyncapi/optimizer` into the CLI (and the v2 release)
 
 > A plain-language guide for anyone new to this codebase. It explains what moved, why, and what (if anything)
-> you need to change as a consumer. For the precise package reference, see [`docs/optimizer/spec.md`](/docs/optimizer/spec.md).
+> you need to change as a consumer. For the precise package reference, see [`spec.md`](./spec.md).
+>
+> This file lives under `docs/optimizer/` (not `docs/*.md`) so it is **not** copied to the AsyncAPI website.
+> The website CLI docs are for people using the CLI; this guide is for maintainers and npm library consumers.
 
 ## What changed, in one paragraph
 
@@ -92,6 +95,6 @@ npm run build               # full CLI build (builds optimizer first)
 
 ## References
 
-- Package spec: [`docs/optimizer/spec.md`](/docs/optimizer/spec.md)
+- Package spec: [`spec.md`](./spec.md)
 - Tracking issue: [optimizer#306](https://github.com/asyncapi/optimizer/issues/306)
 - Prior art (same pattern): `@asyncapi/openapi-schema-parser` into `asyncapi/parser-js`

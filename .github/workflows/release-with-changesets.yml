@@ -117,15 +117,15 @@ jobs:
       - if: steps.packagejson.outputs.exists == 'true'
         name: Publish to any of NPM, Github, and Docker Hub
         # If changeset files exist, this opens a Version Packages PR (runs bump:version, including bump:github-action).
-        # If not (Version PR was merged), publish:trusted only creates the git tag; the next step publishes to npm.
+        # If not (Version PR was merged), publish:trusted tags and the next step publishes to npm.
         uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1.5.3
         id: release
         with:
           version: npm run bump:version
           commit: "chore(release): release and bump versions of packages"
           title: "chore(release): release and bump versions of packages"
-          # Tag-only workaround: changesets/action does not support OIDC npm publish yet
           publish: npm run publish:trusted
+          createGithubReleases: false
           setupGitUser: false
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
