@@ -94,18 +94,41 @@ export abstract class BaseGeneratorCommand extends Command {
     interactive = true
   ): Promise<void> {
     const specification = await this.loadSpecificationSafely(asyncapi);
-    
-    const result = await this.generatorService.generate(
-      specification,
-      template,
-      output,
-      options as any, // GeneratorService expects different options interface
-      genOption,
-      interactive,
+
+    // When installed via pnpm globally, the BROWSERSLIST env variable may contain
+    // shell script content (e.g., "basedir=$(dirname ...)") that gets
+    // misinterpreted by PostCSS/Autoprefixer inside HTML templates.
+    // Only clear when the value looks like shell script garbage, not legitimate
+    // browser queries like "last 2 Chrome versions" or "> 1%".
+    // See: https://github.com/asyncapi/cli/issues/1781
+    const originalBrowserslist = process.env.BROWSERSLIST;
+    const looksLikeShellScript = originalBrowserslist !== undefined && (
+      originalBrowserslist.includes('$(') ||
+      originalBrowserslist.includes('`') ||
+      /^\w+=/.test(originalBrowserslist)
     );
-    
-    if (!result.success) {
-      throw new GeneratorError(new Error(result.error));
+    if (looksLikeShellScript) {
+      delete process.env.BROWSERSLIST;
+    }
+
+    try {
+      const result = await this.generatorService.generate(
+        specification,
+        template,
+        output,
+        options as any, // GeneratorService expects different options interface
+        genOption,
+        interactive,
+      );
+
+      if (!result.success) {
+        throw new GeneratorError(new Error(result.error));
+      }
+    } finally {
+      // Restore original BROWSERSLIST value only if we cleared it
+      if (looksLikeShellScript) {
+        process.env.BROWSERSLIST = originalBrowserslist;
+      }
     }
   }
 
