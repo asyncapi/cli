@@ -27,10 +27,9 @@ describe('parseParams utilities', () => {
       expect(result).to.deep.equal({ url: 'http://example.com?foo=bar' });
     });
 
-    it('should handle input with trailing equals (no capture after =)', () => {
-      // The regex (.+) requires at least one char after =, so 'name=' won't split properly
-      const result = paramParser(['name=value']);
-      expect(result).to.have.property('name', 'value');
+    it('should parse a param with an empty value (trailing equals)', () => {
+      const result = paramParser(['name=']);
+      expect(result).to.deep.equal({ name: '' });
     });
 
     it('should throw error for input without equals sign', () => {
