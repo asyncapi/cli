@@ -1,0 +1,33 @@
+asyncapi: 2.2.0
+info:
+  title: Kotlin polymorphism
+  version: 1.0.0
+channels:
+  animals:
+    publish:
+      message:
+        payload:
+          $ref: '#/components/schemas/Animal'
+components:
+  schemas:
+    Animal:
+      discriminator: kind
+      oneOf:
+        - $ref: '#/components/schemas/Cat'
+        - $ref: '#/components/schemas/Dog'
+    Cat:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: cat
+        name:
+          type: string
+    Dog:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: dog
+        name:
+          type: string
