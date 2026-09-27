@@ -5,7 +5,15 @@ export default class Start extends Command {
   static description =
     'Starts AsyncAPI-related services. Currently, it supports launching the AsyncAPI Studio';
   async run() {
+    await this.parse(Start);
     const help = new Help(this.config);
-    help.showHelp(['start', '--help']);
+    if (!this.jsonEnabled()) {
+      help.showHelp(['start', '--help']);
+    }
+    return this.result('Start command help retrieved.', {
+      topic: 'start',
+      help: Start.description,
+      warnings: [],
+    });
   }
 }

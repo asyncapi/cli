@@ -15,7 +15,16 @@ export default class InstallStudio extends Command {
 
   async run() {
     const { flags } = await this.parse(InstallStudio);
-    const studioPath = await ensureStudio(this.config, { yes: flags.yes });
+    const studioPath = await ensureStudio(this.config, {
+      yes: flags.yes,
+      noInteractive: this.jsonEnabled(),
+      quiet: this.jsonEnabled(),
+    });
     this.log(`Studio is ready at ${blueBright(studioPath)}.`);
+    return this.result('Studio is ready.', {
+      path: studioPath,
+      installed: true,
+      warnings: [],
+    });
   }
 }

@@ -2,7 +2,8 @@
 import { Args } from '@oclif/core';
 import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
-import { promises as fs } from 'fs';
+import { existsSync, promises as fs } from 'fs';
+import path from 'path';
 import chalk from 'chalk';
 import { load, Specification } from '@models/SpecificationFile';
 import Command from '@cli/internal/base';
@@ -13,7 +14,11 @@ import {
   DiffOverrideFileError,
   DiffOverrideJSONError,
 } from '@errors/diff-error';
-import { specWatcher } from '@cli/internal/globals';
+import {
+  emitWatchStarted,
+  isWatchRerun,
+  specWatcher,
+} from '@cli/internal/globals';
 
 import type { SpecWatcherParams } from '@cli/internal/globals';
 import { diffFlags } from '@cli/internal/flags/diff.flags';
@@ -22,6 +27,8 @@ import {
   ValidationStatus,
 } from '@/domains/services/validation.service';
 import { Diagnostic } from '@asyncapi/parser/cjs';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES } from '@errors/error-codes';
 
 const { readFile } = fs;
 
@@ -42,7 +49,7 @@ export default class Diff extends Command {
   };
 
   /* eslint-disable sonarjs/cognitive-complexity */
-  async run() {
+  async run(): Promise<unknown> {
     const { args, flags } = await this.parse(Diff); // NOSONAR
     const firstDocumentPath = args['old'];
     const secondDocumentPath = args['new'];
@@ -52,11 +59,16 @@ export default class Diff extends Command {
     const overrideFilePath = flags['overrides'];
     let markdownSubtype = flags['markdownSubtype'];
     const watchMode = flags['watch'];
+    const watchRerun = isWatchRerun(this);
     const noError = flags['no-error'];
     const writeOutput = flags['save-output'];
+    const outputOverwritten = writeOutput ? existsSync(path.resolve(writeOutput)) : false;
     let firstDocument: Specification, secondDocument: Specification;
 
-    checkAndWarnFalseFlag(outputFormat, markdownSubtype);
+    const flagWarning = checkAndWarnFalseFlag(outputFormat, markdownSubtype);
+    if (flagWarning) {
+      this.log(flagWarning);
+    }
     markdownSubtype = setDefaultMarkdownSubtype(
       outputFormat,
       markdownSubtype,
@@ -71,7 +83,7 @@ export default class Diff extends Command {
     try {
       firstDocument = await load(firstDocumentPath);
 
-      enableWatch(watchMode, {
+      enableWatch(watchMode && !watchRerun, {
         spec: firstDocument,
         handler: this,
         handlerName: 'diff',
@@ -93,7 +105,7 @@ export default class Diff extends Command {
     try {
       secondDocument = await load(secondDocumentPath);
 
-      enableWatch(watchMode, {
+      enableWatch(watchMode && !watchRerun, {
         spec: secondDocument,
         handler: this,
         handlerName: 'diff',
@@ -129,7 +141,10 @@ export default class Diff extends Command {
         flags,
       );
       if (!parsed) {
-        return;
+        throw new ValidationError({
+          type: 'invalid-syntax-file',
+          filepath: firstDocumentPath,
+        });
       }
 
       const diffOutput = diff.diff(
@@ -141,36 +156,102 @@ export default class Diff extends Command {
           markdownSubtype: markdownSubtype as diff.MarkdownSubtype,
         },
       );
+      const structuredDiffOutput = diff.diff(
+        parsed.firstDocumentParsed.json(),
+        parsed.secondDocumentParsed.json(),
+        {
+          override: overrides,
+          outputType: 'json',
+          markdownSubtype: markdownSubtype as diff.MarkdownSubtype,
+        },
+      );
+      const breaking = structuredDiffOutput.breaking() as unknown[];
+      const nonBreaking = structuredDiffOutput.nonBreaking() as unknown[];
+      const unclassified = structuredDiffOutput.unclassified() as unknown[];
 
       if (writeOutput) {
         await this.writeOutputToFile(diffOutput,outputType,writeOutput,outputFormat);
+      } else if (outputFormat === 'json') {
+        this.outputJSON(diffOutput, outputType);
+      } else if (outputFormat === 'yaml' || outputFormat === 'yml') {
+        this.outputYAML(diffOutput, outputType);
+      } else if (outputFormat === 'md') {
+        this.outputMarkdown(diffOutput, outputType);
       } else {
-        if (outputFormat === 'json') {
-          this.outputJSON(diffOutput, outputType);
-        } else if (outputFormat === 'yaml' || outputFormat === 'yml') {
-          this.outputYAML(diffOutput, outputType);
-        } else if (outputFormat === 'md') {
-          this.outputMarkdown(diffOutput, outputType);
-        } else {
-          this.log(
-            `The output format ${outputFormat} is not supported at the moment.`,
-          );
-        }
-        if (!noError) {
-          throwOnBreakingChange(diffOutput, outputFormat);
-        }
+        this.log(
+          `The output format ${outputFormat} is not supported at the moment.`,
+        );
       }
+
+      const hasBreakingChanges = breaking.length > 0;
+      if (hasBreakingChanges && !noError) {
+        throw new DiffBreakingChangeError();
+      }
+
+      const warnings = [];
+      if (flagWarning) {
+        warnings.push({ code: 'INAPPLICABLE_FLAG', message: flagWarning });
+      }
+      if (hasBreakingChanges && noError) {
+        warnings.push({
+          code: 'BREAKING_CHANGES_DETECTED',
+          message: 'Breaking changes were detected but --no-error was used.',
+        });
+      }
+      const status = warnings.length > 0 ? 'warning' : 'success';
+      const commandResult = this.result(
+        hasBreakingChanges
+          ? 'The diff completed and found breaking changes.'
+          : 'The diff completed successfully.',
+        {
+          old: sourceData(firstDocumentPath, firstDocument),
+          new: sourceData(secondDocumentPath, secondDocument),
+          type: outputType,
+          format: outputFormat === 'yml' ? 'yaml' : outputFormat,
+          changes: writeOutput ? null : genericOutput(structuredDiffOutput, outputType),
+          counts: {
+            breaking: breaking.length,
+            nonBreaking: nonBreaking.length,
+            unclassified: unclassified.length,
+          },
+          output: writeOutput
+            ? {
+              path: path.resolve(writeOutput),
+              format: outputFormat === 'yml' ? 'yaml' : outputFormat,
+              overwritten: outputOverwritten,
+            }
+            : null,
+          warnings,
+        },
+        status,
+      );
+      if (watchMode && this.jsonEnabled() && !watchRerun) {
+        emitWatchStarted(
+          this,
+          commandResult,
+          [firstDocument.getFilePath(), secondDocument.getFilePath()].filter(
+            (filePath): filePath is string => Boolean(filePath),
+          ),
+        );
+        return;
+      }
+
+      return commandResult;
     } catch (error) {
       if (
         error instanceof DiffBreakingChangeError ||
         error instanceof TypeError
       ) {
-        this.error(error);
+        throw error;
       }
-      throw new ValidationError({
-        type: 'parser-error',
-        err: error,
-      });
+      if (error && typeof error === 'object' && 'code' in error) {
+        throw error;
+      }
+      throw new ApplicationError(
+        CLI_ERROR_CODES.DEPENDENCY_ERROR,
+        error instanceof Error ? error.message : 'The diff operation failed.',
+        { cause: error },
+      );
     }
   }
 
@@ -211,12 +292,8 @@ export default class Diff extends Command {
       content = `The output format ${outputFormat} is not supported at the moment.`;
     }
     
-    try {
-      await fs.writeFile(filePath, content);
-      this.log(`Output successfully written to: ${filePath}`);
-    } catch (error: any) {
-      this.error(`Failed to write output to file: ${error.message}`);
-    }
+    await fs.writeFile(filePath, content);
+    this.log(`Output successfully written to: ${filePath}`);
   }
 
   outputYAML(diffOutput: AsyncAPIDiff, outputType: string) {
@@ -389,20 +466,6 @@ const enableWatch = (status: boolean, watcher: SpecWatcherParams) => {
 };
 
 /**
- * Throws `DiffBreakingChangeError` when breaking changes are detected
- */
-function throwOnBreakingChange(diffOutput: AsyncAPIDiff, outputFormat: string) {
-  const breakingChanges = diffOutput.breaking();
-  if (
-    (outputFormat === 'json' && breakingChanges.length !== 0) ||
-    ((outputFormat === 'yaml' || outputFormat === 'yml') &&
-      breakingChanges !== '[]\n')
-  ) {
-    throw new DiffBreakingChangeError();
-  }
-}
-
-/**
  * Checks and warns user about providing unnecessary markdownSubtype option.
  */
 function checkAndWarnFalseFlag(
@@ -413,8 +476,20 @@ function checkAndWarnFalseFlag(
     const warningMessage = chalk.yellowBright(
       `Warning: The given markdownSubtype flag will not work with the given format.\nProvided flag markdownSubtype: ${markdownSubtype}`,
     );
-    console.log(warningMessage);
+    return warningMessage;
   }
+}
+
+function sourceData(input: string, specification: Specification) {
+  const source = specification.getFileURL() ?? specification.getFilePath() ?? input;
+  const resolved = specification.getFileURL() ?? path.resolve(source);
+  let kind = 'context';
+  if (specification.getFileURL()) {
+    kind = 'url';
+  } else if (path.resolve(input) === resolved) {
+    kind = 'file';
+  }
+  return { input, kind, resolved };
 }
 
 /**

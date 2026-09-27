@@ -2,6 +2,10 @@ import { Args, Flags } from '@oclif/core';
 import Command from '@cli/internal/base';
 import { blueBright } from 'picocolors';
 import { ConfigService, AuthEntry } from '@/domains/services/config.service';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES } from '@errors/error-codes';
+import { homedir } from 'os';
+import { join } from 'path';
 
 export default class AuthAdd extends Command {
   static description =
@@ -69,8 +73,20 @@ export default class AuthAdd extends Command {
       if (entry.headers) {
         this.log(`Headers: ${JSON.stringify(entry.headers, null, 2)}`);
       }
+      return this.result('Authentication config added.', {
+        pattern: args.pattern,
+        authType: entry.authType || 'Bearer',
+        tokenSource: isEnvVar ? 'environment' : 'literal',
+        headers: entry.headers || {},
+        configPath: join(homedir(), '.asyncapi', 'config.json'),
+        warnings: [],
+      });
     } catch (err) {
-      this.error(`❌ Failed to add auth config: ${(err as Error).message}`);
+      throw new ApplicationError(
+        CLI_ERROR_CODES.CONFIG_WRITE_FAILED,
+        `❌ Failed to add auth config: ${(err as Error).message}`,
+        { cause: err },
+      );
     }
   }
 }

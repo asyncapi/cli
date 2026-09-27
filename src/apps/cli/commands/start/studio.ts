@@ -5,6 +5,7 @@ import { load } from '@models/SpecificationFile';
 import { studioFlags } from '@cli/internal/flags/start/studio.flags';
 import { Args } from '@oclif/core';
 import { isCancel, text, cancel } from '@clack/prompts';
+import path from 'path';
 
 export default class StartStudio extends Command {
   static readonly description = 'starts a new local instance of Studio. Studio (~450MB) is installed on-demand on first use; pass --yes to install without prompting.';
@@ -23,15 +24,17 @@ export default class StartStudio extends Command {
 
     let filePath = args['spec-file'] ?? flags.file;
 
-    let port = parseInt(flags.port ?? '0',10);
+    let port = parseInt(flags.port ?? '0', 10);
 
-    if (flags.file) {
+    const json = this.jsonEnabled();
+
+    if (flags.file && !json) {
       this.warn(
         'The file flag has been removed and is being replaced by the argument spec-file. Please pass the filename directly like `asyncapi start studio asyncapi.yml`',
       );
     }
 
-    const isInteractive = !flags['no-interactive'];
+    const isInteractive = !flags['no-interactive'] && !json;
 
     if (isInteractive && !filePath) {
       const parsedArgs = await this.parseArgs({ filePath }, port?.toString());
@@ -42,7 +45,9 @@ export default class StartStudio extends Command {
     if (!filePath) {
       try {
         filePath = (await load()).getFilePath();
-        this.log(`Loaded specification from: ${filePath}`);
+        if (!json) {
+          this.log(`Loaded specification from: ${filePath}`);
+        }
       } catch {
         filePath = '';
         this.error('No file specified.');
@@ -58,9 +63,33 @@ export default class StartStudio extends Command {
     this.metricsMetadata.port = port;
     const studioPath = await ensureStudio(this.config, {
       yes: flags.yes,
-      noInteractive: flags['no-interactive'],
+      noInteractive: flags['no-interactive'] || json,
+      quiet: json,
     });
-    startStudio(filePath as string, port, flags.noBrowser, studioPath);
+    const { host, port: actualPort, url } = await startStudio(
+      filePath as string,
+      port,
+      flags.noBrowser || json,
+      studioPath,
+      json,
+    );
+
+    if (json) {
+      this.emitStructuredOutput(this.result('Server started.', {
+        event: 'server.started',
+        source: {
+          input: args['spec-file'] ?? flags.file ?? filePath,
+          kind: this.specFile?.getFileURL() ? 'url' : 'file',
+          resolved: this.specFile?.getFileURL() ?? path.resolve(filePath as string),
+        },
+        host,
+        port: actualPort,
+        url,
+        pid: process.pid,
+        editable: true,
+        warnings: [],
+      }));
+    }
   }
 
   private async parseArgs(args: Record<string, any>, port?: string) {

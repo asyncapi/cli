@@ -25,5 +25,10 @@ export default class ContextInit extends Command {
 
     const contextWritePath = await initContext(contextFilePath as string);
     this.log(`🎉 Context initialized at ${blueBright(contextWritePath)}`);
+    return this.result('Context initialized successfully.', {
+      path: contextWritePath,
+      created: true,
+      warnings: [],
+    });
   }
 }

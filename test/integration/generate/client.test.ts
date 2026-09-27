@@ -32,4 +32,19 @@ describe('client', () => {
         done();
       });
   }).timeout(200000);
+
+  test
+    .stdout()
+    .command([
+      'generate:client',
+      'unsupported',
+      './test/fixtures/specification-v3.yml',
+      '--json',
+    ])
+    .it('maps unsupported languages in JSON mode', (ctx, done) => {
+      const result = JSON.parse(ctx.stdout);
+      expect(result.status).to.equal('error');
+      expect(result.errors[0].code).to.equal('GENERATION_LANGUAGE_UNSUPPORTED');
+      done();
+    });
 });

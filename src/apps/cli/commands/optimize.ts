@@ -1,17 +1,58 @@
 import { Args } from '@oclif/core';
-import { Optimizer, Output, Report, ReportElement, OptimizerParseError } from '@asyncapi/optimizer';
+import { Optimizer, Output } from '@asyncapi/optimizer';
 import Command from '@cli/internal/base';
 import { ValidationError } from '@errors/validation-error';
-import { load, retrieveFileFormat } from '@models/SpecificationFile';
+import { Specification, load, retrieveFileFormat } from '@models/SpecificationFile';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
-import { promises } from 'fs';
-import { Parser } from '@asyncapi/parser';
+import { existsSync, promises } from 'fs';
+import path from 'path';
 import { optimizeFlags } from '@cli/internal/flags/optimize.flags';
 import { proxyFlags } from '@cli/internal/flags/proxy.flags';
 import { applyProxyToPath } from '@utils/proxy';
 
 const { writeFile } = promises;
+
+// Keep the command on the optimizer v2 contract even when local dependencies
+// still expose the v1 declaration files.
+interface ReportElement {
+  path: string;
+  action: 'move' | 'remove' | 'reuse';
+  target?: string;
+}
+
+interface Report {
+  type: string;
+  elements: ReportElement[];
+}
+
+interface OptimizerV2 {
+  getReport(): Promise<Report[]>;
+  getOptimizedDocument(options: {
+    rules: Record<string, boolean>;
+    disableOptimizationFor: { schema: boolean };
+    output: Output;
+  }): string;
+}
+
+interface OptimizeData {
+  source: {
+    input: string;
+    kind: 'file' | 'url' | 'context' | 'auto-detected';
+    resolved: string;
+  };
+  optimized: boolean;
+  applied: Optimizations[];
+  ignored: DisableOptimizations[];
+  report: Report[];
+  document: Record<string, unknown> | null;
+  output: {
+    path: string;
+    format: 'json' | 'yaml';
+    overwritten: boolean;
+  } | null;
+  warnings: Array<{ code: string; message: string }>;
+}
 
 export enum Optimizations {
   REMOVE_COMPONENTS = 'remove-components',
@@ -56,37 +97,52 @@ export default class Optimize extends Command {
     }),
   };
 
-  parser = new Parser();
-
   async run() {
     const { args, flags } = await this.parse(Optimize); //NOSONAR
+    const input = args['spec-file'];
     const filePath = applyProxyToPath(
-      args['spec-file'],
+      input,
       flags['proxyHost'],
       flags['proxyPort']
     );
     await this.loadSpecFile(filePath);
     const specFile = this.requireSpecFile();
-    const { optimizer, report } = await this.buildOptimizerReport(specFile);
 
-    this.isInteractive = !flags['no-tty'];
+    this.isInteractive = !flags['no-tty'] && !this.jsonEnabled();
     this.selectedOptimizations = flags.optimization as Optimizations[];
     this.disableOptimizations = flags.ignore as DisableOptimizations[];
     this.outputMethod = flags.output as Outputs;
     this.metricsMetadata.optimized = false;
 
+    const { optimizer, report } = await this.buildOptimizerReport(specFile);
+    const source = this.getSource(input, specFile);
+
     if (!this.hasAvailableOptimizations(report)) {
-      this.log(
-        `🎉 Great news! Your file at ${specFile.getFilePath() ?? specFile.getFileURL()} is already optimized.`,
-      );
-      return;
+      const message = `🎉 Great news! Your file at ${specFile.getFilePath() ?? specFile.getFileURL()} is already optimized.`;
+      if (!this.jsonEnabled()) {
+        this.log(message);
+      }
+      return this.result(message, {
+        source,
+        optimized: false,
+        applied: [],
+        ignored: this.disableOptimizations,
+        report,
+        document: this.outputMethod === Outputs.TERMINAL ? specFile.toJson() : null,
+        output: null,
+        warnings: [],
+      } satisfies OptimizeData);
     }
 
     if (this.isInteractive && process.stdout.isTTY) {
       await this.interactiveRun(report);
     }
 
-    await this.writeOptimizedDocument(optimizer, report, specFile);
+    const data = await this.writeOptimizedDocument(optimizer, report, specFile);
+    return this.result('AsyncAPI document optimized successfully.', {
+      source,
+      ...data,
+    } satisfies OptimizeData);
   }
 
   private requireSpecFile() {
@@ -126,109 +182,161 @@ export default class Optimize extends Command {
     }
   }
 
-  private async buildOptimizerReport(specFile: NonNullable<Optimize['specFile']>): Promise<{ optimizer: Optimizer; report: Report[] }> {
+  private async buildOptimizerReport(specFile: NonNullable<Optimize['specFile']>): Promise<{ optimizer: OptimizerV2; report: Report[] }> {
     try {
-      const optimizer = new Optimizer(specFile.text());
+      const optimizer = new Optimizer(specFile.text()) as unknown as OptimizerV2;
       const report = await optimizer.getReport();
       return { optimizer, report };
-    } catch (err) {
-      if (err instanceof OptimizerParseError && err.details) {
+    } catch (err: unknown) {
+      const details = err && typeof err === 'object' && 'details' in err
+        ? (err as { details?: unknown }).details
+        : undefined;
+      if (!this.jsonEnabled() && details) {
         this.logToStderr(
-          typeof err.details === 'string'
-            ? err.details
-            : JSON.stringify(err.details, null, 2),
+          typeof details === 'string'
+            ? details
+            : JSON.stringify(details, null, 2),
         );
       }
-      this.error(
-        new ValidationError({
-          type: 'invalid-syntax-file',
-          filepath: specFile.getFilePath(),
-        }),
-      );
+      throw err;
     }
+  }
+
+  private getSource(
+    input: string | undefined,
+    specFile: NonNullable<Optimize['specFile']>,
+  ): OptimizeData['source'] {
+    const filePath = specFile.getFilePath();
+    const fileURL = specFile.getFileURL();
+    const resolved = filePath ? path.resolve(filePath) : fileURL as string;
+    let kind: OptimizeData['source']['kind'] = 'auto-detected';
+    if (fileURL) {
+      kind = 'url';
+    } else if (input) {
+      kind = filePath && path.resolve(input) === path.resolve(filePath)
+        ? 'file'
+        : 'context';
+    }
+    return {
+      input: input ?? filePath ?? fileURL as string,
+      kind,
+      resolved,
+    };
   }
 
   private hasAvailableOptimizations(report: Report[]): boolean {
     return Boolean(
       this.getElements(report, 'moveDuplicatesToComponents').length ||
+        this.getElements(report, 'moveAllToComponents').length ||
         this.getElements(report, 'removeComponents').length ||
         this.getElements(report, 'reuseComponents').length,
     );
   }
 
   private async writeOptimizedDocument(
-    optimizer: Optimizer,
+    optimizer: OptimizerV2,
     report: Report[],
     specFile: NonNullable<Optimize['specFile']>,
-  ): Promise<void> {
+  ): Promise<Omit<OptimizeData, 'source'>> {
     const selectedOptimizations = this.selectedOptimizations ?? [];
     const disableOptimizations = this.disableOptimizations ?? [];
-    try {
-      const fileFormat = retrieveFileFormat(specFile.text());
-      let optimizedDocument = optimizer.getOptimizedDocument({
-        rules: {
-          moveDuplicatesToComponents: selectedOptimizations.includes(
-            Optimizations.MOVE_DUPLICATES_TO_COMPONENTS,
-          ),
-          moveAllToComponents: selectedOptimizations.includes(
-            Optimizations.MOVE_ALL_TO_COMPONENTS,
-          ),
-          removeComponents: selectedOptimizations.includes(
-            Optimizations.REMOVE_COMPONENTS,
-          ),
-          reuseComponents: selectedOptimizations.includes(
-            Optimizations.REUSE_COMPONENTS,
-          ),
-        },
-        disableOptimizationFor: {
-          schema: disableOptimizations.includes(
-            DisableOptimizations.SCHEMA,
-          ),
-        },
-        output: fileFormat === 'json' ? Output.JSON : Output.YAML,
-      });
-      if (fileFormat === 'json') {
-        optimizedDocument = JSON.stringify((JSON.parse(optimizedDocument)), null, 2);
-      }
+    const fileFormat = retrieveFileFormat(specFile.text()) === 'json' ? 'json' : 'yaml';
+    const reportForOutput = report.map((group) => ({
+      type: group.type,
+      elements: group.elements.map((element) => ({ ...element })),
+    }));
+    const applied = selectedOptimizations.filter((optimization) => {
+      const reportType = optimization.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
+      return this.getElements(report, reportType).some((element) =>
+        !disableOptimizations.includes(DisableOptimizations.SCHEMA) ||
+        !element.target?.includes('.schemas.')
+      );
+    });
+    let optimizedDocument = optimizer.getOptimizedDocument({
+      rules: {
+        moveDuplicatesToComponents: selectedOptimizations.includes(
+          Optimizations.MOVE_DUPLICATES_TO_COMPONENTS,
+        ),
+        moveAllToComponents: selectedOptimizations.includes(
+          Optimizations.MOVE_ALL_TO_COMPONENTS,
+        ),
+        removeComponents: selectedOptimizations.includes(
+          Optimizations.REMOVE_COMPONENTS,
+        ),
+        reuseComponents: selectedOptimizations.includes(
+          Optimizations.REUSE_COMPONENTS,
+        ),
+      },
+      disableOptimizationFor: {
+        schema: disableOptimizations.includes(
+          DisableOptimizations.SCHEMA,
+        ),
+      },
+      output: fileFormat === 'json' ? Output.JSON : Output.YAML,
+    });
+    if (fileFormat === 'json') {
+      optimizedDocument = JSON.stringify(JSON.parse(optimizedDocument), null, 2);
+    }
 
-      this.collectMetricsData(report);
+    this.collectMetricsData(report);
 
-      const specPath = specFile.getFilePath();
-      let newPath = '';
+    const specPath = specFile.getFilePath();
+    let newPath: string;
 
-      if (specPath) {
-        const pos = specPath.lastIndexOf('.');
-        newPath = `${specPath.substring(0, pos)}_optimized.${specPath.substring(pos + 1)}`;
-      } else {
-        newPath = `optimized-asyncapi.${fileFormat}`;
-      }
+    if (specPath) {
+      const pos = specPath.lastIndexOf('.');
+      newPath = `${specPath.substring(0, pos)}_optimized.${specPath.substring(pos + 1)}`;
+    } else {
+      newPath = `optimized-asyncapi.${fileFormat}`;
+    }
 
-      switch (this.outputMethod) {
-      case Outputs.TERMINAL:
+    let output: OptimizeData['output'] = null;
+    let document: OptimizeData['document'] = null;
+    switch (this.outputMethod) {
+    case Outputs.TERMINAL:
+      document = fileFormat === 'json'
+        ? JSON.parse(optimizedDocument) as Record<string, unknown>
+        : new Specification(optimizedDocument).toJson();
+      if (!this.jsonEnabled()) {
         this.log('📄 Here is your optimized AsyncAPI document:\n');
         this.log(optimizedDocument);
-        break;
-      case Outputs.NEW_FILE:
-        await writeFile(newPath, optimizedDocument, { encoding: 'utf8' });
+      }
+      break;
+    case Outputs.NEW_FILE: {
+      const outputPath = path.resolve(newPath);
+      const overwritten = existsSync(outputPath);
+      await writeFile(outputPath, optimizedDocument, { encoding: 'utf8' });
+      output = { path: outputPath, format: fileFormat, overwritten };
+      if (!this.jsonEnabled()) {
         this.log(
           `✅ Success! Your optimized file has been created at ${chalk.blue(newPath)}.`,
         );
-        break;
-      case Outputs.OVERWRITE:
-        await writeFile(specPath ?? `asyncapi.${fileFormat}`, optimizedDocument, {
-          encoding: 'utf8',
-        });
+      }
+      break;
+    }
+    case Outputs.OVERWRITE: {
+      const outputPath = path.resolve(specPath ?? `asyncapi.${fileFormat}`);
+      const overwritten = existsSync(outputPath);
+      await writeFile(outputPath, optimizedDocument, { encoding: 'utf8' });
+      output = { path: outputPath, format: fileFormat, overwritten };
+      if (!this.jsonEnabled()) {
         this.log(
           `✅ Success! Your original file at ${specPath} has been updated.`,
         );
-        break;
       }
-    } catch (error) {
-      throw new ValidationError({
-        type: 'parser-error',
-        err: error,
-      });
+      break;
     }
+    }
+
+    return {
+      optimized: applied.length > 0,
+      applied,
+      ignored: disableOptimizations,
+      report: reportForOutput,
+      document,
+      output,
+      warnings: [],
+    };
   }
 
   private getElements(report: Report[], type: string): ReportElement[] {

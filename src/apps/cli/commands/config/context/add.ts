@@ -1,12 +1,13 @@
 import { Args } from '@oclif/core';
 import Command from '@cli/internal/base';
 import { addContext, setCurrentContext } from '@models/Context';
-import {
-  MissingContextFileError,
-  ContextFileWrongFormatError,
-} from '@errors/context-error';
+import { MissingContextFileError } from '@errors/context-error';
 import { addFlags } from '@cli/internal/flags/config/context.flags';
 import { blueBright } from 'picocolors';
+import { CONTEXT_FILE_PATH } from '@models/Context';
+import { resolve } from 'path';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES } from '@errors/error-codes';
 
 export default class ContextAdd extends Command {
   static description = 'Add a context to the store';
@@ -40,12 +41,19 @@ export default class ContextAdd extends Command {
           `\nThe newly added context, ${blueBright(contextName)}, is set as your current context!`,
         );
       }
+      return this.result('Context added successfully.', {
+        name: contextName,
+        path: resolve(specFilePath),
+        current: setAsCurrent,
+        contextFile: CONTEXT_FILE_PATH,
+        warnings: [],
+      });
     } catch (e) {
-      if (
-        e instanceof (MissingContextFileError || ContextFileWrongFormatError)
-      ) {
-        this.error(
+      if (e instanceof MissingContextFileError) {
+        throw new ApplicationError(
+          CLI_ERROR_CODES.CONTEXT_FILE_NOT_FOUND,
           `Unable to add context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`,
+          { cause: e },
         );
       }
       throw e;

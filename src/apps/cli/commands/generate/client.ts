@@ -10,6 +10,7 @@ import { parseGeneratorFlags } from '@utils/generate/flags';
 import { promptForLanguage } from '@utils/generate/prompts';
 import { availableLanguages, AvailableLanguageType, getDefaultLanguage } from '@models/generate/ClientLanguages';
 import { GeneratorError } from '@errors/generator-error';
+import path from 'path';
 
 export default class Client extends BaseGeneratorCommand {
   static description = `Generates clients baked-in AsyncAPI Generator. Available for: ${availableLanguages.join(', ')}. If some language is not supported or you want to improve existing client, join us at https://github.com/asyncapi/generator`;
@@ -30,7 +31,8 @@ export default class Client extends BaseGeneratorCommand {
 
   async run() {
     const { args, flags } = await this.parse(Client); // NOSONAR
-    const interactive = !flags['no-interactive'];
+    const json = this.jsonEnabled();
+    const interactive = !flags['no-interactive'] && !json;
     let asyncapi = args['asyncapi'] ?? '';
     let language = args['language'] as AvailableLanguageType;
     let output = flags.output as string;
@@ -48,23 +50,35 @@ export default class Client extends BaseGeneratorCommand {
 
     const template = this.getTemplateName(language);
 
-    const parsedFlags = parseGeneratorFlags(
-      flags['disable-hook'],
-      flags['param'],
-      flags['map-base-url'],
-      flags['registry-url'],
-      flags['registry-auth'],
-      flags['registry-token']
-    );
+    if (json && !output) {
+      output = process.cwd();
+    }
+    if (json && !asyncapi) {
+      this.requireNonInteractiveArgs(asyncapi, output);
+    }
+
+    let parsedFlags;
+    try {
+      parsedFlags = await parseGeneratorFlags(
+        flags['disable-hook'],
+        flags['param'],
+        flags['map-base-url'],
+        flags['registry-url'],
+        flags['registry-auth'],
+        flags['registry-token']
+      );
+    } catch (error) {
+      throw this.generationError(error);
+    }
 
     const options = await this.buildGeneratorOptions(flags, parsedFlags);
     
     // Apply proxy configuration using base class method
+    const source = asyncapi;
     asyncapi = this.applyProxyConfiguration(asyncapi, proxyHost, proxyPort);
-    
-    const asyncapiInput = await this.loadAsyncAPIInput(asyncapi);
-
-    this.specFile = asyncapiInput;
+    if (!json) {
+      this.specFile = await this.loadAsyncAPIInput(asyncapi);
+    }
     this.metricsMetadata.language = language;
 
     const watchTemplate = flags['watch'];
@@ -72,6 +86,7 @@ export default class Client extends BaseGeneratorCommand {
 
     // Use GeneratorService for client generation
     const specification = await this.loadSpecificationSafely(asyncapi);
+    this.specFile = specification;
     const result = await this.generatorService.generate(
       specification,
       template,
@@ -82,14 +97,43 @@ export default class Client extends BaseGeneratorCommand {
     );
     
     if (!result.success) {
+      if (json) {
+        throw this.generationError(new Error(result.error), undefined, result.diagnostics);
+      }
       throw new GeneratorError(new Error(result.error));
     }
     
-    this.log(result.data?.logs?.join('\n'));
+    if (!json) {
+      this.log(result.data?.logs?.join('\n'));
+    }
 
     if (watchTemplate) {
       await this.handleWatchMode(asyncapi, template, output, options, genOption, interactive);
     }
+
+    const commandResult = this.result('Client generated successfully.', {
+      source: this.sourceDescriptor(source, specification),
+      language,
+      template,
+      outputDirectory: path.resolve(output),
+      generatedFiles: await this.generatedFiles(output),
+      logs: result.data?.logs ?? [],
+      watching: Boolean(watchTemplate),
+      diagnostics: result.diagnostics ?? [],
+      warnings: [],
+    });
+    if (watchTemplate && json) {
+      this.emitStructuredOutput({
+        ...commandResult,
+        data: {
+          ...(commandResult.data ?? {}),
+          event: 'watch.started',
+          watchedFiles: [this.sourceDescriptor(source, specification).resolved],
+        },
+      });
+      return;
+    }
+    return commandResult;
   }
 
   private async parseArgs(args: Record<string, any>, output?: string): Promise<{ asyncapi: string; language: string; output: string; }> {
@@ -118,10 +162,12 @@ export default class Client extends BaseGeneratorCommand {
     })?.name;
 
     if (!template) {
-      this.log(`❌ Client generation for "${language}" is not yet available.`);
-      this.log(`✅ Available languages: ${availableLanguages.join(', ')}`);
-      this.log('🙏 Help us create the missing one. Start discussion at: https://github.com/asyncapi/generator/issues.');
-      this.exit(1);
+      if (!this.jsonEnabled()) {
+        this.log(`❌ Client generation for "${language}" is not yet available.`);
+        this.log(`✅ Available languages: ${availableLanguages.join(', ')}`);
+        this.log('🙏 Help us create the missing one. Start discussion at: https://github.com/asyncapi/generator/issues.');
+      }
+      throw this.generationError(new Error(`Unsupported generation language: ${language}.`));
     }
 
     return template;

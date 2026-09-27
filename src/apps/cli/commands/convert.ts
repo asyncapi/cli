@@ -10,6 +10,9 @@ import specs from '@asyncapi/specs';
 import { convertFlags } from '@cli/internal/flags/convert.flags';
 import { ConversionService } from '@services/convert.service';
 import { applyProxyToPath } from '@utils/proxy';
+import { existsSync } from 'fs';
+import path from 'path';
+import { Specification } from '@models/SpecificationFile';
 
 const latestVersion = Object.keys(specs.schemas).pop() as string;
 const TARGET_VERSION_FLAG = 'target-version';
@@ -30,7 +33,7 @@ export default class Convert extends Command {
     }),
   };
 
-  async run() {
+  async run(): Promise<unknown> {
     const { args, flags } = await this.parse(Convert);
     const filePath = applyProxyToPath(
       args['spec-file'],
@@ -65,6 +68,10 @@ export default class Convert extends Command {
         this.conversionService.handleLogging(this.specFile, conversionOptions),
       );
 
+      const outputPath = flags.output
+        ? path.resolve(process.cwd(), flags.output)
+        : null;
+      const overwritten = outputPath ? existsSync(outputPath) : false;
       if (flags['output']) {
         await this.conversionService.handleOutput(
           flags['output'],
@@ -73,13 +80,34 @@ export default class Convert extends Command {
       } else {
         this.log(result.data.convertedDocument);
       }
+
+      const sourceDocument = this.specFile.toJson();
+      return this.result('The document was converted successfully.', {
+        source: sourceData(args['spec-file'], this.specFile),
+        sourceFormat: conversionOptions.format,
+        sourceVersion: sourceDocument.asyncapi ?? sourceDocument.openapi ?? null,
+        targetFormat: 'asyncapi' as const,
+        targetVersion: conversionOptions[TARGET_VERSION_FLAG],
+        perspective: conversionOptions.perspective,
+        document: outputPath
+          ? null
+          : new Specification(result.data.convertedDocument).toJson(),
+        output: outputPath
+          ? {
+            path: outputPath,
+            format: path.extname(outputPath).slice(1) || 'yaml',
+            overwritten,
+          }
+          : null,
+        warnings: [],
+      });
     } catch (err) {
-      this.handleError(err, filePath ?? 'unknown', targetVersion);
+      throw this.handleError(err, filePath ?? 'unknown', targetVersion);
     }
   }
 
   // Helper function to handle errors
-  private handleError(err: unknown, filePath: string, targetVersion: string | undefined) {
+  private handleError(err: unknown, filePath: string, targetVersion: string | undefined): never {
     if (err instanceof SpecificationFileNotFound) {
       this.error(
         new ValidationError({
@@ -95,4 +123,18 @@ export default class Convert extends Command {
       this.error(err as Error);
     }
   }
+}
+
+function sourceData(input: string | undefined, specification: Specification) {
+  const source = specification.getFileURL() ?? specification.getFilePath() ?? input ?? '';
+  const resolved = specification.getFileURL() ?? path.resolve(source);
+  let kind = 'context';
+  if (specification.getFileURL()) {
+    kind = 'url';
+  } else if (!input) {
+    kind = 'auto-detected';
+  } else if (path.resolve(input) === resolved) {
+    kind = 'file';
+  }
+  return { input: input ?? source, kind, resolved };
 }

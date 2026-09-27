@@ -3,6 +3,10 @@ import chalk from 'chalk';
 import Command from './base';
 import { Specification } from '@models/SpecificationFile';
 import { getErrorMessage } from '@utils/error-handler';
+import {
+  isStructuredOutput,
+  StructuredOutput,
+} from './output/types';
 
 const GreenLog = chalk.hex('#00FF00');
 const OrangeLog = chalk.hex('#FFA500');
@@ -24,6 +28,7 @@ const WATCH_MESSAGES = {
 };
 
 const CHOKIDAR_INSTANCE_STORE = new Map<string, boolean>();
+const WATCH_RERUNS = new WeakSet<Command>();
 
 export type SpecWatcherParams = {
   spec: Specification;
@@ -33,8 +38,33 @@ export type SpecWatcherParams = {
   docVersion?: 'old' | 'new';
 };
 
+export const isWatchRerun = (handler: Command): boolean =>
+  WATCH_RERUNS.has(handler);
+
+export const emitWatchStarted = (
+  handler: Command,
+  output: StructuredOutput,
+  watchedFiles: string[],
+): void => {
+  const event: StructuredOutput = {
+    ...output,
+    data: {
+      ...(output.data ?? {}),
+      event: 'watch.started',
+      watchedFiles,
+    },
+  };
+  handler.emitStructuredOutput(event);
+};
+
 export const specWatcher = (params: SpecWatcherParams) => {
   if (!params.spec.getFilePath()) {
+    if (params.handler.jsonEnabled()) {
+      params.handler.emitStructuredError(
+        new Error(`Watch mode for ${params.docVersion || 'AsyncAPI'} file was not enabled.`),
+      );
+      return;
+    }
     return WATCH_MESSAGES.logOnAutoDisable(params.docVersion);
   }
   if (CHOKIDAR_INSTANCE_STORE.get(params.label ?? '_default')) {
@@ -43,20 +73,57 @@ export const specWatcher = (params: SpecWatcherParams) => {
 
   const filePath = params.spec.getFilePath() as string;
   try {
-    WATCH_MESSAGES.logOnStart(filePath);
+    if (!params.handler.jsonEnabled()) {
+      WATCH_MESSAGES.logOnStart(filePath);
+    }
     chokidar.watch(filePath, CHOKIDAR_CONFIG).on('change', async () => {
-      if (params.handlerName) {
+      if (WATCH_RERUNS.has(params.handler)) {
+        return;
+      }
+
+      const json = params.handler.jsonEnabled();
+      if (json) {
+        const event: StructuredOutput = {
+          status: 'success',
+          message: `Change detected, running ${params.handlerName}.`,
+          data: { event: 'file.changed', path: filePath },
+          errors: [],
+        };
+        params.handler.emitStructuredOutput(event);
+      } else if (params.handlerName) {
         WATCH_MESSAGES.logOnChange(params.handlerName);
       }
 
+      const previousExitCode = process.exitCode;
+      WATCH_RERUNS.add(params.handler);
       try {
-        await params.handler.run();
+        const result = await params.handler.run();
+        if (json && isStructuredOutput(result)) {
+          params.handler.emitStructuredOutput({
+            ...result,
+            data: {
+              ...(result.data ?? {}),
+              event: 'command.completed',
+            },
+          });
+        }
       } catch (err: unknown) {
-        await params.handler.catch(err as Error);
+        if (json) {
+          params.handler.emitStructuredError(err);
+        } else {
+          await params.handler.catch(err as Error);
+        }
+      } finally {
+        WATCH_RERUNS.delete(params.handler);
+        process.exitCode = previousExitCode;
       }
     });
     CHOKIDAR_INSTANCE_STORE.set(params.label || '_default', true);
   } catch (error: unknown) {
-    console.error(chalk.red(`Watch error: ${getErrorMessage(error)}`));
+    if (params.handler.jsonEnabled()) {
+      params.handler.emitStructuredError(error);
+    } else {
+      console.error(chalk.red(`Watch error: ${getErrorMessage(error)}`));
+    }
   }
 };

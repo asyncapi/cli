@@ -14,8 +14,13 @@ import {
   ValidationService,
   ValidationStatus,
 } from '@/domains/services/validation.service';
-import { Diagnostic } from '@asyncapi/parser/cjs';
+import { Diagnostic, DiagnosticSeverity } from '@asyncapi/parser/cjs';
 import { applyProxyToPath } from '@utils/proxy';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES } from '@errors/error-codes';
+import { getErrorMessage } from '@utils/error-handler';
+import path from 'path';
+import { promises as fs } from 'fs';
 
 export default class Models extends Command {
   static description = 'Generates typed models';
@@ -27,15 +32,16 @@ export default class Models extends Command {
     ...proxyFlags(),
   };
    
-  async run() {
+  async run(): Promise<unknown> {
     const { args, flags } = await this.parse(Models);
     let { language, file } = args;
     let { output } = flags;
     const { proxyPort, proxyHost } = flags;
 
-    const interactive = !flags['no-interactive'];
+    const json = this.jsonEnabled();
+    const interactive = !flags['no-interactive'] && !json;
 
-    if (!interactive) {
+    if (!interactive && !json) {
       intro(inverse('AsyncAPI Generate Models'));
 
       const parsedArgs = await this.parseArgs(args, output);
@@ -44,8 +50,34 @@ export default class Models extends Command {
       output = parsedArgs.output;
     }
 
+    if (json && (!language || !file)) {
+      const missing = [!language ? 'language' : '', !file ? 'AsyncAPI document' : ''].filter(Boolean);
+      throw new ApplicationError(
+        CLI_ERROR_CODES.CLI_ARGUMENT_REQUIRED,
+        `Missing required generation input: ${missing.join(', ')}.`,
+      );
+    }
+    if (!Object.values(Languages).includes(language as Languages)) {
+      throw new ApplicationError(
+        CLI_ERROR_CODES.GENERATION_LANGUAGE_UNSUPPORTED,
+        `Unsupported model generation language: ${language}.`,
+      );
+    }
     const fileWithProxy = applyProxyToPath(file, proxyHost, proxyPort);
-    const inputFile = (await load(fileWithProxy)) || (await load());
+    let inputFile: Specification;
+    try {
+      inputFile = (await load(fileWithProxy)) || (await load());
+    } catch (error) {
+      if (!json) {
+        throw error;
+      }
+      throw new ApplicationError(
+        CLI_ERROR_CODES.SPEC_FILE_NOT_FOUND,
+        getErrorMessage(error, `Unable to load AsyncAPI document: ${file}.`),
+        { cause: error },
+      );
+    }
+    this.specFile = inputFile;
 
     const result = await this.validationService.parseDocument(
       inputFile,
@@ -53,25 +85,36 @@ export default class Models extends Command {
       flags as ValidationOptions,
     );
     if (!result.success) {
-      this.error(`Failed to parse the AsyncAPI document: ${result.error}`, {
-        exit: 1,
-      });
+      throw new ApplicationError(
+        CLI_ERROR_CODES.DOCUMENT_PARSE_FAILED,
+        `Failed to parse the AsyncAPI document: ${result.error}`,
+        { details: result.diagnostics },
+      );
     } else if (!result.data) {
-      this.error('No data returned from parsing the AsyncAPI document.', {
-        exit: 1,
-      });
+      throw new ApplicationError(
+        CLI_ERROR_CODES.DOCUMENT_PARSE_FAILED,
+        'No data returned from parsing the AsyncAPI document.',
+      );
     }
 
     const { document, diagnostics, status } = result.data;
+    const structuredDiagnostics = diagnostics.map(normalizeDiagnostic);
 
     if (!document || status === 'invalid') {
       const severityErrors = diagnostics.filter((obj) => obj.severity === 0);
+      if (json) {
+        throw new ApplicationError(
+          CLI_ERROR_CODES.ASYNCAPI_DOCUMENT_INVALID,
+          'Input is not a correct AsyncAPI document so it cannot be processed.',
+          { details: { diagnostics: severityErrors.map(normalizeDiagnostic) } },
+        );
+      }
       this.log(
         `Input is not a correct AsyncAPI document so it cannot be processed.${this.validationService.formatDiagnosticsOutput(severityErrors, 'stylish', 'error')}`,
       );
       return;
     }
-    if (flags['log-diagnostics'] && inputFile) {
+    if (flags['log-diagnostics'] && inputFile && !json) {
       this.handleGovernanceMessage(
         inputFile,
         diagnostics,
@@ -86,22 +129,37 @@ export default class Models extends Command {
       );
     }
 
+    const logs: string[] = [];
+    const warnings: string[] = [];
     const logger = {
       info: (message: string) => {
-        this.log(message);
+        logs.push(message);
+        if (!json) {
+          this.log(message);
+        }
       },
       debug: (message: string) => {
-        this.debug(message);
+        logs.push(message);
+        if (!json) {
+          this.debug(message);
+        }
       },
       warn: (message: string) => {
-        this.warn(message);
+        warnings.push(message);
+        if (!json) {
+          this.warn(message);
+        }
       },
       error: (message: string) => {
-        this.error(message);
+        if (json) {
+          logs.push(message);
+        } else {
+          this.error(message);
+        }
       },
     };
 
-    const s = spinner();
+    const s = json ? { start: () => undefined, stop: () => undefined } : spinner();
     s.start('Generating models...');
     try {
       const generatedModels = await generateModels(
@@ -119,7 +177,16 @@ export default class Models extends Command {
             `Successfully generated the following models: ${generatedModelStrings.join(', ')}`,
           ),
         );
-        return;
+        return this.result('Models generated successfully.', {
+          source: this.sourceDescriptor(file, inputFile),
+          language,
+          outputDirectory: path.resolve(output),
+          generatedFiles: await this.generatedFiles(output),
+          models: generatedModels.map((model) => ({ name: model.modelName, content: null, path: null })),
+          logs,
+          diagnostics: structuredDiagnostics,
+          warnings: warnings.map((message) => ({ code: 'MODEL_GENERATION_WARNING', message })),
+        });
       }
       const generatedModelStrings = generatedModels.map((model) => {
         return `
@@ -132,14 +199,23 @@ export default class Models extends Command {
           `Successfully generated the following models: ${generatedModelStrings.join('\n')}`,
         ),
       );
+      return this.result('Models generated successfully.', {
+        source: this.sourceDescriptor(file, inputFile),
+        language,
+        outputDirectory: null,
+        generatedFiles: [],
+        models: generatedModels.map((model) => ({ name: model.modelName, content: model.result, path: null })),
+        logs,
+        diagnostics: structuredDiagnostics,
+        warnings: warnings.map((message) => ({ code: 'MODEL_GENERATION_WARNING', message })),
+      });
     } catch (error) {
       s.stop(green('Failed to generate models'));
-
-      if (error instanceof Error) {
-        this.error(error.message);
-      } else {
-        this.error('An unknown error occurred during model generation.');
-      }
+      throw new ApplicationError(
+        CLI_ERROR_CODES.MODEL_GENERATION_FAILED,
+        getErrorMessage(error, 'An unknown error occurred during model generation.'),
+        { cause: error },
+      );
     }
   }
 
@@ -217,4 +293,66 @@ export default class Models extends Command {
       this.log(governanceMessage);
     }
   }
+
+  private sourceDescriptor(input: string, specification: Specification) {
+    const url = specification.getFileURL();
+    return {
+      input: this.redactUrl(input),
+      kind: url ? 'url' : 'file',
+      resolved: url ? this.redactUrl(url) : path.resolve(specification.getFilePath() ?? input),
+    };
+  }
+
+  private async generatedFiles(output: string): Promise<string[]> {
+    const root = path.resolve(output);
+    const files: string[] = [];
+    const visit = async (directory: string): Promise<void> => {
+      const entries = await fs.readdir(directory, { withFileTypes: true });
+      await Promise.all(entries.map(async (entry) => {
+        const entryPath = path.join(directory, entry.name);
+        if (entry.isDirectory()) {
+          await visit(entryPath);
+        } else if (entry.isFile()) {
+          files.push(entryPath);
+        }
+      }));
+    };
+    await visit(root);
+    return files.sort();
+  }
+
+  private redactUrl(value: string): string {
+    try {
+      const url = new URL(value);
+      if (!['http:', 'https:'].includes(url.protocol)) {
+        return value;
+      }
+      url.username = '';
+      url.password = '';
+      for (const key of [...url.searchParams.keys()]) {
+        if ((/token|key|secret|password|auth/i).test(key)) {
+          url.searchParams.set(key, '[REDACTED]');
+        }
+      }
+      return url.toString();
+    } catch {
+      return value;
+    }
+  }
+}
+
+function normalizeDiagnostic(diagnostic: Diagnostic) {
+  const severities = {
+    [DiagnosticSeverity.Error]: 'error',
+    [DiagnosticSeverity.Warning]: 'warning',
+    [DiagnosticSeverity.Information]: 'info',
+    [DiagnosticSeverity.Hint]: 'hint',
+  } as const;
+  return {
+    code: String(diagnostic.code ?? ''),
+    message: diagnostic.message,
+    severity: severities[diagnostic.severity],
+    path: diagnostic.path ?? [],
+    range: diagnostic.range ?? null,
+  };
 }

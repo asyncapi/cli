@@ -213,11 +213,14 @@ export function watcherHandler(
   output: string,
   options: Record<string, any>,
   genOption: any,
-  interactive: boolean
+  interactive: boolean,
+  structured = false,
 ): (changedFiles: Record<string, any>) => Promise<void> {
   return async (changedFiles: Record<string, any>): Promise<void> => {
-    console.clear();
-    console.log('[WATCHER] Change detected');
+    if (!structured) {
+      console.clear();
+      console.log('[WATCHER] Change detected');
+    }
     for (const [, value] of Object.entries(changedFiles)) {
       let eventText;
       switch (value.eventType) {
@@ -233,11 +236,28 @@ export function watcherHandler(
       default:
         eventText = yellow(value.eventType);
       }
-      thisArg.log(`\t${magenta(value.path)} was ${eventText}`);
+      if (!structured) {
+        thisArg.log(`\t${magenta(value.path)} was ${eventText}`);
+      } else {
+        thisArg.emitStructuredOutput(thisArg.result(
+          `File ${value.eventType}.`,
+          { event: 'file.changed', path: path.resolve(value.path), change: value.eventType },
+        ));
+      }
     }
     try {
       await thisArg.generate(asyncapi, template, output, options, genOption, interactive);
+      if (structured) {
+        thisArg.emitStructuredOutput(thisArg.result(
+          'Generation completed after a watched file changed.',
+          { event: 'command.completed', outputDirectory: path.resolve(output) },
+        ));
+      }
     } catch (err: any) {
+      if (structured) {
+        thisArg.emitStructuredError(err);
+        return;
+      }
       throw new GeneratorError(err);
     }
   };

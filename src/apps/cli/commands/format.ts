@@ -1,4 +1,5 @@
-import { promises as fPromises } from 'fs';
+import { existsSync, promises as fPromises } from 'fs';
+import path from 'path';
 import { Args } from '@oclif/core';
 import Command from '@cli/internal/base';
 
@@ -7,6 +8,7 @@ import {
   convertToYaml,
   load,
   retrieveFileFormat,
+  Specification,
 } from '@models/SpecificationFile';
 import { SpecificationWrongFileFormat } from '@errors/specification-file';
 import { cyan, green } from 'picocolors';
@@ -28,36 +30,39 @@ export default class Format extends Command {
     }),
   };
 
-  async run() {
+  async run(): Promise<unknown> {
     const { args, flags } = await this.parse(Format);
     const filePath = args['spec-file'];
     const outputFileFormat = flags['format'] as fileFormat;
-    let convertedFile;
-    try {
-      this.specFile = await load(filePath);
-      this.metricsMetadata.output_format = outputFileFormat;
+    this.specFile = await load(filePath);
+    this.metricsMetadata.output_format = outputFileFormat;
 
-      const ff = retrieveFileFormat(this.specFile.text());
-      const isSpecFileJson = ff === 'json';
-      const isSpecFileYaml = ff === 'yaml';
+    const ff = retrieveFileFormat(this.specFile.text());
+    const isSpecFileJson = ff === 'json';
+    const isSpecFileYaml = ff === 'yaml';
 
-      if (!isSpecFileJson && !isSpecFileYaml) {
-        throw new SpecificationWrongFileFormat(filePath);
-      }
-
-      convertedFile = this.handleConversion(
-        isSpecFileJson,
-        isSpecFileYaml,
-        outputFileFormat,
-      );
-
-      if (!convertedFile) {
-        return;
-      }
-      await this.handleOutput(flags.output, convertedFile, outputFileFormat);
-    } catch (err) {
-      this.error(err as Error);
+    if (!isSpecFileJson && !isSpecFileYaml) {
+      throw new SpecificationWrongFileFormat(filePath);
     }
+
+    const convertedFile = this.handleConversion(
+      isSpecFileJson,
+      isSpecFileYaml,
+      outputFileFormat,
+    );
+
+    if (!convertedFile) {
+      return;
+    }
+    const output = await this.handleOutput(flags.output, convertedFile, outputFileFormat);
+    return this.result('The AsyncAPI document was formatted successfully.', {
+      source: sourceData(filePath, this.specFile),
+      sourceFormat: ff,
+      targetFormat: outputFileFormat,
+      document: output ? null : new Specification(convertedFile).toJson(),
+      output,
+      warnings: [],
+    });
   }
 
   private handleConversion(
@@ -88,16 +93,19 @@ export default class Format extends Command {
     if (outputPath) {
       outputPath = this.removeExtensionFromOutputPath(outputPath);
       const finalFileName = `${outputPath}.${outputFileFormat}`;
+      const resolvedPath = path.resolve(finalFileName);
+      const overwritten = existsSync(resolvedPath);
       await fPromises.writeFile(finalFileName, formattedFile, {
         encoding: 'utf8',
       });
       this.log(
         `succesfully formatted to ${outputFileFormat} at ${green(finalFileName)} ✅`,
       );
-    } else {
-      this.log(formattedFile);
-      this.log(`succesfully logged after formatting to ${outputFileFormat} ✅`);
+      return { path: resolvedPath, format: outputFileFormat, overwritten };
     }
+    this.log(formattedFile);
+    this.log(`succesfully logged after formatting to ${outputFileFormat} ✅`);
+    return null;
   }
 
   private removeExtensionFromOutputPath(filename: string): string {
@@ -117,4 +125,18 @@ export default class Format extends Command {
 
     return filename;
   }
+}
+
+function sourceData(input: string | undefined, specification: Specification) {
+  const source = specification.getFileURL() ?? specification.getFilePath() ?? input ?? '';
+  const resolved = specification.getFileURL() ?? path.resolve(source);
+  let kind = 'context';
+  if (specification.getFileURL()) {
+    kind = 'url';
+  } else if (!input) {
+    kind = 'auto-detected';
+  } else if (path.resolve(input) === resolved) {
+    kind = 'file';
+  }
+  return { input: input ?? source, kind, resolved };
 }

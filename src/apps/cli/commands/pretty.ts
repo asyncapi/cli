@@ -1,5 +1,6 @@
 import { Args } from '@oclif/core';
-import { promises as fs } from 'fs';
+import { existsSync, promises as fs } from 'fs';
+import path from 'path';
 import * as yaml from 'yaml';
 import Command from '@cli/internal/base';
 import { load, retrieveFileFormat } from '@models/SpecificationFile';
@@ -24,7 +25,7 @@ export default class Pretty extends Command {
     }),
   };
 
-  async run() {
+  async run(): Promise<unknown> {
     const { args, flags } = await this.parse(Pretty);
     const filePath = args['spec-file'];
     const outputPath = flags.output;
@@ -43,14 +44,17 @@ export default class Pretty extends Command {
     const content = this.specFile.text();
     let formatted: string;
 
+    let fileFormat: 'json' | 'yaml';
     try {
-      const fileFormat = retrieveFileFormat(this.specFile.text());
-      if (fileFormat === 'yaml' || fileFormat === 'yml') {
+      const detectedFormat = retrieveFileFormat(this.specFile.text());
+      if (detectedFormat === 'yaml' || detectedFormat === 'yml') {
+        fileFormat = 'yaml';
         const yamlDoc = yaml.parseDocument(content);
         formatted = yamlDoc.toString({
           lineWidth: 0,
         });
-      } else if (fileFormat === 'json') {
+      } else if (detectedFormat === 'json') {
+        fileFormat = 'json';
         const jsonObj = JSON.parse(content);
         formatted = JSON.stringify(jsonObj, null, 2);
       } else {
@@ -60,6 +64,8 @@ export default class Pretty extends Command {
       this.error(`Error formatting file: ${err}`);
     }
 
+    const writtenPath = path.resolve(outputPath ?? filePath);
+    const overwritten = existsSync(writtenPath);
     if (outputPath) {
       await fs.writeFile(outputPath, formatted, 'utf8');
       this.log(`Asyncapi document has been beautified ${outputPath}`);
@@ -67,5 +73,16 @@ export default class Pretty extends Command {
       await fs.writeFile(filePath, formatted, 'utf8');
       this.log(`Asyncapi document ${filePath} has been beautified in-place.`);
     }
+
+    return this.result('The AsyncAPI document was beautified successfully.', {
+      source: {
+        input: filePath,
+        kind: this.specFile.getFileURL() ? 'url' : 'file',
+        resolved: this.specFile.getFileURL() ?? path.resolve(this.specFile.getFilePath() ?? filePath),
+      },
+      format: fileFormat,
+      output: { path: writtenPath, format: fileFormat, overwritten },
+      warnings: [],
+    });
   }
 }
