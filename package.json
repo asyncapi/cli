@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "6.0.2",
+  "version": "6.2.0",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
@@ -11,6 +11,10 @@
     "type": "git"
   },
   "bugs": "https://github.com/asyncapi/cli/issues",
+  "workspaces": [
+    ".",
+    "packages/*"
+  ],
   "dependencies": {
     "@asyncapi/avro-schema-parser": "^3.0.24",
     "@asyncapi/bundler": "^1.0.1",
@@ -19,12 +23,11 @@
     "@asyncapi/generator": "^3.2.0",
     "@asyncapi/modelina-cli": "^5.10.1",
     "@asyncapi/openapi-schema-parser": "^3.1.0",
-    "@asyncapi/optimizer": "^1.0.4",
+    "@asyncapi/optimizer": "*",
     "@asyncapi/parser": "^3.6.2",
     "@asyncapi/problem": "^1.0.0",
     "@asyncapi/protobuf-schema-parser": "^3.8.3",
     "@asyncapi/raml-dt-schema-parser": "^4.0.24",
-    "@asyncapi/studio": "^1.2.0",
     "@clack/prompts": "^0.11.0",
     "@oclif/core": "^4.8.0",
     "@oclif/plugin-autocomplete": "^3.2.39",
@@ -40,7 +43,6 @@
     "express": "^5.2.1",
     "fast-levenshtein": "^3.0.0",
     "fs-extra": "^11.3.2",
-    "generator-v2": "npm:@asyncapi/generator@3.0.1",
     "helmet": "^8.1.0",
     "https-proxy-agent": "^7.0.6",
     "inquirer": "^8.2.6",
@@ -58,6 +60,7 @@
   "devDependencies": {
     "@asyncapi/minimaltemplate": "./test/fixtures/minimaltemplate",
     "@asyncapi/newtemplate": "./test/fixtures/newtemplate",
+    "@asyncapi/studio": "^1.2.0",
     "@eslint/js": "^9.39.2",
     "@oclif/test": "^3.2.15",
     "@types/archiver": "^7.0.0",
@@ -98,15 +101,18 @@
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
+    "turbo": "^2.9.14",
     "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=24.0.0"
   },
+  "packageManager": "npm@11.6.2",
   "files": [
     "/bin",
     "/lib",
     "/assets",
+    "!/assets/server-api.png",
     "/scripts",
     "/npm-shrinkwrap.json",
     "/openapi.yaml",
@@ -159,7 +165,9 @@
     "fsevents": "^2.3.3"
   },
   "scripts": {
-    "build": "rimraf lib && node scripts/fetch-asyncapi-example.js && npm run generate:languages && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
+    "build": "npm run optimizer:build && rimraf lib && node scripts/fetch-asyncapi-example.js && npm run generate:languages && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
+    "optimizer:build": "turbo run build --filter=@asyncapi/optimizer",
+    "optimizer:test": "turbo run test --filter=@asyncapi/optimizer",
     "bump:github-action": "cd github-action/lib/ && node bump-action-version.js",
     "bump:version": "npx -p @changesets/cli@2.27.7 changeset version && npm run bump:github-action",
     "dev": "tsc --watch",
@@ -178,13 +186,13 @@
     "pack:tarballs:alpine": "oclif pack tarballs -t linux-x64 && npm run pack:rename alpine",
     "pack:windows": "oclif pack win && npm run pack:rename",
     "pack:rename": "node scripts/releasePackagesRename.js",
-    "publish:trusted": "echo \"Working around changesets action not supporting OIDC yet. Need to pass successful release output for triggering github release\";VERSION=$(node -p \"require('./package.json').version\"); PACKAGE_NAME=$(node -p \"require('./package.json').name\"); if npm view $PACKAGE_NAME@$VERSION > /dev/null 2>&1; then echo \"Version $VERSION of package $PACKAGE_NAME already published to NPM. Skipping GitHub release.\"; else git tag v$VERSION -m v$VERSION; echo \"New tag: $PACKAGE_NAME@$VERSION.\"; fi",
+    "publish:trusted": "node scripts/publish-trusted.js",
     "prepublishOnly": "npm run build",
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",
     "posttest": "rimraf ./test.asyncapi-cli",
     "postinstall": "node ./scripts/enableAutoComplete.js",
-    "test": "npm run cli:test && npm run action:test",
+    "test": "npm run optimizer:test && npm run cli:test && npm run action:test",
     "cli:test": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/**/*.test.ts\"",
     "unit:test": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/unit/**/*.test.ts\"",
     "test:one": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\"  NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000",

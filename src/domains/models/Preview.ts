@@ -1,5 +1,5 @@
 import { SpecificationFileNotFound } from '@errors/specification-file';
-import { existsSync,readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import bundle from '@asyncapi/bundler';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
@@ -8,29 +8,43 @@ import open from 'open';
 import path from 'path';
 import yaml from 'js-yaml';
 import { blueBright, redBright } from 'picocolors';
-import { version as studioVersion } from '@asyncapi/studio/package.json';
+import {
+  DEFAULT_PORT,
+  getStudioVersion,
+  isValidFilePath,
+  resolveStudioNextInstance,
+  resolveStudioPath,
+} from '@models/studio-runtime';
+
+export { DEFAULT_PORT } from '@models/studio-runtime';
 
 const sockets: any[] = [];
 const messageQueue: string[] = [];
 const filePathsToWatch: Set<string> = new Set<string>();
 const defaultErrorMessage = 'error occured while bundling files. use --detailedLog or -l flag to get more details.';
 
-export const DEFAULT_PORT = 0;
-
-function isValidFilePath(filePath: string): boolean {
-  return existsSync(filePath);
+export interface PreviewOptions {
+  base?: string;
+  baseDirectory?: string;
+  xOrigin?: boolean;
+  suppressLogs?: boolean;
+  port?: number;
+  noBrowser?: boolean;
+  /** Resolved @asyncapi/studio path (from ensureStudio); falls back to lazy resolution. */
+  studioPath?: string;
 }
 
-type NextFactory = (config?: any) => any;
+export function startPreview(filePath: string, options: PreviewOptions = {}): void {
+  const {
+    base,
+    baseDirectory,
+    xOrigin,
+    suppressLogs,
+    port = DEFAULT_PORT,
+    noBrowser,
+    studioPath,
+  } = options;
 
-// Using require here is necessary for dynamic module resolution
-function resolveStudioNextInstance(studioPath: string): NextFactory {
-  const resolvedNextPath = require.resolve('next', { paths: [studioPath] });
-  const nextModule = require(resolvedNextPath);
-  return nextModule.default ?? nextModule;
-}
- 
-export function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,suppressLogs:boolean|undefined,port: number = DEFAULT_PORT, noBrowser?: boolean):void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
@@ -38,11 +52,11 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
   const resolvedFilePath = path.resolve(filePath);
   const baseDir = path.dirname(resolvedFilePath);
 
-  const studioPath = path.dirname(require.resolve('@asyncapi/studio/package.json'));
-  const nextInstance = resolveStudioNextInstance(studioPath);
+  const resolvedStudioPath = studioPath ?? resolveStudioPath('Preview');
+  const nextInstance = resolveStudioNextInstance(resolvedStudioPath);
   const app = nextInstance({
     dev: false,
-    dir: studioPath,
+    dir: resolvedStudioPath,
     conf: {
       distDir: 'build',
     } as any,
@@ -175,7 +189,7 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
       server.listen(port, () => {
         const previewServerAddr = server.address();
         const currentPort = (previewServerAddr && typeof previewServerAddr === 'object' && 'port' in previewServerAddr) ? (previewServerAddr as any).port : port;
-        const url = `http://localhost:${currentPort}?previewServer=${currentPort}&studio-version=${studioVersion}`;
+        const url = `http://localhost:${currentPort}?previewServer=${currentPort}&studio-version=${getStudioVersion(resolvedStudioPath)}`;
         console.log(`🎉 Connected to Preview Server running at ${blueBright(url)}.`);
         console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
         console.log(`🛑 If needed, press ${redBright('Ctrl + C')} to stop the server.`);

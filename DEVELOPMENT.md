@@ -134,7 +134,7 @@ feat: add new feature
 ## Additional commands
 
 - Lint the code: `npm run lint`
-- Build Docker image: `npm run docker:build`
+- Build Docker image: `npm run docker:build` (the image excludes AsyncAPI Studio to stay small; `start studio`/`preview` install it on-demand)
 
 ## Troubleshooting
 

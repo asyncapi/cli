@@ -1,4 +1,5 @@
 import { Flags } from '@oclif/core';
+import { studioInstallFlag } from '@cli/internal/flags/studio.flags';
 
 export const previewFlags = () => {
   return {
@@ -27,6 +28,7 @@ export const previewFlags = () => {
       description: 'Pass this to suppress the detiled error logs.',
       default: false,
     }),
+    yes: studioInstallFlag(),
     noBrowser: Flags.boolean({char: 'B', description: 'Pass this to not open browser automatically upon running the command', default: false})
   };
 };
