@@ -4,7 +4,8 @@ import path from 'path';
 import * as yaml from 'yaml';
 import Command from '@cli/internal/base';
 import { load, retrieveFileFormat } from '@models/SpecificationFile';
-import { ValidationError } from '@errors/validation-error';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES } from '@errors/error-codes';
 import { prettyFlags } from '@cli/internal/flags/pretty.flags';
 
 export default class Pretty extends Command {
@@ -30,21 +31,14 @@ export default class Pretty extends Command {
     const filePath = args['spec-file'];
     const outputPath = flags.output;
 
-    try {
-      this.specFile = await load(filePath);
-    } catch {
-      this.error(
-        new ValidationError({
-          type: 'invalid-file',
-          filepath: filePath,
-        }),
-      );
-    }
+    // load() throws typed errors that the central error mapper classifies.
+    this.specFile = await load(filePath);
 
     const content = this.specFile.text();
     let formatted: string;
 
     let fileFormat: 'json' | 'yaml';
+    let unsupportedFormat = false;
     try {
       const detectedFormat = retrieveFileFormat(this.specFile.text());
       if (detectedFormat === 'yaml' || detectedFormat === 'yml') {
@@ -58,10 +52,18 @@ export default class Pretty extends Command {
         const jsonObj = JSON.parse(content);
         formatted = JSON.stringify(jsonObj, null, 2);
       } else {
+        unsupportedFormat = true;
         throw new Error('Unsupported file format');
       }
     } catch (err) {
-      this.error(`Error formatting file: ${err}`);
+      const code = unsupportedFormat
+        ? CLI_ERROR_CODES.DOCUMENT_FORMAT_UNSUPPORTED
+        : CLI_ERROR_CODES.FILE_WRITE_FAILED;
+      // Preserve the historical `Error:` prefix of oclif's string errors.
+      throw Object.assign(
+        new ApplicationError(code, `Error formatting file: ${err}`, { cause: err }),
+        { name: 'Error' },
+      );
     }
 
     const writtenPath = path.resolve(outputPath ?? filePath);

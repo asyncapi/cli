@@ -274,5 +274,34 @@ describe('central error and output infrastructure', () => {
         expect(mapError(new Error(message)).code, message).to.equal(expectedCode);
       }
     });
+
+    it('maps oclif flag-validation messages to CLI input codes', () => {
+      const cases = [
+        ['Expected an integer but received: abc', CLI_ERROR_CODES.CLI_INTEGER_INVALID],
+        ['--enable=true cannot also be provided when using --disable', CLI_ERROR_CODES.CLI_OPTIONS_CONFLICT],
+        ['Nonexistent flag: --bogus', CLI_ERROR_CODES.CLI_FLAG_INVALID],
+        ['Unexpected argument: extra', CLI_ERROR_CODES.CLI_FLAG_INVALID],
+        ['Expected --format=xml to be one of: json, yaml', CLI_ERROR_CODES.CLI_FLAG_VALUE_INVALID],
+        ['All of the following must be provided when using --proxyHost: --proxyPort', CLI_ERROR_CODES.PROXY_CONFIGURATION_INVALID],
+        ['Path "/x" doesn\'t exist in the OpenAPI document.', CLI_ERROR_CODES.INTERNAL_CONFIGURATION_ERROR],
+      ] as const;
+
+      for (const [message, expectedCode] of cases) {
+        expect(mapError(new Error(message)).code, message).to.equal(expectedCode);
+      }
+    });
+
+    it('classifies messages that contain ANSI color codes', () => {
+      const colored = 'Your document is already a \u001b[36mJSON\u001b[39m';
+      expect(mapError(new Error(colored)).code).to.equal(
+        CLI_ERROR_CODES.DOCUMENT_ALREADY_IN_TARGET_FORMAT,
+      );
+    });
+
+    it('maps EADDRINUSE to SERVER_PORT_IN_USE', () => {
+      const source = Object.assign(new Error('listen EADDRINUSE'), { code: 'EADDRINUSE' });
+      expect(mapError(source).code).to.equal(CLI_ERROR_CODES.SERVER_PORT_IN_USE);
+      expect(mapError(source).exitCode).to.equal(60);
+    });
   });
 });

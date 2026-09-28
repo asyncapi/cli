@@ -10,6 +10,8 @@ import path from 'path';
 import { optimizeFlags } from '@cli/internal/flags/optimize.flags';
 import { proxyFlags } from '@cli/internal/flags/proxy.flags';
 import { applyProxyToPath } from '@utils/proxy';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES } from '@errors/error-codes';
 
 const { writeFile } = promises;
 
@@ -148,11 +150,7 @@ export default class Optimize extends Command {
   private requireSpecFile() {
     const specFile = this.specFile;
     if (!specFile) {
-      this.error(
-        new ValidationError({
-          type: 'no-spec-found',
-        }),
-      );
+      throw noSpecFoundError();
     }
     return specFile;
   }
@@ -161,24 +159,33 @@ export default class Optimize extends Command {
     try {
       this.specFile = await load(filePath);
     } catch (err: any) {
-      if (err.message.includes('Failed to download')) {
-        throw new Error(
-          'Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.',
+      if (err?.message?.includes('Failed to download')) {
+        // Preserve the historical `Error:` prefix in human output.
+        throw Object.assign(
+          new ApplicationError(
+            CLI_ERROR_CODES.PROXY_ERROR,
+            'Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.',
+            { cause: err },
+          ),
+          { name: 'Error' },
         );
       }
       if (filePath) {
-        this.error(
-          new ValidationError({
-            type: 'invalid-file',
-            filepath: filePath,
-          }),
+        const validationError = new ValidationError({
+          type: 'invalid-file',
+          filepath: filePath,
+        });
+        // Preserve the historical `ValidationError:` prefix in human output.
+        throw Object.assign(
+          new ApplicationError(
+            CLI_ERROR_CODES.SPEC_FILE_NOT_FOUND,
+            validationError.message,
+            { cause: err },
+          ),
+          { name: validationError.name },
         );
       }
-      this.error(
-        new ValidationError({
-          type: 'no-spec-found',
-        }),
-      );
+      throw noSpecFoundError(err);
     }
   }
 
@@ -496,4 +503,17 @@ export default class Optimize extends Command {
       }
     }
   }
+}
+
+function noSpecFoundError(cause?: unknown): ApplicationError {
+  const validationError = new ValidationError({ type: 'no-spec-found' });
+  // Preserve the historical `ValidationError:` prefix in human output.
+  return Object.assign(
+    new ApplicationError(
+      CLI_ERROR_CODES.CLI_INPUT_REQUIRED,
+      validationError.message,
+      cause === undefined ? {} : { cause },
+    ),
+    { name: validationError.name },
+  );
 }

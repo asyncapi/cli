@@ -6,6 +6,9 @@ import { studioFlags } from '@cli/internal/flags/start/studio.flags';
 import { Args } from '@oclif/core';
 import { isCancel, text, cancel } from '@clack/prompts';
 import path from 'path';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES } from '@errors/error-codes';
+import { parsePortFlag } from '@utils/port';
 
 export default class StartStudio extends Command {
   static readonly description = 'starts a new local instance of Studio. Studio (~450MB) is installed on-demand on first use; pass --yes to install without prompting.';
@@ -24,7 +27,7 @@ export default class StartStudio extends Command {
 
     let filePath = args['spec-file'] ?? flags.file;
 
-    let port = parseInt(flags.port ?? '0', 10);
+    let port = parsePortFlag(flags.port);
 
     const json = this.jsonEnabled();
 
@@ -39,7 +42,7 @@ export default class StartStudio extends Command {
     if (isInteractive && !filePath) {
       const parsedArgs = await this.parseArgs({ filePath }, port?.toString());
       filePath = parsedArgs.filePath;
-      port = parseInt(parsedArgs.port, 10);
+      port = parsePortFlag(parsedArgs.port);
     }
 
     if (!filePath) {
@@ -48,16 +51,24 @@ export default class StartStudio extends Command {
         if (!json) {
           this.log(`Loaded specification from: ${filePath}`);
         }
-      } catch {
-        filePath = '';
-        this.error('No file specified.');
+      } catch (error) {
+        // Preserve the historical `Error:` prefix of oclif's string errors.
+        throw Object.assign(
+          new ApplicationError(
+            CLI_ERROR_CODES.CLI_INPUT_REQUIRED,
+            'No file specified.',
+            { cause: error },
+          ),
+          { name: 'Error' },
+        );
       }
     }
     try {
       this.specFile = await load(filePath);
     } catch (error) {
       if (filePath) {
-        this.error(error as Error);
+        // load() throws typed errors that the central error mapper classifies.
+        throw error;
       }
     }
     this.metricsMetadata.port = port;

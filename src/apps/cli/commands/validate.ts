@@ -73,7 +73,14 @@ export default class Validate extends Command {
     );
 
     if (!result.success) {
-      this.error(result.error || 'Validation failed', { exit: 1 });
+      // Preserve the historical `Error:` prefix of oclif's string errors.
+      throw Object.assign(
+        new ApplicationError(
+          CLI_ERROR_CODES.DOCUMENT_PARSE_FAILED,
+          result.error || 'Validation failed',
+        ),
+        { name: 'Error' },
+      );
     }
 
     this.metricsMetadata.validation_result = result;
@@ -113,11 +120,26 @@ export default class Validate extends Command {
     };
 
     if (result.data?.status === ValidationStatus.INVALID) {
-      throw new ApplicationError(
-        CLI_ERROR_CODES.SCHEMA_VALIDATION_FAILED,
-        'The AsyncAPI document failed validation.',
-        { details: data },
+      // The parser reports unresolvable `$ref`s with the `invalid-ref` code.
+      const hasUnresolvedReference = diagnostics.some(
+        (diagnostic) =>
+          diagnostic.severity === 'error' && diagnostic.code === 'invalid-ref',
       );
+      // No error-severity diagnostics means the document only failed because
+      // --fail-severity was lowered to include ruleset warnings/info/hints.
+      const governanceOnly = !diagnostics.some(
+        (diagnostic) => diagnostic.severity === 'error',
+      );
+      let code: CliErrorCode = CLI_ERROR_CODES.SCHEMA_VALIDATION_FAILED;
+      let message = 'The AsyncAPI document failed validation.';
+      if (hasUnresolvedReference) {
+        code = CLI_ERROR_CODES.REFERENCE_RESOLUTION_FAILED;
+        message = 'The AsyncAPI document failed validation: one or more references could not be resolved.';
+      } else if (governanceOnly) {
+        code = CLI_ERROR_CODES.GOVERNANCE_VALIDATION_FAILED;
+        message = `The AsyncAPI document has ruleset diagnostics at or above the "${data.failSeverity}" fail severity.`;
+      }
+      throw new ApplicationError(code, message, { details: data });
     }
 
     const commandResult = this.result('The AsyncAPI document is valid.', data);

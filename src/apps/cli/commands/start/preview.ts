@@ -5,6 +5,7 @@ import { load } from '@models/SpecificationFile';
 import { startPreview } from '@models/Preview';
 import { ensureStudio } from '@models/studio-installer';
 import path from 'path';
+import { parsePortFlag } from '@utils/port';
 
 export default class PreviewStudio extends Command {
   static readonly description =
@@ -25,7 +26,7 @@ export default class PreviewStudio extends Command {
 
     let filePath: string | undefined = args['spec-file'] ?? flags.file;
 
-    const previewPort = parseInt(flags.port ?? '0', 10);
+    const previewPort = parsePortFlag(flags.port);
     const json = this.jsonEnabled();
 
     if (!filePath) {
@@ -38,7 +39,8 @@ export default class PreviewStudio extends Command {
       this.specFile = await load(filePath);
     } catch (error) {
       if (filePath) {
-        this.error(error as Error);
+        // load() throws typed errors that the central error mapper classifies.
+        throw error;
       }
     }
     this.metricsMetadata.port = previewPort;

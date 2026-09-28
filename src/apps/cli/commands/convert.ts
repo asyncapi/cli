@@ -1,8 +1,14 @@
 import { Args } from '@oclif/core';
 import Command from '@cli/internal/base';
-import { ValidationError } from '@errors/validation-error';
 import { load } from '@models/SpecificationFile';
-import { SpecificationFileNotFound } from '@errors/specification-file';
+import {
+  ErrorLoadingSpec,
+  SpecificationFileNotFound,
+  SpecificationURLNotFound,
+  SpecificationWrongFileFormat,
+} from '@errors/specification-file';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES, type CliErrorCode } from '@errors/error-codes';
 import type { AsyncAPIConvertVersion } from '@asyncapi/converter';
 import { cyan } from 'picocolors';
 import { proxyFlags } from '@cli/internal/flags/proxy.flags';
@@ -59,7 +65,12 @@ export default class Convert extends Command {
       );
 
       if (!result.success || !result.data) {
-        this.error(result.error || 'Conversion failed', { exit: 1 });
+        const message = result.error || 'Conversion failed';
+        // Preserve the historical `Error:` prefix of oclif's string errors.
+        throw Object.assign(
+          new ApplicationError(conversionFailureCode(message), message),
+          { name: 'Error' },
+        );
       }
 
       this.metricsMetadata.conversion_result = result;
@@ -108,21 +119,57 @@ export default class Convert extends Command {
 
   // Helper function to handle errors
   private handleError(err: unknown, filePath: string, targetVersion: string | undefined): never {
-    if (err instanceof SpecificationFileNotFound) {
-      this.error(
-        new ValidationError({
-          type: 'invalid-file',
-          filepath: filePath,
-        }),
-      );
-    } else if (this.specFile?.toJson().asyncapi > (targetVersion ?? '')) {
-      this.error(
-        `The ${cyan(filePath)} file cannot be converted to an older version. Downgrading is not supported.`,
-      );
-    } else {
-      this.error(err as Error);
+    // Typed errors are already classified by the central error mapper.
+    if (isTypedDomainError(err)) {
+      throw err;
     }
+    if (this.specFile?.toJson().asyncapi > (targetVersion ?? '')) {
+      throw Object.assign(
+        new ApplicationError(
+          CLI_ERROR_CODES.CONVERSION_DOWNGRADE_UNSUPPORTED,
+          `The ${cyan(filePath)} file cannot be converted to an older version. Downgrading is not supported.`,
+          { cause: err },
+        ),
+        { name: 'Error' },
+      );
+    }
+    const message = err instanceof Error ? err.message : String(err);
+    throw Object.assign(
+      new ApplicationError(conversionFailureCode(message), message, { cause: err }),
+      { name: err instanceof Error ? err.name : 'Error' },
+    );
   }
+}
+
+function conversionFailureCode(message: string): CliErrorCode {
+  if ((/downgrad|older version/i).test(message)) {
+    return CLI_ERROR_CODES.CONVERSION_DOWNGRADE_UNSUPPORTED;
+  }
+  if ((/same version/i).test(message)) {
+    return CLI_ERROR_CODES.DOCUMENT_ALREADY_IN_TARGET_FORMAT;
+  }
+  if ((/cannot convert from|not able to convert|unsupported|not supported/i).test(message)) {
+    return CLI_ERROR_CODES.DOCUMENT_VERSION_UNSUPPORTED;
+  }
+  return CLI_ERROR_CODES.DEPENDENCY_ERROR;
+}
+
+function isTypedDomainError(err: unknown): boolean {
+  if (
+    err instanceof ApplicationError ||
+    err instanceof ErrorLoadingSpec ||
+    err instanceof SpecificationFileNotFound ||
+    err instanceof SpecificationURLNotFound ||
+    err instanceof SpecificationWrongFileFormat
+  ) {
+    return true;
+  }
+  if (!(err instanceof Error)) {
+    return false;
+  }
+  // Context errors and Node.js system errors (e.g. ENOENT on --output) are
+  // recognized by the central error mapper.
+  return err.name === 'ContextError' || typeof (err as { code?: unknown }).code === 'string';
 }
 
 function sourceData(input: string | undefined, specification: Specification) {

@@ -7,6 +7,8 @@ import path from 'path';
 import { magenta, yellow, red, green } from 'picocolors';
 import { load } from '@models/SpecificationFile';
 import { GeneratorError } from '@errors/generator-error';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES } from '@errors/error-codes';
 
 export async function isLocalTemplate(templatePath: string) {
   const stats = await lstat(templatePath);
@@ -255,7 +257,11 @@ export function watcherHandler(
       }
     } catch (err: any) {
       if (structured) {
-        thisArg.emitStructuredError(err);
+        thisArg.emitStructuredError(new ApplicationError(
+          CLI_ERROR_CODES.WATCH_REGENERATION_FAILED,
+          `Regeneration failed after a watched file changed: ${err?.message ?? err}`,
+          { cause: err },
+        ));
         return;
       }
       throw new GeneratorError(err);

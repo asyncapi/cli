@@ -88,7 +88,7 @@ Consumers can branch on `err instanceof OptimizerError` and/or `err.code`.
 
 Exit codes are a CLI-process concept and live in the CLI, not the library. The `asyncapi optimize` command maps
 optimizer error codes onto the unified exit-code table in
-[`codes_reference-cleanup-docs.md`](/codes_reference-cleanup-docs.md):
+[`docs/codes.md`](/docs/codes.md):
 
 | `OptimizerErrorCode` | CLI exit code |
 |----------------------|---------------|
@@ -96,7 +96,7 @@ optimizer error codes onto the unified exit-code table in
 | `OPTIMIZER_SERIALIZATION_FAILED` | 36 (`FILE_SERIALIZATION_FAILED`) |
 | `OPTIMIZER_REPORT_NOT_GENERATED` | 91 (`INTERNAL_STATE_ERROR`) |
 
-No new CLI codes were required; see `optimizer-migration/v2-error-codes-mapping.md` in the working docs.
+No optimizer-specific process exits are required; the CLI translates the package codes at its application boundary.
 
 ## 5. How it works (implementation)
 

@@ -8,7 +8,6 @@ import chalk from 'chalk';
 import { load, Specification } from '@models/SpecificationFile';
 import Command from '@cli/internal/base';
 import { ValidationError } from '@errors/validation-error';
-import { SpecificationFileNotFound } from '@errors/specification-file';
 import {
   DiffBreakingChangeError,
   DiffOverrideFileError,
@@ -63,8 +62,6 @@ export default class Diff extends Command {
     const noError = flags['no-error'];
     const writeOutput = flags['save-output'];
     const outputOverwritten = writeOutput ? existsSync(path.resolve(writeOutput)) : false;
-    let firstDocument: Specification, secondDocument: Specification;
-
     const flagWarning = checkAndWarnFalseFlag(outputFormat, markdownSubtype);
     if (flagWarning) {
       this.log(flagWarning);
@@ -80,57 +77,29 @@ export default class Diff extends Command {
       this.metricsMetadata.output_markdown_subtype = flags['markdownSubtype'];
     }
 
-    try {
-      firstDocument = await load(firstDocumentPath);
+    // load() throws typed errors that the central error mapper classifies.
+    const firstDocument = await load(firstDocumentPath);
+    enableWatch(watchMode && !watchRerun, {
+      spec: firstDocument,
+      handler: this,
+      handlerName: 'diff',
+      docVersion: 'old',
+      label: 'DIFF_OLD',
+    });
 
-      enableWatch(watchMode && !watchRerun, {
-        spec: firstDocument,
-        handler: this,
-        handlerName: 'diff',
-        docVersion: 'old',
-        label: 'DIFF_OLD',
-      });
-    } catch (err) {
-      if (err instanceof SpecificationFileNotFound) {
-        this.error(
-          new ValidationError({
-            type: 'invalid-file',
-            filepath: firstDocumentPath,
-          }),
-        );
-      }
-      this.error(err as Error);
-    }
-
-    try {
-      secondDocument = await load(secondDocumentPath);
-
-      enableWatch(watchMode && !watchRerun, {
-        spec: secondDocument,
-        handler: this,
-        handlerName: 'diff',
-        docVersion: 'new',
-        label: 'DIFF_NEW',
-      });
-    } catch (err) {
-      if (err instanceof SpecificationFileNotFound) {
-        this.error(
-          new ValidationError({
-            type: 'invalid-file',
-            filepath: secondDocumentPath,
-          }),
-        );
-      }
-      this.error(err as Error);
-    }
+    const secondDocument = await load(secondDocumentPath);
+    enableWatch(watchMode && !watchRerun, {
+      spec: secondDocument,
+      handler: this,
+      handlerName: 'diff',
+      docVersion: 'new',
+      label: 'DIFF_NEW',
+    });
 
     let overrides: Awaited<ReturnType<typeof readOverrideFile>> = {};
     if (overrideFilePath) {
-      try {
-        overrides = await readOverrideFile(overrideFilePath);
-      } catch (err) {
-        this.error(err as Error);
-      }
+      // DiffOverrideFileError / DiffOverrideJSONError are mapped centrally.
+      overrides = await readOverrideFile(overrideFilePath);
     }
 
     try {
@@ -141,10 +110,13 @@ export default class Diff extends Command {
         flags,
       );
       if (!parsed) {
-        throw new ValidationError({
-          type: 'invalid-syntax-file',
-          filepath: firstDocumentPath,
-        });
+        throw Object.assign(
+          new ApplicationError(
+            CLI_ERROR_CODES.ASYNCAPI_DOCUMENT_INVALID,
+            'One or both AsyncAPI documents are invalid, so they cannot be compared.',
+          ),
+          { name: 'ValidationError' },
+        );
       }
 
       const diffOutput = diff.diff(
@@ -322,12 +294,22 @@ export default class Diff extends Command {
     );
 
     if (!firstResult.success || !secondResult.success) {
-      this.error(
-        new ValidationError({
-          type: 'invalid-file',
-          filepath: firstDocument.getFilePath() || secondDocument.getFilePath(),
-          err: firstResult.error || secondResult.error,
-        }),
+      const validationError = new ValidationError({
+        type: 'invalid-file',
+        filepath: firstDocument.getFilePath() || secondDocument.getFilePath(),
+        err: firstResult.error || secondResult.error,
+      });
+      // Preserve the historical `ValidationError:` prefix in human output.
+      throw Object.assign(
+        new ApplicationError(
+          CLI_ERROR_CODES.DOCUMENT_PARSE_FAILED,
+          validationError.message,
+          {
+            cause: validationError,
+            details: firstResult.error || secondResult.error,
+          },
+        ),
+        { name: validationError.name },
       );
     }
 

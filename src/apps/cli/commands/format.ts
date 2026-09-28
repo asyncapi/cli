@@ -11,6 +11,8 @@ import {
   Specification,
 } from '@models/SpecificationFile';
 import { SpecificationWrongFileFormat } from '@errors/specification-file';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES } from '@errors/error-codes';
 import { cyan, green } from 'picocolors';
 import {
   convertFormatFlags,
@@ -73,13 +75,19 @@ export default class Format extends Command {
     const text = this.specFile?.text();
     if (isSpecFileJson && text) {
       if (outputFileFormat === 'json') {
-        throw new Error(`Your document is already a ${cyan('JSON')}`);
+        throw new ApplicationError(
+          CLI_ERROR_CODES.DOCUMENT_ALREADY_IN_TARGET_FORMAT,
+          `Your document is already a ${this.jsonEnabled() ? 'JSON' : cyan('JSON')}`,
+        );
       }
       return convertToYaml(text);
     }
     if (isSpecFileYaml && text) {
       if (outputFileFormat === 'yaml' || outputFileFormat === 'yml') {
-        throw new Error(`Your document is already a ${cyan('YAML')}`);
+        throw new ApplicationError(
+          CLI_ERROR_CODES.DOCUMENT_ALREADY_IN_TARGET_FORMAT,
+          `Your document is already a ${this.jsonEnabled() ? 'YAML' : cyan('YAML')}`,
+        );
       }
       return convertToJSON(text);
     }

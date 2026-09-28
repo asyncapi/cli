@@ -133,7 +133,9 @@ export function mapError(error: unknown): ApplicationError {
     return fromCode(CLI_ERROR_CODES.CONFIG_WRITE_FAILED, error);
   }
 
-  const message = getErrorMessage(error);
+  // Strip ANSI color codes so colored messages classify the same as plain ones.
+  // eslint-disable-next-line no-control-regex
+  const message = getErrorMessage(error).replace(/\u001b\[[0-9;]*m/g, '');
   if (error instanceof ErrorLoadingSpec) {
     if (error.name.includes('url')) {
       return fromCode(CLI_ERROR_CODES.URL_FETCH_FAILED, error);
@@ -159,6 +161,9 @@ export function mapError(error: unknown): ApplicationError {
     return fromCode(CLI_ERROR_CODES.GENERATION_FAILED, error);
   }
 
+  if ((/doesn't exist in the OpenAPI document/i).test(message)) {
+    return fromCode(CLI_ERROR_CODES.INTERNAL_CONFIGURATION_ERROR, error);
+  }
   if ((/different asyncapi version|different versions/i).test(message)) {
     return fromCode(CLI_ERROR_CODES.DIFF_VERSION_MISMATCH, error);
   }
@@ -167,6 +172,9 @@ export function mapError(error: unknown): ApplicationError {
   }
   if ((/downgrad|older version/i).test(message)) {
     return fromCode(CLI_ERROR_CODES.CONVERSION_DOWNGRADE_UNSUPPORTED, error);
+  }
+  if ((/must be provided when using --proxy(Host|Port)/i).test(message)) {
+    return fromCode(CLI_ERROR_CODES.PROXY_CONFIGURATION_INVALID, error);
   }
   if ((/proxy/i).test(message)) {
     return fromCode(CLI_ERROR_CODES.PROXY_ERROR, error);
@@ -186,7 +194,16 @@ export function mapError(error: unknown): ApplicationError {
   if ((/required.*argument|missing.*required|no file specified/i).test(message)) {
     return fromCode(CLI_ERROR_CODES.CLI_ARGUMENT_REQUIRED, error);
   }
-  if ((/expected .* to be one of|invalid flag|nonexistent flag/i).test(message)) {
+  if ((/expected an integer|expected .* to be an integer/i).test(message)) {
+    return fromCode(CLI_ERROR_CODES.CLI_INTEGER_INVALID, error);
+  }
+  if ((/cannot also be provided when using|exclusive/i).test(message)) {
+    return fromCode(CLI_ERROR_CODES.CLI_OPTIONS_CONFLICT, error);
+  }
+  if ((/nonexistent flag|unexpected argument/i).test(message)) {
+    return fromCode(CLI_ERROR_CODES.CLI_FLAG_INVALID, error);
+  }
+  if ((/expected .* to be one of|invalid flag|flag .* expects a value/i).test(message)) {
     return fromCode(CLI_ERROR_CODES.CLI_FLAG_VALUE_INVALID, error);
   }
 

@@ -15,6 +15,7 @@ import { promises as fPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { homedir } from 'os';
 import { mapError } from './output/error-mapper';
+import { CLI_ERROR_CODES, EXIT_CODES } from '@errors/error-codes';
 import {
   isStructuredOutput,
   structuredSuccess,
@@ -30,6 +31,30 @@ class DiscardSink implements Sink {
   }
 }
 
+// The command currently running, used by the process-wide SIGINT handler.
+let activeCommand: { jsonEnabled(): boolean } | undefined;
+let sigintHandlerInstalled = false;
+
+function installSigintHandler(): void {
+  if (sigintHandlerInstalled || process.env.TEST) {
+    return;
+  }
+  sigintHandlerInstalled = true;
+  process.once('SIGINT', () => {
+    if (activeCommand?.jsonEnabled()) {
+      const message = 'The command was interrupted.';
+      process.stdout.write(`${JSON.stringify({
+        status: 'error',
+        message,
+        data: { event: 'server.stopped', reason: 'signal' },
+        errors: [{ code: CLI_ERROR_CODES.INTERRUPTED, message }],
+      })}\n`);
+    }
+    // eslint-disable-next-line no-process-exit
+    process.exit(EXIT_CODES.INTERRUPTED);
+  });
+}
+
 export default abstract class extends Command {
   static enableJsonFlag = true;
   recorder = this.recorderFromEnv('asyncapi_adoption');
@@ -39,6 +64,9 @@ export default abstract class extends Command {
 
   async init(): Promise<void> {
     process.exitCode = undefined;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    activeCommand = this;
+    installSigintHandler();
     await super.init();
     const commandName: string = this.id || '';
     await this.recordActionInvoked(commandName, this.metricsMetadata);
