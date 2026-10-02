@@ -13,7 +13,7 @@ import {MarkdownSubtype} from '../../types';
  * @returns Markdown output
  */
 export default function convertToMarkdown(object: any, markdownSubtype: MarkdownSubtype): string {
-  if (Object.prototype.hasOwnProperty.call(object, 'changes')) {
+  if (Object.hasOwn(object, 'changes')) {
     object = object.changes;
   }
 

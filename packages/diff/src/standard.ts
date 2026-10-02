@@ -3,9 +3,12 @@ import { standard as v2Standard } from './standards/v2';
 import { standard as v3Standard } from './standards/v3';
 import { StandardType } from 'types';
 
+// Node provides this. The package TypeScript libs do not include the DOM types that declare it.
+declare function structuredClone<T>(value: T): T;
+
 export function getStandardFromVersion(document: any): StandardType {
   const majorVersion = getDocumentMajorVersion(document);
   const source = majorVersion === '2' ? v2Standard : v3Standard;
   // Each call gets its own table. mergeStandard writes the caller's overrides into this object.
-  return JSON.parse(JSON.stringify(source)) as StandardType;
+  return structuredClone(source);
 }

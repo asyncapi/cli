@@ -56,7 +56,7 @@ export function setIndex(
   path: string
 ): void {
   const splittedPath = path.split('/');
-  const lastPathElement = splittedPath[splittedPath.length - 1];
+  const lastPathElement = splittedPath.at(-1);
   const lastElementNumber = Number(lastPathElement);
   splittedPath.pop();
   const assembledPath = splittedPath.join('/');

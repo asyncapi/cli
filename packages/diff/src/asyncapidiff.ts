@@ -16,9 +16,9 @@ import toProperFormat from './helpers/output/toProperFormat';
  * @returns {AsyncAPIDiff} AsyncAPIDiff
  */
 export default class AsyncAPIDiff {
-  private output: JSONOutput;
-  private outputType: OutputType;
-  private markdownSubtype: MarkdownSubtype;
+  private readonly output: JSONOutput;
+  private readonly outputType: OutputType;
+  private readonly markdownSubtype: MarkdownSubtype;
 
   constructor(output: string, options: AsyncAPIDiffOptions) {
     // output is a stringified JSON
