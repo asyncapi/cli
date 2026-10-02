@@ -9,15 +9,12 @@ import {
   ValidationOptions,
   ValidationResult,
 } from '@/interfaces';
-import {
-  ValidationService,
-  ValidationStatus,
-} from '@services/validation.service';
+import type { ValidationService, } from '@services/validation.service';
 import { applyProxyToPath } from '@utils/proxy';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
-  private validationService = new ValidationService();
+  private _validationService?: ValidationService;
 
   static flags = {
     ...validateFlags(),
@@ -57,7 +54,8 @@ export default class Validate extends Command {
       suppressAllWarnings: flags['suppressAllWarnings'],
     };
 
-    const result = await this.validationService.validateDocument(
+    const vService = await this.getValidationService();
+    const result = await vService.validateDocument(
       this.specFile,
       validateOptions,
     );
@@ -76,9 +74,19 @@ export default class Validate extends Command {
       await this.handleDiagnostics(result, flags);
     }
 
+    const { ValidationStatus } = await import('@services/validation.service');
     if (result.data?.status === ValidationStatus.INVALID) {
       process.exitCode = 1;
     }
+  }
+
+  private async getValidationService(): Promise<ValidationService> {
+    if (!this._validationService) {
+      const { ValidationService: vService } = await import('@services/validation.service');
+      this._validationService = new vService();
+    }
+
+    return this._validationService;
   }
 
   private async handleDiagnostics(
@@ -89,10 +97,12 @@ export default class Validate extends Command {
     const writeOutput = flags['save-output'];
     const hasIssues =
       (result.data?.diagnostics && result.data.diagnostics.length > 0) ?? false;
+    const { ValidationStatus } = await import('@services/validation.service');
     const isFailSeverity = result.data?.status === ValidationStatus.INVALID;
     const sourceString = this.specFile?.toSourceString() || '';
 
-    const governanceMessage = this.validationService.generateGovernanceMessage(
+    const vService = await this.getValidationService();
+    const governanceMessage = vService.generateGovernanceMessage(
       sourceString,
       hasIssues,
       isFailSeverity,
@@ -104,7 +114,7 @@ export default class Validate extends Command {
       this.log(governanceMessage);
     }
 
-    const diagnosticsOutput = this.validationService.formatDiagnosticsOutput(
+    const diagnosticsOutput = vService.formatDiagnosticsOutput(
       result.data?.diagnostics || [],
       diagnosticsFormat,
       flags['fail-severity'] ?? 'error',
@@ -112,7 +122,7 @@ export default class Validate extends Command {
 
     if (writeOutput) {
       const { success, error } =
-        await this.validationService.saveDiagnosticsToFile(
+        await vService.saveDiagnosticsToFile(
           writeOutput,
           diagnosticsFormat,
           diagnosticsOutput,

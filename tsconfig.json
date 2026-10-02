@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "outDir": "./lib",
+    "incremental": true,
+    "tsBuildInfoFile": "./.tsbuildinfo",
     "baseUrl": "./src",
     "target": "es6",
     "module": "commonjs",
@@ -8,15 +10,33 @@
       "esnext",
     ],
     "paths": {
-      "@/*": ["*"],
-      "@src/*": ["*"],
-      "@cli/*": ["apps/cli/*"],
-      "@api/*": ["apps/api/*"],
-      "@services/*": ["domains/services/*"],
-      "@models/*": ["domains/models/*"],
-      "@utils/*": ["utils/*"],
-      "@errors/*": ["errors/*"],
-      "@interfaces/*": ["interfaces/*"],
+      "@/*": [
+        "*"
+      ],
+      "@src/*": [
+        "*"
+      ],
+      "@cli/*": [
+        "apps/cli/*"
+      ],
+      "@api/*": [
+        "apps/api/*"
+      ],
+      "@services/*": [
+        "domains/services/*"
+      ],
+      "@models/*": [
+        "domains/models/*"
+      ],
+      "@utils/*": [
+        "utils/*"
+      ],
+      "@errors/*": [
+        "errors/*"
+      ],
+      "@interfaces/*": [
+        "interfaces/*"
+      ],
     },
     "declaration": true,
     "importHelpers": true,
