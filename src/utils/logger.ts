@@ -5,7 +5,7 @@ import winston from 'winston';
 
 const logDir: string = path.join(__dirname, config.has('log.dir') ? config.get('log.dir') : 'logs');
 if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
+  fs.mkdirSync(logDir, { recursive: true });
 }
 
 /*
