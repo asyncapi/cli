@@ -7,7 +7,7 @@ import {
   formatDiffOutput,
   getDocumentMajorVersion,
   incompatibleDocuments,
-} from '../../src/helpers/DiffHelpers';
+} from '../../src/helpers/diffHelpers';
 import { DiffOutput } from '../../src/types';
 import {
   firstDocument,
@@ -18,7 +18,7 @@ import {
   diffEdit,
   diffEditOutput,
   modifyDiffInput,
-} from '../fixtures/DiffHelpers.fixtures';
+} from '../fixtures/diffHelpers.fixtures';
 
 describe('Diff Helpers', () => {
   test('formatAction function', () => {

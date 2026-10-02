@@ -170,11 +170,7 @@ messages and `TypeError` compatibility), so the next publish is `0.6.0`.
 
 ## 10. History
 
-| When | What |
-|------|------|
-| Pre-migration | Maintained at [`asyncapi/diff`](https://github.com/asyncapi/diff) through `0.5.0`, released with semantic-release. |
-| Migration | Moved into `asyncapi/cli` under `packages/diff/`. Tracking issue [cli#2303](https://github.com/asyncapi/cli/issues/2303). |
-| This release | `AsyncAPIDiff` exported from the package entry. Version mismatch and invalid override throw coded `TypeError` subclasses with the same messages. Overrides no longer mutate the shared rule table. |
+`@asyncapi/diff` was previously published from the standalone `asyncapi/diff` repository. The source now lives in this monorepo at `packages/diff`.
 
 ## 11. Glossary
 
@@ -195,4 +191,3 @@ messages and `TypeError` compatibility), so the next publish is `0.6.0`.
 | Rule-table format | [`packages/diff/standard-format.md`](/packages/diff/standard-format.md) |
 | CLI command | [`src/apps/cli/commands/diff.ts`](/src/apps/cli/commands/diff.ts) |
 | Release workflow | [`.github/workflows/release-with-changesets.yml`](/.github/workflows/release-with-changesets.yml) |
-| Tracking issue | https://github.com/asyncapi/cli/issues/2303 |

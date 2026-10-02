@@ -4,7 +4,7 @@ import { getStandardFromVersion } from './standard';
 import categorizeChanges from './categorizeChanges';
 import AsyncAPIDiff from './asyncapidiff';
 import { mergeStandard } from './mergeStandard';
-import { incompatibleDocuments } from './helpers/DiffHelpers';
+import { incompatibleDocuments } from './helpers/diffHelpers';
 import { DiffOverrideInvalidError, DiffVersionMismatchError } from './errors';
 
 /**

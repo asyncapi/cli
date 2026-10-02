@@ -1,11 +1,11 @@
 import {
   changeLastElementToPlaceholder,
   generateClassifierPath,
-} from '../src/helpers/ClassifierHelpers';
+} from '../src/helpers/classifierHelpers';
 import { OverrideStandard } from '../src/types';
 
 import { demoStandard } from './fixtures/classifier.fixtures';
-import { pathAsArray } from './fixtures/ClassifierHelpers.fixtures';
+import { pathAsArray } from './fixtures/classifierHelpers.fixtures';
 
 describe('changeLastElementToPlaceholder function', () => {
   test('when passed an empty array', () => {

@@ -3,7 +3,7 @@
 // Thus preventing the prototype chain attacks
 
 import { unclassified } from './constants';
-import { generateClassifierPath } from './helpers/ClassifierHelpers';
+import { generateClassifierPath } from './helpers/classifierHelpers';
 import { Classifier, OverrideStandard } from './types';
 
 /**

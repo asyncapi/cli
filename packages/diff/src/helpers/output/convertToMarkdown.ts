@@ -3,7 +3,7 @@ import {
   capitaliseFirstLetter,
   generateMarkdownForChange,
   groupChangesByType
-} from '../MarkdownHelpers';
+} from '../markdownHelpers';
 import {MarkdownSubtype} from '../../types';
 
 /**
