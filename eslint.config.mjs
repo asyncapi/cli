@@ -18,6 +18,7 @@ export default [
       'github-action',
       'scripts/**/*.js',
       'packages/optimizer/**',
+      'packages/diff/**',
     ],
   },
   js.configs.recommended,

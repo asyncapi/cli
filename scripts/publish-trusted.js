@@ -1,9 +1,12 @@
 'use strict';
 
 /**
- * changesets/action `publish` hook (not npm publish — that is the next workflow step).
- * Creates GitHub Release `v<cli-version>` with `gh release create --target <commit>`,
- * then prints `New tag: <name>@<version>` for each unpublished workspace package.
+ * Two modes:
+ * - default: changesets/action publish hook. Creates GitHub Release `v<cli-version>`
+ *   with `gh release create --target <commit>`. Does not create package releases.
+ * - `--package-releases-only`: run after `changeset publish`. Creates GitHub Releases
+ *   for workspace packages under `packages/` that this job just tagged, and only
+ *   when that version is already on npm.
  */
 
 const fs = require('node:fs');
@@ -18,12 +21,31 @@ const MAX_WORKSPACE_PATTERNS = 16;
 const MAX_PACKAGES_PER_GLOB = 32;
 const MAX_PACKAGE_NAME_LENGTH = 214;
 const MAX_VERSION_LENGTH = 64;
+const MAX_TAG_LENGTH = MAX_PACKAGE_NAME_LENGTH + 1 + MAX_VERSION_LENGTH;
+const MAX_HEAD_TAGS = 64;
 const PACKAGE_NAME_PATTERN = /^(?:@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
 const VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?$/;
 const WORKSPACE_GLOB_PATTERN = /^(?:\.|[a-zA-Z0-9._-]+\/\*)$/;
 const COMMIT_SHA_PATTERN = /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/i;
+const SCOPED_PACKAGE_TAG_PATTERN = /^(@[a-z0-9-~][a-z0-9-._~]*\/[a-z0-9-~][a-z0-9-._~]*)@(\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?)$/;
+const PACKAGE_RELEASES_FLAG = '--package-releases-only';
 
 function main() {
+  const args = process.argv.slice(2);
+  if (args.length > 1) {
+    throw new Error('Too many arguments.');
+  }
+  if (args.length === 1) {
+    if (args[0] !== PACKAGE_RELEASES_FLAG) {
+      throw new Error(`Unknown argument. Usage: node scripts/publish-trusted.js [${PACKAGE_RELEASES_FLAG}]`);
+    }
+    createPackageReleasesForHeadTags();
+    return;
+  }
+  publishCliRelease();
+}
+
+function publishCliRelease() {
   const rootPackage = readPackageJson(ROOT_DIR);
   const workspacePatterns = Array.isArray(rootPackage.workspaces) ? rootPackage.workspaces : ['.'];
   const packages = listWorkspacePackages(ROOT_DIR, workspacePatterns);
@@ -46,12 +68,107 @@ function main() {
   }
 
   const cliPackage = packages.find((pkg) => pkg.dir === ROOT_DIR && !pkg.private);
-  if (cliPackage) {
+  if (cliPackage && !isVersionOnNpm(cliPackage.name, cliPackage.version)) {
     createGithubRelease(`v${cliPackage.version}`, cliPackage.version);
   }
 
   for (const pkg of unpublished) {
-    console.log(`New tag: ${pkg.name}@${pkg.version}`);
+    if (pkg.dir === ROOT_DIR) {
+      continue;
+    }
+    console.log(`Workspace package ${pkg.name}@${pkg.version} is unpublished. changeset publish will publish it.`);
+  }
+}
+
+function createPackageReleasesForHeadTags() {
+  const token = requireGithubToken();
+  assertGhAvailable();
+  const packages = listWorkspacePackages(
+    ROOT_DIR,
+    workspacePatternsFromRoot(),
+  );
+  const tags = listHeadTags();
+  let created = 0;
+
+  for (const rawTag of tags) {
+    const parsed = parseScopedPackageTag(rawTag);
+    if (!parsed) {
+      continue;
+    }
+    const pkg = packages.find((candidate) => candidate.name === parsed.name && isPackagesDirectory(candidate.dir) && !candidate.private);
+    if (!pkg) {
+      continue;
+    }
+    if (pkg.version !== parsed.version) {
+      throw new Error(`Tag ${parsed.tag} does not match package.json version ${pkg.version}.`);
+    }
+    if (!isVersionOnNpm(pkg.name, pkg.version)) {
+      throw new Error(`Refusing to create a GitHub Release for ${parsed.tag} because that version is not on npm.`);
+    }
+    createPackageGithubRelease(parsed.tag, parsed.version, token);
+    created += 1;
+  }
+
+  if (created === 0) {
+    console.log('No workspace package tags at HEAD to publish as GitHub Releases.');
+  }
+}
+
+function workspacePatternsFromRoot() {
+  const rootPackage = readPackageJson(ROOT_DIR);
+  return Array.isArray(rootPackage.workspaces) ? rootPackage.workspaces : ['.'];
+}
+
+function isPackagesDirectory(dir) {
+  const packagesDir = path.resolve(ROOT_DIR, 'packages');
+  const resolved = path.resolve(dir);
+  return resolved.startsWith(packagesDir + path.sep);
+}
+
+function listHeadTags() {
+  const result = spawnSync(GIT, ['tag', '--points-at', 'HEAD'], {
+    cwd: ROOT_DIR,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  if (result.status !== 0) {
+    throw new Error(`Could not list git tags at HEAD: ${result.stderr || result.stdout}`);
+  }
+  const tags = (result.stdout || '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  if (tags.length > MAX_HEAD_TAGS) {
+    throw new Error(`Too many tags at HEAD (max ${MAX_HEAD_TAGS}).`);
+  }
+  return tags;
+}
+
+function parseScopedPackageTag(tag) {
+  if (typeof tag !== 'string' || tag.length === 0 || tag.length > MAX_TAG_LENGTH) {
+    return null;
+  }
+  const match = SCOPED_PACKAGE_TAG_PATTERN.exec(tag);
+  if (!match) {
+    return null;
+  }
+  const name = assertPackageName(match[1]);
+  const version = assertVersion(match[2]);
+  return { tag, name, version };
+}
+
+function requireGithubToken() {
+  const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '';
+  if (!token) {
+    throw new Error('GH_TOKEN is required to create workspace package releases.');
+  }
+  return token;
+}
+
+function assertGhAvailable() {
+  const ghCheck = spawnSync(GH, ['--version'], { stdio: 'ignore' });
+  if (ghCheck.status !== 0) {
+    throw new Error('gh CLI is not available.');
   }
 }
 
@@ -238,4 +355,49 @@ function createGithubRelease(tag, version) {
   console.log(`Created GitHub Release ${tag} at ${sha}.`);
 }
 
-main();
+function createPackageGithubRelease(tag, version, token) {
+  const parsed = parseScopedPackageTag(tag);
+  if (!parsed || parsed.version !== version) {
+    throw new Error('Invalid package release tag.');
+  }
+  assertVersion(version);
+
+  const env = { ...process.env, GH_TOKEN: token };
+  const existing = spawnSync(GH, ['release', 'view', tag], {
+    cwd: ROOT_DIR,
+    encoding: 'utf8',
+    env,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  if (existing.status === 0) {
+    console.log(`GitHub Release ${tag} already exists.`);
+    return;
+  }
+
+  const sha = resolveReleaseTargetSha();
+  const notes = `Release ${tag}.`;
+  const args = ['release', 'create', tag, '--title', tag, '--notes', notes, '--target', sha];
+  if (version.includes('-')) {
+    args.push('--prerelease');
+  }
+
+  const created = spawnSync(GH, args, {
+    cwd: ROOT_DIR,
+    encoding: 'utf8',
+    env,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  if (created.status !== 0) {
+    throw new Error(`Failed to create GitHub Release ${tag}: ${clipCommandOutput(created.stderr || created.stdout)}`);
+  }
+  console.log(`Created GitHub Release ${tag} at ${sha}.`);
+}
+
+function clipCommandOutput(text) {
+  const value = typeof text === 'string' ? text : '';
+  return value.length > 500 ? value.slice(0, 500) : value;
+}
+
+if (require.main === module) {
+  main();
+}
