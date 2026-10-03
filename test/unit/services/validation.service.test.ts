@@ -233,7 +233,8 @@ describe('ValidationService', () => {
         // eslint-disable-next-line no-unused-expressions
         expect(invalidRefDiagnostic).to.exist;
         expect(invalidRefDiagnostic?.path).to.include('$ref');
-        expect(invalidRefDiagnostic?.message).to.be.a('string').and.not.empty;
+        expect(invalidRefDiagnostic?.message).to.be.a('string');
+        expect(invalidRefDiagnostic?.message).to.have.length.greaterThan(0);
       }
     });
 
