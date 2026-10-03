@@ -25,7 +25,7 @@ RUN cp -r /tmp/source_code/bin /libraries
 # package.json "postinstall" points at scripts/enableAutoComplete.js — copy it so npm cannot fail looking for it
 RUN cp -r /tmp/source_code/scripts /libraries
 
-# Copy workspace packages (incl. the built @asyncapi/optimizer) so the "*" workspace dependency
+# Copy workspace packages (built @asyncapi/optimizer and @asyncapi/diff) so "*" workspace dependencies resolve
 RUN cp -r /tmp/source_code/packages /libraries/packages
 
 # Remove everything inside /tmp

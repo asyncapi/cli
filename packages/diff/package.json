@@ -1,0 +1,54 @@
+{
+  "name": "@asyncapi/diff",
+  "version": "0.5.0",
+  "description": "Library that compares two AsyncAPI documents and reports breaking, non-breaking, and unclassified changes.",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "files": [
+    "/lib",
+    "./README.md",
+    "./LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "get:version": "echo $npm_package_version",
+    "get:name": "echo $npm_package_name",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asyncapi/cli.git",
+    "directory": "packages/diff"
+  },
+  "keywords": [
+    "asyncapi",
+    "diff"
+  ],
+  "author": "aayushmau5",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/asyncapi/cli/issues"
+  },
+  "homepage": "https://github.com/asyncapi/cli/tree/master/packages/diff#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "fast-json-patch": "^3.0.0-1",
+    "js-yaml": "^4.1.0",
+    "json2md": "^1.12.0"
+  },
+  "devDependencies": {
+    "@asyncapi/parser": "^3.6.0",
+    "@types/jest": "^29.5.1",
+    "@types/js-yaml": "^4.0.5",
+    "@types/json2md": "^1.5.1",
+    "@types/node": "^15.12.1",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^4.3.2"
+  }
+}
