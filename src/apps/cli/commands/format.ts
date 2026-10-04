@@ -1,7 +1,8 @@
-import { existsSync, promises as fPromises } from 'fs';
-import path from 'path';
+import { existsSync, promises as fPromises } from 'node:fs';
+import path from 'node:path';
 import { Args } from '@oclif/core';
 import Command from '@cli/internal/base';
+import { describeSource } from '@cli/internal/output/source';
 
 import {
   convertToJSON,
@@ -20,12 +21,12 @@ import {
 } from '@cli/internal/flags/format.flags';
 
 export default class Format extends Command {
-  static description =
+  static readonly description =
     'Convert asyncapi documents from any format to yaml, yml or JSON';
 
-  static flags = convertFormatFlags();
+  static readonly flags = convertFormatFlags();
 
-  static args = {
+  static readonly args = {
     'spec-file': Args.string({
       description: 'spec path, url, or context-name',
       required: false,
@@ -58,7 +59,7 @@ export default class Format extends Command {
     }
     const output = await this.handleOutput(flags.output, convertedFile, outputFileFormat);
     return this.result('The AsyncAPI document was formatted successfully.', {
-      source: sourceData(filePath, this.specFile),
+      source: describeSource(filePath, this.specFile),
       sourceFormat: ff,
       targetFormat: outputFileFormat,
       document: output ? null : new Specification(convertedFile).toJson(),
@@ -133,18 +134,4 @@ export default class Format extends Command {
 
     return filename;
   }
-}
-
-function sourceData(input: string | undefined, specification: Specification) {
-  const source = specification.getFileURL() ?? specification.getFilePath() ?? input ?? '';
-  const resolved = specification.getFileURL() ?? path.resolve(source);
-  let kind = 'context';
-  if (specification.getFileURL()) {
-    kind = 'url';
-  } else if (!input) {
-    kind = 'auto-detected';
-  } else if (path.resolve(input) === resolved) {
-    kind = 'file';
-  }
-  return { input: input ?? source, kind, resolved };
 }

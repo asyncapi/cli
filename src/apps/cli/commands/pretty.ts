@@ -1,6 +1,6 @@
 import { Args } from '@oclif/core';
-import { existsSync, promises as fs } from 'fs';
-import path from 'path';
+import { existsSync, promises as fs } from 'node:fs';
+import path from 'node:path';
 import * as yaml from 'yaml';
 import Command from '@cli/internal/base';
 import { load, retrieveFileFormat } from '@models/SpecificationFile';

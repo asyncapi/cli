@@ -30,11 +30,11 @@ To specify a different name for the new project, please run the command below wi
 };
 
 export default class template extends Command {
-  static description = 'Creates a new template';
+  static readonly description = 'Creates a new template';
   protected commandName = 'template';
   static readonly successMessage = successMessage;
   static readonly errorMessages = errorMessages;
-  static flags = templateFlags();
+  static readonly flags = templateFlags();
 
   async run() {
     const { flags } = await this.parse(template); // NOSONAR
@@ -134,5 +134,5 @@ async function listFiles(directory: string, relativeTo = directory): Promise<str
       ? listFiles(entryPath, relativeTo)
       : [path.relative(relativeTo, entryPath)];
   }));
-  return files.flat().sort();
+  return files.flat().sort((a, b) => a.localeCompare(b));
 }

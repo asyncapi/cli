@@ -216,8 +216,8 @@ export function watcherHandler(
   options: Record<string, any>,
   genOption: any,
   interactive: boolean,
-  structured = false,
 ): (changedFiles: Record<string, any>) => Promise<void> {
+  const structured = Boolean(thisArg.jsonEnabled?.());
   return async (changedFiles: Record<string, any>): Promise<void> => {
     if (!structured) {
       console.clear();

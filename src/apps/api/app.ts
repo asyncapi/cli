@@ -4,7 +4,7 @@ import config from 'config';
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
-import type { Server } from 'http';
+import type { Server } from 'node:http';
 
 import { Controller } from '@/interfaces';
 import { ApplicationError } from '@errors/application-error';

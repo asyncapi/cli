@@ -1,7 +1,7 @@
 import Command from '@cli/internal/base';
 import bundle from '@asyncapi/bundler';
-import { existsSync, promises } from 'fs';
-import path from 'path';
+import { existsSync, promises } from 'node:fs';
+import path from 'node:path';
 import { Specification } from '@models/SpecificationFile';
 import { Document } from '@asyncapi/bundler/lib/document';
 import { bundleFlags } from '@cli/internal/flags/bundle.flags';
@@ -28,94 +28,31 @@ export default class Bundle extends Command {
 
   async run(): Promise<unknown> {
     const { argv, flags } = await this.parse(Bundle);
-    if (argv.length === 0) {
-      throw new ApplicationError(
-        CLI_ERROR_CODES.CLI_INPUT_REQUIRED,
-        'At least one AsyncAPI document is required.',
-      );
-    }
+    const inputs = argv as string[];
     const output = flags.output;
-    const outputFormat = path.extname(argv[0] as string);
-    const AsyncAPIFiles = argv as string[];
+    validateBundleInputs(inputs, output);
+
     const resolvedOutput = output ? path.resolve(process.cwd(), output) : null;
     const overwritten = resolvedOutput ? existsSync(resolvedOutput) : false;
-    if (output && !['.json', '.yaml', '.yml'].includes(path.extname(output))) {
-      throw new ApplicationError(
-        CLI_ERROR_CODES.FILE_EXTENSION_UNSUPPORTED,
-        'Bundle output must use a .json, .yaml, or .yml extension.',
-        { details: { path: resolvedOutput } },
-      );
-    }
+    this.metricsMetadata.files = inputs.length;
 
-    this.metricsMetadata.files = AsyncAPIFiles.length;
-
-    let document: Document;
-    try {
-      document = await bundle(AsyncAPIFiles, {
-        base: flags.base,
-        baseDir: flags.baseDir,
-        xOrigin: flags.xOrigin,
-      });
-    } catch (error) {
-      if (error && typeof error === 'object' && 'code' in error) {
-        throw error;
-      }
-      throw new ApplicationError(
-        CLI_ERROR_CODES.DEPENDENCY_ERROR,
-        error instanceof Error ? error.message : 'Bundling failed.',
-        { cause: error },
-      );
-    }
-
+    const document = await runBundler(inputs, flags);
     await this.collectMetricsData(document);
 
-    if (!output) {
-      if (outputFormat === '.yaml' || outputFormat === '.yml') {
-        this.log(document.yml());
-      } else {
-        this.log(JSON.stringify(document.json()));
-      }
-    } else {
-      const format = path.extname(output);
-
-      if (format === '.yml' || format === '.yaml') {
-        await writeFile(
-          resolvedOutput as string,
-          document.yml() || '',
-          {
-            encoding: 'utf-8',
-          },
-        );
-      }
-
-      if (format === '.json') {
-        await writeFile(
-          resolvedOutput as string,
-          document.string() || '',
-          {
-            encoding: 'utf-8',
-          },
-        );
-      }
+    // Printed output follows the first input's extension; written output follows the target's.
+    const format = output ? bundleFormat(output) : printFormat(inputs[0]);
+    if (resolvedOutput) {
+      await writeFile(resolvedOutput, serialize(document, format), { encoding: 'utf-8' });
       this.log(`Check out your shiny new bundled files at ${output}`);
+    } else {
+      this.log(format === 'yaml' ? document.yml() : JSON.stringify(document.json()));
     }
 
-    const format = (output ? path.extname(output) : outputFormat) === '.json'
-      ? 'json'
-      : 'yaml';
     return this.result('The AsyncAPI documents were bundled successfully.', {
-      sources: AsyncAPIFiles.map((input) => ({
-        input,
-        kind: input.startsWith('http://') || input.startsWith('https://') ? 'url' : 'file',
-        resolved: input.startsWith('http://') || input.startsWith('https://')
-          ? input
-          : path.resolve(input),
-      })),
-      document: output ? null : document.json(),
+      sources: inputs.map(describeBundleInput),
+      document: resolvedOutput ? null : document.json(),
       format,
-      output: resolvedOutput
-        ? { path: resolvedOutput, format, overwritten }
-        : null,
+      output: resolvedOutput ? { path: resolvedOutput, format, overwritten } : null,
       warnings: [],
     });
   }
@@ -132,4 +69,69 @@ export default class Bundle extends Command {
       }
     }
   }
+}
+
+type BundleFormat = 'json' | 'yaml';
+
+const isUrl = (input: string): boolean =>
+  input.startsWith('http://') || input.startsWith('https://');
+
+function validateBundleInputs(inputs: string[], output: string | undefined): void {
+  if (inputs.length === 0) {
+    throw new ApplicationError(
+      CLI_ERROR_CODES.CLI_INPUT_REQUIRED,
+      'At least one AsyncAPI document is required.',
+    );
+  }
+  if (output && !['.json', '.yaml', '.yml'].includes(path.extname(output))) {
+    throw new ApplicationError(
+      CLI_ERROR_CODES.FILE_EXTENSION_UNSUPPORTED,
+      'Bundle output must use a .json, .yaml, or .yml extension.',
+      { details: { path: path.resolve(process.cwd(), output) } },
+    );
+  }
+}
+
+async function runBundler(
+  inputs: string[],
+  flags: { base?: string; baseDir?: string; xOrigin?: boolean },
+): Promise<Document> {
+  try {
+    return await bundle(inputs, {
+      base: flags.base,
+      baseDir: flags.baseDir,
+      xOrigin: flags.xOrigin,
+    });
+  } catch (error) {
+    // Typed package errors (e.g. future BUNDLER_* codes) are mapped centrally.
+    if (error && typeof error === 'object' && 'code' in error) {
+      throw error;
+    }
+    throw new ApplicationError(
+      CLI_ERROR_CODES.DEPENDENCY_ERROR,
+      error instanceof Error ? error.message : 'Bundling failed.',
+      { cause: error },
+    );
+  }
+}
+
+/** Output file format; the extension was already validated as .json/.yaml/.yml. */
+function bundleFormat(fileName: string): BundleFormat {
+  return path.extname(fileName) === '.json' ? 'json' : 'yaml';
+}
+
+/** Printed format: YAML only for YAML inputs, JSON for everything else. */
+function printFormat(fileName: string): BundleFormat {
+  return ['.yaml', '.yml'].includes(path.extname(fileName)) ? 'yaml' : 'json';
+}
+
+function serialize(document: Document, format: BundleFormat): string {
+  return (format === 'yaml' ? document.yml() : document.string()) || '';
+}
+
+function describeBundleInput(input: string) {
+  if (isUrl(input)) {
+    return { input, kind: 'url', resolved: input };
+  }
+  return { input, kind: 'file', resolved: path.resolve(input) };
 }

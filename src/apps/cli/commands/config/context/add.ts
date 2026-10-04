@@ -1,19 +1,18 @@
 import { Args } from '@oclif/core';
 import Command from '@cli/internal/base';
-import { addContext, setCurrentContext } from '@models/Context';
+import { addContext, setCurrentContext, CONTEXT_FILE_PATH } from '@models/Context';
 import { MissingContextFileError } from '@errors/context-error';
 import { addFlags } from '@cli/internal/flags/config/context.flags';
 import { blueBright } from 'picocolors';
-import { CONTEXT_FILE_PATH } from '@models/Context';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import { ApplicationError } from '@errors/application-error';
 import { CLI_ERROR_CODES } from '@errors/error-codes';
 
 export default class ContextAdd extends Command {
-  static description = 'Add a context to the store';
-  static flags = addFlags();
+  static readonly description = 'Add a context to the store';
+  static readonly flags = addFlags();
 
-  static args = {
+  static readonly args = {
     'context-name': Args.string({
       description: 'context name',
       required: true,

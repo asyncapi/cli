@@ -1,14 +1,15 @@
-import { promises as fPromises } from 'fs';
+import { promises as fPromises } from 'node:fs';
 import { SpecificationFileNotFound } from '@errors/specification-file';
-import { createServer, Server } from 'http';
+import { createServer, Server } from 'node:http';
 import { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
-import open from 'open';
 import { blueBright, redBright } from 'picocolors';
 import {
   DEFAULT_PORT,
   getStudioVersion,
   isValidFilePath,
+  listenOnPort,
+  openInBrowser,
   resolveStudioNextInstance,
   resolveStudioPath,
 } from '@models/studio-runtime';
@@ -181,26 +182,7 @@ export async function start(
       }
     });
 
-    const onError = (error: NodeJS.ErrnoException) => {
-      const code = error.code === 'EADDRINUSE'
-        ? CLI_ERROR_CODES.SERVER_PORT_IN_USE
-        : CLI_ERROR_CODES.SERVER_START_FAILED;
-      const message = error.code === 'EADDRINUSE'
-        ? `Port ${port} is already in use.`
-        : `Failed to start Studio server on port ${port}: ${error.message}`;
-
-      reject(new ApplicationError(code, message, {
-        cause: error,
-        details: { port },
-      }));
-    };
-
-    server.once('error', onError);
-    server.listen(port, () => {
-      server.removeListener('error', onError);
-      const addr = server.address();
-      const listenPort = addr && typeof addr === 'object' ? addr.port : port;
-      const host = addr && typeof addr === 'object' ? addr.address : null;
+    listenOnPort(server, port, 'Studio').then(({ host, port: listenPort }) => {
       const url = `http://localhost:${listenPort}?liveServer=${listenPort}&studio-version=${getStudioVersion(resolvedStudioPath)}`;
       if (!quiet) {
         console.log(`🎉 Connected to Live Server running at ${blueBright(url)}.`);
@@ -217,14 +199,10 @@ export async function start(
         }
       }
       if (!noBrowser) {
-        open(url).catch((error) => {
-          if (!quiet) {
-            console.error(error);
-          }
-        });
+        openInBrowser(url, quiet);
       }
       resolve({ server, host, port: listenPort, url });
-    });
+    }, reject);
   });
 }
 

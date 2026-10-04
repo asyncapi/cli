@@ -4,14 +4,14 @@ import { blueBright } from 'picocolors';
 import { ConfigService, AuthEntry } from '@/domains/services/config.service';
 import { ApplicationError } from '@errors/application-error';
 import { CLI_ERROR_CODES } from '@errors/error-codes';
-import { homedir } from 'os';
-import { join } from 'path';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 
 export default class AuthAdd extends Command {
-  static description =
+  static readonly description =
     'Add an authentication config for resolving $ref files requiring HTTP Authorization.';
 
-  static args = {
+  static readonly args = {
     pattern: Args.string({
       required: true,
       description:
@@ -24,7 +24,7 @@ export default class AuthAdd extends Command {
     }),
   };
 
-  static flags = {
+  static readonly flags = {
     'auth-type': Flags.string({
       char: 'a',
       description: 'Authentication type (default is "Bearer")',

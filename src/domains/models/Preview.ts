@@ -1,22 +1,24 @@
 import { SpecificationFileNotFound } from '@errors/specification-file';
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 import bundle from '@asyncapi/bundler';
-import { createServer, Server } from 'http';
+import { createServer, Server } from 'node:http';
 import { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
-import open from 'open';
-import path from 'path';
+import path from 'node:path';
 import yaml from 'js-yaml';
 import { blueBright, redBright } from 'picocolors';
 import {
   DEFAULT_PORT,
   getStudioVersion,
   isValidFilePath,
+  listenOnPort,
+  openInBrowser,
   resolveStudioNextInstance,
   resolveStudioPath,
 } from '@models/studio-runtime';
 import { ApplicationError } from '@errors/application-error';
 import { CLI_ERROR_CODES } from '@errors/error-codes';
+import { getErrorMessage } from '@utils/error-handler';
 
 export { DEFAULT_PORT } from '@models/studio-runtime';
 
@@ -111,7 +113,7 @@ export async function startPreview(
       CLI_ERROR_CODES.PREVIEW_BUNDLE_FAILED,
       suppressLogs
         ? defaultErrorMessage
-        : `Failed to bundle preview document: ${error instanceof Error ? error.message : String(error)}`,
+        : `Failed to bundle preview document: ${getErrorMessage(error)}`,
       { cause: error },
     );
   }
@@ -224,30 +226,8 @@ export async function startPreview(
       }
     });
     
-    const onError = (error: NodeJS.ErrnoException) => {
-      const code = error.code === 'EADDRINUSE'
-        ? CLI_ERROR_CODES.SERVER_PORT_IN_USE
-        : CLI_ERROR_CODES.SERVER_START_FAILED;
-      const message = error.code === 'EADDRINUSE'
-        ? `Port ${port} is already in use.`
-        : `Failed to start Preview server on port ${port}: ${error.message}`;
-
-      reject(new ApplicationError(code, message, {
-        cause: error,
-        details: { port },
-      }));
-    };
-
-    server.once('error', onError);
-    server.listen(port, () => {
-      server.removeListener('error', onError);
-      const previewServerAddr = server.address();
-      listenPort = previewServerAddr && typeof previewServerAddr === 'object'
-        ? previewServerAddr.port
-        : port;
-      const host = previewServerAddr && typeof previewServerAddr === 'object'
-        ? previewServerAddr.address
-        : null;
+    listenOnPort(server, port, 'Preview').then(({ host, port: boundPort }) => {
+      listenPort = boundPort;
       const url = `http://localhost:${listenPort}?previewServer=${listenPort}&studio-version=${getStudioVersion(resolvedStudioPath)}`;
       if (!quiet) {
         console.log(`🎉 Connected to Preview Server running at ${blueBright(url)}.`);
@@ -265,11 +245,7 @@ export async function startPreview(
         }
       }
       if (!noBrowser) {
-        open(url).catch((error) => {
-          if (!quiet) {
-            console.error(error);
-          }
-        });
+        openInBrowser(url, quiet);
       }
       resolve({
         server,
@@ -278,7 +254,7 @@ export async function startPreview(
         url,
         watchedFiles: [...filePathsToWatch],
       });
-    });
+    }, reject);
   });
 }
 

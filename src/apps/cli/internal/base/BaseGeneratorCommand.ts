@@ -19,8 +19,10 @@ import { applyProxyToPath } from '@utils/proxy';
 import { ApplicationError } from '@errors/application-error';
 import { CLI_ERROR_CODES, CliErrorCode } from '@errors/error-codes';
 import { getErrorMessage } from '@utils/error-handler';
-import { promises as fs } from 'fs';
-import path from 'path';
+import path from 'node:path';
+import { describeSource, listFiles } from '@cli/internal/output/source';
+import type { StructuredOutput } from '@cli/internal/output/types';
+import { parseGeneratorFlags } from '@utils/generate/flags';
 
 export interface GeneratorOptions {
   forceWrite: boolean;
@@ -35,6 +37,17 @@ export interface GeneratorOptions {
     auth?: string;
     token?: string;
   };
+}
+
+export interface GenerationRun {
+  flags: any;
+  asyncapi: string;
+  template: string;
+  output: string;
+  interactive: boolean;
+  message: string;
+  extraData?: Record<string, unknown>;
+  printLogs: (logs: string[]) => void;
 }
 
 export abstract class BaseGeneratorCommand extends Command {
@@ -79,7 +92,7 @@ export abstract class BaseGeneratorCommand extends Command {
     interactive: boolean
   ): Promise<void> {
     const structured = this.jsonEnabled();
-    const watcher = watcherHandler(this, asyncapi, template, output, options, genOption, interactive, structured);
+    const watcher = watcherHandler(this, asyncapi, template, output, options, genOption, interactive);
     const outputCommand = structured
       ? {
         log: () => undefined,
@@ -210,54 +223,92 @@ export abstract class BaseGeneratorCommand extends Command {
   }
 
   protected sourceDescriptor(input: string, specification: Specification) {
-    const url = specification.getFileURL();
-    return {
-      input: this.redactUrl(input),
-      kind: url ? 'url' : 'file',
-      resolved: url ? this.redactUrl(url) : path.resolve(specification.getFilePath() ?? input),
-    };
+    return describeSource(input, specification);
   }
 
   protected async generatedFiles(output: string): Promise<string[]> {
-    const root = path.resolve(output);
-    const files: string[] = [];
-    const visit = async (directory: string): Promise<void> => {
-      let entries;
-      try {
-        entries = await fs.readdir(directory, { withFileTypes: true });
-      } catch {
-        return;
-      }
-      await Promise.all(entries.map(async (entry) => {
-        const entryPath = path.join(directory, entry.name);
-        if (entry.isDirectory()) {
-          await visit(entryPath);
-        } else if (entry.isFile()) {
-          files.push(entryPath);
-        }
-      }));
-    };
-    await visit(root);
-    return files.sort();
+    return listFiles(output);
   }
 
-  private redactUrl(value: string): string {
+  /**
+   * Shared generation pipeline for `generate client` and `generate fromTemplate`:
+   * parses generator flags, loads the document, generates, optionally watches,
+   * and returns (or, in JSON watch mode, emits) the structured result.
+   */
+  protected async runGeneration(run: GenerationRun): Promise<StructuredOutput | undefined> {
+    const { flags, template, output, interactive, message } = run;
+    const json = this.jsonEnabled();
+
+    let parsedFlags: ParsedFlags;
     try {
-      const url = new URL(value);
-      if (!['http:', 'https:'].includes(url.protocol)) {
-        return value;
-      }
-      url.username = '';
-      url.password = '';
-      for (const key of [...url.searchParams.keys()]) {
-        if ((/token|key|secret|password|auth/i).test(key)) {
-          url.searchParams.set(key, '[REDACTED]');
-        }
-      }
-      return url.toString();
-    } catch {
-      return value;
+      parsedFlags = await parseGeneratorFlags(
+        flags['disable-hook'],
+        flags['param'],
+        flags['map-base-url'],
+        flags['registry-url'],
+        flags['registry-auth'],
+        flags['registry-token'],
+      );
+    } catch (error) {
+      throw this.generationError(error);
     }
+
+    const options = await this.buildGeneratorOptions(flags, parsedFlags);
+    const asyncapi = this.applyProxyConfiguration(run.asyncapi, flags.proxyHost, flags.proxyPort);
+    if (!json) {
+      this.specFile = await this.loadAsyncAPIInput(asyncapi);
+    }
+
+    const genOption = this.buildGenOption(flags, parsedFlags);
+    const specification = await this.loadSpecificationSafely(asyncapi);
+    this.specFile = specification;
+
+    const result = await this.generatorService.generate(
+      specification,
+      template,
+      output,
+      options as any, // GeneratorService expects different options interface
+      genOption,
+      interactive,
+    );
+    if (!result.success) {
+      if (json) {
+        throw this.generationError(new Error(result.error), undefined, result.diagnostics);
+      }
+      throw new GeneratorError(new Error(result.error));
+    }
+
+    const logs = result.data?.logs ?? [];
+    if (!json) {
+      run.printLogs(logs);
+    }
+
+    const watch = Boolean(flags['watch']);
+    if (watch) {
+      await this.handleWatchMode(asyncapi, template, output, options, genOption, interactive);
+    }
+
+    const source = describeSource(run.asyncapi, specification);
+    const commandResult = this.result(message, {
+      source,
+      ...run.extraData,
+      template,
+      outputDirectory: path.resolve(output),
+      generatedFiles: await listFiles(output),
+      logs,
+      watching: watch,
+      diagnostics: result.diagnostics ?? [],
+      warnings: [],
+    });
+
+    if (watch && json) {
+      this.emitStructuredOutput({
+        ...commandResult,
+        data: { ...commandResult.data, event: 'watch.started', watchedFiles: [source.resolved] },
+      });
+      return undefined;
+    }
+    return commandResult;
   }
 
   protected async loadAsyncAPIInput(asyncapi: string) {

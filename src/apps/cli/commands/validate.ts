@@ -1,6 +1,7 @@
 import { Args } from '@oclif/core';
 import Command from '@cli/internal/base';
-import { load, Specification } from '@models/SpecificationFile';
+import { describeSource } from '@cli/internal/output/source';
+import { load } from '@models/SpecificationFile';
 import {
   emitWatchStarted,
   isWatchRerun,
@@ -19,10 +20,10 @@ import {
 } from '@services/validation.service';
 import { applyProxyToPath } from '@utils/proxy';
 import { Diagnostic, DiagnosticSeverity } from '@asyncapi/parser/cjs';
-import path from 'path';
+import path from 'node:path';
 import { ApplicationError } from '@errors/application-error';
 import { CLI_ERROR_CODES, type CliErrorCode } from '@errors/error-codes';
-import { existsSync } from 'fs';
+import { existsSync } from 'node:fs';
 
 export default class Validate extends Command {
   static description = 'validate asyncapi file';
@@ -109,7 +110,7 @@ export default class Validate extends Command {
       { errors: 0, warnings: 0, info: 0, hints: 0 },
     );
     const data = {
-      source: sourceData(args['spec-file'], this.specFile),
+      source: describeSource(args['spec-file'], this.specFile),
       valid: result.data?.status === ValidationStatus.VALID,
       score: result.data?.score ?? null,
       failSeverity: flags['fail-severity'] ?? 'error',
@@ -214,20 +215,6 @@ export default class Validate extends Command {
     this.log(diagnosticsOutput);
     return null;
   }
-}
-
-function sourceData(input: string | undefined, specification: Specification) {
-  const source = specification.getFileURL() ?? specification.getFilePath() ?? input ?? '';
-  const resolved = specification.getFileURL() ?? path.resolve(source);
-  let kind = 'context';
-  if (specification.getFileURL()) {
-    kind = 'url';
-  } else if (!input) {
-    kind = 'auto-detected';
-  } else if (path.resolve(input) === resolved) {
-    kind = 'file';
-  }
-  return { input: input ?? source, kind, resolved };
 }
 
 function formatDiagnostic(diagnostic: Diagnostic) {

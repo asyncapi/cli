@@ -49,7 +49,7 @@ export const emitWatchStarted = (
   const event: StructuredOutput = {
     ...output,
     data: {
-      ...(output.data ?? {}),
+      ...output.data,
       event: 'watch.started',
       watchedFiles,
     },
@@ -102,7 +102,7 @@ export const specWatcher = (params: SpecWatcherParams) => {
           params.handler.emitStructuredOutput({
             ...result,
             data: {
-              ...(result.data ?? {}),
+              ...result.data,
               event: 'command.completed',
             },
           });

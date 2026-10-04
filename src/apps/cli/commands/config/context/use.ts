@@ -7,15 +7,15 @@ import {
 } from '@errors/context-error';
 import { helpFlag } from '@cli/internal/flags/global.flags';
 import { blueBright } from 'picocolors';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import { ApplicationError } from '@errors/application-error';
 import { CLI_ERROR_CODES } from '@errors/error-codes';
 
 export default class ContextUse extends Command {
-  static description = 'Set a context as current';
-  static flags = helpFlag();
+  static readonly description = 'Set a context as current';
+  static readonly flags = helpFlag();
 
-  static args = {
+  static readonly args = {
     'context-name': Args.string({
       description: 'name of the saved context',
       required: true,

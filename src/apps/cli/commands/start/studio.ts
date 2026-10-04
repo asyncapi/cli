@@ -5,7 +5,7 @@ import { load } from '@models/SpecificationFile';
 import { studioFlags } from '@cli/internal/flags/start/studio.flags';
 import { Args } from '@oclif/core';
 import { isCancel, text, cancel } from '@clack/prompts';
-import path from 'path';
+import path from 'node:path';
 import { ApplicationError } from '@errors/application-error';
 import { CLI_ERROR_CODES } from '@errors/error-codes';
 import { parsePortFlag } from '@utils/port';
@@ -13,7 +13,7 @@ import { parsePortFlag } from '@utils/port';
 export default class StartStudio extends Command {
   static readonly description = 'starts a new local instance of Studio. Studio (~450MB) is installed on-demand on first use; pass --yes to install without prompting.';
 
-  static flags = studioFlags();
+  static readonly flags = studioFlags();
 
   static readonly args = {
     'spec-file': Args.string({
@@ -45,32 +45,7 @@ export default class StartStudio extends Command {
       port = parsePortFlag(parsedArgs.port);
     }
 
-    if (!filePath) {
-      try {
-        filePath = (await load()).getFilePath();
-        if (!json) {
-          this.log(`Loaded specification from: ${filePath}`);
-        }
-      } catch (error) {
-        // Preserve the historical `Error:` prefix of oclif's string errors.
-        throw Object.assign(
-          new ApplicationError(
-            CLI_ERROR_CODES.CLI_INPUT_REQUIRED,
-            'No file specified.',
-            { cause: error },
-          ),
-          { name: 'Error' },
-        );
-      }
-    }
-    try {
-      this.specFile = await load(filePath);
-    } catch (error) {
-      if (filePath) {
-        // load() throws typed errors that the central error mapper classifies.
-        throw error;
-      }
-    }
+    filePath = await this.resolveSpecFile(filePath, json);
     this.metricsMetadata.port = port;
     const studioPath = await ensureStudio(this.config, {
       yes: flags.yes,
@@ -101,6 +76,34 @@ export default class StartStudio extends Command {
         warnings: [],
       }));
     }
+  }
+
+  /**
+   * Falls back to the auto-detected/current-context document when no file was
+   * given, and loads the spec so metrics can describe it.
+   */
+  private async resolveSpecFile(filePath: string | undefined, json: boolean): Promise<string> {
+    if (!filePath) {
+      try {
+        filePath = (await load()).getFilePath() as string;
+      } catch (error) {
+        // Preserve the historical `Error:` prefix of oclif's string errors.
+        throw Object.assign(
+          new ApplicationError(
+            CLI_ERROR_CODES.CLI_INPUT_REQUIRED,
+            'No file specified.',
+            { cause: error },
+          ),
+          { name: 'Error' },
+        );
+      }
+      if (!json) {
+        this.log(`Loaded specification from: ${filePath}`);
+      }
+    }
+    // load() throws typed errors that the central error mapper classifies.
+    this.specFile = await load(filePath);
+    return filePath;
   }
 
   private async parseArgs(args: Record<string, any>, port?: string) {

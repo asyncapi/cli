@@ -7,11 +7,11 @@ import {
 import { MissingContextFileError } from '@errors/context-error';
 import { helpFlag } from '@cli/internal/flags/global.flags';
 import { blueBright } from 'picocolors';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 
 export default class ContextList extends Command {
-  static description = 'List all the stored contexts in the store';
-  static flags = helpFlag();
+  static readonly description = 'List all the stored contexts in the store';
+  static readonly flags = helpFlag();
 
   async run() {
     await this.parse(ContextList);

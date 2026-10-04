@@ -4,7 +4,7 @@ import { previewFlags } from '@cli/internal/flags/start/preview.flags';
 import { load } from '@models/SpecificationFile';
 import { startPreview } from '@models/Preview';
 import { ensureStudio } from '@models/studio-installer';
-import path from 'path';
+import path from 'node:path';
 import { parsePortFlag } from '@utils/port';
 
 export default class PreviewStudio extends Command {

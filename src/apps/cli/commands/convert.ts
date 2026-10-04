@@ -1,6 +1,7 @@
 import { Args } from '@oclif/core';
 import Command from '@cli/internal/base';
-import { load } from '@models/SpecificationFile';
+import { describeSource } from '@cli/internal/output/source';
+import { load, Specification } from '@models/SpecificationFile';
 import {
   ErrorLoadingSpec,
   SpecificationFileNotFound,
@@ -16,9 +17,8 @@ import specs from '@asyncapi/specs';
 import { convertFlags } from '@cli/internal/flags/convert.flags';
 import { ConversionService } from '@services/convert.service';
 import { applyProxyToPath } from '@utils/proxy';
-import { existsSync } from 'fs';
-import path from 'path';
-import { Specification } from '@models/SpecificationFile';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 
 const latestVersion = Object.keys(specs.schemas).pop() as string;
 const TARGET_VERSION_FLAG = 'target-version';
@@ -94,7 +94,7 @@ export default class Convert extends Command {
 
       const sourceDocument = this.specFile.toJson();
       return this.result('The document was converted successfully.', {
-        source: sourceData(args['spec-file'], this.specFile),
+        source: describeSource(args['spec-file'], this.specFile),
         sourceFormat: conversionOptions.format,
         sourceVersion: sourceDocument.asyncapi ?? sourceDocument.openapi ?? null,
         targetFormat: 'asyncapi' as const,
@@ -170,18 +170,4 @@ function isTypedDomainError(err: unknown): boolean {
   // Context errors and Node.js system errors (e.g. ENOENT on --output) are
   // recognized by the central error mapper.
   return err.name === 'ContextError' || typeof (err as { code?: unknown }).code === 'string';
-}
-
-function sourceData(input: string | undefined, specification: Specification) {
-  const source = specification.getFileURL() ?? specification.getFilePath() ?? input ?? '';
-  const resolved = specification.getFileURL() ?? path.resolve(source);
-  let kind = 'context';
-  if (specification.getFileURL()) {
-    kind = 'url';
-  } else if (!input) {
-    kind = 'auto-detected';
-  } else if (path.resolve(input) === resolved) {
-    kind = 'file';
-  }
-  return { input: input ?? source, kind, resolved };
 }

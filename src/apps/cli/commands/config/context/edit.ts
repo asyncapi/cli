@@ -7,15 +7,15 @@ import {
 } from '@errors/context-error';
 import { helpFlag } from '@cli/internal/flags/global.flags';
 import { blueBright } from 'picocolors';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import { ApplicationError } from '@errors/application-error';
 import { CLI_ERROR_CODES } from '@errors/error-codes';
 
 export default class ContextEdit extends Command {
-  static description = 'Edit a context in the store';
-  static flags = helpFlag();
+  static readonly description = 'Edit a context in the store';
+  static readonly flags = helpFlag();
 
-  static args = {
+  static readonly args = {
     'context-name': Args.string({
       description: 'context name',
       required: true,

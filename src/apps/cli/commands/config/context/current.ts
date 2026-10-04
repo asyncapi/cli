@@ -7,13 +7,13 @@ import {
 } from '@errors/context-error';
 import { helpFlag } from '@cli/internal/flags/global.flags';
 import { blueBright } from 'picocolors';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import { ApplicationError } from '@errors/application-error';
 import { CLI_ERROR_CODES } from '@errors/error-codes';
 
 export default class ContextCurrent extends Command {
-  static description = 'Shows the current context that is being used';
-  static flags = helpFlag();
+  static readonly description = 'Shows the current context that is being used';
+  static readonly flags = helpFlag();
 
   async run() {
     await this.parse(ContextCurrent);

@@ -32,7 +32,7 @@ class DiscardSink implements Sink {
 }
 
 // The command currently running, used by the process-wide SIGINT handler.
-let activeCommand: { jsonEnabled(): boolean } | undefined;
+let isActiveCommandJson: (() => boolean) | undefined;
 let sigintHandlerInstalled = false;
 
 function installSigintHandler(): void {
@@ -41,7 +41,7 @@ function installSigintHandler(): void {
   }
   sigintHandlerInstalled = true;
   process.once('SIGINT', () => {
-    if (activeCommand?.jsonEnabled()) {
+    if (isActiveCommandJson?.()) {
       const message = 'The command was interrupted.';
       process.stdout.write(`${JSON.stringify({
         status: 'error',
@@ -56,7 +56,7 @@ function installSigintHandler(): void {
 }
 
 export default abstract class extends Command {
-  static enableJsonFlag = true;
+  static readonly enableJsonFlag = true;
   recorder = this.recorderFromEnv('asyncapi_adoption');
   parser = new Parser();
   metricsMetadata: MetricMetadata = {};
@@ -64,8 +64,7 @@ export default abstract class extends Command {
 
   async init(): Promise<void> {
     process.exitCode = undefined;
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    activeCommand = this;
+    isActiveCommandJson = () => this.jsonEnabled();
     installSigintHandler();
     await super.init();
     const commandName: string = this.id || '';

@@ -2,11 +2,12 @@
 import { Args } from '@oclif/core';
 import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
-import { existsSync, promises as fs } from 'fs';
-import path from 'path';
+import { existsSync, promises as fs } from 'node:fs';
+import path from 'node:path';
 import chalk from 'chalk';
 import { load, Specification } from '@models/SpecificationFile';
 import Command from '@cli/internal/base';
+import { describeSource } from '@cli/internal/output/source';
 import { ValidationError } from '@errors/validation-error';
 import {
   DiffBreakingChangeError,
@@ -176,8 +177,8 @@ export default class Diff extends Command {
           ? 'The diff completed and found breaking changes.'
           : 'The diff completed successfully.',
         {
-          old: sourceData(firstDocumentPath, firstDocument),
-          new: sourceData(secondDocumentPath, secondDocument),
+          old: describeSource(firstDocumentPath, firstDocument),
+          new: describeSource(secondDocumentPath, secondDocument),
           type: outputType,
           format: outputFormat === 'yml' ? 'yaml' : outputFormat,
           changes: writeOutput ? null : genericOutput(structuredDiffOutput, outputType),
@@ -460,18 +461,6 @@ function checkAndWarnFalseFlag(
     );
     return warningMessage;
   }
-}
-
-function sourceData(input: string, specification: Specification) {
-  const source = specification.getFileURL() ?? specification.getFilePath() ?? input;
-  const resolved = specification.getFileURL() ?? path.resolve(source);
-  let kind = 'context';
-  if (specification.getFileURL()) {
-    kind = 'url';
-  } else if (path.resolve(input) === resolved) {
-    kind = 'file';
-  }
-  return { input, kind, resolved };
 }
 
 /**
