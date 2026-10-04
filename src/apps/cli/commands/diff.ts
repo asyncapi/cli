@@ -374,7 +374,7 @@ export default class Diff extends Command {
     return { firstDocumentParsed, secondDocumentParsed };
   }
 
-  async handleGovernanceMessage(
+  handleGovernanceMessage(
     document: Specification,
     diagnostics: Diagnostic[],
     status: ValidationStatus,

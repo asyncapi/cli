@@ -61,7 +61,9 @@ export default class Models extends Command {
       generatedModels = await generateModels(
         { ...flags, output },
         document,
-        this.createModelinaLogger(json, logs, warnings),
+        json
+          ? this.createCollectingLogger(logs, warnings)
+          : this.createPrintingLogger(logs, warnings),
         language as Languages,
       );
     } catch (error) {
@@ -173,32 +175,33 @@ export default class Models extends Command {
     return { document, diagnostics, status };
   }
 
-  private createModelinaLogger(json: boolean, logs: string[], warnings: string[]) {
+  /** JSON mode: collect Modelina output instead of printing it. */
+  private createCollectingLogger(logs: string[], warnings: string[]) {
+    return {
+      info: (message: string) => logs.push(message),
+      debug: (message: string) => logs.push(message),
+      warn: (message: string) => warnings.push(message),
+      error: (message: string) => logs.push(message),
+    };
+  }
+
+  /** Human mode: collect Modelina output and also print it. */
+  private createPrintingLogger(logs: string[], warnings: string[]) {
     return {
       info: (message: string) => {
         logs.push(message);
-        if (!json) {
-          this.log(message);
-        }
+        this.log(message);
       },
       debug: (message: string) => {
         logs.push(message);
-        if (!json) {
-          this.debug(message);
-        }
+        this.debug(message);
       },
       warn: (message: string) => {
         warnings.push(message);
-        if (!json) {
-          this.warn(message);
-        }
+        this.warn(message);
       },
       error: (message: string) => {
-        if (json) {
-          logs.push(message);
-        } else {
-          this.error(message);
-        }
+        this.error(message);
       },
     };
   }
@@ -256,7 +259,7 @@ export default class Models extends Command {
     return { language, file, output: output ?? 'stdout' };
   }
 
-  async handleGovernanceMessage(
+  handleGovernanceMessage(
     document: Specification,
     diagnostics: Diagnostic[],
     status: ValidationStatus,

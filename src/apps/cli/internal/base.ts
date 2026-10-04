@@ -71,11 +71,12 @@ export default abstract class extends Command {
     await this.recordActionInvoked(commandName, this.metricsMetadata);
   }
 
-  async catch(err: Error & { exitCode?: number }): Promise<void> {
+  // Overrides oclif's async catch(); handling is synchronous, so return a resolved promise.
+  catch(err: Error & { exitCode?: number }): Promise<void> {
     this.parsed = true;
     if (err.message.includes('EEXIT: 0')) {
       process.exitCode = 0;
-      return;
+      return Promise.resolve();
     }
 
     const mapped = mapError(err);
@@ -85,6 +86,7 @@ export default abstract class extends Command {
     } else {
       this.logToStderr(`${err.name}: ${mapped.message}`);
     }
+    return Promise.resolve();
   }
 
   protected result<T extends object>(
