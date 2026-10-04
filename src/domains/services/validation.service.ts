@@ -37,6 +37,8 @@ import {
   isValidGitHubBlobUrl,
   resolveGitHubBlobUrl,
 } from '@/utils/github-url';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES } from '@errors/error-codes';
 
 // GitHub API response type
 interface GitHubFileInfo {
@@ -60,7 +62,11 @@ const fetchWithErrorHandling = async (
 ): Promise<Response> => {
   const res = await fetch(url, { headers });
   if (!res.ok) {
-    throw new Error(`${errorMessage}: ${url} - ${res.statusText}`);
+    throw new ApplicationError(
+      CLI_ERROR_CODES.REMOTE_REFERENCE_FETCH_FAILED,
+      `${errorMessage}: ${url} - ${res.statusText}`,
+      { details: { url, status: res.status, statusText: res.statusText } },
+    );
   }
   return res;
 };
@@ -81,8 +87,10 @@ const fetchGitHubApiContent = async (
   const fileInfo = (await res.json()) as GitHubFileInfo;
 
   if (!fileInfo.download_url) {
-    throw new Error(
+    throw new ApplicationError(
+      CLI_ERROR_CODES.GITHUB_DOWNLOAD_URL_MISSING,
       `No download URL found in GitHub API response for: ${url}`,
+      { details: { url } },
     );
   }
 

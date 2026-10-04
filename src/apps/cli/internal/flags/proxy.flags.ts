@@ -5,10 +5,12 @@ export const proxyFlags = () => {
     proxyHost: Flags.string({
       description: 'Name of the ProxyHost',
       required: false,
+      dependsOn: ['proxyPort'],
     }),
     proxyPort: Flags.string({
       description: 'Port number number for the proxyHost.',
       required: false,
+      dependsOn: ['proxyHost'],
     }),
   };
 };

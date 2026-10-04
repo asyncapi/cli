@@ -5,6 +5,8 @@ import yaml from 'js-yaml';
 import { loadContext } from './Context';
 import { ErrorLoadingSpec } from '@errors/specification-file';
 import { MissingContextFileError } from '@errors/context-error';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES, type CliErrorCode } from '@errors/error-codes';
 import { fileFormat } from '@cli/internal/flags/format.flags';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { logger } from '@utils/logger';
@@ -87,14 +89,14 @@ export class Specification {
     let spec;
     try {
       spec = await readFile(filepath, { encoding: 'utf8' });
-    } catch {
-      throw new ErrorLoadingSpec('file', filepath);
+    } catch (error: unknown) {
+      throw fileReadError(filepath, error);
     }
     return new Specification(spec, { filepath });
   }
 
   static async fromURL(URLpath: string) {
-    let response;
+    let response: Response;
     const delimiter = '+';
     let targetUrl = URLpath;
     let proxyUrl = '';
@@ -106,7 +108,11 @@ export class Specification {
 
     try {
       // Validate the target URL
-      new URL(targetUrl);
+      try {
+        new URL(targetUrl);
+      } catch (err: unknown) {
+        throw urlLoadError(CLI_ERROR_CODES.URL_FETCH_FAILED, targetUrl, err);
+      }
 
       const fetchOptions: RequestInit & { agent?: HttpsProxyAgent<string> } = { method: 'GET' };
 
@@ -119,25 +125,152 @@ export class Specification {
           response = await fetch(targetUrl, fetchOptions);
         } catch (err: unknown) {
           logger.error(`Proxy connection error: ${getErrorMessage(err)}`);
-          throw new Error(
-            'Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber',
+          throw urlLoadError(
+            CLI_ERROR_CODES.PROXY_ERROR,
+            targetUrl,
+            new Error(
+              'Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber',
+              { cause: err },
+            ),
+            { url: targetUrl, proxy: proxyUrl },
           );
         }
       } else {
         response = await fetch(targetUrl);
-        if (!response.ok) {
-          throw new ErrorLoadingSpec('url', targetUrl);
-        }
+      }
+
+      if (!response.ok) {
+        throw urlLoadError(CLI_ERROR_CODES.HTTP_RESPONSE_ERROR, targetUrl, undefined, {
+          url: targetUrl,
+          status: response.status,
+          statusText: response.statusText,
+        });
       }
     } catch (error: unknown) {
       logger.error(`Error loading spec from URL: ${getErrorMessage(error)}`);
-      throw new ErrorLoadingSpec('url', targetUrl);
+      if (error instanceof ApplicationError) {
+        throw error;
+      }
+      throw urlLoadError(classifyFetchError(error), targetUrl, error);
     }
 
-    return new Specification((await response?.text()) as string, {
+    return new Specification(await response.text(), {
       fileURL: targetUrl,
     });
   }
+}
+
+const URL_LOAD_ERROR_NAME = new ErrorLoadingSpec('url').name;
+const FILE_LOAD_ERROR_NAME = new ErrorLoadingSpec('file').name;
+
+const TIMEOUT_ERROR_CODES = new Set([
+  'ETIMEDOUT',
+  'ESOCKETTIMEDOUT',
+  'UND_ERR_CONNECT_TIMEOUT',
+  'UND_ERR_HEADERS_TIMEOUT',
+  'UND_ERR_BODY_TIMEOUT',
+]);
+const CONNECTION_ERROR_CODES = new Set([
+  'ECONNREFUSED',
+  'ECONNRESET',
+  'ENOTFOUND',
+  'EAI_AGAIN',
+  'EHOSTUNREACH',
+  'ENETUNREACH',
+  'EPIPE',
+  'UND_ERR_SOCKET',
+]);
+
+/**
+ * Builds a URL loading error that keeps the historical `ErrorLoadingSpec`
+ * name and message (so human output is unchanged) while carrying a precise
+ * CLI error code and the original cause.
+ */
+function urlLoadError(
+  code: CliErrorCode,
+  targetUrl: string,
+  cause?: unknown,
+  details?: unknown,
+): ApplicationError {
+  return Object.assign(
+    new ApplicationError(code, new ErrorLoadingSpec('url', targetUrl).message, {
+      cause,
+      details: details ?? { url: targetUrl },
+    }),
+    { name: URL_LOAD_ERROR_NAME },
+  );
+}
+
+/** Collects `name`/`code` values across an error, its cause chain and aggregated errors. */
+function collectErrorSignals(error: unknown, seen = new Set<unknown>()): { names: string[]; codes: string[] } {
+  const signals = { names: [] as string[], codes: [] as string[] };
+  if (!error || typeof error !== 'object' || seen.has(error)) {
+    return signals;
+  }
+  seen.add(error);
+  const candidate = error as { name?: unknown; code?: unknown; cause?: unknown; errors?: unknown };
+  if (typeof candidate.name === 'string') {
+    signals.names.push(candidate.name);
+  }
+  if (typeof candidate.code === 'string') {
+    signals.codes.push(candidate.code);
+  }
+  const nested = [candidate.cause, ...(Array.isArray(candidate.errors) ? candidate.errors : [])];
+  for (const inner of nested) {
+    const innerSignals = collectErrorSignals(inner, seen);
+    signals.names.push(...innerSignals.names);
+    signals.codes.push(...innerSignals.codes);
+  }
+  return signals;
+}
+
+export function classifyFetchError(error: unknown): CliErrorCode {
+  const { names, codes } = collectErrorSignals(error);
+  if (
+    names.some((name) => name === 'TimeoutError' || name === 'AbortError') ||
+    codes.some((code) => TIMEOUT_ERROR_CODES.has(code))
+  ) {
+    return CLI_ERROR_CODES.NETWORK_TIMEOUT;
+  }
+  if (codes.includes('ERR_INVALID_URL')) {
+    return CLI_ERROR_CODES.URL_FETCH_FAILED;
+  }
+  if (
+    codes.some((code) => CONNECTION_ERROR_CODES.has(code)) ||
+    (error instanceof TypeError && error.message === 'fetch failed')
+  ) {
+    return CLI_ERROR_CODES.CONNECTION_FAILED;
+  }
+  return CLI_ERROR_CODES.URL_FETCH_FAILED;
+}
+
+/**
+ * Maps a file read failure to a CLI error. Missing files keep the historical
+ * `ErrorLoadingSpec` error; other failures report what actually went wrong.
+ */
+function fileReadError(filepath: string, error: unknown): Error {
+  const code =
+    error && typeof error === 'object' && typeof (error as { code?: unknown }).code === 'string'
+      ? (error as { code: string }).code
+      : undefined;
+  if (code === 'ENOENT' || code === 'ENOTDIR') {
+    return new ErrorLoadingSpec('file', filepath);
+  }
+  let cliCode: CliErrorCode = CLI_ERROR_CODES.FILE_READ_FAILED;
+  let message = `${filepath} file could not be read: ${getErrorMessage(error)}`;
+  if (code === 'EACCES' || code === 'EPERM') {
+    cliCode = CLI_ERROR_CODES.FILE_PERMISSION_DENIED;
+    message = `${filepath} file could not be read: permission denied.`;
+  } else if (code === 'EISDIR') {
+    message = `${filepath} is a directory, not a file.`;
+  }
+  return Object.assign(
+    new ApplicationError(cliCode, message, {
+      cause: error,
+      details: { path: filepath, systemCode: code ?? null },
+    }),
+    { name: FILE_LOAD_ERROR_NAME },
+  );
 }
 
 export default class SpecificationFile {

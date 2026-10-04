@@ -14,7 +14,7 @@ const invalidFile = './test/fixtures/specification-invalid.yml';
 const asyncapiv3 = './test/fixtures/specification-v3.yml';
 
 describe('optimize', () => {
-  describe('no optimization needed', () => {
+  describe('move-all-only optimization', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
     });
@@ -35,8 +35,8 @@ describe('optimize', () => {
       .stderr()
       .stdout()
       .command(['optimize', optimizedFilePath])
-      .it('works when file path is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`🎉 Great news! Your file at ${optimizedFilePath} is already optimized.`);
+      .it('applies move-all when a file path is passed', (ctx, done) => {
+        expect(ctx.stdout).to.contain('📄 Here is your optimized AsyncAPI document:');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -55,8 +55,8 @@ describe('optimize', () => {
       .stderr()
       .stdout()
       .command(['optimize', 'http://localhost:8080/dummySpecWithoutSecurity.yml'])
-      .it('works when url is passed', (ctx, done) => {
-        expect(ctx.stdout).to.contain('🎉 Great news! Your file at http://localhost:8080/dummySpecWithoutSecurity.yml is already optimized.');
+      .it('applies move-all when a URL is passed', (ctx, done) => {
+        expect(ctx.stdout).to.contain('📄 Here is your optimized AsyncAPI document:');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -86,7 +86,7 @@ describe('optimize', () => {
       .stdout()
       .command(['optimize'])
       .it('converts from current context', (ctx, done) => {
-        expect(ctx.stdout).to.contain(`🎉 Great news! Your file at ${path.resolve(__dirname, '../fixtures/specification.yml')} is already optimized.`);
+        expect(ctx.stdout).to.contain('📄 Here is your optimized AsyncAPI document:');
         expect(ctx.stderr).to.equal('');
         done();
       });
@@ -129,6 +129,46 @@ describe('optimize', () => {
   });
 
   describe('no-tty flag', () => {
+    test
+      .stub(inquirer, 'prompt', (stub) => stub.rejects(new Error('prompted in JSON mode')))
+      .stderr()
+      .stdout()
+      .command(['optimize', unoptimizedYamlFile, '--json'])
+      .it('returns structured output without prompting', (ctx, done) => {
+        const result = JSON.parse(ctx.stdout);
+        expect(result.status).to.equal('success');
+        expect(result.data.source).to.deep.equal({
+          input: unoptimizedYamlFile,
+          kind: 'file',
+          resolved: path.resolve(unoptimizedYamlFile),
+        });
+        expect(result.data.optimized).to.equal(true);
+        expect(result.data.applied).to.include(Optimizations.MOVE_ALL_TO_COMPONENTS);
+        expect(result.data.ignored).to.deep.equal([]);
+        expect(result.data.report).to.be.an('array');
+        expect(result.data.document).to.be.an('object');
+        expect(result.data.output).to.equal(null);
+        expect(result.data.warnings).to.deep.equal([]);
+        done();
+      });
+
+    test
+      .stdout()
+      .do(() => fs.removeSync('./test/fixtures/dummyspec/unoptimizedSpec_optimized.yml'))
+      .command(['optimize', unoptimizedYamlFile, '--json', '--output=new-file'])
+      .it('returns an absolute written-file descriptor', (ctx, done) => {
+        const result = JSON.parse(ctx.stdout);
+        const outputPath = path.resolve('./test/fixtures/dummyspec/unoptimizedSpec_optimized.yml');
+        expect(result.data.document).to.equal(null);
+        expect(result.data.output).to.deep.equal({
+          path: outputPath,
+          format: 'yaml',
+          overwritten: false,
+        });
+        fs.removeSync(outputPath);
+        done();
+      });
+
     test
       .stderr()
       .stdout()
@@ -184,9 +224,21 @@ describe('optimize', () => {
     test
       .stderr()
       .stdout()
+      .command(['optimize', './test/fixtures/dummyspec/not-asyncapi.yml', '--json'])
+      .it('preserves optimizer parser diagnostics in structured errors', (ctx, done) => {
+        const result = JSON.parse(ctx.stdout);
+        expect(result.status).to.equal('error');
+        expect(result.errors[0].code).to.equal('DOCUMENT_PARSE_FAILED');
+        expect(result.data.details).to.be.an('array').with.length.greaterThan(0);
+        done();
+      });
+
+    test
+      .stderr()
+      .stdout()
       .command(['optimize',invalidFile])
-      .it('give ValidationError', (ctx, done) => {
-        expect(ctx.stderr).to.contain(`ValidationError: Syntax Error in "${invalidFile}".`);
+      .it('propagates OptimizerParseError', (ctx, done) => {
+        expect(ctx.stderr).to.contain('OptimizerParseError: Parsing failed.');
         expect(ctx.stdout).to.equal('');
         done();
       });
@@ -196,13 +248,12 @@ describe('optimize', () => {
       .stderr()
       .stdout()
       .command(['optimize', './test/fixtures/dummyspec/not-asyncapi.yml'])
-      .it('surfaces parser diagnostics then ValidationError when the asyncapi version field is missing', (ctx, done) => {
+      .it('surfaces parser diagnostics with OptimizerParseError when the asyncapi version field is missing', (ctx, done) => {
         expect(ctx.stdout).to.equal('');
-        expect(ctx.stderr).to.contain('ValidationError: Syntax Error in "./test/fixtures/dummyspec/not-asyncapi.yml".');
+        expect(ctx.stderr).to.contain('OptimizerParseError: Parsing failed.');
         expect(ctx.stderr).to.contain('This is not an AsyncAPI document.');
         expect(ctx.stderr).to.contain('field as string is missing');
         done();
       });
   });
 });
-

@@ -2,6 +2,10 @@ import { Help, Hook, toConfiguredId } from '@oclif/core';
 import { confirm } from '@clack/prompts';
 import chalk from 'chalk';
 import { default as levenshtein } from 'fast-levenshtein';
+import { CLI_ERROR_CODES, EXIT_CODES } from '../../../../../errors/error-codes';
+
+const isJsonRequested = (argv: string[] = []): boolean =>
+  argv.includes('--json') || process.argv.slice(2).includes('--json');
 
 export const closest = (target: string, possibilities: string[]): string =>
   possibilities
@@ -49,6 +53,19 @@ const hook: Hook.CommandNotFound = async function (opts) {
 
   let readableSuggestion = toConfiguredId(suggestion, this.config);
   const originalCmd = toConfiguredId(opts.id, this.config);
+
+  if (isJsonRequested(opts.argv)) {
+    const message = `${originalCmd} is not a ${opts.config.bin} command. Did you mean ${readableSuggestion}?`;
+    process.stdout.write(`${JSON.stringify({
+      status: 'error',
+      message,
+      data: { command: originalCmd, suggestion: readableSuggestion },
+      errors: [{ code: CLI_ERROR_CODES.COMMAND_NOT_FOUND, message }],
+    })}\n`);
+    process.exitCode = EXIT_CODES.COMMAND_NOT_FOUND;
+    return;
+  }
+
   this.warn(
     `${chalk.yellow(originalCmd)} is not a ${opts.config.bin} command.`,
   );
@@ -87,7 +104,7 @@ const hook: Hook.CommandNotFound = async function (opts) {
 
   this.error(
     `Run ${chalk.bold.cyan(binHelp)} for a list of available commands.`,
-    { exit: 127 },
+    { exit: EXIT_CODES.COMMAND_NOT_FOUND },
   );
 };
 

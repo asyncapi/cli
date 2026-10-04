@@ -1,20 +1,24 @@
 import { SpecificationFileNotFound } from '@errors/specification-file';
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 import bundle from '@asyncapi/bundler';
-import { createServer } from 'http';
+import { createServer, Server } from 'node:http';
 import { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
-import open from 'open';
-import path from 'path';
+import path from 'node:path';
 import yaml from 'js-yaml';
 import { blueBright, redBright } from 'picocolors';
 import {
   DEFAULT_PORT,
   getStudioVersion,
   isValidFilePath,
+  listenOnPort,
+  openInBrowser,
   resolveStudioNextInstance,
   resolveStudioPath,
 } from '@models/studio-runtime';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES } from '@errors/error-codes';
+import { getErrorMessage } from '@utils/error-handler';
 
 export { DEFAULT_PORT } from '@models/studio-runtime';
 
@@ -30,11 +34,23 @@ export interface PreviewOptions {
   suppressLogs?: boolean;
   port?: number;
   noBrowser?: boolean;
+  quiet?: boolean;
   /** Resolved @asyncapi/studio path (from ensureStudio); falls back to lazy resolution. */
   studioPath?: string;
 }
 
-export function startPreview(filePath: string, options: PreviewOptions = {}): void {
+export interface PreviewStartResult {
+  server: Server;
+  host: string | null;
+  port: number;
+  url: string;
+  watchedFiles: string[];
+}
+
+export async function startPreview(
+  filePath: string,
+  options: PreviewOptions = {},
+): Promise<PreviewStartResult> {
   const {
     base,
     baseDirectory,
@@ -42,6 +58,7 @@ export function startPreview(filePath: string, options: PreviewOptions = {}): vo
     suppressLogs,
     port = DEFAULT_PORT,
     noBrowser,
+    quiet = false,
     studioPath,
   } = options;
 
@@ -56,6 +73,7 @@ export function startPreview(filePath: string, options: PreviewOptions = {}): vo
   const nextInstance = resolveStudioNextInstance(resolvedStudioPath);
   const app = nextInstance({
     dev: false,
+    quiet,
     dir: resolvedStudioPath,
     conf: {
       distDir: 'build',
@@ -75,81 +93,100 @@ export function startPreview(filePath: string, options: PreviewOptions = {}): vo
     sockets.splice(sockets.findIndex(s => s === socket));
   });
 
-  app.prepare().then(async () => {
-    let bundled = false;
+  try {
+    await app.prepare();
+  } catch (error) {
+    throw new ApplicationError(
+      CLI_ERROR_CODES.SERVER_START_FAILED,
+      `Failed to prepare Preview: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
+    );
+  }
 
-    try {
-      const doc = await bundle(filePath);
-      bundled = !!doc;
-    } catch (err) {
-      if (suppressLogs) {
-        console.log(defaultErrorMessage);
-      } else {
-        console.log(err);
-      }
+  try {
+    const doc = await bundle(filePath);
+    if (!doc) {
+      throw new Error(defaultErrorMessage);
     }
+  } catch (error) {
+    throw new ApplicationError(
+      CLI_ERROR_CODES.PREVIEW_BUNDLE_FAILED,
+      suppressLogs
+        ? defaultErrorMessage
+        : `Failed to bundle preview document: ${getErrorMessage(error)}`,
+      { cause: error },
+    );
+  }
 
-    if (filePath && bundled) {
-      messageQueue.push(JSON.stringify({
-        type: 'preview:connected',
-        code: 'Preview server connected'
-      }));
-      sendQueuedMessages();
-      findPathsToWatchFromSchemaRef(filePath, baseDir);
-      filePathsToWatch.add(resolvedFilePath);
-      chokidar.watch([...filePathsToWatch]).on('all',(event) => {
-        switch (event) {
-        case 'add':
-          bundle([filePath],{
-            base,
-            baseDir: baseDirectory,
-            xOrigin,
-          }).then((intitalDocument) => {
-            messageQueue.push(JSON.stringify({
-              type: 'preview:file:added',
-              code: (path.extname(filePath) === '.yaml' || path.extname(filePath) === '.yml') ? 
-                intitalDocument.yml() : intitalDocument.string()
-            }));
-            sendQueuedMessages();
-          }).catch((e) => {
-            if (suppressLogs) {
-              console.log(defaultErrorMessage);
-            } else {
-              console.log(e);
-            }
-          });
-          break;
-        case 'change':
-          bundle([filePath],{
-            base,
-            baseDir: baseDirectory,
-            xOrigin,
-          }).then((modifiedDocument) => {
-            messageQueue.push(JSON.stringify({
-              type: 'preview:file:changed',
-              code: (path.extname(filePath) === '.yaml' || path.extname(filePath) === '.yml') ? 
-                modifiedDocument.yml() : modifiedDocument.string()
-            }));
-            sendQueuedMessages();
-          }).catch((error) => {
-            if (suppressLogs) {
-              console.log(defaultErrorMessage);
-            } else {
-              console.log(error);
-            }
-          });
-          break;      
-        case 'unlink':
+  if (filePath) {
+    messageQueue.push(JSON.stringify({
+      type: 'preview:connected',
+      code: 'Preview server connected'
+    }));
+    sendQueuedMessages();
+    findPathsToWatchFromSchemaRef(filePath, baseDir);
+    filePathsToWatch.add(resolvedFilePath);
+    chokidar.watch([...filePathsToWatch]).on('all',(event) => {
+      switch (event) {
+      case 'add':
+        bundle([filePath],{
+          base,
+          baseDir: baseDirectory,
+          xOrigin,
+        }).then((intitalDocument) => {
           messageQueue.push(JSON.stringify({
-            type: 'preview:file:deleted',
-            filePath,
+            type: 'preview:file:added',
+            code: (path.extname(filePath) === '.yaml' || path.extname(filePath) === '.yml') ?
+              intitalDocument.yml() : intitalDocument.string()
           }));
           sendQueuedMessages();
-          break;
-        }
-      });
-    }
+        }).catch((e) => {
+          if (quiet) {
+            return;
+          }
+          if (suppressLogs) {
+            console.log(defaultErrorMessage);
+          } else {
+            console.log(e);
+          }
+        });
+        break;
+      case 'change':
+        bundle([filePath],{
+          base,
+          baseDir: baseDirectory,
+          xOrigin,
+        }).then((modifiedDocument) => {
+          messageQueue.push(JSON.stringify({
+            type: 'preview:file:changed',
+            code: (path.extname(filePath) === '.yaml' || path.extname(filePath) === '.yml') ?
+              modifiedDocument.yml() : modifiedDocument.string()
+          }));
+          sendQueuedMessages();
+        }).catch((error) => {
+          if (quiet) {
+            return;
+          }
+          if (suppressLogs) {
+            console.log(defaultErrorMessage);
+          } else {
+            console.log(error);
+          }
+        });
+        break;
+      case 'unlink':
+        messageQueue.push(JSON.stringify({
+          type: 'preview:file:deleted',
+          filePath,
+        }));
+        sendQueuedMessages();
+        break;
+      }
+    });
+  }
 
+  return new Promise((resolve, reject) => {
+    let listenPort = port;
     const server = createServer((req, res) => {
       if (req.url === '/close') {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -170,30 +207,33 @@ export function startPreview(filePath: string, options: PreviewOptions = {}): vo
     server.on('upgrade', (request, socket, head) => {
       const origin = request.headers.origin;
       const allowedOrigins = new Set([
-        `http://localhost:${port}`,
-        `http://127.0.0.1:${port}`,
+        `http://localhost:${listenPort}`,
+        `http://127.0.0.1:${listenPort}`,
       ]);
 
       if (request.url === '/preview-server' && origin && allowedOrigins.has(origin)) {
-        console.log('🔗 WebSocket connection established for the preview.');
+        if (!quiet) {
+          console.log('🔗 WebSocket connection established for the preview.');
+        }
         wsServer.handleUpgrade(request, socket, head, (sock: any) => {
           wsServer.emit('connection', sock, request);
         });
       } else {
-        console.log('🔗 WebSocket connection not established.');
+        if (!quiet) {
+          console.log('🔗 WebSocket connection not established.');
+        }
         socket.destroy();
       }
     });
     
-    if (bundled) {
-      server.listen(port, () => {
-        const previewServerAddr = server.address();
-        const currentPort = (previewServerAddr && typeof previewServerAddr === 'object' && 'port' in previewServerAddr) ? (previewServerAddr as any).port : port;
-        const url = `http://localhost:${currentPort}?previewServer=${currentPort}&studio-version=${getStudioVersion(resolvedStudioPath)}`;
+    listenOnPort(server, port, 'Preview').then(({ host, port: boundPort }) => {
+      listenPort = boundPort;
+      const url = `http://localhost:${listenPort}?previewServer=${listenPort}&studio-version=${getStudioVersion(resolvedStudioPath)}`;
+      if (!quiet) {
         console.log(`🎉 Connected to Preview Server running at ${blueBright(url)}.`);
         console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
         console.log(`🛑 If needed, press ${redBright('Ctrl + C')} to stop the server.`);
-        
+
         if (filePath) {
           for (const entry of filePathsToWatch) {
             console.log(`👁️ Watching changes on file ${blueBright(entry)}`);
@@ -203,20 +243,18 @@ export function startPreview(filePath: string, options: PreviewOptions = {}): vo
             'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
           );
         }
-        if (!noBrowser) {
-          open(url);
-        }
-      }).on('error', (error) => {
-        if (error.message.includes('EADDRINUSE')) {
-          console.log(error);
-          console.error(redBright(`Error: Port ${port} is already in use.`));
-          // eslint-disable-next-line no-process-exit
-          process.exit(1);
-        } else {
-          console.error(`Failed to start server on port ${port}:`, 'cause',error.cause, '\n', 'name', error.name , '\n' , 'stack' , error.stack , '\n', 'message',error.message);
-        }
-      }); 
-    }
+      }
+      if (!noBrowser) {
+        openInBrowser(url, quiet);
+      }
+      resolve({
+        server,
+        host,
+        port: listenPort,
+        url,
+        watchedFiles: [...filePathsToWatch],
+      });
+    }, reject);
   });
 }
 

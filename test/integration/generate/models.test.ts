@@ -24,6 +24,19 @@ describe('models', () => {
       );
       done();
     });
+
+  test
+    .stdout()
+    .command([...generalOptions, 'typescript', './test/fixtures/specification.yml', '--json'])
+    .it('returns generated models as structured output', (ctx, done) => {
+      const result = JSON.parse(ctx.stdout);
+      expect(result.status).to.equal('success');
+      expect(result.data.language).to.equal('typescript');
+      expect(result.data.models).to.be.an('array').with.length.greaterThan(0);
+      expect(result.data.generatedFiles).to.deep.equal([]);
+      expect(result.data.diagnostics).to.be.an('array');
+      done();
+    });
   
   test
     .stderr()

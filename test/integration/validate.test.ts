@@ -4,10 +4,30 @@ import { test } from '@oclif/test';
 import { NO_CONTEXTS_SAVED } from '../../src/errors/context-error';
 import TestHelper, {createMockServer, stopMockServer } from '../helpers/index';
 import { expect } from '@oclif/test';
+import chokidar from 'chokidar';
+import sinon from 'sinon';
 
 const testHelper = new TestHelper();
 
 describe('validate', () => {
+  test
+    .stub(chokidar, 'watch', (stub) => stub.returns({ on: sinon.stub() } as any))
+    .stderr()
+    .stdout()
+    .command(['validate', './test/fixtures/valid-specification-latest.yml', '--watch', '--json'])
+    .it('emits one compact watch.started result in JSON mode', (ctx) => {
+      const lines = ctx.stdout.trim().split('\n');
+      expect(lines).to.have.length(1);
+      const event = JSON.parse(lines[0]);
+      expect(Object.keys(event)).to.have.members(['status', 'message', 'data', 'errors']);
+      expect(event.data.event).to.equal('watch.started');
+      expect(event.data.watchedFiles).to.deep.equal([
+        './test/fixtures/valid-specification-latest.yml',
+      ]);
+      expect(event.status).to.equal('success');
+      expect(ctx.stderr).to.equal('');
+    });
+
   describe('with file paths', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
@@ -259,7 +279,7 @@ describe('validate', () => {
       .command(['validate', './test/fixtures/specification.yml', '--fail-severity=warn'])
       .it('works with --fail-severity', (ctx, done) => {
         expect(ctx.stderr).to.contain('File ./test/fixtures/specification.yml and/or referenced documents have governance issues.');
-        expect(process.exitCode).to.equal(1);
+        expect(process.exitCode).to.equal(11);
         done();
       });
   });
