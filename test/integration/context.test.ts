@@ -263,6 +263,101 @@ describe('config:context, negative scenario', () => {
         }
       );
   });
+
+  describe('config:context:current', () => {
+    testHelper.deleteDummyContextFile();
+    testHelper.createDummyContextFileWrong('{}');
+    test
+      .stderr()
+      .stdout()
+      .command(['config:context:current'])
+      .it(
+        'should throw error on file with empty object saying that context file has wrong format.',
+        (ctx, done) => {
+          expect(ctx.stdout).to.equals('');
+          expect(ctx.stderr).to.contain(
+            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
+          );
+          done();
+        }
+      );
+  });
+
+  describe('config:context:list', () => {
+    testHelper.deleteDummyContextFile();
+    testHelper.createDummyContextFileWrong('{}');
+    test
+      .stderr()
+      .stdout()
+      .command(['config:context:list'])
+      .it(
+        'should throw error on file with empty object saying that context file has wrong format.',
+        (ctx, done) => {
+          expect(ctx.stdout).to.equals('');
+          expect(ctx.stderr).to.contain(
+            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
+          );
+          done();
+        }
+      );
+  });
+
+  describe('config:context:edit', () => {
+    testHelper.deleteDummyContextFile();
+    testHelper.createDummyContextFileWrong('{}');
+    test
+      .stderr()
+      .stdout()
+      .command(['config:context:edit', 'home', './test/specification.yml'])
+      .it(
+        'should throw error on file with empty object saying that context file has wrong format.',
+        (ctx, done) => {
+          expect(ctx.stdout).to.equals('');
+          expect(ctx.stderr).to.contain(
+            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
+          );
+          done();
+        }
+      );
+  });
+
+  describe('config:context:use', () => {
+    testHelper.deleteDummyContextFile();
+    testHelper.createDummyContextFileWrong('{}');
+    test
+      .stderr()
+      .stdout()
+      .command(['config:context:use', 'home'])
+      .it(
+        'should throw error on file with empty object saying that context file has wrong format.',
+        (ctx, done) => {
+          expect(ctx.stdout).to.equals('');
+          expect(ctx.stderr).to.contain(
+            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
+          );
+          done();
+        }
+      );
+  });
+
+  describe('config:context:remove', () => {
+    testHelper.deleteDummyContextFile();
+    testHelper.createDummyContextFileWrong('{}');
+    test
+      .stderr()
+      .stdout()
+      .command(['config:context:remove', 'home'])
+      .it(
+        'should throw error on file with empty object saying that context file has wrong format.',
+        (ctx, done) => {
+          expect(ctx.stdout).to.equals('');
+          expect(ctx.stderr).to.contain(
+            `ContextError: Context file "${CONTEXT_FILE_PATH}" has wrong format.`
+          );
+          done();
+        }
+      );
+  });
 });
 
 describe('config:context, negative scenario', () => {
