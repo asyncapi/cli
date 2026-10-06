@@ -3,7 +3,6 @@ import Command from '@cli/internal/base';
 import { editContext, CONTEXT_FILE_PATH } from '@models/Context';
 import {
   MissingContextFileError,
-  ContextFileWrongFormatError,
   ContextFileEmptyError,
 } from '@errors/context-error';
 import { helpFlag } from '@cli/internal/flags/global.flags';
@@ -34,9 +33,7 @@ export default class ContextEdit extends Command {
         `🎉 Context ${blueBright(contextName)} edited successfully!\nYou can set it as your current context:\n  ${blueBright('asyncapi')} ${blueBright('config')} ${blueBright('context')} ${blueBright('use')} ${blueBright(contextName)}\nYou can use this context when needed by passing ${blueBright(contextName)} as a parameter:\n  ${blueBright('asyncapi')} ${blueBright('validate')} ${blueBright(contextName)}`,
       );
     } catch (e) {
-      if (
-        e instanceof (MissingContextFileError || ContextFileWrongFormatError)
-      ) {
+      if (e instanceof MissingContextFileError) {
         this.error(
           `Unable to edit context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`,
         );
