@@ -223,7 +223,7 @@ Use following commands to run and test github action locally:
 1. Build docker image of github action for cli
 
   ```bash
-    npm run action:docker:build
+    pnpm action:docker:build
   ```
 
 2. Execute docker image with proper arguments

@@ -54,34 +54,27 @@ jobs:
         run: test -e ./package.json && echo "exists=true" >> "$GITHUB_OUTPUT" || echo "exists=false" >> "$GITHUB_OUTPUT"
         shell: bash
       - if: steps.packagejson.outputs.exists == 'true'
-        name: Determine what node version to use
-        # This workflow is from our own org repo and safe to reference by 'master'.
-        uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master # //NOSONAR
-        with:
-          node-version: ${{ vars.NODE_VERSION }}
-        id: lockversion
+        name: Setup pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
       - if: steps.packagejson.outputs.exists == 'true'
         name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "${{ steps.lockversion.outputs.version }}"
-      - if: steps.lockversion.outputs.version == '18' && matrix.os == 'windows-latest'
-        #npm cli 10 is buggy because of some cache issue
-        name: Install npm cli 8
-        shell: bash
-        run: npm install -g npm@8.19.4
+          node-version: 24
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
       - if: steps.packagejson.outputs.exists == 'true'
         name: Install dependencies
         shell: bash
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - if: steps.packagejson.outputs.exists == 'true'
         name: Test
-        run: npm test --if-present
+        run: pnpm run --if-present test
       - if: steps.packagejson.outputs.exists == 'true' && matrix.os == 'ubuntu-latest'
         #linting should run just one and not on all possible operating systems
         name: Run linter
-        run: npm run lint --if-present
+        run: pnpm run --if-present lint
       - if: steps.packagejson.outputs.exists == 'true'
         name: Run release assets generation to make sure PR does not break it
         shell: bash
-        run: npm run generate:assets --if-present
+        run: pnpm run --if-present generate:assets

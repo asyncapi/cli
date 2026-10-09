@@ -40,8 +40,8 @@ If the automatic setup does not work or if you need to enable autocomplete manua
 1. **Build the AsyncAPI CLI manually:**
    If you are working with the CLI project locally, you need to build it first:
    ```sh
-   npm install
-   npm run build
+   pnpm install
+   pnpm build
    ```
 
 2. **Run the autocomplete command manually:**
@@ -74,4 +74,3 @@ If the automatic setup does not work or if you need to enable autocomplete manua
 ---
 
 If you encounter any issues, ensure that your shell configuration file is correctly updated and sourced. Restart your terminal if necessary.
-

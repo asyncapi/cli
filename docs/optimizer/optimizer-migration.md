@@ -18,8 +18,8 @@ also shipped **optimizer v2**, a deliberate breaking change for people who use t
 
 - **Monorepo** — one git repo containing multiple publishable packages (here: root `@asyncapi/cli` plus
   `packages/optimizer`).
-- **npm workspaces** — the feature that symlinks local packages together, so the CLI's
-  `"@asyncapi/optimizer": "*"` resolves to `packages/optimizer/` on disk instead of downloading from npm.
+- **pnpm workspaces** — the `pnpm-workspace.yaml` configuration that links local packages together, so the CLI's
+  `"@asyncapi/optimizer": "workspace:*"` resolves to `packages/optimizer/` on disk instead of downloading from npm.
 - **Turborepo (`turbo`)** — orders builds/tests across packages (builds the optimizer before the CLI that
   imports it).
 - **peerDependency** — a dependency the consumer must install themselves. In v2, `@asyncapi/parser` is a peer of
@@ -73,7 +73,7 @@ also shipped **optimizer v2**, a deliberate breaking change for people who use t
 
 ## How releases work now
 
-The CLI stays at the repo root. Workspaces are `[".", "packages/*"]` so Changesets versions **both**
+The CLI stays at the repo root. `pnpm-workspace.yaml` includes `.` and `packages/*`, so Changesets versions **both**
 `@asyncapi/cli` (same `npx changeset` flow as today) and `@asyncapi/optimizer`.
 
 1. A PR includes a `.changeset/*.md` entry. Name `@asyncapi/cli` and/or `@asyncapi/optimizer`.
@@ -86,11 +86,11 @@ publish from this repo.
 ## For maintainers: working on the optimizer locally
 
 ```bash
-npm install                 # links the workspace
-npm run optimizer:build     # build just the optimizer
-npm run optimizer:test      # test just the optimizer
-npm test                    # optimizer + CLI + GitHub Action tests (PR CI)
-npm run build               # full CLI build (builds optimizer first)
+pnpm install                # links the workspace
+pnpm optimizer:build        # build just the optimizer
+pnpm optimizer:test         # test just the optimizer
+pnpm test                   # optimizer + CLI + GitHub Action tests (PR CI)
+pnpm build                  # full CLI build (builds optimizer first)
 ```
 
 ## References

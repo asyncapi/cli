@@ -19,9 +19,9 @@
     "get:version": "echo $npm_package_version",
     "get:name": "echo $npm_package_name",
     "generate:readme:toc": "doctoc --notitle README.md",
-    "generate:assets": "npm run build && npm run docs && npm run generate:readme:toc",
-    "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
-    "prepublishOnly": "npm run build"
+    "generate:assets": "pnpm build && pnpm docs && pnpm generate:readme:toc",
+    "bump:version": "pnpm version --no-git-tag-version --allow-same-version $VERSION",
+    "prepublishOnly": "pnpm build"
   },
   "repository": {
     "type": "git",

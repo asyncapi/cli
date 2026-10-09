@@ -30,8 +30,8 @@ AsyncAPI offers many ways to reuse certain parts of the document like messages o
 1. Clone the CLI monorepo
    `git clone https://github.com/asyncapi/cli.git`
 2. Install the dependencies from the repo root
-   `npm i`
-3. Build this package with `npm run optimizer:build`, or from `packages/optimizer` run `npm run example`. You can open `examples/index.js` and modify it or add your own AsyncAPI document.
+   `pnpm install`
+3. Build this package with `pnpm optimizer:build`, or from `packages/optimizer` run `pnpm example`. You can open `examples/index.js` and modify it or add your own AsyncAPI document.
 
 ## Usage
 
