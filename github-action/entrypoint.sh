@@ -26,24 +26,24 @@ PARAMETERS="$7"
 CUSTOM_COMMAND="$8"
 
 echo "::group::Debug information"
-# Check if currently running in Developer environment by checking for presence of ./bin/run or ../bin/run and set alias asyncapi= PATH_TO_BIN/RUN
+# Check if currently running in Developer environment by checking for presence of ./bin/run or ../bin/run.
 if [[ -f "$workdir/bin/run" ]]; then
   echo -e "${BLUE}Running in developer environment...${NC}"
-  echo -e "${BLUE}Setting alias for asyncapi:${NC}" "$workdir/bin/run"
-  shopt -s expand_aliases
-  alias asyncapi="$workdir/bin/run"
+  echo -e "${BLUE}Using local asyncapi:${NC}" "$workdir/bin/run"
+  ASYNCAPI_DEV_BIN="$workdir/bin/run"
+  asyncapi() { "$ASYNCAPI_DEV_BIN" "$@"; }
 elif [[ -f "$workdir/../bin/run" ]]; then
   echo -e "${BLUE}Running in developer environment...${NC}"
-  echo -e "${BLUE}Setting alias for asyncapi:${NC}" "$workdir/../bin/run"
-  shopt -s expand_aliases
-  alias asyncapi="$workdir/../bin/run"
+  echo -e "${BLUE}Using local asyncapi:${NC}" "$workdir/../bin/run"
+  ASYNCAPI_DEV_BIN="$workdir/../bin/run"
+  asyncapi() { "$ASYNCAPI_DEV_BIN" "$@"; }
 elif [[ -n "$CLI_VERSION" && ! "$CLI_VERSION" == "latest" ]]; then
   echo -e "${BLUE}CLI version:${NC}" "$CLI_VERSION"
   # Check if the CLI version is already installed or not
   if [[ -z $(command -v -- asyncapi) ]]; then
     output=''
   else
-    output=$(asyncapi --version >/dev/null 2>&1)
+    output=$(asyncapi --version 2>/dev/null)
   fi
   # output @asyncapi/cli/1.1.1 linux-x64 node-v20.8.1
   version=$(echo "$output" | cut -d' ' -f1 | cut -d '/' -f3)
@@ -51,12 +51,12 @@ elif [[ -n "$CLI_VERSION" && ! "$CLI_VERSION" == "latest" ]]; then
     echo -e "${BLUE}AsyncAPI CLI already installed:${NC}" "$CLI_VERSION" "...skipping"
   else 
     echo -e "${BLUE}Installing AsyncAPI CLI:${NC}" "$CLI_VERSION"
-    npm install -g @asyncapi/cli@$CLI_VERSION
+    pnpm add --global @asyncapi/cli@$CLI_VERSION --ignore-scripts
   fi
 else
   if [[ -z $(command -v -- asyncapi) ]]; then
     echo -e "${RED}No CLI installation found. Installing the latest one"
-    npm install -g @asyncapi/cli
+    pnpm add --global @asyncapi/cli --ignore-scripts
   fi
   echo -e "${BLUE}CLI version:${NC}" "latest"
 fi
@@ -100,7 +100,7 @@ handle_validate () {
   fi
 
   echo -e "${BLUE}Executing command:${NC}" "asyncapi validate $FILEPATH $PARAMETERS"
-  eval "asyncapi validate $FILEPATH $PARAMETERS"
+  eval "asyncapi validate \"$FILEPATH\" $PARAMETERS"
   echo "::endgroup::"
 }
 
@@ -114,7 +114,7 @@ handle_optimize () {
   fi
 
   echo -e "${BLUE}Executing command:${NC}" "asyncapi optimize $FILEPATH $PARAMETERS"
-  eval "asyncapi optimize $FILEPATH $PARAMETERS"
+  eval "asyncapi optimize \"$FILEPATH\" $PARAMETERS"
   echo "::endgroup::"
 }
 
@@ -137,10 +137,10 @@ handle_generate () {
   echo "::group::Debug information"
   if [[ -n "$LANGUAGE" ]]; then
     echo -e "${BLUE}Executing command:${NC}" "asyncapi generate models $LANGUAGE $FILEPATH -o $OUTPUT $PARAMETERS"
-    eval "asyncapi generate models $LANGUAGE $FILEPATH -o $OUTPUT $PARAMETERS"
+    eval "asyncapi generate models \"$LANGUAGE\" \"$FILEPATH\" -o \"$OUTPUT\" $PARAMETERS"
   elif [[ -n "$TEMPLATE" ]]; then
     echo -e "${BLUE}Executing command:${NC}" "asyncapi generate fromTemplate $FILEPATH $TEMPLATE -o $OUTPUT $PARAMETERS"
-    eval "asyncapi generate fromTemplate $FILEPATH $TEMPLATE -o $OUTPUT $PARAMETERS"  
+    eval "asyncapi generate fromTemplate \"$FILEPATH\" \"$TEMPLATE\" -o \"$OUTPUT\" $PARAMETERS"
   else
     echo -e "${RED}Invalid configuration:${NC} Either language or template must be specified."
     exit 1
@@ -159,7 +159,7 @@ handle_convert () {
 
   if [[ -z "$OUTPUT" ]]; then
     echo -e "${BLUE}Executing command:${NC}" "asyncapi convert $FILEPATH $PARAMETERS"
-    eval "asyncapi convert $FILEPATH $PARAMETERS"
+    eval "asyncapi convert \"$FILEPATH\" $PARAMETERS"
   else
     # Create the output directory if it doesn't exist
     output_dir=$(dirname "$OUTPUT")
@@ -170,7 +170,7 @@ handle_convert () {
     fi
 
     echo -e "${BLUE}Executing command:${NC}" "asyncapi convert $FILEPATH -o $OUTPUT $PARAMETERS"
-    eval "asyncapi convert $FILEPATH -o $OUTPUT $PARAMETERS"
+    eval "asyncapi convert \"$FILEPATH\" -o \"$OUTPUT\" $PARAMETERS"
   fi
 }
 

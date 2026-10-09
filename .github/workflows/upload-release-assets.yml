@@ -17,33 +17,33 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            npm_script: pack:linux
+            pnpm_script: pack:linux
             dist_folder: deb
             extension: deb
           - os: ubuntu-latest
-            npm_script: pack:tarballs
+            pnpm_script: pack:tarballs
             dist_folder: tar
             extension: tar.gz
           - os: ubuntu-latest
-            npm_script: pack:tarballs:alpine
+            pnpm_script: pack:tarballs:alpine
             dist_folder: tar
             extension: alpine.tar.gz
-            container: 'node:20-alpine'
+            container: 'node:24-alpine'
             alpine: true
           - os: ubuntu-latest
-            npm_script: pack:windows
+            pnpm_script: pack:windows
             dist_folder: win32
             extension: x64.exe
           - os: ubuntu-latest
-            npm_script: pack:windows
+            pnpm_script: pack:windows
             dist_folder: win32
             extension: x86.exe
           - os: macos-latest
-            npm_script: pack:macos
+            pnpm_script: pack:macos
             dist_folder: macos
             extension: arm64.pkg
           - os: macos-latest
-            npm_script: pack:macos
+            pnpm_script: pack:macos
             dist_folder: macos
             extension: x64.pkg
     
@@ -51,32 +51,32 @@ jobs:
     
     steps:
       - name: Install base tools for alpine container
-        if: matrix.container == 'node:20-alpine'
+        if: matrix.container == 'node:24-alpine'
         run: |
           apk add --no-cache bash git python3 make g++ perl-utils xz
+          corepack enable
 
       - name: Checkout repository
         uses: actions/checkout@v4
 
       # Needed to avoid "fatal: detected dubious ownership in repository" error when using alpine container
       - name: Mark GitHub workspace as safe
-        if: matrix.container == 'node:20-alpine'
+        if: matrix.container == 'node:24-alpine'
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       
-      - name: Check package-lock version
+      - name: Set up pnpm
         if: matrix.container == ''
-        uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master
-        id: lockversion
-        with:
-          node-version: ${{ vars.NODE_VERSION }}
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
       
       - name: Setup Node.js
         if: matrix.container == ''
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "${{ steps.lockversion.outputs.version }}"
+          node-version: 24
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Get version from package.json
         uses: actions/github-script@v6
@@ -86,29 +86,24 @@ jobs:
             const packageJson = require('./package.json');
             const packageJsonVersion = packageJson.version;
             core.setOutput('version', packageJsonVersion);
-      - if: matrix.npm_script == 'pack:windows'
+      - if: matrix.pnpm_script == 'pack:windows'
         #fix for windows build issue #1433
         name: Install p7zip-full nsis
         run: sudo apt-get install -y p7zip-full nsis
 
-      - if: matrix.npm_script == 'pack:windows'
-        #npm cli 10 is buggy because of some cache issue
-        name: Install npm cli 10
-        shell: bash
-        run: npm install -g npm@latest
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - name: Build project
         shell: bash
-        run: npm run prepublishOnly
+        run: pnpm prepublishOnly
       - name: Assets generation
         shell: bash
         run: |
-          npm run ${{ matrix.npm_script }}
+          pnpm ${{ matrix.pnpm_script }}
           if [[ "${{ matrix.alpine }}" == "true" ]]; then
-            npm run pack:rename alpine
+            pnpm pack:rename alpine
           else
-            npm run pack:rename
+            pnpm pack:rename
           fi
       
       - name: Update release

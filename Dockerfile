@@ -1,13 +1,15 @@
 FROM node:24-alpine AS build
 
+RUN corepack enable
+
 # Copy the source code
 COPY ./ /tmp/source_code
 
 # Install dependencies
-RUN cd /tmp/source_code && npm install --ignore-scripts
+RUN cd /tmp/source_code && pnpm install --frozen-lockfile --ignore-scripts
 
 # Build the source code
-RUN cd /tmp/source_code && npm run build
+RUN cd /tmp/source_code && pnpm build
 
 # create libraries directory
 RUN mkdir -p /libraries
@@ -16,7 +18,8 @@ RUN mkdir -p /libraries
 RUN cp -r /tmp/source_code/lib /libraries
 RUN cp -r /tmp/source_code/assets /libraries
 RUN cp /tmp/source_code/package.json /libraries
-RUN cp /tmp/source_code/package-lock.json /libraries
+RUN cp /tmp/source_code/pnpm-lock.yaml /libraries
+RUN cp /tmp/source_code/pnpm-workspace.yaml /libraries
 RUN cp /tmp/source_code/oclif.manifest.json /libraries
 
 # Copy the bin directory to the /libraries directory
@@ -25,13 +28,15 @@ RUN cp -r /tmp/source_code/bin /libraries
 # package.json "postinstall" points at scripts/enableAutoComplete.js — copy it so npm cannot fail looking for it
 RUN cp -r /tmp/source_code/scripts /libraries
 
-# Copy workspace packages (incl. the built @asyncapi/optimizer) so the "*" workspace dependency
+# Copy workspace packages, including the built @asyncapi/optimizer
 RUN cp -r /tmp/source_code/packages /libraries/packages
 
 # Remove everything inside /tmp
 RUN rm -rf /tmp/*
 
 FROM node:24-alpine
+
+RUN corepack enable
 
 # Set ARG to explicit value to build chosen version. Default is "latest"
 ARG ASYNCAPI_CLI_VERSION=
@@ -59,13 +64,12 @@ RUN apk --update add --no-cache git chromium && \
 # Copy the libraries directory from the build stage
 COPY --from=build /libraries /libraries
 
-# Install production dependencies, then deduplicate and clean the npm cache to
+# Install production dependencies and clean the pnpm store to
 # reduce the final image size. @asyncapi/studio/next are not installed here
 # because they are no longer runtime dependencies (installed on-demand instead).
 RUN cd /libraries && \
-    npm install --omit=dev --ignore-scripts && \
-    npm dedupe --ignore-scripts && \
-    npm cache clean --force
+    pnpm install --prod --frozen-lockfile --ignore-scripts && \
+    pnpm store prune
 
 # Create a script that runs the desired command
 RUN ln -s /libraries/bin/run_bin /usr/local/bin/asyncapi
