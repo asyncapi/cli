@@ -2,10 +2,15 @@ import { promises as fPromises, readFileSync } from 'fs';
 import Command from '@cli/internal/base';
 import inquirer from 'inquirer';
 import { start as startStudio, DEFAULT_PORT } from '@models/Studio';
+import { ensureStudio } from '@models/studio-installer';
 import { resolve } from 'path';
 import { load } from '@models/SpecificationFile';
 import { cyan } from 'picocolors';
 import { fileFlags } from '@cli/internal/flags/new/file.flags';
+import {
+  getSpecFileExtension,
+  isAllowedSpecExtension,
+} from '@utils/spec-file';
 
 const { writeFile, readFile } = fPromises;
 const DEFAULT_ASYNCAPI_FILE_NAME = 'asyncapi.yaml';
@@ -66,7 +71,8 @@ export default class NewFile extends Command {
 
     if (flags.studio) {
       if (isTTY) {
-        startStudio(fileName, flags.port || DEFAULT_PORT);
+        const studioPath = await ensureStudio(this.config, { yes: flags.yes });
+        startStudio(fileName, flags.port || DEFAULT_PORT, undefined, studioPath);
       } else {
         this.warn(
           'Warning: --studio flag was passed but the terminal is not interactive. Ignoring...',
@@ -160,7 +166,8 @@ export default class NewFile extends Command {
     await this.createAsyncapiFile(fileName, selectedTemplate);
     fileName = fileName.includes('.') ? fileName : `${fileName}.yaml`;
     if (openStudio) {
-      startStudio(fileName, flags.port || DEFAULT_PORT);
+      const studioPath = await ensureStudio(this.config, { yes: flags.yes });
+      startStudio(fileName, flags.port || DEFAULT_PORT, undefined, studioPath);
     }
   }
 
@@ -175,9 +182,9 @@ export default class NewFile extends Command {
     if (!fileName.includes('.')) {
       fileNameToWriteToDisk = `${fileName}.yaml`;
     } else {
-      const extension = fileName.split('.')[1];
+      const extension = getSpecFileExtension(fileName);
 
-      if (extension === 'yml' || extension === 'yaml' || extension === 'json') {
+      if (isAllowedSpecExtension(extension)) {
         fileNameToWriteToDisk = fileName;
       } else {
         console.log('CLI Support only yml, yaml and json extension for file');

@@ -195,7 +195,7 @@ export async function runWatchMode(
     watcher = new Watcher(watchDir, ignorePaths);
   }
 
-  if (!await thisArg.isLocalTemplate(path.resolve(generatorClass.DEFAULT_TEMPLATES_DIR, templateName))) {
+  if (!await isLocalTemplate(path.resolve(generatorClass.DEFAULT_TEMPLATES_DIR, templateName))) {
     thisArg.warn(`WARNING: ${template} is a remote template. Changes may be lost on subsequent installations.`);
   }
 

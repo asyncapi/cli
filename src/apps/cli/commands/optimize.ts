@@ -1,5 +1,5 @@
 import { Args } from '@oclif/core';
-import { Optimizer, Output, Report, ReportElement } from '@asyncapi/optimizer';
+import { Optimizer, Output, Report, ReportElement, OptimizerParseError } from '@asyncapi/optimizer';
 import Command from '@cli/internal/base';
 import { ValidationError } from '@errors/validation-error';
 import { load, retrieveFileFormat } from '@models/SpecificationFile';
@@ -65,6 +65,43 @@ export default class Optimize extends Command {
       flags['proxyHost'],
       flags['proxyPort']
     );
+    await this.loadSpecFile(filePath);
+    const specFile = this.requireSpecFile();
+    const { optimizer, report } = await this.buildOptimizerReport(specFile);
+
+    this.isInteractive = !flags['no-tty'];
+    this.selectedOptimizations = flags.optimization as Optimizations[];
+    this.disableOptimizations = flags.ignore as DisableOptimizations[];
+    this.outputMethod = flags.output as Outputs;
+    this.metricsMetadata.optimized = false;
+
+    if (!this.hasAvailableOptimizations(report)) {
+      this.log(
+        `🎉 Great news! Your file at ${specFile.getFilePath() ?? specFile.getFileURL()} is already optimized.`,
+      );
+      return;
+    }
+
+    if (this.isInteractive && process.stdout.isTTY) {
+      await this.interactiveRun(report);
+    }
+
+    await this.writeOptimizedDocument(optimizer, report, specFile);
+  }
+
+  private requireSpecFile() {
+    const specFile = this.specFile;
+    if (!specFile) {
+      this.error(
+        new ValidationError({
+          type: 'no-spec-found',
+        }),
+      );
+    }
+    return specFile;
+  }
+
+  private async loadSpecFile(filePath: string | undefined): Promise<void> {
     try {
       this.specFile = await load(filePath);
     } catch (err: any) {
@@ -72,78 +109,79 @@ export default class Optimize extends Command {
         throw new Error(
           'Proxy Connection Error: Unable to establish a connection to the proxy check hostName or PortNumber.',
         );
-      } else if (filePath) {
+      }
+      if (filePath) {
         this.error(
           new ValidationError({
             type: 'invalid-file',
             filepath: filePath,
           }),
         );
-      } else {
-        this.error(
-          new ValidationError({
-            type: 'no-spec-found',
-          }),
-        );
       }
-    }
-
-    let optimizer: Optimizer;
-    let report: Report;
-    try {
-      optimizer = new Optimizer(this.specFile.text());
-      report = await optimizer.getReport();
-    } catch {
       this.error(
         new ValidationError({
-          type: 'invalid-syntax-file',
-          filepath: this.specFile.getFilePath(),
+          type: 'no-spec-found',
         }),
       );
     }
-    this.isInteractive = !flags['no-tty'];
-    this.selectedOptimizations = flags.optimization as Optimizations[];
-    this.disableOptimizations = flags.ignore as DisableOptimizations[];
-    this.outputMethod = flags.output as Outputs;
-    this.metricsMetadata.optimized = false;
+  }
 
-    if (
-      !(
-        report.moveDuplicatesToComponents?.length ||
-        report.removeComponents?.length ||
-        report.reuseComponents?.length
-      )
-    ) {
-      this.log(
-        `🎉 Great news! Your file at ${this.specFile.getFilePath() ?? this.specFile.getFileURL()} is already optimized.`,
-      );
-      return;
-    }
-
-    const isTTY = process.stdout.isTTY;
-    if (this.isInteractive && isTTY) {
-      await this.interactiveRun(report);
-    }
-
+  private async buildOptimizerReport(specFile: NonNullable<Optimize['specFile']>): Promise<{ optimizer: Optimizer; report: Report[] }> {
     try {
-      const fileFormat = retrieveFileFormat(this.specFile.text());
+      const optimizer = new Optimizer(specFile.text());
+      const report = await optimizer.getReport();
+      return { optimizer, report };
+    } catch (err) {
+      if (err instanceof OptimizerParseError && err.details) {
+        this.logToStderr(
+          typeof err.details === 'string'
+            ? err.details
+            : JSON.stringify(err.details, null, 2),
+        );
+      }
+      this.error(
+        new ValidationError({
+          type: 'invalid-syntax-file',
+          filepath: specFile.getFilePath(),
+        }),
+      );
+    }
+  }
+
+  private hasAvailableOptimizations(report: Report[]): boolean {
+    return Boolean(
+      this.getElements(report, 'moveDuplicatesToComponents').length ||
+        this.getElements(report, 'removeComponents').length ||
+        this.getElements(report, 'reuseComponents').length,
+    );
+  }
+
+  private async writeOptimizedDocument(
+    optimizer: Optimizer,
+    report: Report[],
+    specFile: NonNullable<Optimize['specFile']>,
+  ): Promise<void> {
+    const selectedOptimizations = this.selectedOptimizations ?? [];
+    const disableOptimizations = this.disableOptimizations ?? [];
+    try {
+      const fileFormat = retrieveFileFormat(specFile.text());
       let optimizedDocument = optimizer.getOptimizedDocument({
         rules: {
-          moveDuplicatesToComponents: this.selectedOptimizations.includes(
+          moveDuplicatesToComponents: selectedOptimizations.includes(
             Optimizations.MOVE_DUPLICATES_TO_COMPONENTS,
           ),
-          moveAllToComponents: this.selectedOptimizations.includes(
+          moveAllToComponents: selectedOptimizations.includes(
             Optimizations.MOVE_ALL_TO_COMPONENTS,
           ),
-          removeComponents: this.selectedOptimizations.includes(
+          removeComponents: selectedOptimizations.includes(
             Optimizations.REMOVE_COMPONENTS,
           ),
-          reuseComponents: this.selectedOptimizations.includes(
+          reuseComponents: selectedOptimizations.includes(
             Optimizations.REUSE_COMPONENTS,
           ),
         },
         disableOptimizationFor: {
-          schema: this.disableOptimizations.includes(
+          schema: disableOptimizations.includes(
             DisableOptimizations.SCHEMA,
           ),
         },
@@ -155,7 +193,7 @@ export default class Optimize extends Command {
 
       this.collectMetricsData(report);
 
-      const specPath = this.specFile.getFilePath();
+      const specPath = specFile.getFilePath();
       let newPath = '';
 
       if (specPath) {
@@ -193,6 +231,10 @@ export default class Optimize extends Command {
     }
   }
 
+  private getElements(report: Report[], type: string): ReportElement[] {
+    return report.find((group) => group.type === type)?.elements ?? [];
+  }
+
   private showOptimizations(elements: ReportElement[] | undefined) {
     if (!elements) {
       return;
@@ -216,56 +258,60 @@ export default class Optimize extends Command {
     this.log('\n');
   }
 
-  private async interactiveRun(report: Report) {
-    const canMoveDuplicates = report.moveDuplicatesToComponents?.length;
-    const canMoveAll = report.moveAllToComponents?.length;
-    const canRemove = report.removeComponents?.length;
-    const canReuse = report.reuseComponents?.length;
+  private async interactiveRun(report: Report[]) {
+    const moveAll = this.getElements(report, 'moveAllToComponents');
+    const moveDuplicates = this.getElements(report, 'moveDuplicatesToComponents');
+    const remove = this.getElements(report, 'removeComponents');
+    const reuse = this.getElements(report, 'reuseComponents');
+    const canMoveDuplicates = moveDuplicates.length;
+    const canMoveAll = moveAll.length;
+    const canRemove = remove.length;
+    const canReuse = reuse.length;
     const choices = [];
 
     if (canMoveAll) {
-      const totalMove = report.moveAllToComponents?.filter(
+      const totalMove = moveAll.filter(
         (e: ReportElement) => e.action === 'move',
       ).length;
       this.log(
         `${chalk.green(totalMove)} components can be moved to the components sections.\nthe following changes will be made:`,
       );
-      this.showOptimizations(report.moveAllToComponents);
+      this.showOptimizations(moveAll);
       choices.push({
         name: 'move all $refs to components section',
         value: Optimizations.MOVE_ALL_TO_COMPONENTS,
       });
     }
     if (canMoveDuplicates) {
-      const totalMove = report.moveDuplicatesToComponents?.filter(
+      const totalMove = moveDuplicates.filter(
         (e: ReportElement) => e.action === 'move',
       ).length;
       this.log(
         `\n${chalk.green(totalMove)} components can be moved to the components sections.\nthe following changes will be made:`,
       );
-      this.showOptimizations(report.moveDuplicatesToComponents);
+      this.showOptimizations(moveDuplicates);
       choices.push({
         name: 'move to components section',
         value: Optimizations.MOVE_DUPLICATES_TO_COMPONENTS,
       });
     }
     if (canRemove) {
-      const totalMove = report.removeComponents?.length;
+      const totalMove = remove.length;
       this.log(
         `${chalk.green(totalMove)} unused components can be removed.\nthe following changes will be made:`,
       );
-      this.showOptimizations(report.removeComponents);
+      this.showOptimizations(remove);
       choices.push({
         name: 'remove components',
         value: Optimizations.REMOVE_COMPONENTS,
       });
     }
     if (canReuse) {
-      const totalMove = report.reuseComponents?.length;
+      const totalMove = reuse.length;
       this.log(
         `${chalk.green(totalMove)} components can be reused.\nthe following changes will be made:`,
       );
-      this.showOptimizations(report.reuseComponents);
+      this.showOptimizations(reuse);
       choices.push({
         name: 'reuse components',
         value: Optimizations.REUSE_COMPONENTS,
@@ -325,8 +371,9 @@ export default class Optimize extends Command {
     this.outputMethod = outputRes.output;
   }
 
-  private collectMetricsData(report: Report) {
-    for (const availableOptimization in report) {
+  private collectMetricsData(report: Report[]) {
+    for (const group of report) {
+      const availableOptimization = group.type;
       const availableOptimizationKebabCase = availableOptimization
         .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
         .toLowerCase(); // optimization flags are kebab case

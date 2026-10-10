@@ -1,5 +1,44 @@
 # @asyncapi/cli
 
+## 6.2.0
+
+### Minor Changes
+
+- cce4855: Migrate `@asyncapi/optimizer` into the AsyncAPI CLI monorepo (`packages/optimizer/`) and release it as **v2**.
+
+  Breaking for direct library consumers: errors are now typed classes with a stable `.code`
+  (`OptimizerError` + subclasses / `OptimizerErrorCode`) instead of plain `Error` + `console.error`;
+  `getReport()` now returns `{ type, elements }[]`; `@asyncapi/parser` is now a `peerDependency`. The
+  optimization algorithm and `getOptimizedDocument()` behaviour are unchanged.
+
+  The `asyncapi optimize` command consumes the v2 `Report[]` shape. CLI user-facing flags and output
+  are unchanged.
+
+### Patch Changes
+
+- Updated dependencies [cce4855]
+  - @asyncapi/optimizer@2.0.0
+
+## 6.1.0
+
+### Minor Changes
+
+- 6e03827: feat: reduce install/image size by making AsyncAPI Studio an on-demand dependency
+
+  `@asyncapi/studio` (and its transitive `next`) is no longer a runtime dependency — it is now a `devDependency`, so end-user (`npm install -g`) and Docker (`--omit=dev`) installs are ~450MB smaller, while its version stays tracked and locked for development. The first time you run `start studio`, `start preview`, or `new --studio` without Studio present, the CLI installs it on-demand into its data directory (the version is read from the CLI's declared `@asyncapi/studio` range). Studio can also be downloaded ahead of time with `asyncapi studio install`. Pass `--yes`/`-y` (or set `ASYNCAPI_STUDIO_AUTO_INSTALL=1`) to install it without a prompt in non-interactive environments. Standalone installations now report an actionable error when npm is unavailable. The dead `generator-v2` dependency was also removed and the Docker image was slimmed further (removed the unused build toolchain, kept chromium for PDF generation).
+
+## 6.0.2
+
+### Patch Changes
+
+- c3a77ba: fix: skip request body validation gracefully instead of throwing error for unsupported paths
+
+## 6.0.1
+
+### Patch Changes
+
+- e6e6c95: Fix GitHub URL parsing for branches with slashes and file extension detection for multi-dot filenames
+
 ## 6.0.0
 
 ### Major Changes

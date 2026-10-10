@@ -1,5 +1,5 @@
 import { SpecificationFileNotFound } from '@errors/specification-file';
-import { existsSync,readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import bundle from '@asyncapi/bundler';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
@@ -8,53 +8,55 @@ import open from 'open';
 import path from 'path';
 import yaml from 'js-yaml';
 import { blueBright, redBright } from 'picocolors';
-import { version as studioVersion } from '@asyncapi/studio/package.json';
+import {
+  DEFAULT_PORT,
+  getStudioVersion,
+  isValidFilePath,
+  resolveStudioNextInstance,
+  resolveStudioPath,
+} from '@models/studio-runtime';
+
+export { DEFAULT_PORT } from '@models/studio-runtime';
 
 const sockets: any[] = [];
 const messageQueue: string[] = [];
 const filePathsToWatch: Set<string> = new Set<string>();
 const defaultErrorMessage = 'error occured while bundling files. use --detailedLog or -l flag to get more details.';
 
-let bundleError = true;
-
-export const DEFAULT_PORT = 0;
-
-function isValidFilePath(filePath: string): boolean {
-  return existsSync(filePath);
+export interface PreviewOptions {
+  base?: string;
+  baseDirectory?: string;
+  xOrigin?: boolean;
+  suppressLogs?: boolean;
+  port?: number;
+  noBrowser?: boolean;
+  /** Resolved @asyncapi/studio path (from ensureStudio); falls back to lazy resolution. */
+  studioPath?: string;
 }
 
-type NextFactory = (config?: any) => any;
+export function startPreview(filePath: string, options: PreviewOptions = {}): void {
+  const {
+    base,
+    baseDirectory,
+    xOrigin,
+    suppressLogs,
+    port = DEFAULT_PORT,
+    noBrowser,
+    studioPath,
+  } = options;
 
-// Using require here is necessary for dynamic module resolution
-function resolveStudioNextInstance(studioPath: string): NextFactory {
-  const resolvedNextPath = require.resolve('next', { paths: [studioPath] });
-  const nextModule = require(resolvedNextPath);
-  return nextModule.default ?? nextModule;
-}
- 
-export function startPreview(filePath:string,base:string | undefined,baseDirectory:string | undefined ,xOrigin:boolean | undefined,suppressLogs:boolean|undefined,port: number = DEFAULT_PORT, noBrowser?: boolean):void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
   
-  const baseDir = path.dirname(path.resolve(filePath));
-  bundle(filePath).then((doc) => {
-    if (doc) {
-      bundleError = false;
-    }
-  }).catch((err) => {
-    if (suppressLogs) {
-      console.log(defaultErrorMessage);
-    } else {
-      console.log(err);
-    }
-  });
+  const resolvedFilePath = path.resolve(filePath);
+  const baseDir = path.dirname(resolvedFilePath);
 
-  const studioPath = path.dirname(require.resolve('@asyncapi/studio/package.json'));
-  const nextInstance = resolveStudioNextInstance(studioPath);
+  const resolvedStudioPath = studioPath ?? resolveStudioPath('Preview');
+  const nextInstance = resolveStudioNextInstance(resolvedStudioPath);
   const app = nextInstance({
     dev: false,
-    dir: studioPath,
+    dir: resolvedStudioPath,
     conf: {
       distDir: 'build',
     } as any,
@@ -73,15 +75,28 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
     sockets.splice(sockets.findIndex(s => s === socket));
   });
 
-  app.prepare().then(() => {
-    if (filePath && !bundleError) {
+  app.prepare().then(async () => {
+    let bundled = false;
+
+    try {
+      const doc = await bundle(filePath);
+      bundled = !!doc;
+    } catch (err) {
+      if (suppressLogs) {
+        console.log(defaultErrorMessage);
+      } else {
+        console.log(err);
+      }
+    }
+
+    if (filePath && bundled) {
       messageQueue.push(JSON.stringify({
         type: 'preview:connected',
         code: 'Preview server connected'
       }));
       sendQueuedMessages();
-      findPathsToWatchFromSchemaRef(filePath,baseDir);
-      filePathsToWatch.add(path.resolve(baseDir, filePath));
+      findPathsToWatchFromSchemaRef(filePath, baseDir);
+      filePathsToWatch.add(resolvedFilePath);
       chokidar.watch([...filePathsToWatch]).on('all',(event) => {
         switch (event) {
         case 'add':
@@ -153,7 +168,13 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
     });
 
     server.on('upgrade', (request, socket, head) => {
-      if (request.url === '/preview-server' && request.headers['origin'] === `http://localhost:${port}`) {
+      const origin = request.headers.origin;
+      const allowedOrigins = new Set([
+        `http://localhost:${port}`,
+        `http://127.0.0.1:${port}`,
+      ]);
+
+      if (request.url === '/preview-server' && origin && allowedOrigins.has(origin)) {
         console.log('🔗 WebSocket connection established for the preview.');
         wsServer.handleUpgrade(request, socket, head, (sock: any) => {
           wsServer.emit('connection', sock, request);
@@ -164,11 +185,11 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
       }
     });
     
-    if (!bundleError) {
+    if (bundled) {
       server.listen(port, () => {
         const previewServerAddr = server.address();
         const currentPort = (previewServerAddr && typeof previewServerAddr === 'object' && 'port' in previewServerAddr) ? (previewServerAddr as any).port : port;
-        const url = `http://localhost:${currentPort}?previewServer=${currentPort}&studio-version=${studioVersion}`;
+        const url = `http://localhost:${currentPort}?previewServer=${currentPort}&studio-version=${getStudioVersion(resolvedStudioPath)}`;
         console.log(`🎉 Connected to Preview Server running at ${blueBright(url)}.`);
         console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
         console.log(`🛑 If needed, press ${redBright('Ctrl + C')} to stop the server.`);
@@ -182,7 +203,7 @@ export function startPreview(filePath:string,base:string | undefined,baseDirecto
             'Warning: No file was provided, and we couldn\'t find a default file (like "asyncapi.yaml" or "asyncapi.json") in the current folder. Starting Studio with a blank workspace.'
           );
         }
-        if (!bundleError && !noBrowser) {
+        if (!noBrowser) {
           open(url);
         }
       }).on('error', (error) => {

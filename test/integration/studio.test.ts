@@ -1,32 +1,66 @@
-import { test } from '@oclif/test';
-import { expect } from '@oclif/test';
-import { testPreview, testStudio, closeStudioServer } from '../helpers/index';
+import path from 'path';
+import { expect } from 'chai';
+import { start as startStudio } from '../../src/domains/models/Studio';
+import { startPreview } from '../../src/domains/models/Preview';
+import {
+  isChromeAvailable,
+  testPreview,
+  testStudio,
+  waitForServer,
+} from '../helpers/index';
 
-describe('Test live studio', () => {
-  test
-    .stdout()
-    .command([
-      'start studio','-B','-p','3210','./test/fixtures/specification-v3.yml',
-    ]).finally(async () => {
-      await closeStudioServer(3210);
-    })
-    .it('should successfully open and navigate the site', async () => {
-      const {logoTitle} = await testStudio();
-      expect(logoTitle).to.equal('AsyncAPI Logo');
-    });
+function isStudioInstalled(): boolean {
+  try {
+    const studioPath = path.dirname(
+      require.resolve('@asyncapi/studio/package.json'),
+    );
+    require.resolve('next', { paths: [studioPath] });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+describe('Test live studio', function () {
+  this.timeout(120000);
+
+  const port = 3210;
+
+  before(async function () {
+    if (!isStudioInstalled() || !(await isChromeAvailable())) {
+      this.skip();
+    }
+
+    startStudio('./test/fixtures/specification-v3.yml', port, true);
+    await waitForServer(port);
+  });
+
+  it('should successfully open and navigate the site', async () => {
+    const { logoTitle } = await testStudio(port);
+    expect(logoTitle).to.equal('AsyncAPI Logo');
+  });
 });
 
-describe('Test preview mode', () => {
-  test
-    .stdout()
-    .command([
-      'start preview','-B','-p','4321','./test/fixtures/asyncapi_v2.yml',
-    ]).finally(async () => {
-      await closeStudioServer(4321);
-    })
-    .it('should successfully open and navigate the site', async () => {
-      const {logoTitle,introductionSectionId} = await testPreview();
-      expect(logoTitle).to.equal('AsyncAPI Logo');
-      expect(introductionSectionId).to.equal('introduction');
+describe('Test preview mode', function () {
+  this.timeout(120000);
+
+  const port = 4321;
+
+  before(async function () {
+    if (!isStudioInstalled() || !(await isChromeAvailable())) {
+      this.skip();
+    }
+
+    startPreview('./test/fixtures/asyncapi_v2.yml', {
+      port,
+      noBrowser: true,
     });
+    await waitForServer(port);
+  });
+
+  it('should successfully open and navigate the site', async () => {
+    const { logoTitle, introductionSectionId } = await testPreview(port);
+    expect(logoTitle).to.equal('AsyncAPI Logo');
+    expect(introductionSectionId).to.equal('introduction');
+  });
 });
