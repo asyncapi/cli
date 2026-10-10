@@ -1,4 +1,3 @@
- 
 import { Args } from '@oclif/core';
 import * as diff from '@asyncapi/diff';
 import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
@@ -163,9 +162,10 @@ export default class Diff extends Command {
     } catch (error) {
       if (
         error instanceof DiffBreakingChangeError ||
-        error instanceof TypeError
+        error instanceof TypeError ||
+        error instanceof ValidationError
       ) {
-        this.error(error);
+        this.error(error as Error);
       }
       throw new ValidationError({
         type: 'parser-error',
@@ -190,7 +190,7 @@ export default class Diff extends Command {
 
   async writeOutputToFile(diffOutput: AsyncAPIDiff, outputType: string, filePath: string, outputFormat: string) {
     let content: string;
-    
+
     if (outputFormat === 'json') {
       if (outputType === 'breaking') {
         content = JSON.stringify(diffOutput.breaking(), null, 2);
@@ -210,7 +210,7 @@ export default class Diff extends Command {
     } else {
       content = `The output format ${outputFormat} is not supported at the moment.`;
     }
-    
+
     try {
       await fs.writeFile(filePath, content);
       this.log(`Output successfully written to: ${filePath}`);
@@ -247,7 +247,7 @@ export default class Diff extends Command {
     if (!firstResult.success || !secondResult.success) {
       this.error(
         new ValidationError({
-          type: 'invalid-file',
+          type: 'parser-error',
           filepath: firstDocument.getFilePath() || secondDocument.getFilePath(),
           err: firstResult.error || secondResult.error,
         }),
