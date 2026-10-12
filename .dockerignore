@@ -1,5 +1,34 @@
+# Dependencies (reinstalled inside the image)
 node_modules
 npm-debug.log
+
+# Docker
 Dockerfile
 .dockerignore
+
+# VCS
 .git
+.gitignore
+.gitattributes
+
+# Tests, coverage and build output (not needed in the image)
+test
+coverage
+output
+.nyc_output
+
+# Docs and project meta
+docs
+.github
+.changeset
+*.md
+
+# Regenerated at build time
+assets/examples
+
+# Editor / tooling config
+.vscode
+.idea
+.editorconfig
+.prettierrc
+eslint.config.mjs
