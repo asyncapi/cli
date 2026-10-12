@@ -95,7 +95,7 @@
     "nodemon": "^3.1.11",
     "puppeteer": "^24.33.0",
     "rimraf": "^6.1.2",
-    "simple-git": "^3.30.0",
+    "simple-git": "^4.0.1",
     "sinon": "^22.0.0",
     "supertest": "^7.1.4",
     "ts-node": "^10.9.2",
