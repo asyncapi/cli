@@ -24,8 +24,9 @@ COPY ./scripts ./scripts
 COPY openapi.yaml ./
 COPY *.json ./
 
-# 4. Build the workspace optimizer first (api:build compiles optimize.ts, which imports it), then the API
+# 4. Build workspace libraries before api:build compiles commands that import them
 RUN npm run optimizer:build
+RUN npm run diff:build
 RUN npm run api:build
 
 # ---- Templates stage ----
@@ -54,7 +55,7 @@ COPY --from=build /app/lib ./lib
 # Copy package files
 COPY --from=build /app/package*.json ./
 
-# Copy workspace packages (incl. the built @asyncapi/optimizer) so the "*" workspace dependency
+# Copy workspace packages (built @asyncapi/optimizer and @asyncapi/diff) so "*" workspace dependencies resolve
 COPY --from=build /app/packages ./packages
 
 # package.json "postinstall" points at scripts/enableAutoComplete.js — copy it so npm cannot fail looking for it
