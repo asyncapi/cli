@@ -16,7 +16,7 @@
     "packages/*"
   ],
   "dependencies": {
-    "@asyncapi/avro-schema-parser": "^3.0.24",
+    "@asyncapi/avro-schema-parser": "^3.1.0",
     "@asyncapi/bundler": "^1.0.1",
     "@asyncapi/converter": "^2.0.1",
     "@asyncapi/diff": "*",
