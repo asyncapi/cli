@@ -3,7 +3,6 @@ import Command from '@cli/internal/base';
 import { setCurrentContext, CONTEXT_FILE_PATH } from '@models/Context';
 import {
   MissingContextFileError,
-  ContextFileWrongFormatError,
   ContextFileEmptyError,
 } from '@errors/context-error';
 import { helpFlag } from '@cli/internal/flags/global.flags';
@@ -28,9 +27,7 @@ export default class ContextUse extends Command {
       await setCurrentContext(contextName);
       this.log(`Context ${blueBright(contextName)} is now set as current.`);
     } catch (e) {
-      if (
-        e instanceof (MissingContextFileError || ContextFileWrongFormatError)
-      ) {
+      if (e instanceof MissingContextFileError) {
         this.error(
           `Unable to set the current context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`,
         );
