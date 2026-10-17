@@ -32,15 +32,15 @@ export class ValidationError extends Error {
   private buildError(err: any) {
     const errorsInfo: Array<string> = [];
 
-    if (err.title) {
+    if (err?.title) {
       errorsInfo.push(err.title);
     }
 
-    if (err.detail) {
-      errorsInfo.push(err.details);
+    if (err?.detail) {
+      errorsInfo.push(err.detail);
     }
 
-    if (err.validationErrors) {
+    if (err?.validationErrors) {
       for (const e of err.validationErrors) {
         const errorHasTitle = !!e.title;
         const errorHasLocation = !!e.location;
@@ -64,6 +64,17 @@ export class ValidationError extends Error {
         }
       }
     }
+
+    if (errorsInfo.length === 0) {
+      if (typeof err === 'string' && err.trim().length > 0) {
+        errorsInfo.push(err);
+      } else if (err?.message && typeof err.message === 'string' && err.message.trim().length > 0) {
+        errorsInfo.push(err.message);
+      } else {
+        errorsInfo.push('Failed to parse document');
+      }
+    }
+
     this.message = errorsInfo.join('\n');
   }
 }
