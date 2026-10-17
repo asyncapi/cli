@@ -7,6 +7,18 @@ import sinon from 'sinon';
 import { logger, stream } from '../../../src/utils/logger';
 
 describe('logger utility', () => {
+  const logsPathInSrc = path.join(__dirname, '../../../src/utils/logs');
+  const logsPathInLib = path.join(__dirname, '../../../lib/utils/logs');
+
+  beforeEach(() => {
+    if (fs.existsSync(logsPathInSrc)) {
+      fs.rmSync(logsPathInSrc, { recursive: true, force: true });
+    }
+    if (fs.existsSync(logsPathInLib)) {
+      fs.rmSync(logsPathInLib, { recursive: true, force: true });
+    }
+  });
+
   afterEach(() => {
     sinon.restore();
   });
@@ -20,8 +32,6 @@ describe('logger utility', () => {
     });
 
     it('should not create an unused logs directory at module path', () => {
-      const logsPathInSrc = path.join(__dirname, '../../../src/utils/logs');
-      const logsPathInLib = path.join(__dirname, '../../../lib/utils/logs');
       expect(fs.existsSync(logsPathInSrc)).to.be.false;
       expect(fs.existsSync(logsPathInLib)).to.be.false;
     });
@@ -30,8 +40,10 @@ describe('logger utility', () => {
       const result = cp.spawnSync(
         process.execPath,
         [
+          '-r',
+          'ts-node/register',
           '-e',
-          'process.env.NODE_ENV = \'production\'; delete process.env.NODE_CONFIG_DIR; require(\'./lib/utils/logger\');',
+          'process.env.NODE_ENV = \'production\'; delete process.env.NODE_CONFIG_DIR; require(\'./src/utils/logger.ts\');',
         ],
         {
           cwd: path.resolve(__dirname, '../../../'),
