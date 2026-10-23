@@ -86,8 +86,10 @@ echo -e "${BLUE}Parameters:${NC}" "$PARAMETERS"
 echo "::endgroup::"
 
 handle_file_error () {
-  echo -e "${RED}Validation error: File not found:${NC}" "$1"
-  echo -e "skipping...\n"
+  local filepath="$1"
+  echo -e "${RED}Validation error: File not found:${NC}" "$filepath" >&2
+  echo -e "skipping...\n" >&2
+  return 0
 }
 
 handle_validate () {
@@ -102,6 +104,7 @@ handle_validate () {
   echo -e "${BLUE}Executing command:${NC}" "asyncapi validate $FILEPATH $PARAMETERS"
   eval "asyncapi validate $FILEPATH $PARAMETERS"
   echo "::endgroup::"
+  return 0
 }
 
 handle_optimize () {
@@ -116,6 +119,7 @@ handle_optimize () {
   echo -e "${BLUE}Executing command:${NC}" "asyncapi optimize $FILEPATH $PARAMETERS"
   eval "asyncapi optimize $FILEPATH $PARAMETERS"
   echo "::endgroup::"
+  return 0
 }
 
 handle_generate () {
@@ -146,6 +150,7 @@ handle_generate () {
     exit 1
   fi
   echo "::endgroup::"
+  return 0
 }
 
 handle_convert () {
@@ -172,6 +177,7 @@ handle_convert () {
     echo -e "${BLUE}Executing command:${NC}" "asyncapi convert $FILEPATH -o $OUTPUT $PARAMETERS"
     eval "asyncapi convert $FILEPATH -o $OUTPUT $PARAMETERS"
   fi
+  return 0
 }
 
 if [[ $COMMAND == "validate" ]]; then
