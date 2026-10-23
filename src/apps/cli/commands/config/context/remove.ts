@@ -3,7 +3,6 @@ import Command from '@cli/internal/base';
 import { removeContext, CONTEXT_FILE_PATH } from '@models/Context';
 import {
   MissingContextFileError,
-  ContextFileWrongFormatError,
   ContextFileEmptyError,
 } from '@errors/context-error';
 import { helpFlag } from '@cli/internal/flags/global.flags';
@@ -28,9 +27,7 @@ export default class ContextRemove extends Command {
       await removeContext(contextName);
       this.log(`Context ${blueBright(contextName)} removed successfully!\n`);
     } catch (e) {
-      if (
-        e instanceof (MissingContextFileError || ContextFileWrongFormatError)
-      ) {
+      if (e instanceof MissingContextFileError) {
         this.error(
           `Unable to remove context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`,
         );

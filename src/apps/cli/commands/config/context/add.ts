@@ -1,10 +1,7 @@
 import { Args } from '@oclif/core';
 import Command from '@cli/internal/base';
 import { addContext, setCurrentContext } from '@models/Context';
-import {
-  MissingContextFileError,
-  ContextFileWrongFormatError,
-} from '@errors/context-error';
+import { MissingContextFileError } from '@errors/context-error';
 import { addFlags } from '@cli/internal/flags/config/context.flags';
 import { blueBright } from 'picocolors';
 
@@ -41,9 +38,7 @@ export default class ContextAdd extends Command {
         );
       }
     } catch (e) {
-      if (
-        e instanceof (MissingContextFileError || ContextFileWrongFormatError)
-      ) {
+      if (e instanceof MissingContextFileError) {
         this.error(
           `Unable to add context. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.`,
         );
