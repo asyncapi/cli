@@ -1,11 +1,10 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { writeFileSync } from 'node:fs';
 import bundle from '@asyncapi/bundler';
 
-async function main() {
-  const document = await bundle([readFileSync('./main.yaml', 'utf-8')], {
-    xOrigin: true,
-  });
-  writeFileSync('asyncapi.yaml', document.yml());
+const document = await bundle(['./main.yaml'], {
+  xOrigin: true,
+});
+const yaml = document.yml();
+if (yaml) {
+  writeFileSync('asyncapi.yaml', yaml);
 }
-
-main().catch(e => console.error(e));

@@ -1,20 +1,14 @@
 /**
- * In case `.mjs` extension is used, Node.js will recognize ESM module system
- * automatically.
+ * Node treats a `.mjs` file as an ES module.
  */
 
-'use strict';
-
-import { writeFileSync } from 'fs';
+import { writeFileSync } from 'node:fs';
 import bundle from '@asyncapi/bundler';
 
-async function main() {
-  const document = await bundle(['./main.yaml'], {
-    xOrigin: true,
-  });
-  if (document.yml()) {
-    writeFileSync('asyncapi.yaml', document.yml());
-  }
+const document = await bundle(['./main.yaml'], {
+  xOrigin: true,
+});
+const yaml = document.yml();
+if (yaml) {
+  writeFileSync('asyncapi.yaml', yaml);
 }
-
-main().catch(e => console.error(e));

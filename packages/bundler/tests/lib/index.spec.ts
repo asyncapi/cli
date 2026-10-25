@@ -16,33 +16,27 @@ describe('[integration testing] bundler should ', () => {
     const response = await bundle(files, {
       base: path.resolve(process.cwd(), './tests/base.yml'),
     });
-    expect(response).toBeDefined();
+    expect(response.json()).toEqual(expect.objectContaining({
+      asyncapi: expect.any(String),
+    }));
   });
 
   test('should not throw if value of `$ref` is not a string', async () => {
     const files = ['./tests/wrong-ref-not-string.yaml'];
+    const document = await bundle(files, {
+      xOrigin: true,
+    });
 
-    // If async function `bundle()` resolved Promise successfully, that means it
-    // did not throw exception during process of execution, which is the
-    // objective of testing.
-    expect(
-      await bundle(files, {
-        xOrigin: true,
-      })
-    ).resolves;
+    expect(document.json()).toHaveProperty('asyncapi');
   });
 
   test('should not throw if value of `$ref` is absent', async () => {
     const files = ['./tests/wrong-ref-absent.yaml'];
+    const document = await bundle(files, {
+      xOrigin: true,
+    });
 
-    // If async function `bundle()` resolved Promise successfully, that means it
-    // did not throw exception during process of execution, which is the
-    // objective of testing.
-    expect(
-      await bundle(files, {
-        xOrigin: true,
-      })
-    ).resolves;
+    expect(document.json()).toHaveProperty('asyncapi');
   });
 
   test('should throw if external `$ref` cannot be resolved', async () => {
@@ -63,19 +57,19 @@ describe('[integration testing] bundler should ', () => {
       './tests/base-option/camera.yaml',
     ];
 
-    expect(
-      await bundle(files, {
-        base: path.resolve(process.cwd(), './tests/base-option/base.yaml'),
-        xOrigin: true,
-      })
-    ).resolves;
+    const document = await bundle(files, {
+      base: path.resolve(process.cwd(), './tests/base-option/base.yaml'),
+      xOrigin: true,
+    });
+
+    expect(document.json()).toHaveProperty('asyncapi');
   });
 
   test('should be able to change the baseDir folder', async () => {
     const files = ['main.yaml'];
-    expect(
-      await bundle(files, { baseDir: './tests/specfiles' })
-    ).resolves;
+    const document = await bundle(files, { baseDir: './tests/specfiles' });
+
+    expect(document.json()).toHaveProperty('channels');
   });
 
   test('should be able to bundle specification files in subdirectories and merge them into the base file', async () => {

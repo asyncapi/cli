@@ -15,7 +15,7 @@ import type { AsyncAPIObject } from './spec-types';
  */
 
 export class Document {
-  private _doc: AsyncAPIObject;
+  private readonly _doc: AsyncAPIObject;
 
   /**
    * @param {Object} AsyncAPIObject

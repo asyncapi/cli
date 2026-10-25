@@ -1,24 +1,17 @@
 /**
- * To use `.js` extension with CJS module system, make sure
- * `package.json`
- * DOES NOT contain line
- * `"type": "module",`
+ * `example/package.json` sets `"type": "module"`, so this `.js` file is ESM.
+ * The CommonJS sample is `bundle-cjs.cjs`.
  */
 
-'use strict';
+import { writeFileSync } from 'node:fs';
+import bundle from '@asyncapi/bundler';
 
-const { readFileSync, writeFileSync } = require('fs');
-const bundle = require('@asyncapi/bundler');
-
-async function main() {
-  const filePaths = ['./camera.yml', './audio.yml'];
-  const document = await bundle(filePaths, {
-    base: ['./base.yml'],
-    xOrigin: true,
-  });
-  if (document.yml()) {
-    writeFileSync('asyncapi.yaml', document.yml());
-  }
+const filePaths = ['./camera.yml', './audio.yml'];
+const document = await bundle(filePaths, {
+  base: ['./base.yml'],
+  xOrigin: true,
+});
+const yaml = document.yml();
+if (yaml) {
+  writeFileSync('asyncapi.yaml', yaml);
 }
-
-main().catch(e => console.error(e));

@@ -1,5 +1,5 @@
 const bundle = require('@asyncapi/bundler')
-const {readFileSync, writeFileSync} = require('fs')
+const {readFileSync, writeFileSync} = require('node:fs')
 
 async function main() {
     await singleFile()

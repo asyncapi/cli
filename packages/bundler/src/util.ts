@@ -1,5 +1,5 @@
-import { readFileSync } from 'fs';
-import path from 'path';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import yaml from 'js-yaml';
 import { merge } from 'lodash';
 import structuredClone from '@ungap/structured-clone';
@@ -15,15 +15,12 @@ export const toJS = (asyncapiYAMLorJSON: string | object) => {
   if (!asyncapiYAMLorJSON) {
     throw new ParserError({
       type: 'null-or-falsy-document',
-      title: "Document can't be null or falsey.", // eslint-disable-line
+      title: "Document can't be null or falsey.",
       code: BundlerErrorCode.INPUT_INVALID,
     });
   }
 
-  if (
-    asyncapiYAMLorJSON.constructor &&
-    asyncapiYAMLorJSON.constructor.name === 'Object'
-  ) {
+  if (asyncapiYAMLorJSON.constructor?.name === 'Object') {
     return asyncapiYAMLorJSON as AsyncAPIObject;
   }
 
@@ -48,7 +45,7 @@ export const toJS = (asyncapiYAMLorJSON: string | object) => {
 
 export function getSpecVersion(asyncapiDocument: AsyncAPIObject): number {
   const versionString = asyncapiDocument.asyncapi;
-  return parseInt(versionString, 10);
+  return Number.parseInt(versionString, 10);
 }
 
 /**
@@ -92,14 +89,15 @@ export const resolve = async (files: string | string[], options: Options) => {
     filePath.pop();
     filePath = filePath.join('/');
 
-    let readFile: any = readFileSync(file, 'utf-8'); // eslint-disable-line
+    let readFile: any = readFileSync(file, 'utf-8');
     readFile = toJS(readFile);
 
     if (filePath) {
       process.chdir(path.resolve(prevDir, filePath));
     }
 
-    readFile = await parse(readFile, getSpecVersion(readFile), options);
+    // Each file is parsed from its own directory. The next file waits until this directory is restored.
+    readFile = await parse(readFile, getSpecVersion(readFile), options); // NOSONAR
 
     parsedJsons.push(readFile);
 

@@ -1,14 +1,10 @@
 import type { JSONSchema7Version, JSONSchema7TypeName, JSONSchema7Type } from 'json-schema';
 
-export type AsyncAPIVersion = string;
-export type Identifier = string;
-export type DefaultContentType = string;
-
 export interface AsyncAPIObject extends SpecificationExtensions {
-  asyncapi: AsyncAPIVersion;
-  id?: Identifier;
+  asyncapi: string;
+  id?: string;
   info: InfoObject;
-  defaultContentType?: DefaultContentType;
+  defaultContentType?: string;
   servers?: ServersObject;
   channels: ChannelsObject;
   components?: ComponentsObject;
@@ -327,9 +323,8 @@ export type SecuritySchemeType =
 export type SecuritySchemaLocation = 
   | 'user' 
   | 'password' 
-  | 'query' 
-  | 'header' 
-  | 'header' 
+  | 'query'
+  | 'header'
   | 'cookie';
 
 export interface SecuritySchemeObjectBase extends SpecificationExtensions {

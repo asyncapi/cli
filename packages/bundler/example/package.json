@@ -8,7 +8,7 @@
     "start": "npm run start:cjs && npm run start:esm && npm run start:ts",
     "start:cjs": "node bundle-cjs.cjs",
     "start:esm": "node bundle-esm.mjs",
-    "start:ts": "ts-node bundle.ts"
+    "start:ts": "node --experimental-strip-types bundle.ts"
   },
   "keywords": [],
   "author": "",

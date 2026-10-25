@@ -1,0 +1,35 @@
+asyncapi: 3.0.0
+info:
+  title: Lighting Measured
+  version: 1.0.0
+channels:
+  lightingMeasured:
+    address: 'smartylighting/streetlights/1/0/event/{streetlightId}/lighting/measured'
+    messages:
+      lightMeasured:
+        $ref: '#/components/messages/lightMeasured'
+    description: The topic on which measured values may be produced and consumed.
+    parameters:
+      streetlightId:
+        description: The ID of the streetlight.
+operations:
+  receiveLightMeasurement:
+    action: receive
+    channel:
+      $ref: '#/channels/lightingMeasured'
+    summary: >-
+      Inform about environmental lighting conditions of a particular
+      streetlight.
+    messages:
+      - $ref: '#/channels/lightingMeasured/messages/lightMeasured'
+components:
+  messages:
+    lightMeasured:
+      name: lightMeasured
+      title: Light measured
+      summary: >-
+        Inform about environmental lighting conditions of a particular
+        streetlight.
+      contentType: application/json
+      payload:
+        $ref: ./schema.json

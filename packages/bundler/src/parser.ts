@@ -18,17 +18,13 @@ export async function parse(
   specVersion: number,
   options: BundlerOptions = {}
 ) {
-  /* eslint-disable indent */
-  // It is assumed that there will be major Spec versions 4, 5 and on.
+  // Later major versions can be added as cases. An unknown version falls through with no exclusions.
   switch (specVersion) {
     case 2:
       RefParserOptions = {
         dereference: {
           circular: false,
-          // prettier-ignore
-          excludedPathMatcher: (path: string): any => { // eslint-disable-line
-            return;
-          },
+          excludedPathMatcher: (): boolean => false,
           onDereference: (path: string, value: AsyncAPIObject) => {
             if (options.xOrigin === true) {
               value['x-origin'] = path;

@@ -1,30 +1,22 @@
 /**
- * To use `.js` extension with ESM module system, first add to
- * `package.json`
- * line
- * `"type": "module",`
+ * This file is ESM because `example/package.json` sets `"type": "module"`.
  */
 
-'use strict';
-
-import { writeFileSync } from 'fs';
+import { writeFileSync } from 'node:fs';
 import bundle from '@asyncapi/bundler';
 
-async function main() {
-  const files = [
-    'send/lightTurnOn/asyncapi.yaml',
-    'send/lightTurnOff/asyncapi.yaml',
-    'receive/lightingMeasured/asyncapi.yaml',
-  ];
+const files = [
+  'send/lightTurnOn/asyncapi.yaml',
+  'send/lightTurnOff/asyncapi.yaml',
+  'receive/lightingMeasured/asyncapi.yaml',
+];
 
-  const document = await bundle(files, {
-    base: 'index.yaml',
-    baseDir: 'example-with-nested-dirs/asyncapi',
-    xOrigin: false,
-  });
-  if (document.yml()) {
-    writeFileSync('bundled.yaml', document.yml());
-  }
+const document = await bundle(files, {
+  base: 'index.yaml',
+  baseDir: 'example-with-nested-dirs/asyncapi',
+  xOrigin: false,
+});
+const yaml = document.yml();
+if (yaml) {
+  writeFileSync('bundled.yaml', yaml);
 }
-
-main().catch(e => console.error(e));

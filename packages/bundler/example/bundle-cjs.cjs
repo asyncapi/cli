@@ -5,7 +5,7 @@
 
 'use strict';
 
-const { writeFileSync } = require('fs');
+const { writeFileSync } = require('node:fs');
 const bundle = require('@asyncapi/bundler');
 
 async function main() {

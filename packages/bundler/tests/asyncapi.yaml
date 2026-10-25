@@ -1,0 +1,19 @@
+asyncapi: 3.0.0
+info:
+  title: Account Service
+  version: 1.0.0
+  description: This service is in charge of processing user signups
+channels:
+  user/signedup:
+    address: user/signedup
+    messages:
+      subscribe.message:
+        $ref: tests/messages.yaml#/messages/UserSignedUp
+operations:
+  user/signedup.subscribe:
+    action: send
+    channel:
+      $ref: '#/channels/user~1signedup'
+    messages:
+      - $ref: tests/messages.yaml#/messages/UserSignedUp
+
