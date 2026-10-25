@@ -46,8 +46,6 @@ The library does not call `process.exit`. Messages and `error.name` stay as they
 | Base file version differs | `Error` | `BUNDLER_VERSION_MISMATCH` | `Base file has different major version than other specification files` |
 | `$ref` cannot be resolved | the resolver's error name | `BUNDLER_REFERENCE_RESOLUTION_FAILED` | the resolver's message |
 
-While resolving files, the library calls `process.chdir` and then restores the previous directory. That matches one-shot `asyncapi bundle`. Preview and the API share one process, so two bundles at the same time can change that directory for each other. That behavior already exists in bundler 1.0.1.
-
 ## 4. Develop
 
 ```text
