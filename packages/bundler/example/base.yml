@@ -1,0 +1,31 @@
+asyncapi: 2.0.0
+id: 'urn:zbos-mqtt-api'
+defaultContentType: 'application/json'
+info:
+  title: ZBOS MQTT API
+  version: 2.6.3
+  description: API for communication with ZBOS by Zora Robotics.
+  contact:
+    email: info@zorarobotics.be
+servers:
+  local:
+    url: '127.0.0.1'
+    protocol: mqtt
+    description: This is the local robot broker.
+    variables:
+      port:
+        enum:
+          - '1883'
+          - '9001'
+        default: '1883'
+  cloud:
+    url: zbos-mqtt.zoracloud.com
+    protocol: mqtt
+    description: This is the cloud broker.
+    variables:
+      port:
+        enum:
+          - '1883'
+          - '1884'
+          - '9001'
+          - '9002'

@@ -1,0 +1,10 @@
+asyncapi: "2.5.0"
+info:
+  title: Lights Service
+  version: 1.0.0
+  description: This service is in charge of for controlling lights 
+channels:
+  lights/On:
+    subcribe:
+      message:
+        $ref: './messages.yaml#/messages/LightsOn'

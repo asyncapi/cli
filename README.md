@@ -29,7 +29,7 @@ Learn how to install the AsyncAPI CLI by following the instructions in the [inst
 The [usage guide](/docs/usage.md) provides information about different ways to use the CLI.
 
 ## Architecture
-The [architecture guide](/docs/architecture.md) provides information about the architecture.
+The [architecture guide](/docs/architecture.md) provides information about the architecture. The bundler library lives in this repo at [`packages/bundler`](https://github.com/asyncapi/cli/tree/master/packages/bundler).
 
 ## Debugging & Testing
 The [debugging & testing guide](/docs/debugging-testing.md) provides step-by-step instructions for debugging CLI commands, API endpoints, and services, along with comprehensive testing guidelines.
