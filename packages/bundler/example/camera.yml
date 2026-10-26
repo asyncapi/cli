@@ -1,0 +1,44 @@
+asyncapi: 2.0.0
+id: 'urn:zbos-mqtt-api'
+defaultContentType: application/json
+info:
+  title: Camera
+  version: 2.6.3
+  description: API for communication with ZBOS by Zora Robotics.
+  contact:
+    email: info@zorarobotics.be
+channels:
+  zbos/camera/picture/event:
+    subscribe:
+      summary: 'event: Get picture'
+      description: ''
+      tags:
+        - name: Camera
+          description: All camera related topics.
+      message:
+        payload:
+          type: string
+        name: String
+  zbos/camera/picture/get:
+    publish:
+      summary: Get picture
+      description: ''
+      tags:
+        - name: Camera
+          description: All camera related topics.
+      message:
+        $ref: '#/components/messages/keyMessage'
+components:
+  messages:
+    keyMessage:
+      payload:
+        type: object
+        properties:
+          key:
+            type: string
+            description: Required random key
+      name: KeyResult
+      summary: Random key
+      examples:
+        - payload:
+            key: ABCxyz

@@ -1,0 +1,18 @@
+messages:
+  LightsOn:
+    payload:
+      type: object
+      properties:
+        sourceId:
+          type: string
+        voltage:
+          type: number
+  clickPhoto:
+    type: object
+    properties:
+      bustMode:
+        type: boolean
+      zoomDepth:
+        type: number
+      delayTimer:
+        type: number

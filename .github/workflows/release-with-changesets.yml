@@ -118,7 +118,8 @@ jobs:
         name: Publish to any of NPM, Github, and Docker Hub
         # If changeset files exist, this opens a Version Packages PR (runs bump:version, including bump:github-action).
         # If not (Version PR was merged), publish:trusted tags and the next step publishes to npm.
-        uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1.5.3
+        # v1.9.0 writes an npm token only when NPM_TOKEN is set. v1.5.3 always wrote an empty token.
+        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
         id: release
         with:
           version: npm run bump:version
@@ -139,6 +140,10 @@ jobs:
         shell: bash
         env:
           NPM_CONFIG_PROVENANCE: 'true'
+          GIT_AUTHOR_NAME: asyncapi-bot
+          GIT_AUTHOR_EMAIL: info@asyncapi.io
+          GIT_COMMITTER_NAME: asyncapi-bot
+          GIT_COMMITTER_EMAIL: info@asyncapi.io
         run: ./node_modules/.bin/changeset publish
 
       - name: Create GitHub Releases for workspace packages
