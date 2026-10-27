@@ -4,8 +4,11 @@ on:
     types:
       - published
 
+permissions:
+  contents: read
 jobs:
   publish-docker:
+    if: github.repository == 'asyncapi/cli' && !github.event.release.draft && !github.event.release.prerelease && startsWith(github.event.release.tag_name, 'v') && !contains(github.event.release.tag_name, '-')
     name: Generating Docker
     runs-on: ubuntu-latest
     steps:
@@ -14,13 +17,15 @@ jobs:
         env:
           TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
-          VERSION_WITHOUT_V=${TAG_NAME:1}
-          echo "value=${VERSION_WITHOUT_V}" >> $GITHUB_OUTPUT
+          [[ "$TAG_NAME" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || exit 1
+          VERSION_WITHOUT_V=${TAG_NAME#v}
+          echo "value=${VERSION_WITHOUT_V}" >> "$GITHUB_OUTPUT"
 
       - name : Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
 
       - name: Set Up QEMU
         uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
@@ -49,7 +54,10 @@ jobs:
           cache-to: type=gha
 
       - name:  Sync README.md and Description to Docker Hub
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
 
       - uses: meeDamian/sync-readme@82715041300710d9be7c726c9d6c683b70451087 # v1.0.6
         with:
@@ -59,21 +67,24 @@ jobs:
           description: CLI to work with your AsyncAPI files
 
   publish-action-docker:
+    if: github.repository == 'asyncapi/cli' && !github.event.release.draft && !github.event.release.prerelease && startsWith(github.event.release.tag_name, 'v') && !contains(github.event.release.tag_name, '-')
     name: Release github action for cli and update version in action.yml
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
 
       - name: Get version without v character
         id: version
         env:
           TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
-          VERSION_WITHOUT_V=${TAG_NAME:1}
-          echo "value=${VERSION_WITHOUT_V}" >> $GITHUB_OUTPUT
+          [[ "$TAG_NAME" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || exit 1
+          VERSION_WITHOUT_V=${TAG_NAME#v}
+          echo "value=${VERSION_WITHOUT_V}" >> "$GITHUB_OUTPUT"
 
       - name: Set Up QEMU
         uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0

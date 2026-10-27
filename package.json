@@ -17,13 +17,13 @@
   ],
   "dependencies": {
     "@asyncapi/avro-schema-parser": "^3.1.0",
-    "@asyncapi/bundler": "*",
+    "@asyncapi/bundler": "^1.1.0",
     "@asyncapi/converter": "^2.0.1",
-    "@asyncapi/diff": "*",
+    "@asyncapi/diff": "^0.6.0",
     "@asyncapi/generator": "^3.2.0",
     "@asyncapi/modelina-cli": "^5.10.1",
     "@asyncapi/openapi-schema-parser": "^3.1.0",
-    "@asyncapi/optimizer": "*",
+    "@asyncapi/optimizer": "^2.0.0",
     "@asyncapi/parser": "^3.6.2",
     "@asyncapi/problem": "^1.0.0",
     "@asyncapi/protobuf-schema-parser": "^3.8.3",
@@ -102,10 +102,12 @@
     "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "turbo": "^2.9.14",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "@changesets/cli": "2.29.8",
+    "@changesets/changelog-git": "0.2.1"
   },
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=24.11.0"
   },
   "packageManager": "npm@11.6.2",
   "files": [
@@ -172,8 +174,8 @@
     "diff:test": "turbo run test --filter=@asyncapi/diff",
     "bundler:build": "turbo run build --filter=@asyncapi/bundler",
     "bundler:test": "turbo run test --filter=@asyncapi/bundler",
-    "bump:github-action": "cd github-action/lib/ && node bump-action-version.js",
-    "bump:version": "npx -p @changesets/cli@2.27.7 changeset version && npm run bump:github-action",
+    "bump:github-action": "node github-action/lib/bump-action-version.js",
+    "bump:version": "changeset version && node github-action/lib/bump-action-version.js --refresh-lock",
     "dev": "tsc --watch",
     "docker:build": "docker build -t asyncapi/cli:latest .",
     "generate:readme:create": "node -e \"const fs = require('fs'); fs.writeFileSync('scripts/README.md', '# Usage\\n\\n<!-- usage -->\\n\\n# Commands\\n\\n<!-- commands -->\\n');\"",
@@ -196,7 +198,7 @@
     "pretest:coverage": "npm run build",
     "posttest": "rimraf ./test.asyncapi-cli",
     "postinstall": "node ./scripts/enableAutoComplete.js",
-    "test": "npm run optimizer:test && npm run diff:test && npm run bundler:test && npm run cli:test && npm run action:test",
+    "test": "npm run test:release && npm run optimizer:test && npm run diff:test && npm run bundler:test && npm run cli:test && npm run action:test",
     "cli:test": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\".\" NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/**/*.test.ts\"",
     "unit:test": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\".\" NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/unit/**/*.test.ts\"",
     "test:one": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\".\"  NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000",
@@ -210,7 +212,8 @@
     "api:docker": "docker run -it -p 80:80 asyncapi/server-api",
     "api:build:docker": "docker build -t asyncapi/server-api -f ./src/apps/api/Dockerfile .",
     "api:build": "rimraf lib && npm run generate:languages && tsc && tsc-alias --project tsconfig.json",
-    "api:test": ""
+    "api:test": "",
+    "test:release": "node --test test/release/*.test.js"
   },
   "types": "lib/index.d.ts"
 }

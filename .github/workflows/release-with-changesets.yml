@@ -1,164 +1,140 @@
-# It does magic only if there is a package.json file in the root of the project
 name: Release
-
 on:
   push:
-    branches:
-      - master
-        # The below lines are not enough to have release supported for these branches
-      - next-spec
-      - next-major
-      - next-major-spec
-      - beta
-      - alpha
-      - next
-
+    branches: [master]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cli-stable-release
+  cancel-in-progress: false
+env:
+  CI: true
 jobs:
-  test-nodejs:
-    # We just check the message of the first commit as there is always just one commit because we squash into one before merging
-    # "commits" contains an array of objects where one of the properties is the commit "message"
-    # Release workflow will be skipped if release conventional commits are not used
-    if: |
-      (startsWith( github.event.commits[0].message , 'fix:' ) ||
-      startsWith( github.event.commits[0].message, 'fix!:' ) ||
-      startsWith( github.event.commits[0].message, 'feat:' ) ||
-      startsWith( github.event.commits[0].message, 'chore(release):' ) ||
-      startsWith( github.event.commits[0].message, 'feat!:' ))
-    name: Test NodeJS release on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  test:
+    if: github.repository == 'asyncapi/cli' && github.ref == 'refs/heads/master'
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    # The shared selector installs semver; reuse its output in publishing jobs.
+    outputs:
+      node-version: ${{ steps.lockversion.outputs.version }}
     steps:
-      - name: Set git to use LF # To once and for all finish the never-ending fight between Unix and Windows
-        run: |
-          git config --global core.autocrlf false
-          git config --global core.eol lf
-        shell: bash
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Check if Node.js project and has package.json
-        id: packagejson
-        run: test -e ./package.json && echo "exists=true" >> $GITHUB_OUTPUT || echo "exists=false" >> $GITHUB_OUTPUT
-        shell: bash
-      - if: steps.packagejson.outputs.exists == 'true'
-        name: Check package-lock version
-        uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master
-        id: lockversion
-      - if: steps.packagejson.outputs.exists == 'true'
-        name: Setup Node.js
-        uses: actions/setup-node@v4
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: "${{ steps.lockversion.outputs.version }}"
-          registry-url: "https://registry.npmjs.org"
-      - if: steps.lockversion.outputs.version == '18' && matrix.os == 'windows-latest'
-        name: Install npm cli 8
-        shell: bash
-        # npm cli 10 is buggy because of some cache issues
-        run: npm install -g npm@8.19.4
-      - if: steps.packagejson.outputs.exists == 'true'
-        name: Install dependencies
-        shell: bash
-        run: npm ci
-      - if: steps.packagejson.outputs.exists == 'true'
-        name: Run test
-        run: npm test --if-present
-      - if: failure() # Only, on failure, send a message on the 94_bot-failing-ci slack channel
-        name: Report workflow run status to Slack
-        uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 # v3.15.1
-        with:
-          status: ${{ job.status }}
-          fields: repo,action,workflow
-          text: "Release workflow failed in testing job"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_CI_FAIL_NOTIFY }}
-
-  release:
-    needs: [test-nodejs]
-    name: Publish to any of NPM, GitHub, or Docker Hub
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write
-      pull-requests: write
-    steps:
-      - name: Set git to use LF # To once and for all finish the never-ending fight between Unix and Windows
-        run: |
-          git config --global core.autocrlf false
-          git config --global core.eol lf
-      - name: Checkout repository
-        uses: actions/checkout@v6
-      - name: Check if Node.js project and has package.json
-        id: packagejson
-        run: test -e ./package.json && echo "exists=true" >> $GITHUB_OUTPUT || echo "exists=false" >> $GITHUB_OUTPUT
-        shell: bash
-      - if: steps.packagejson.outputs.exists == 'true'
-        name: Check package-lock version
-        uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@master
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Determine Node.js version
         id: lockversion
+        uses: asyncapi/.github/.github/actions/get-node-version-from-package-lock@3fff8062a30ea14b4a6676b7f2d2e110e75c5a1d
         with:
           node-version: ${{ vars.NODE_VERSION }}
-      - if: steps.packagejson.outputs.exists == 'true'
-        name: Setup Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: "${{ steps.lockversion.outputs.version }}"
-      - if: steps.packagejson.outputs.exists == 'true'
-        name: Install dependencies
-        shell: bash
-        run: npm ci
-      - if: steps.packagejson.outputs.exists == 'true'
-        name: Install changelog
-        shell: bash
-        # This step can be removed once the issue is fixed in the changeset package.
-        # --ignore-scripts: do not run package lifecycle scripts during this extra install.
-        run: npm install --ignore-scripts @changesets/changelog-git@0.2.0 @changesets/cli@2.27.7
+          node-version: ${{ steps.lockversion.outputs.version }}
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - if: matrix.os == 'ubuntu-latest'
+        run: npm run lint
 
-      - if: steps.packagejson.outputs.exists == 'true'
-        name: Publish to any of NPM, Github, and Docker Hub
-        # If changeset files exist, this opens a Version Packages PR (runs bump:version, including bump:github-action).
-        # If not (Version PR was merged), publish:trusted tags and the next step publishes to npm.
-        # v1.9.0 writes an npm token only when NPM_TOKEN is set. v1.5.3 always wrote an empty token.
+  version-pr:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      has-changesets: ${{ steps.changesets.outputs.hasChangesets }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: ${{ needs.test.outputs.node-version }}
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+      - name: Create or update the standard Changesets version PR
+        id: changesets
         uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
-        id: release
         with:
           version: npm run bump:version
-          commit: "chore(release): release and bump versions of packages"
-          title: "chore(release): release and bump versions of packages"
-          publish: npm run publish:trusted
+          commit: 'chore(release): release and bump versions of packages'
+          title: 'chore(release): release and bump versions of packages'
           createGithubReleases: false
-          setupGitUser: false
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          GIT_AUTHOR_NAME: asyncapi-bot
-          GIT_AUTHOR_EMAIL: info@asyncapi.io
-          GIT_COMMITTER_NAME: asyncapi-bot
-          GIT_COMMITTER_EMAIL: info@asyncapi.io
 
-      - name: Publish workspace packages to NPM
-        if: steps.packagejson.outputs.exists == 'true' && steps.release.outputs.hasChangesets == 'false'
-        shell: bash
-        env:
-          NPM_CONFIG_PROVENANCE: 'true'
-          GIT_AUTHOR_NAME: asyncapi-bot
-          GIT_AUTHOR_EMAIL: info@asyncapi.io
-          GIT_COMMITTER_NAME: asyncapi-bot
-          GIT_COMMITTER_EMAIL: info@asyncapi.io
-        run: ./node_modules/.bin/changeset publish
+  packages:
+    needs: [test, version-pr]
+    if: needs.version-pr.outputs.has-changesets == 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: ${{ needs.test.outputs.node-version }}
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: node scripts/publish-trusted.js --pack "$RUNNER_TEMP/release-packages"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-packages-${{ github.sha }}
+          path: ${{ runner.temp }}/release-packages/
+          if-no-files-found: error
+          retention-days: 3
 
-      - name: Create GitHub Releases for workspace packages
-        if: steps.packagejson.outputs.exists == 'true' && steps.release.outputs.hasChangesets == 'false'
-        shell: bash
+  publish:
+    needs: [test, packages]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: ${{ needs.test.outputs.node-version }}
+          package-manager-cache: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-packages-${{ github.sha }}
+          path: ${{ runner.temp }}/release-packages
+      - name: Publish built tarballs with OIDC and no lifecycle scripts
+        run: node scripts/publish-trusted.js --publish "$RUNNER_TEMP/release-packages"
+
+  github-release:
+    needs: [test, publish]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: ${{ needs.test.outputs.node-version }}
+          package-manager-cache: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-packages-${{ github.sha }}
+          path: ${{ runner.temp }}/release-packages
+      - name: Create tags and releases after verifying every npm publication
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: node scripts/publish-trusted.js --package-releases-only
-
-      - if: failure() # Only, on failure, send a message on the 94_bot-failing-ci Slack channel
-        name: Report workflow run status to Slack
-        uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 # v3.15.1
-        with:
-          status: ${{ job.status }}
-          fields: repo,action,workflow
-          text: "Release workflow failed in release job"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_CI_FAIL_NOTIFY }}
+        run: node scripts/publish-trusted.js --releases "$RUNNER_TEMP/release-packages"
