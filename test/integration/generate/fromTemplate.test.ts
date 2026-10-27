@@ -190,17 +190,22 @@ describe('template', () => {
 
   describe('should install template', () => {
     test
+      .stderr()
       .stdout()
       .command([
         'generate:fromTemplate',
         './test/fixtures/specification.yml',
         './test/fixtures/minimaltemplate',
         '--install',
+        '--debug',
+        nonInteractive,
         '--force-write',
         '--output=./test/docs/7'
       ])
       .it('should install template', (ctx, done) => {
         expect(ctx.stdout).to.contain('Template installation started because you passed --install flag.');
+        expect(ctx.stderr).not.to.contain('Generator Error');
+        expect(fs.existsSync('./test/docs/7/asyncapi.md')).to.equal(true);
         cleanup('./test/docs/7');
         done();
       });
