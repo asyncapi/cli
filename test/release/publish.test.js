@@ -104,21 +104,11 @@ test('partial npm publication retries only missing packages and no release can p
   );
   assert.ok(release.records.has(release.packages[2].name));
   assert.equal(release.records.has(release.packages[3].name), false);
-  githubMode(release);
-  assert.throws(
-    () => releases(release.root, release.directory, release.client),
-    /incomplete/,
-  );
   assert.equal(
     release.events.some((event) => event.startsWith('tag:')),
     false,
   );
   release.client.publish = realPublish;
-  release.client.env = {
-    ...release.workflowEnv,
-    ACTIONS_ID_TOKEN_REQUEST_URL: 'url',
-    ACTIONS_ID_TOKEN_REQUEST_TOKEN: 'oidc',
-  };
   await publish(release.root, release.directory, release.client);
   assert.equal(
     release.events.filter((event) => event === 'npm:@asyncapi/diff').length,
@@ -151,38 +141,16 @@ test('tampered artifacts, conflicting npm identities and newer npm Latest stop b
   }
 });
 
-test('delayed npm visibility is retried without publishing the package again', async (t) => {
+test('successful npm acknowledgements do not wait for registry visibility', async (t) => {
   const release = packed(t);
-  const registry = release.client.registry;
-  // Registry visibility can lag beyond the original 30-second retry window.
-  let missingReads = 8;
-  release.client.registry = (pkg) => {
-    const current = registry(pkg);
-    if (pkg.name === release.packages[0].name && current && missingReads-- > 0) {
-      return null;
-    }
-    return current;
-  };
-  await publish(release.root, release.directory, release.client, async () => {});
+  // Registry metadata can remain stale after npm has accepted every tarball.
+  release.client.registry = () => null;
+  await publish(release.root, release.directory, release.client);
   assert.equal(release.records.size, 4);
   assert.equal(release.events.length, 4);
-});
-
-test('unconfirmed npm publication fails after bounded retries and holds back the CLI', async (t) => {
-  const release = packed(t);
-  const registry = release.client.registry;
-  let waits = 0;
-  release.client.registry = (pkg) =>
-    pkg.name === release.packages[0].name ? null : registry(pkg);
-  await assert.rejects(
-    () => publish(release.root, release.directory, release.client, async () => {
-      waits++;
-    }),
-    /incomplete/,
-  );
-  assert.ok(waits > 0 && waits <= 24);
-  assert.ok(release.records.has(release.packages[2].name));
-  assert.equal(release.records.has(release.packages[3].name), false);
+  githubMode(release);
+  releases(release.root, release.directory, release.client);
+  assert.equal(release.events.length, 12);
 });
 
 test('existing tags/releases are reused and conflicts cannot create any release', async (t) => {

@@ -134,7 +134,7 @@ jobs:
         with:
           name: release-packages-${{ github.sha }}
           path: ${{ runner.temp }}/release-packages
-      - name: Create tags and releases after verifying every npm publication
+      - name: Create tags and releases after successful npm publication
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: node scripts/publish-trusted.js --releases "$RUNNER_TEMP/release-packages"

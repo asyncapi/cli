@@ -27,6 +27,7 @@ test('build/install jobs have no publishing credentials; OIDC publication has no
     release.jobs['github-release'].permissions?.['id-token'],
     undefined,
   );
+  assert.ok(release.jobs['github-release'].needs.includes('publish'));
   for (const job of Object.values(release.jobs)) {
     for (const step of job.steps) {
       if (step.uses) {

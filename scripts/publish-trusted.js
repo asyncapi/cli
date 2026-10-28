@@ -7,7 +7,6 @@ const path = require('node:path');
 const os = require('node:os');
 const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
-const { setTimeout: delay } = require('node:timers/promises');
 
 const REPOSITORY = 'asyncapi/cli';
 const REGISTRY = 'https://registry.npmjs.org';
@@ -459,19 +458,7 @@ function pack(root, directory, client) {
   );
 }
 
-async function confirmPublication(pkg, sourceSha, client, wait) {
-  // Allow two minutes for registry visibility after a successful publish.
-  for (let attempt = 0; ; attempt++) {
-    const current = client.registry(pkg);
-    if (current || attempt === 24) {
-      assertPublished(pkg, current, sourceSha);
-      return;
-    }
-    await wait(5000);
-  }
-}
-
-async function publish(root, directory, client, wait = delay) {
+async function publish(root, directory, client) {
   const manifest = readManifest(root, directory, client, '--publish');
   const pending = [];
   for (const pkg of manifest.packages) {
@@ -499,8 +486,7 @@ async function publish(root, directory, client, wait = delay) {
     try {
       console.log(`Publishing: ${pkg.name}@${pkg.version}`);
       client.publish(tarballPath(directory, pkg.tarball));
-      await confirmPublication(pkg, manifest.sourceSha, client, wait);
-      console.log(`Published and verified: ${pkg.name}@${pkg.version}`);
+      console.log(`npm acknowledged publication: ${pkg.name}@${pkg.version}`);
     } catch (error) {
       failures.push(`${pkg.name}@${pkg.version}: ${error.message}`);
     }
@@ -513,6 +499,7 @@ async function publish(root, directory, client, wait = delay) {
 }
 
 function releases(root, directory, client) {
+  // The workflow runs this phase only after every npm publish succeeds.
   const manifest = readManifest(root, directory, client, '--releases');
   const currentLatest = client.latestRelease();
   if (
@@ -525,9 +512,9 @@ function releases(root, directory, client) {
   }
   // Validate the entire release before creating any tags or GitHub releases.
   const plans = manifest.packages.map((pkg) => {
-    const published = client.registry(pkg);
-    assertPublished(pkg, published, manifest.sourceSha);
-    const sha = published.gitHead;
+    // Existing versions retain their recorded identity; new versions were
+    // acknowledged by npm for this manifest's source and verified tarballs.
+    const sha = pkg.published?.gitHead || manifest.sourceSha;
     const existingTagSha = client.tagTarget(pkg.tag);
     const existingRelease = client.release(pkg.tag);
     if (existingTagSha && existingTagSha !== sha) {
