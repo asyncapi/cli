@@ -46,7 +46,7 @@ function renderAction(templateText, version) {
   return rendered;
 }
 
-function validateActionBinding(root = ROOT, expectedVersion) {
+function validateActionBinding(expectedVersion, root = ROOT) {
   const version = stableVersion(expectedVersion || JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).version);
   const templateText = fs.readFileSync(path.join(root, 'action-template.yml'), 'utf8');
   const currentText = fs.readFileSync(path.join(root, 'action.yml'), 'utf8');
@@ -63,7 +63,7 @@ function bumpActionVersion({ root = ROOT, previousVersion } = {}) {
   const template = fs.readFileSync(path.join(root, 'action-template.yml'), 'utf8');
   const current = parseAction(oldText);
   const previous = stableVersion(previousVersion || current.runs.image.slice(IMAGE.length));
-  validateActionBinding(root, previous);
+  validateActionBinding(previous, root);
   const rendered = renderAction(template, version);
   const updated = parseAction(rendered);
   const oldContract = { ...current, runs: { ...current.runs, image: updated.runs.image } };
@@ -82,7 +82,7 @@ function bumpActionVersion({ root = ROOT, previousVersion } = {}) {
   } finally {
     if (created && fs.existsSync(temporary)) {fs.unlinkSync(temporary);}
   }
-  validateActionBinding(root, version);
+  validateActionBinding(version, root);
   return { changed: true, version };
 }
 
