@@ -178,3 +178,18 @@ jobs:
             fi
             gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "$tag" --latest="$latest" "${notes[@]}"
           done
+
+  notify-failure:
+    needs: [test, version-pr, packages, publish, github-release]
+    if: failure() # Send one alert if any release job fails.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Report workflow run status to Slack
+        uses: 8398a7/action-slack@fbd6aa58ba854a740e11a35d0df80cb5d12101d8 # v3.15.1
+        with:
+          status: failure
+          fields: repo,action,workflow
+          text: 'Release workflow failed'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_CI_FAIL_NOTIFY }}
