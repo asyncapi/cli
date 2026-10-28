@@ -66,9 +66,9 @@ function githubMode(release) {
   release.client.env = { ...release.workflowEnv, GH_TOKEN: 'test-github' };
 }
 
-test('all packages publish before GitHub release creation; libraries never become Latest', (t) => {
+test('all packages publish before GitHub release creation; libraries never become Latest', async (t) => {
   const release = packed(t);
-  publish(release.root, release.directory, release.client);
+  await publish(release.root, release.directory, release.client);
   assert.deepEqual(release.events, [
     'npm:@asyncapi/diff',
     'npm:@asyncapi/optimizer',
@@ -89,7 +89,7 @@ test('all packages publish before GitHub release creation; libraries never becom
   ]);
 });
 
-test('partial npm publication retries only missing packages and no release can precede completion', (t) => {
+test('partial npm publication retries only missing packages and no release can precede completion', async (t) => {
   const release = packed(t);
   const realPublish = release.client.publish;
   release.client.publish = (file) => {
@@ -98,10 +98,12 @@ test('partial npm publication retries only missing packages and no release can p
     }
     realPublish(file);
   };
-  assert.throws(
+  await assert.rejects(
     () => publish(release.root, release.directory, release.client),
     /outage/,
   );
+  assert.ok(release.records.has(release.packages[2].name));
+  assert.equal(release.records.has(release.packages[3].name), false);
   githubMode(release);
   assert.throws(
     () => releases(release.root, release.directory, release.client),
@@ -117,14 +119,14 @@ test('partial npm publication retries only missing packages and no release can p
     ACTIONS_ID_TOKEN_REQUEST_URL: 'url',
     ACTIONS_ID_TOKEN_REQUEST_TOKEN: 'oidc',
   };
-  publish(release.root, release.directory, release.client);
+  await publish(release.root, release.directory, release.client);
   assert.equal(
     release.events.filter((event) => event === 'npm:@asyncapi/diff').length,
     1,
   );
 });
 
-test('tampered artifacts, conflicting npm identities and newer npm Latest stop before publishing', (t) => {
+test('tampered artifacts, conflicting npm identities and newer npm Latest stop before publishing', async (t) => {
   for (const problem of ['tarball', 'source', 'newer']) {
     const release = packed(t);
     if (problem === 'tarball') {
@@ -142,16 +144,50 @@ test('tampered artifacts, conflicting npm identities and newer npm Latest stop b
     if (problem === 'newer') {
       release.client.latest = () => '99.0.0';
     }
-    assert.throws(() =>
-      publish(release.root, release.directory, release.client),
+    await assert.rejects(
+      () => publish(release.root, release.directory, release.client),
     );
     assert.equal(release.events.length, 0);
   }
 });
 
-test('existing tags/releases are reused and conflicts cannot create any release', (t) => {
+test('delayed npm visibility is retried without publishing the package again', async (t) => {
   const release = packed(t);
-  publish(release.root, release.directory, release.client);
+  const registry = release.client.registry;
+  // Registry visibility can lag beyond the original 30-second retry window.
+  let missingReads = 8;
+  release.client.registry = (pkg) => {
+    const current = registry(pkg);
+    if (pkg.name === release.packages[0].name && current && missingReads-- > 0) {
+      return null;
+    }
+    return current;
+  };
+  await publish(release.root, release.directory, release.client, async () => {});
+  assert.equal(release.records.size, 4);
+  assert.equal(release.events.length, 4);
+});
+
+test('unconfirmed npm publication fails after bounded retries and holds back the CLI', async (t) => {
+  const release = packed(t);
+  const registry = release.client.registry;
+  let waits = 0;
+  release.client.registry = (pkg) =>
+    pkg.name === release.packages[0].name ? null : registry(pkg);
+  await assert.rejects(
+    () => publish(release.root, release.directory, release.client, async () => {
+      waits++;
+    }),
+    /incomplete/,
+  );
+  assert.ok(waits > 0 && waits <= 24);
+  assert.ok(release.records.has(release.packages[2].name));
+  assert.equal(release.records.has(release.packages[3].name), false);
+});
+
+test('existing tags/releases are reused and conflicts cannot create any release', async (t) => {
+  const release = packed(t);
+  await publish(release.root, release.directory, release.client);
   release.events.length = 0;
   githubMode(release);
   release.client.tagTarget = () => release.sha;
@@ -170,9 +206,9 @@ test('existing tags/releases are reused and conflicts cannot create any release'
   assert.equal(release.events.length, 0);
 });
 
-test('older CLI recovery cannot trigger delivery and missing historical tags require review', (t) => {
+test('older CLI recovery cannot trigger delivery and missing historical tags require review', async (t) => {
   const release = packed(t);
-  publish(release.root, release.directory, release.client);
+  await publish(release.root, release.directory, release.client);
   release.events.length = 0;
   githubMode(release);
   release.client.latestRelease = () => ({
