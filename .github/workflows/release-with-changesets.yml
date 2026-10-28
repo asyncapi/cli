@@ -86,11 +86,16 @@ jobs:
           package-manager-cache: false
       - run: npm ci --ignore-scripts
       - run: npm run build
-      - run: node scripts/publish-trusted.js --pack "$RUNNER_TEMP/release-packages"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: release-packages-${{ github.sha }}
-          path: ${{ runner.temp }}/release-packages/
+          name: release-build-${{ github.sha }}
+          path: |
+            lib/
+            packages/diff/lib/
+            packages/optimizer/lib/
+            packages/bundler/lib/
+            assets/examples/
+            oclif.manifest.json
           if-no-files-found: error
           retention-days: 3
 
@@ -98,6 +103,9 @@ jobs:
     needs: [test, packages]
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
+      published-packages: ${{ steps.changesets.outputs.publishedPackages }}
     permissions:
       contents: read
       id-token: write
@@ -105,36 +113,68 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: ${{ needs.test.outputs.node-version }}
           package-manager-cache: false
+      - run: npm ci --ignore-scripts
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-packages-${{ github.sha }}
-          path: ${{ runner.temp }}/release-packages
-      - name: Publish built tarballs with OIDC and no lifecycle scripts
-        run: node scripts/publish-trusted.js --publish "$RUNNER_TEMP/release-packages"
+          name: release-build-${{ github.sha }}
+          path: .
+      - name: Publish workspaces with Changesets and npm OIDC
+        id: changesets
+        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
+        with:
+          publish: npm run publish:trusted
+          createGithubReleases: false
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          NPM_CONFIG_IGNORE_SCRIPTS: 'true'
+          NPM_CONFIG_PROVENANCE: 'true'
 
   github-release:
     needs: [test, publish]
+    if: needs.publish.outputs.published == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
+          fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
-        with:
-          node-version: ${{ needs.test.outputs.node-version }}
-          package-manager-cache: false
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-        with:
-          name: release-packages-${{ github.sha }}
-          path: ${{ runner.temp }}/release-packages
-      - name: Create tags and releases after successful npm publication
+      - name: Create package releases and retain the CLI v tag
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: node scripts/publish-trusted.js --releases "$RUNNER_TEMP/release-packages"
+          PUBLISHED_PACKAGES: ${{ needs.publish.outputs.published-packages }}
+        run: |
+          jq -e 'type == "array"' <<< "$PUBLISHED_PACKAGES" > /dev/null
+          for file in packages/diff/package.json packages/optimizer/package.json packages/bundler/package.json package.json; do
+            name=$(jq -r '.name' "$file")
+            version=$(jq -r '.version' "$file")
+            if ! jq -e --arg name "$name" --arg version "$version" 'any(.[]; .name == $name and .version == $version)' <<< "$PUBLISHED_PACKAGES" > /dev/null; then
+              continue
+            fi
+            [[ "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || exit 1
+            tag="$name@$version"
+            latest=false
+            notes=(--notes "Release $tag.")
+            if [[ "$file" == 'package.json' ]]; then
+              tag="v$version"
+              latest=true
+              notes=(--generate-notes)
+            fi
+            existing_sha=$(git rev-parse --verify "refs/tags/$tag^{commit}" 2>/dev/null || true)
+            if [[ -n "$existing_sha" && "$existing_sha" != "$GITHUB_SHA" ]]; then
+              echo "Existing tag $tag points to a different commit."
+              exit 1
+            fi
+            if gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+              continue
+            fi
+            gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "$tag" --latest="$latest" "${notes[@]}"
+          done
