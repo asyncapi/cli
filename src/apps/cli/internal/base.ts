@@ -7,7 +7,7 @@ import {
   Sink,
   StdOutSink,
 } from '@smoya/asyncapi-adoption-metrics';
-import { Parser } from '@asyncapi/parser';
+import type { Parser } from '@asyncapi/parser';
 import { Specification } from '@models/SpecificationFile';
 import { join, resolve } from 'path';
 import { existsSync } from 'fs-extra';
@@ -25,9 +25,18 @@ class DiscardSink implements Sink {
 
 export default abstract class extends Command {
   recorder = this.recorderFromEnv('asyncapi_adoption');
-  parser = new Parser();
+  private _parser?: Parser;
   metricsMetadata: MetricMetadata = {};
   specFile: Specification | undefined;
+
+  async getParser(): Promise<Parser> {
+    if (!this._parser) {
+      const { Parser: AsyncAPIParser } = await import('@asyncapi/parser');
+      this._parser = new AsyncAPIParser();
+    }
+
+    return this._parser;
+  }
 
   async init(): Promise<void> {
     await super.init();
@@ -57,7 +66,8 @@ export default abstract class extends Command {
   ) {
     if (rawDocument !== undefined) {
       try {
-        const { document } = await this.parser.parse(rawDocument);
+        const parser = await this.getParser();
+        const { document } = await parser.parse(rawDocument);
         if (document !== undefined) {
           // @ts-ignore
           metadata = MetadataFromDocument(document, metadata);
@@ -161,7 +171,7 @@ export default abstract class extends Command {
         // NODE_ENV set to `production` in bin/run_bin, which is specified in 'bin' package.json section
         sink = new NewRelicSink(
           process.env.ASYNCAPI_METRICS_NEWRELIC_KEY ||
-              'eu01xx73a8521047150dd9414f6aedd2FFFFNRAL',
+            'eu01xx73a8521047150dd9414f6aedd2FFFFNRAL',
         );
 
         if (analyticsConfigFileContent.infoMessageShown === 'false') {
