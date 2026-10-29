@@ -59,6 +59,20 @@ export default class Template extends BaseGeneratorCommand {
     
     const asyncapiInput = await this.loadAsyncAPIInput(asyncapi);
 
+    const content =
+      typeof asyncapiInput === 'string'
+        ? asyncapiInput
+        : asyncapiInput?.toString?.() ?? '';
+
+    if (!content || !content.trim()) {
+      return this.error(
+        new ValidationError({
+          type: 'invalid-file',
+          filepath: asyncapi,
+        }),
+        { exit: 1 },
+      );
+    }
     this.specFile = asyncapiInput;
     this.metricsMetadata.template = template;
 
