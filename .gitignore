@@ -40,6 +40,7 @@ coverage
 
 .asyncapi-analytics
 
-# Modelina
+# Modelina writes this at the repo root. Fixture files named asyncapi.yaml stay tracked.
 test/fixtures/generate/models
-asyncapi.yaml
+/asyncapi.yaml
+

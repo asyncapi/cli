@@ -1,0 +1,33 @@
+asyncapi: 2.5.0
+info:
+  title: Smart home applicance service
+  version: 2.0.0
+  description: This is a API for contolling various smart appliance
+channels:
+  lights/On:
+    subcribe:
+      message:
+        $ref: '#/components/messages/LightsOn'
+  camera/click:
+    subcribe:
+      message:
+        $ref: '#/components/messages/clickPhoto'
+components:
+  messages:
+    LightsOn:
+      payload:
+        type: object
+        properties:
+          sourceId:
+            type: string
+          voltage:
+            type: number
+    clickPhoto:
+      type: object
+      properties:
+        bustMode:
+          type: boolean
+        zoomDepth:
+          type: number
+        delayTimer:
+          type: number

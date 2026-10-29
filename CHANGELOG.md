@@ -1,5 +1,13 @@
 # @asyncapi/cli
 
+## 6.2.2
+
+### Patch Changes
+
+- 0f904f7: Move `@asyncapi/bundler` into the CLI monorepo at `packages/bundler`. Export `Document` from the package entry and attach stable `BUNDLER_*` error codes without changing messages or `error.name`.
+- Updated dependencies [0f904f7]
+  - @asyncapi/bundler@1.1.0
+
 ## 6.2.1
 
 ### Patch Changes

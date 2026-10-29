@@ -1,7 +1,7 @@
 {
   "name": "@asyncapi/cli",
   "description": "All in one CLI for all AsyncAPI tools",
-  "version": "6.2.1",
+  "version": "6.2.2",
   "author": "@asyncapi",
   "bin": {
     "asyncapi": "./bin/run_bin"
@@ -17,7 +17,7 @@
   ],
   "dependencies": {
     "@asyncapi/avro-schema-parser": "^3.1.0",
-    "@asyncapi/bundler": "^1.0.1",
+    "@asyncapi/bundler": "*",
     "@asyncapi/converter": "^2.0.1",
     "@asyncapi/diff": "*",
     "@asyncapi/generator": "^3.2.0",
@@ -165,11 +165,13 @@
     "fsevents": "^2.3.3"
   },
   "scripts": {
-    "build": "npm run optimizer:build && npm run diff:build && rimraf lib && node scripts/fetch-asyncapi-example.js && npm run generate:languages && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
+    "build": "npm run optimizer:build && npm run diff:build && npm run bundler:build && rimraf lib && node scripts/fetch-asyncapi-example.js && npm run generate:languages && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
     "optimizer:build": "turbo run build --filter=@asyncapi/optimizer",
     "optimizer:test": "turbo run test --filter=@asyncapi/optimizer",
     "diff:build": "turbo run build --filter=@asyncapi/diff",
     "diff:test": "turbo run test --filter=@asyncapi/diff",
+    "bundler:build": "turbo run build --filter=@asyncapi/bundler",
+    "bundler:test": "turbo run test --filter=@asyncapi/bundler",
     "bump:github-action": "cd github-action/lib/ && node bump-action-version.js",
     "bump:version": "npx -p @changesets/cli@2.27.7 changeset version && npm run bump:github-action",
     "dev": "tsc --watch",
@@ -194,7 +196,7 @@
     "pretest:coverage": "npm run build",
     "posttest": "rimraf ./test.asyncapi-cli",
     "postinstall": "node ./scripts/enableAutoComplete.js",
-    "test": "npm run optimizer:test && npm run diff:test && npm run cli:test && npm run action:test",
+    "test": "npm run optimizer:test && npm run diff:test && npm run bundler:test && npm run cli:test && npm run action:test",
     "cli:test": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/**/*.test.ts\"",
     "unit:test": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\" NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000 \"test/unit/**/*.test.ts\"",
     "test:one": "cross-env NODE_ENV=development TEST=1 CUSTOM_CONTEXT_FILENAME=\"test.asyncapi-cli\" CUSTOM_CONTEXT_FILE_LOCATION=\"\"  NODE_CONFIG_DIR=\"./src/apps/api/configs\" c8 mocha --require ts-node/register --require tsconfig-paths/register --require test/helpers/init.js --reporter spec --timeout 100000",
