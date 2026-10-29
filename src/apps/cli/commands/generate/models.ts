@@ -16,6 +16,7 @@ import {
 } from '@/domains/services/validation.service';
 import { Diagnostic } from '@asyncapi/parser/cjs';
 import { applyProxyToPath } from '@utils/proxy';
+import { createKotlinFileGenerator } from '@services/kotlin-model.service';
 
 export default class Models extends Command {
   static description = 'Generates typed models';
@@ -104,12 +105,35 @@ export default class Models extends Command {
     const s = spinner();
     s.start('Generating models...');
     try {
-      const generatedModels = await generateModels(
-        { ...flags, output },
-        document,
-        logger,
-        language as Languages,
-      );
+      if (language === Languages.kotlin && !flags.packageName) {
+        throw new Error(
+          'In order to generate models to Kotlin, add `--packageName=PACKAGENAME`.',
+        );
+      }
+
+      let generatedModels;
+      if (language === Languages.kotlin) {
+        const kotlinGenerator = createKotlinFileGenerator(flags as any);
+        if (output && output !== 'stdout') {
+          generatedModels = await kotlinGenerator.generateToFiles(
+            document,
+            output,
+            { packageName: flags.packageName },
+          );
+        } else {
+          generatedModels = await kotlinGenerator.generateCompleteModels(
+            document,
+            { packageName: flags.packageName },
+          );
+        }
+      } else {
+        generatedModels = await generateModels(
+          { ...flags, output },
+          document,
+          logger,
+          language as Languages,
+        );
+      }
       if (output && output !== 'stdout') {
         const generatedModelStrings = generatedModels.map((model) => {
           return model.modelName;
