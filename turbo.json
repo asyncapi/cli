@@ -3,6 +3,8 @@
   "tasks": {
     "build": { "cache": false },
     "@asyncapi/optimizer#build": { "cache": false },
+    "@asyncapi/diff#build": { "cache": false },
+    "@asyncapi/bundler#build": { "cache": false },
     "test": { "cache": false, "dependsOn": ["build"] },
     "lint": { "cache": false }
   }
