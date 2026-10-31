@@ -27,6 +27,7 @@ COPY *.json ./
 # 4. Build workspace libraries before api:build compiles commands that import them
 RUN npm run optimizer:build
 RUN npm run diff:build
+RUN npm run bundler:build
 RUN npm run api:build
 
 # ---- Templates stage ----

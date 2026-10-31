@@ -19,6 +19,7 @@ export default [
       'scripts/**/*.js',
       'packages/optimizer/**',
       'packages/diff/**',
+      'packages/bundler/**',
     ],
   },
   js.configs.recommended,

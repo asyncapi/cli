@@ -1,0 +1,50 @@
+asyncapi: 2.0.0
+id: 'urn:zbos-mqtt-api'
+defaultContentType: application/json
+info:
+  title: Audio
+  version: 2.6.3
+  description: API for communication with ZBOS by Zora Robotics.
+  contact:
+    email: info@zorarobotics.be
+channels:
+  zbos/audio/player/start:
+    publish:
+      summary: Play media
+      description: |
+        Play specific media from audio options
+      tags:
+        - name: Audio
+          description: All audio related topics.
+      message:
+        payload:
+          type: object
+          properties:
+            requestId:
+              type: string
+            url:
+              type: string
+            loop:
+              type: boolean
+        name: AudioOptions
+        examples:
+          - payload:
+              requestId: '1'
+              url: Url
+              loop: true
+  zbos/audio/player/stop:
+    publish:
+      summary: Stop media
+      description: ''
+      tags:
+        - name: Audio
+          description: All audio related topics.
+      message:
+        $ref: '#/components/messages/emptyMessage'
+components:
+  messages:
+    emptyMessage:
+      payload:
+        type: object
+      name: EmptyMessage
+      summary: Empty message

@@ -217,7 +217,7 @@ paths:
         - bundler
       externalDocs:
         name: Github Repository for the AsyncAPI Bundler
-        url: https://github.com/asyncapi/bundler
+        url: https://github.com/asyncapi/cli/tree/master/packages/bundler
       requestBody:
         description: Bundle the given AsyncAPI document(s) to single one.
         required: true
