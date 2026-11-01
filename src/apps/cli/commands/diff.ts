@@ -144,21 +144,19 @@ export default class Diff extends Command {
 
       if (writeOutput) {
         await this.writeOutputToFile(diffOutput,outputType,writeOutput,outputFormat);
+      } else if (outputFormat === 'json') {
+        this.outputJSON(diffOutput, outputType);
+      } else if (outputFormat === 'yaml' || outputFormat === 'yml') {
+        this.outputYAML(diffOutput, outputType);
+      } else if (outputFormat === 'md') {
+        this.outputMarkdown(diffOutput, outputType);
       } else {
-        if (outputFormat === 'json') {
-          this.outputJSON(diffOutput, outputType);
-        } else if (outputFormat === 'yaml' || outputFormat === 'yml') {
-          this.outputYAML(diffOutput, outputType);
-        } else if (outputFormat === 'md') {
-          this.outputMarkdown(diffOutput, outputType);
-        } else {
-          this.log(
-            `The output format ${outputFormat} is not supported at the moment.`,
-          );
-        }
-        if (!noError) {
-          throwOnBreakingChange(diffOutput, outputFormat);
-        }
+        this.log(
+          `The output format ${outputFormat} is not supported at the moment.`,
+        );
+      }
+      if (!noError) {
+        throwOnBreakingChange(diffOutput, outputFormat);
       }
     } catch (error) {
       if (

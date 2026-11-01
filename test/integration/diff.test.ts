@@ -575,6 +575,61 @@ describe('diff', () => {
           expect(fileContent).to.include('action: edit');
           expect(fileContent).to.include('type: breaking');
         });
+
+      test
+        .stderr()
+        .stdout()
+        .command([
+          'diff',
+          './test/fixtures/asyncapi_v1.yml',
+          './test/fixtures/asyncapi_v2.yml',
+          '--format=yaml',
+          '--save-output=./test/fixtures/output-test-breaking-error.yaml',
+        ])
+        .finally(async () => {
+          const fs = await import('fs');
+          try {
+            await fs.promises.unlink('./test/fixtures/output-test-breaking-error.yaml');
+          } catch (err) {
+            // Ignore error if file doesn't exist
+          }
+        })
+        .it('should save YAML output and report error on breaking changes when --no-error is not passed', async (ctx) => {
+          const fs = await import('fs');
+          expect(ctx.stdout).to.contain('Output successfully written to: ./test/fixtures/output-test-breaking-error.yaml');
+          expect(ctx.stderr).to.equal('DiffBreakingChangeError: Breaking changes detected\n');
+          const fileContent = await fs.promises.readFile('./test/fixtures/output-test-breaking-error.yaml', 'utf8');
+          expect(fileContent).to.include('type: breaking');
+        });
+    });
+
+    describe('JSON format with save-output flag without --no-error', () => {
+      test
+        .stderr()
+        .stdout()
+        .command([
+          'diff',
+          './test/fixtures/asyncapi_v1.yml',
+          './test/fixtures/asyncapi_v2.yml',
+          '--format=json',
+          '--save-output=./test/fixtures/output-test-breaking-error.json',
+        ])
+        .finally(async () => {
+          const fs = await import('fs');
+          try {
+            await fs.promises.unlink('./test/fixtures/output-test-breaking-error.json');
+          } catch (err) {
+            // Ignore error if file doesn't exist
+          }
+        })
+        .it('should save JSON output and report error on breaking changes when --no-error is not passed', async (ctx) => {
+          const fs = await import('fs');
+          expect(ctx.stdout).to.contain('Output successfully written to: ./test/fixtures/output-test-breaking-error.json');
+          expect(ctx.stderr).to.equal('DiffBreakingChangeError: Breaking changes detected\n');
+          const fileContent = await fs.promises.readFile('./test/fixtures/output-test-breaking-error.json', 'utf8');
+          const actualContent = JSON.parse(fileContent);
+          expect(actualContent).to.have.property('changes');
+        });
     });
   });
 });
