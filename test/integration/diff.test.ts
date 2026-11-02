@@ -577,4 +577,16 @@ describe('diff', () => {
         });
     });
   });
+
+  describe('when one of the documents cannot be parsed', () => {
+    test
+      .stderr()
+      .stdout()
+      .command(['diff', './test/fixtures/specification.yml', './test/fixtures/specification-invalid.yml'])
+      .it('surfaces the parse failure instead of an empty ValidationError', (ctx, done) => {
+        expect(ctx.stderr).to.contain('ValidationError');
+        expect(ctx.stderr).to.contain('Failed to parse document');
+        done();
+      });
+  });
 });
