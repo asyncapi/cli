@@ -37,7 +37,8 @@ function cliChangelog(root, version) {
   const lines = (fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '').split(/\r?\n/);
   const start = lines.indexOf(`## ${version}`);
   const next = lines.findIndex((line, index) => index > start && line.startsWith('## '));
-  const notes = start < 0 ? '' : lines.slice(start + 1, next < 0 ? undefined : next).join('\n').trim();
+  const end = next < 0 ? lines.length : next;
+  const notes = start < 0 ? '' : lines.slice(start + 1, end).join('\n').trim();
   if (!notes) {
     throw new Error(`CLI changelog entry missing for ${version}.`);
   }
@@ -104,7 +105,7 @@ function workspacePackages(root) {
     });
   }
   for (const pkg of packages) {
-    pkg.dependencies = pkg.dependencies.filter(name => names.has(name)).sort();
+    pkg.dependencies = pkg.dependencies.filter(name => names.has(name)).sort((a, b) => a.localeCompare(b, 'en'));
   }
   return orderPackages(packages);
 }
@@ -373,11 +374,13 @@ function adapter(root = ROOT, env = process.env, runner = spawnSync) {
     // GitHub operations run later, with a separate token and no OIDC access.
     tagTarget(tag) {
       let object = githubApi(`git/ref/tags/${encodeURIComponent(tag)}`)?.object;
-      for (let depth = 0; object?.type === 'tag'; depth++) {
+      let depth = 0;
+      while (object?.type === 'tag') {
         if (depth >= 5 || !SHA.test(object.sha || '')) {
           throw new Error('Invalid annotated release tag.');
         }
         object = githubApi(`git/tags/${object.sha}`)?.object;
+        depth++;
       }
       if (object && (object.type !== 'commit' || !SHA.test(object.sha || ''))) {
         throw new Error('Invalid release tag target.');
