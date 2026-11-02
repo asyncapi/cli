@@ -1,5 +1,15 @@
 # @asyncapi/cli
 
+## 6.2.3
+
+### Patch Changes
+
+- cfe4a7c: Publish CLI and workspace packages through the updated Changesets release workflow.
+- Updated dependencies [cfe4a7c]
+  - @asyncapi/diff@0.6.1
+  - @asyncapi/optimizer@2.0.1
+  - @asyncapi/bundler@1.1.1
+
 ## 6.2.2
 
 ### Patch Changes
