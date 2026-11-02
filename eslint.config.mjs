@@ -19,6 +19,7 @@ export default [
       '!github-action/lib/',
       '!github-action/lib/bump-action-version.js',
       'scripts/**/*.js',
+      '!scripts/publish-trusted.js',
       'packages/optimizer/**',
       'packages/diff/**',
       'packages/bundler/**',
@@ -215,7 +216,7 @@ export default [
     },
   },
   {
-    files: ['github-action/lib/bump-action-version.js'],
+    files: ['scripts/publish-trusted.js', 'github-action/lib/bump-action-version.js'],
     languageOptions: { sourceType: 'commonjs' },
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },

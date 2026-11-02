@@ -192,7 +192,7 @@
     "pack:tarballs:alpine": "oclif pack tarballs -t linux-x64 && npm run pack:rename alpine",
     "pack:windows": "oclif pack win && npm run pack:rename",
     "pack:rename": "node scripts/releasePackagesRename.js",
-    "publish:trusted": "changeset publish",
+    "publish:trusted": "node scripts/publish-trusted.js",
     "prepublishOnly": "npm run build",
     "pretest": "npm run build",
     "pretest:coverage": "npm run build",
