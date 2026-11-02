@@ -24,6 +24,41 @@ describe('models', () => {
       );
       done();
     });
+
+  test
+    .stderr()
+    .stdout()
+    .command([
+      ...generalOptions,
+      'kotlin',
+      './test/fixtures/specification.yml',
+      '--packageName=com.example.models',
+      '--kotlinJackson',
+    ])
+    .it('generates Kotlin models with Jackson annotations', (ctx, done) => {
+      expect(ctx.stdout).to.contain(
+        'import com.fasterxml.jackson.annotation.*',
+      );
+      expect(ctx.stdout).to.contain('@get:JsonProperty("displayName")');
+      done();
+    });
+
+  test
+    .stderr()
+    .stdout()
+    .command([
+      ...generalOptions,
+      'kotlin',
+      './test/fixtures/kotlin-polymorphism.yml',
+      '--packageName=com.example.models',
+      '--kotlinJackson',
+    ])
+    .it('generates Kotlin polymorphic hierarchies', (ctx, done) => {
+      expect(ctx.stdout).to.contain('sealed interface Animal');
+      expect(ctx.stdout).to.contain('@JsonSubTypes.Type(Cat::class');
+      expect(ctx.stdout).to.contain(') : Animal');
+      done();
+    });
   
   test
     .stderr()
