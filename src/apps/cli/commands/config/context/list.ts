@@ -4,10 +4,7 @@ import {
   isContextFileEmpty,
   CONTEXT_FILE_PATH,
 } from '@models/Context';
-import {
-  MissingContextFileError,
-  ContextFileWrongFormatError,
-} from '@errors/context-error';
+import { MissingContextFileError } from '@errors/context-error';
 import { helpFlag } from '@cli/internal/flags/global.flags';
 import { blueBright } from 'picocolors';
 
@@ -33,9 +30,7 @@ export default class ContextList extends Command {
         }
       }
     } catch (e) {
-      if (
-        e instanceof (MissingContextFileError || ContextFileWrongFormatError)
-      ) {
+      if (e instanceof MissingContextFileError) {
         this.log(
           `Unable to list contexts. You have no context file configured.\nRun ${blueBright('asyncapi config context init')} to initialize it.\n`,
         );
