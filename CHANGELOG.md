@@ -1,5 +1,31 @@
 # @asyncapi/cli
 
+## 6.2.3
+
+### Patch Changes
+
+- cfe4a7c: Publish CLI and workspace packages through the updated Changesets release workflow.
+- Updated dependencies [cfe4a7c]
+  - @asyncapi/diff@0.6.1
+  - @asyncapi/optimizer@2.0.1
+  - @asyncapi/bundler@1.1.1
+
+## 6.2.2
+
+### Patch Changes
+
+- 0f904f7: Move `@asyncapi/bundler` into the CLI monorepo at `packages/bundler`. Export `Document` from the package entry and attach stable `BUNDLER_*` error codes without changing messages or `error.name`.
+- Updated dependencies [0f904f7]
+  - @asyncapi/bundler@1.1.0
+
+## 6.2.1
+
+### Patch Changes
+
+- bdfb435: Move `@asyncapi/diff` into this monorepo as `packages/diff`. The library now exports `AsyncAPIDiff` from the package entry and throws coded `TypeError` subclasses for a version mismatch and an invalid override, with the same messages as before. Overrides are applied to a copy of the rule table so one call cannot change the next call in the same process.
+- Updated dependencies [bdfb435]
+  - @asyncapi/diff@0.6.0
+
 ## 6.2.0
 
 ### Minor Changes

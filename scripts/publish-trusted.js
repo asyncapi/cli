@@ -1,241 +1,690 @@
 'use strict';
 
-/**
- * changesets/action `publish` hook (not npm publish — that is the next workflow step).
- * Creates GitHub Release `v<cli-version>` with `gh release create --target <commit>`,
- * then prints `New tag: <name>@<version>` for each unpublished workspace package.
- */
-
+// Keep version PRs in changesets/action. This helper only moves built packages
+// through credential-free packing, npm OIDC publication and GitHub releases.
 const fs = require('node:fs');
 const path = require('node:path');
+const os = require('node:os');
+const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 
-const GIT = '/usr/bin/git';
-const GH = '/usr/bin/gh';
+const REPOSITORY = 'asyncapi/cli';
+const REGISTRY = 'https://registry.npmjs.org';
+const ROOT = path.resolve(__dirname, '..');
+const SHA = /^[a-f0-9]{40}$/;
+const INTEGRITY = /^sha512-[A-Za-z0-9+/]{86}==$/;
 
-const ROOT_DIR = path.resolve(__dirname, '..');
-const MAX_WORKSPACE_PATTERNS = 16;
-const MAX_PACKAGES_PER_GLOB = 32;
-const MAX_PACKAGE_NAME_LENGTH = 214;
-const MAX_VERSION_LENGTH = 64;
-const PACKAGE_NAME_PATTERN = /^(?:@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
-const VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?$/;
-const WORKSPACE_GLOB_PATTERN = /^(?:\.|[a-zA-Z0-9._-]+\/\*)$/;
-const COMMIT_SHA_PATTERN = /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/i;
-
-function main() {
-  const rootPackage = readPackageJson(ROOT_DIR);
-  const workspacePatterns = Array.isArray(rootPackage.workspaces) ? rootPackage.workspaces : ['.'];
-  const packages = listWorkspacePackages(ROOT_DIR, workspacePatterns);
-  const unpublished = [];
-
-  for (const pkg of packages) {
-    if (pkg.private) {
-      continue;
-    }
-    if (isVersionOnNpm(pkg.name, pkg.version)) {
-      console.log(`Version ${pkg.version} of package ${pkg.name} already published to NPM. Skipping.`);
-      continue;
-    }
-    unpublished.push(pkg);
+function stableVersion(value) {
+  if (
+    typeof value !== 'string' ||
+    !(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/).test(value) ||
+    value.length > 64 ||
+    value.split('.').some((part) => !Number.isSafeInteger(Number(part)))
+  ) {
+    throw new Error('Only canonical stable versions are supported by the master release workflow.');
   }
-
-  if (unpublished.length === 0) {
-    console.log('All workspace package versions are already on NPM. Skipping GitHub release.');
-    return;
-  }
-
-  const cliPackage = packages.find((pkg) => pkg.dir === ROOT_DIR && !pkg.private);
-  if (cliPackage) {
-    createGithubRelease(`v${cliPackage.version}`, cliPackage.version);
-  }
-
-  for (const pkg of unpublished) {
-    console.log(`New tag: ${pkg.name}@${pkg.version}`);
-  }
+  return value;
 }
 
-function listWorkspacePackages(rootDir, workspacePatterns) {
-  if (workspacePatterns.length > MAX_WORKSPACE_PATTERNS) {
-    throw new Error(`Too many workspace patterns (max ${MAX_WORKSPACE_PATTERNS}).`);
-  }
+function compareVersions(left, right) {
+  const a = stableVersion(left).split('.').map(Number);
+  const b = stableVersion(right).split('.').map(Number);
+  return a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
+}
 
+function cliChangelog(root, version) {
+  const file = path.join(root, 'CHANGELOG.md');
+  const lines = (fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '').split(/\r?\n/);
+  const start = lines.indexOf(`## ${version}`);
+  const next = lines.findIndex((line, index) => index > start && line.startsWith('## '));
+  const end = next < 0 ? lines.length : next;
+  const notes = start < 0 ? '' : lines.slice(start + 1, end).join('\n').trim();
+  if (!notes) {
+    throw new Error(`CLI changelog entry missing for ${version}.`);
+  }
+  return notes;
+}
+
+function workspaceFiles(root) {
+  const directory = fs.realpathSync(root);
+  const { workspaces = [] } = JSON.parse(fs.readFileSync(path.join(directory, 'package.json'), 'utf8'));
+  if (!Array.isArray(workspaces) || workspaces.some(pattern => typeof pattern !== 'string')) {
+    throw new Error('Workspaces must be an array of glob patterns.');
+  }
+  const patterns = workspaces.filter(pattern => !pattern.startsWith('!'));
+  const exclude = ['**/node_modules/**', ...workspaces.filter(pattern => pattern.startsWith('!')).map(pattern => pattern.slice(1))];
+  const matches = fs.globSync(patterns, { cwd: directory, exclude });
+  const files = new Set();
+  for (const match of ['.', ...matches]) {
+    const target = fs.realpathSync(path.resolve(directory, match));
+    const relative = path.relative(directory, target);
+    if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+      throw new Error('Release workspaces must not point outside the checkout.');
+    }
+    if (fs.statSync(target).isDirectory() && fs.existsSync(path.join(target, 'package.json'))) {
+      files.add(relative ? `${relative.split(path.sep).join('/')}/package.json` : 'package.json');
+    }
+  }
+  return [...files];
+}
+
+function orderPackages(packages) {
+  const pending = [...packages].sort((a, b) => a.name.localeCompare(b.name, 'en'));
+  const ordered = [];
+  const completed = new Set();
+  while (pending.length) {
+    const index = pending.findIndex(pkg =>
+      (pkg.file !== 'package.json' || pending.length === 1) &&
+      pkg.dependencies.every(name => completed.has(name))
+    );
+    if (index < 0) {
+      throw new Error('Workspace dependency cycle or runtime dependency on CLI prevents library-first publishing.');
+    }
+    const [pkg] = pending.splice(index, 1);
+    ordered.push(pkg);
+    completed.add(pkg.name);
+  }
+  return ordered;
+}
+
+function workspacePackages(root) {
   const packages = [];
-  const seenDirs = new Set();
-
-  for (const pattern of workspacePatterns) {
-    if (typeof pattern !== 'string' || !WORKSPACE_GLOB_PATTERN.test(pattern)) {
-      throw new Error(`Unsupported workspace pattern: ${String(pattern)}`);
+  const names = new Set();
+  for (const file of workspaceFiles(root)) {
+    const data = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
+    if (data.private === true) {continue;}
+    if (typeof data.name !== 'string' || !(/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/).test(data.name) || names.has(data.name)) {
+      throw new Error('Invalid or duplicate workspace package name.');
     }
+    names.add(data.name);
+    packages.push({
+      name: data.name,
+      version: data.version,
+      file,
+      dependencies: Object.keys({ ...data.dependencies, ...data.optionalDependencies }),
+    });
+  }
+  for (const pkg of packages) {
+    pkg.dependencies = pkg.dependencies.filter(name => names.has(name)).sort((a, b) => a.localeCompare(b, 'en'));
+  }
+  return orderPackages(packages);
+}
 
-    const dirs = resolveWorkspacePattern(rootDir, pattern);
-    for (const dir of dirs) {
-      if (seenDirs.has(dir)) {
-        continue;
+function inventory(root) {
+  return workspacePackages(root).map(pkg => {
+    const version = stableVersion(pkg.version);
+    return { ...pkg, version, tag: pkg.file === 'package.json' ? `v${version}` : `${pkg.name}@${version}` };
+  });
+}
+
+function integrity(file) {
+  const stat = fs.lstatSync(file);
+  if (!stat.isFile() || stat.isSymbolicLink() || stat.size === 0 || stat.size > 200 * 1024 * 1024) {
+    throw new Error('Invalid release tarball.');
+  }
+  return `sha512-${crypto.createHash('sha512').update(fs.readFileSync(file)).digest('base64')}`;
+}
+
+function tarballPath(directory, name) {
+  if (typeof name !== 'string' || !(/^[a-z0-9][a-z0-9.-]*\.tgz$/).test(name)) {
+    throw new Error('Invalid release tarball path.');
+  }
+  return path.join(directory, name);
+}
+
+function npmCli() {
+  const binary = path.dirname(process.execPath);
+  const candidates = [
+    path.resolve(binary, '../lib/node_modules/npm/bin/npm-cli.js'),
+    path.join(binary, 'node_modules/npm/bin/npm-cli.js'),
+  ];
+  const homebrew = process.execPath.match(/^(\/opt\/homebrew|\/usr\/local)\/Cellar\//);
+  if (homebrew) {
+    candidates.push(`${homebrew[1]}/lib/node_modules/npm/bin/npm-cli.js`);
+  }
+  if (binary === '/usr/bin') {
+    candidates.push('/usr/share/nodejs/npm/bin/npm-cli.js');
+  }
+  const cli = candidates.find((file) => fs.existsSync(file));
+  if (!cli) {
+    throw new Error('Use a Node installation with bundled npm 11.5.1 or newer.');
+  }
+  return cli;
+}
+
+function adapter(root = ROOT, env = process.env, runner = spawnSync) {
+  // Child commands receive only runtime/provenance fields, then their own credential.
+  const allowedEnvironment = [
+    'PATH',
+    'HOME',
+    'TMPDIR',
+    'TMP',
+    'TEMP',
+    'SystemRoot',
+    'SYSTEMROOT',
+    'COMSPEC',
+    'USERPROFILE',
+    'APPDATA',
+    'LOCALAPPDATA',
+    'LANG',
+    'LC_ALL',
+    'NODE_EXTRA_CA_CERTS',
+    'NODE_USE_SYSTEM_CA',
+    'SSL_CERT_FILE',
+    'SSL_CERT_DIR',
+    'HTTPS_PROXY',
+    'HTTP_PROXY',
+    'NO_PROXY',
+    // npm detects GitHub Actions and builds provenance from these public fields.
+    'CI',
+    'GITHUB_ACTIONS',
+    'GITHUB_EVENT_NAME',
+    'GITHUB_REPOSITORY',
+    'GITHUB_REPOSITORY_ID',
+    'GITHUB_REPOSITORY_OWNER_ID',
+    'GITHUB_REF',
+    'GITHUB_SHA',
+    'GITHUB_SERVER_URL',
+    'GITHUB_WORKFLOW_REF',
+    'GITHUB_RUN_ID',
+    'GITHUB_RUN_ATTEMPT',
+    'RUNNER_ENVIRONMENT',
+  ];
+  const commandEnv = Object.fromEntries(
+    allowedEnvironment.filter((key) => env[key] !== undefined).map((key) => [key, env[key]])
+  );
+  const runCommand = (command, args, childEnv = commandEnv, cwd = root) =>
+    runner(command, args, {
+      cwd,
+      env: childEnv,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: 180000,
+      maxBuffer: 1024 * 1024,
+    });
+  const requireSuccess = (result) => {
+    if (result.error || result.signal || result.status !== 0) {
+      throw new Error('Release command failed; no successful result can be assumed.');
+    }
+    return result.stdout;
+  };
+  const runGit = (args) => requireSuccess(runCommand('git', args)).trim();
+
+  // Run npm outside the checkout with empty config files and lifecycle hooks disabled.
+  let checkedNpm = false;
+  const runNpm = (args, publish = false) => {
+    const cli = npmCli();
+    if (!checkedNpm) {
+      const version = requireSuccess(runCommand(process.execPath, [cli, '--version'])).trim();
+      if (compareVersions(version, '11.5.1') < 0) {
+        throw new Error('npm 11.5.1 or newer is required.');
       }
-      seenDirs.add(dir);
-      packages.push(readWorkspacePackage(dir));
+      checkedNpm = true;
     }
-  }
-
-  return packages;
-}
-
-function resolveWorkspacePattern(rootDir, pattern) {
-  if (pattern === '.') {
-    return [rootDir];
-  }
-
-  const parentName = pattern.slice(0, -2);
-  const parentDir = resolveWithinRoot(rootDir, path.join(rootDir, parentName));
-  if (!fs.existsSync(parentDir) || !fs.statSync(parentDir).isDirectory()) {
-    return [];
-  }
-
-  const entries = fs.readdirSync(parentDir);
-  if (entries.length > MAX_PACKAGES_PER_GLOB) {
-    throw new Error(`Too many entries in ${parentName}/ (max ${MAX_PACKAGES_PER_GLOB}).`);
-  }
-
-  const dirs = [];
-  for (const entry of entries) {
-    const candidate = resolveWithinRoot(rootDir, path.join(parentDir, entry));
-    const packageJsonPath = path.join(candidate, 'package.json');
-    if (fs.existsSync(packageJsonPath) && fs.statSync(candidate).isDirectory()) {
-      dirs.push(candidate);
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-release-npm-'));
+    try {
+      const userConfig = path.join(temporary, 'user.npmrc');
+      const globalConfig = path.join(temporary, 'global.npmrc');
+      fs.writeFileSync(userConfig, '');
+      fs.writeFileSync(globalConfig, '');
+      const childEnv = { ...commandEnv };
+      if (publish) {
+        childEnv.ACTIONS_ID_TOKEN_REQUEST_URL = env.ACTIONS_ID_TOKEN_REQUEST_URL;
+        childEnv.ACTIONS_ID_TOKEN_REQUEST_TOKEN = env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
+      }
+      return runCommand(
+        process.execPath,
+        [
+          cli,
+          ...args,
+          '--registry',
+          REGISTRY,
+          '--ignore-scripts',
+          '--userconfig',
+          userConfig,
+          '--globalconfig',
+          globalConfig,
+        ],
+        childEnv,
+        temporary
+      );
+    } finally {
+      fs.rmSync(temporary, { recursive: true, force: true });
     }
-  }
-  return dirs;
-}
-
-function readWorkspacePackage(dir) {
-  const packageJson = readPackageJson(dir);
-  const name = assertPackageName(packageJson.name);
-  const version = assertVersion(packageJson.version);
+  };
+  const githubApi = (endpoint, args = []) => {
+    const result = runCommand(
+      'gh',
+      ['api', '--method', args.length ? 'POST' : 'GET', `repos/${REPOSITORY}/${endpoint}`, ...args],
+      { ...commandEnv, GH_TOKEN: env.GH_TOKEN }
+    );
+    if (
+      !args.length &&
+      !result.error &&
+      !result.signal &&
+      result.status !== 0 &&
+      (/\(HTTP 404\)/).test(result.stderr || '')
+    ) {
+      return undefined;
+    }
+    return JSON.parse(requireSuccess(result));
+  };
   return {
-    dir,
-    name,
-    version,
-    private: packageJson.private === true,
+    env,
+    head: () => runGit(['rev-parse', 'HEAD']),
+    clean: () => {
+      runGit(['diff', '--exit-code', 'HEAD']);
+      if (runGit(['status', '--porcelain', '--untracked-files=all'])) {
+        throw new Error('Release packing requires a clean source checkout.');
+      }
+    },
+    // npm metadata, built tarballs and OIDC publication.
+    registry(pkg) {
+      const result = runNpm(['view', `${pkg.name}@${pkg.version}`, '--json', '--prefer-online']);
+      let data;
+      try {
+        data = JSON.parse(result.stdout);
+      } catch {
+        throw new Error('Unreadable npm response.');
+      }
+      if (!result.error && !result.signal && result.status !== 0 && data?.error?.code === 'E404') {
+        return null;
+      }
+      requireSuccess(result);
+      if (
+        data.name !== pkg.name ||
+        data.version !== pkg.version ||
+        !SHA.test(data.gitHead || '') ||
+        !INTEGRITY.test(data.dist?.integrity || '')
+      ) {
+        throw new Error('npm publication identity is missing or invalid.');
+      }
+      return { gitHead: data.gitHead, integrity: data.dist.integrity };
+    },
+    latest(pkg) {
+      const result = runNpm(['view', pkg.name, 'dist-tags', '--json']);
+      const data = JSON.parse(result.stdout);
+      if (!result.error && !result.signal && result.status !== 0 && data?.error?.code === 'E404') {
+        return undefined;
+      }
+      requireSuccess(result);
+      return stableVersion(data.latest);
+    },
+    pack(pkg, sourceSha, directory) {
+      const file = path.join(root, pkg.file);
+      const original = fs.readFileSync(file);
+      try {
+        fs.writeFileSync(
+          file,
+          `${JSON.stringify({ ...JSON.parse(original), gitHead: sourceSha }, null, 2)}\n`
+        );
+        const packed = JSON.parse(
+          requireSuccess(
+            runNpm(['pack', path.dirname(file), '--json', '--pack-destination', directory])
+          )
+        );
+        if (
+          packed.length !== 1 ||
+          packed[0].name !== pkg.name ||
+          packed[0].version !== pkg.version
+        ) {
+          throw new Error('Unexpected packed package.');
+        }
+        return packed[0].filename;
+      } finally {
+        fs.writeFileSync(file, original);
+      }
+    },
+    verifyTarball(file, pkg, sourceSha) {
+      const data = JSON.parse(
+        requireSuccess(runCommand('tar', ['-xOzf', file, 'package/package.json']))
+      );
+      if (
+        data.name !== pkg.name ||
+        data.version !== pkg.version ||
+        data.gitHead !== sourceSha ||
+        data.private === true
+      ) {
+        throw new Error('Packed package does not match its source identity.');
+      }
+      // npm accepts arbitrary npmrc settings here, including scoped registries.
+      const config = data.publishConfig;
+      if (
+        config !== undefined &&
+        (!config ||
+          typeof config !== 'object' ||
+          Array.isArray(config) ||
+          Object.entries(config).some(
+            ([key, value]) =>
+              !(
+                (key === 'access' && value === 'public') ||
+                (key === 'registry' && value === REGISTRY)
+              )
+          ))
+      ) {
+        throw new Error(
+          'Packed publishConfig may only select public access and the official npm registry.'
+        );
+      }
+    },
+    publish: (file) =>
+      requireSuccess(
+        runNpm(['publish', file, '--access', 'public', '--tag', 'latest', '--provenance'], true)
+      ),
+    // GitHub operations run later, with a separate token and no OIDC access.
+    tagTarget(tag) {
+      let object = githubApi(`git/ref/tags/${encodeURIComponent(tag)}`)?.object;
+      let depth = 0;
+      while (object?.type === 'tag') {
+        if (depth >= 5 || !SHA.test(object.sha || '')) {
+          throw new Error('Invalid annotated release tag.');
+        }
+        object = githubApi(`git/tags/${object.sha}`)?.object;
+        depth++;
+      }
+      if (object && (object.type !== 'commit' || !SHA.test(object.sha || ''))) {
+        throw new Error('Invalid release tag target.');
+      }
+      return object?.sha;
+    },
+    release: (tag) => githubApi(`releases/tags/${encodeURIComponent(tag)}`),
+    latestRelease: () => githubApi('releases/latest'),
+    createTag: (tag, sha) =>
+      githubApi('git/refs', ['-f', `ref=refs/tags/${tag}`, '-f', `sha=${sha}`]),
+    createRelease(pkg, latest, previousCliTag) {
+      const args = [
+        'release',
+        'create',
+        pkg.tag,
+        '--repo',
+        REPOSITORY,
+        '--verify-tag',
+        '--title',
+        pkg.tag,
+        `--latest=${latest}`,
+      ];
+      if (pkg.file === 'package.json') {
+        if (previousCliTag) {
+          args.push('--generate-notes', '--notes-start-tag', previousCliTag);
+        } else {
+          args.push('--notes', cliChangelog(root, pkg.version));
+        }
+      } else {
+        args.push('--notes', `Release ${pkg.tag}.`);
+      }
+      requireSuccess(runCommand('gh', args, { ...commandEnv, GH_TOKEN: env.GH_TOKEN }));
+    },
   };
 }
 
-function readPackageJson(dir) {
-  const packageJsonPath = path.join(dir, 'package.json');
-  const raw = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
-  return JSON.parse(raw);
+function context(client, phase, sourceSha) {
+  const env = client.env;
+  if (
+    !SHA.test(sourceSha || '') ||
+    client.head() !== sourceSha ||
+    env.GITHUB_SHA !== sourceSha ||
+    env.GITHUB_ACTIONS !== 'true' ||
+    env.GITHUB_REPOSITORY !== REPOSITORY ||
+    env.GITHUB_REF !== 'refs/heads/master' ||
+    !['push', 'workflow_dispatch'].includes(env.GITHUB_EVENT_NAME)
+  ) {
+    throw new Error(
+      'Release writes require the exact asyncapi/cli master workflow commit.'
+    );
+  }
+  if (
+    env.NPM_TOKEN ||
+    env.NODE_AUTH_TOKEN ||
+    (phase !== '--releases' && (env.GH_TOKEN || env.GITHUB_TOKEN))
+  ) {
+    throw new Error('Unexpected release credential.');
+  }
+  if (
+    phase === '--publish' &&
+    (!env.ACTIONS_ID_TOKEN_REQUEST_URL || !env.ACTIONS_ID_TOKEN_REQUEST_TOKEN)
+  ) {
+    throw new Error('npm publishing requires OIDC.');
+  }
+  if (phase !== '--publish' && env.ACTIONS_ID_TOKEN_REQUEST_TOKEN) {
+    throw new Error('OIDC belongs only in the npm publishing job.');
+  }
+  if (phase === '--releases' && !env.GH_TOKEN) {
+    throw new Error('GH_TOKEN is required to create release events.');
+  }
 }
 
-function resolveWithinRoot(rootDir, targetPath) {
-  const root = path.resolve(rootDir);
-  const resolved = path.resolve(targetPath);
-  if (resolved !== root && !resolved.startsWith(root + path.sep)) {
-    throw new Error('Path escapes workspace root.');
+function readManifest(root, directory, client, phase) {
+  const manifestPath = path.join(directory, 'manifest.json');
+  if (fs.statSync(manifestPath).size > 1024 * 1024) {
+    throw new Error('Release manifest exceeds its size limit.');
   }
-  return resolved;
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  context(client, phase, manifest.sourceSha);
+  const packages = inventory(root);
+  if (manifest.packages?.length !== packages.length) {
+    throw new Error('Incomplete release artifact.');
+  }
+  for (const [index, pkg] of packages.entries()) {
+    const record = manifest.packages[index];
+    for (const key of ['name', 'version', 'file', 'tag']) {
+      if (record[key] !== pkg[key]) {
+        throw new Error('Release artifact inventory does not match the checkout.');
+      }
+    }
+    if (JSON.stringify(record.dependencies) !== JSON.stringify(pkg.dependencies)) {
+      throw new Error('Release artifact dependency graph does not match the checkout.');
+    }
+    if (
+      !INTEGRITY.test(record.integrity || '') ||
+      (record.published &&
+        (!SHA.test(record.published.gitHead || '') ||
+          !INTEGRITY.test(record.published.integrity || '')))
+    ) {
+      throw new Error('Invalid publication evidence in release manifest.');
+    }
+    const tarball = tarballPath(directory, record.tarball);
+    if (integrity(tarball) !== record.integrity) {
+      throw new Error('Release tarball integrity mismatch.');
+    }
+    client.verifyTarball(tarball, record, manifest.sourceSha);
+  }
+  return manifest;
 }
 
-function assertPackageName(name) {
-  if (typeof name !== 'string' || name.length === 0 || name.length > MAX_PACKAGE_NAME_LENGTH) {
-    throw new Error('Invalid package name length.');
+function assertPublished(pkg, actual, sourceSha) {
+  const expected = pkg.published || { gitHead: sourceSha, integrity: pkg.integrity };
+  if (!actual) {
+    throw new Error(`Publication is incomplete: ${pkg.name}@${pkg.version} is not visible on npm.`);
   }
-  if (!PACKAGE_NAME_PATTERN.test(name)) {
-    throw new Error(`Invalid package name: ${name}`);
+  if (actual.gitHead !== expected.gitHead || actual.integrity !== expected.integrity) {
+    throw new Error(`Publication conflicts with ${pkg.name}@${pkg.version}.`);
   }
-  return name;
 }
 
-function assertVersion(version) {
-  if (typeof version !== 'string' || version.length === 0 || version.length > MAX_VERSION_LENGTH) {
-    throw new Error('Invalid package version length.');
+function pack(root, directory, client) {
+  const sourceSha = client.head();
+  context(client, '--pack', sourceSha);
+  client.clean();
+  fs.mkdirSync(directory, { recursive: true });
+  if (fs.readdirSync(directory).length) {
+    throw new Error('Release artifact directory must be empty.');
   }
-  if (!VERSION_PATTERN.test(version)) {
-    throw new Error(`Invalid package version: ${version}`);
-  }
-  return version;
-}
-
-function isVersionOnNpm(name, version) {
-  const npmCli = path.join(path.dirname(process.execPath), '..', 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js');
-  if (!fs.existsSync(npmCli)) {
-    throw new Error('npm CLI not found next to the Node executable.');
-  }
-  const result = spawnSync(process.execPath, [npmCli, 'view', `${name}@${version}`, 'version'], {
-    encoding: 'utf8',
-    cwd: ROOT_DIR,
-    stdio: ['ignore', 'pipe', 'pipe'],
+  const packages = inventory(root).map((pkg) => {
+    const published = client.registry(pkg);
+    const tarball = client.pack(pkg, sourceSha, directory);
+    client.verifyTarball(tarballPath(directory, tarball), pkg, sourceSha);
+    return { ...pkg, published, tarball, integrity: integrity(tarballPath(directory, tarball)) };
   });
-  return result.status === 0 && result.stdout.trim() === version;
+  fs.writeFileSync(
+    path.join(directory, 'manifest.json'),
+    `${JSON.stringify({ sourceSha, packages }, null, 2)}\n`
+  );
 }
 
-function assertCliGitTag(tag) {
-  if (typeof tag !== 'string' || tag.length > MAX_VERSION_LENGTH + 1 || !/^v\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?$/.test(tag)) {
-    throw new Error(`Invalid CLI git tag: ${String(tag)}`);
+async function publish(root, directory, client) {
+  const manifest = readManifest(root, directory, client, '--publish');
+  const pending = [];
+  for (const pkg of manifest.packages) {
+    const current = client.registry(pkg);
+    if (current) {
+      assertPublished(pkg, current, manifest.sourceSha);
+      console.log(`Already published and verified: ${pkg.name}@${pkg.version}`);
+      continue;
+    }
+    if (pkg.published) {
+      throw new Error('An existing npm publication disappeared.');
+    }
+    const latest = client.latest(pkg);
+    if (latest && compareVersions(pkg.version, latest) < 0) {
+      throw new Error('Refusing to move npm latest backwards.');
+    }
+    pending.push(pkg);
+  }
+  const failures = [];
+  const failed = new Set();
+  for (const pkg of pending) {
+    if ((pkg.file === 'package.json' && failures.length) || pkg.dependencies.some(name => failed.has(name))) {
+      failed.add(pkg.name);
+      failures.push(`${pkg.name}@${pkg.version}: held back after a workspace publication failed.`);
+      continue;
+    }
+    try {
+      console.log(`Publishing: ${pkg.name}@${pkg.version}`);
+      client.publish(tarballPath(directory, pkg.tarball));
+      console.log(`npm acknowledged publication: ${pkg.name}@${pkg.version}`);
+    } catch (error) {
+      failed.add(pkg.name);
+      failures.push(`${pkg.name}@${pkg.version}: ${error.message}`);
+    }
+  }
+  if (failures.length) {
+    throw new Error(
+      `npm publication failed; CLI and GitHub releases are held back:\n${failures.join('\n')}`
+    );
   }
 }
 
-function resolveReleaseTargetSha() {
-  const envSha = typeof process.env.GITHUB_SHA === 'string' ? process.env.GITHUB_SHA.trim() : '';
-  if (COMMIT_SHA_PATTERN.test(envSha)) {
-    return envSha.toLowerCase();
+function releases(root, directory, client) {
+  // The workflow runs this phase only after every npm publish succeeds.
+  const manifest = readManifest(root, directory, client, '--releases');
+  const currentLatest = client.latestRelease();
+  if (
+    currentLatest &&
+    (currentLatest.draft !== false ||
+      currentLatest.prerelease !== false ||
+      !(/^v\d+\.\d+\.\d+$/).test(currentLatest.tag_name))
+  ) {
+    throw new Error('Resolve the current GitHub Latest release before continuing.');
   }
-
-  const result = spawnSync(GIT, ['rev-parse', 'HEAD'], {
-    cwd: ROOT_DIR,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
+  // Validate the entire release before creating any tags or GitHub releases.
+  const plans = manifest.packages.map((pkg) => {
+    // Existing versions retain their recorded identity; new versions were
+    // acknowledged by npm for this manifest's source and verified tarballs.
+    const sha = pkg.published?.gitHead || manifest.sourceSha;
+    const existingTagSha = client.tagTarget(pkg.tag);
+    const existingRelease = client.release(pkg.tag);
+    if (existingTagSha && existingTagSha !== sha) {
+      throw new Error('Existing tag does not match npm publication.');
+    }
+    if (
+      existingRelease &&
+      (!existingTagSha ||
+        existingRelease.draft !== false ||
+        existingRelease.prerelease !== false ||
+        existingRelease.tag_name !== pkg.tag)
+    ) {
+      throw new Error('Existing release does not match the stable release policy.');
+    }
+    if (!existingTagSha && sha !== manifest.sourceSha) {
+      throw new Error(
+        'A missing historical tag needs manual source review; no tag will be guessed.'
+      );
+    }
+    // Delivery workflows also update Docker latest and the hosted API.
+    if (
+      !existingRelease &&
+      pkg.file === 'package.json' &&
+      currentLatest &&
+      compareVersions(pkg.version, currentLatest.tag_name.slice(1)) < 0
+    ) {
+      throw new Error(
+        'Recovering an older CLI release needs manual delivery review to prevent a production rollback.'
+      );
+    }
+    return {
+      pkg,
+      sha,
+      existingTagSha,
+      existingRelease,
+      markLatest:
+        pkg.file === 'package.json' &&
+        (!currentLatest || compareVersions(pkg.version, currentLatest.tag_name.slice(1)) > 0),
+    };
   });
-  const sha = (result.stdout || '').trim();
-  if (result.status !== 0 || !COMMIT_SHA_PATTERN.test(sha)) {
-    throw new Error('Could not determine a valid commit SHA for GitHub Release --target.');
+  for (const plan of plans) {
+    if (!plan.existingTagSha) {
+      client.createTag(plan.pkg.tag, plan.sha);
+    }
+    if (!plan.existingRelease) {
+      client.createRelease(
+        plan.pkg,
+        plan.markLatest,
+        plan.pkg.file === 'package.json' ? currentLatest?.tag_name : undefined
+      );
+    }
   }
-  return sha.toLowerCase();
 }
 
-function createGithubRelease(tag, version) {
-  assertCliGitTag(tag);
-  assertVersion(version);
-
-  const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '';
-  if (!token) {
-    console.log('GH_TOKEN not set; skipping GitHub Release creation.');
+async function main(args = process.argv.slice(2)) {
+  const client = adapter();
+  if (args.length === 0 || (args.length === 1 && args[0] === '--plan')) {
+    console.log(
+      JSON.stringify(
+        inventory(ROOT).map((pkg) => ({ ...pkg, published: !!client.registry(pkg) })),
+        null,
+        2
+      )
+    );
     return;
   }
-
-  const ghCheck = spawnSync(GH, ['--version'], { stdio: 'ignore' });
-  if (ghCheck.status !== 0) {
-    console.log('gh CLI not available; skipping GitHub Release creation.');
-    return;
+  if (args.length !== 2 || !['--pack', '--publish', '--releases'].includes(args[0])) {
+    throw new Error(
+      'Usage: publish-trusted.js [--plan | --pack directory | --publish directory | --releases directory]'
+    );
   }
-
-  const env = { ...process.env, GH_TOKEN: token };
-  const existing = spawnSync(GH, ['release', 'view', tag], {
-    cwd: ROOT_DIR,
-    encoding: 'utf8',
-    env,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-  if (existing.status === 0) {
-    console.log(`GitHub Release ${tag} already exists.`);
-    return;
+  const directory = path.resolve(args[1]);
+  const phase = args[0];
+  switch (phase) {
+  case '--pack':
+    pack(ROOT, directory, client);
+    break;
+  case '--publish':
+    await publish(ROOT, directory, client);
+    break;
+  case '--releases':
+    releases(ROOT, directory, client);
+    break;
   }
-
-  const sha = resolveReleaseTargetSha();
-  const args = ['release', 'create', tag, '--title', tag, '--generate-notes', '--target', sha];
-  if (version.includes('-')) {
-    args.push('--prerelease');
-  }
-
-  const created = spawnSync(GH, args, {
-    cwd: ROOT_DIR,
-    encoding: 'utf8',
-    env,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-  if (created.status !== 0) {
-    throw new Error(`Failed to create GitHub Release ${tag}: ${created.stderr || created.stdout}`);
-  }
-  console.log(`Created GitHub Release ${tag} at ${sha}.`);
 }
 
-main();
+module.exports = {
+  inventory,
+  stableVersion,
+  compareVersions,
+  adapter,
+  context,
+  pack,
+  publish,
+  releases,
+  readManifest,
+  integrity,
+  assertPublished,
+  npmCli,
+};
+
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(error.message);
+    process.exitCode = 1;
+  });
+}
