@@ -1,7 +1,7 @@
  
 import { Args } from '@oclif/core';
 import * as diff from '@asyncapi/diff';
-import AsyncAPIDiff from '@asyncapi/diff/lib/asyncapidiff';
+import { AsyncAPIDiff } from '@asyncapi/diff';
 import { promises as fs } from 'fs';
 import chalk from 'chalk';
 import { load, Specification } from '@models/SpecificationFile';

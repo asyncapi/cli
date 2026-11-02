@@ -1,12 +1,4 @@
-import config from 'config';
-import fs from 'fs';
-import path from 'path';
 import winston from 'winston';
-
-const logDir: string = path.join(__dirname, config.has('log.dir') ? config.get('log.dir') : 'logs');
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
-}
 
 /*
  * Log Level

@@ -1,0 +1,22 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "npm run start:cjs && npm run start:esm && npm run start:ts",
+    "start:cjs": "node bundle-cjs.cjs",
+    "start:esm": "node bundle-esm.mjs",
+    "start:ts": "node --experimental-strip-types bundle.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@asyncapi/bundler": "../",
+    "@types/node": "^20.11.30",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.4.3"
+  }
+}
