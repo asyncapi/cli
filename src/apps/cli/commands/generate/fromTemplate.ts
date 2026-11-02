@@ -1,4 +1,4 @@
-import { Args } from '@oclif/core';
+import { Args, Flags } from '@oclif/core';
 import { BaseGeneratorCommand } from '@cli/internal/base/BaseGeneratorCommand';
 import { load, Specification } from '@models/SpecificationFile';
 import { ValidationError } from '@errors/validation-error';
@@ -19,6 +19,11 @@ export default class Template extends BaseGeneratorCommand {
   static readonly flags = {
     ...fromTemplateFlags(),
     ...BaseGeneratorCommand.flags,
+    compile: Flags.boolean({
+      description: 'Disable compilation for faster generation.',
+      default: true,
+      allowNo: true, 
+    }),
   };
 
   static args = {
@@ -53,6 +58,7 @@ export default class Template extends BaseGeneratorCommand {
     );
 
     const options = await this.buildGeneratorOptions(flags, parsedFlags);
+    (options as any).compile = flags.compile;
 
     // Apply proxy configuration using base class method
     asyncapi = this.applyProxyConfiguration(asyncapi, proxyHost, proxyPort);
