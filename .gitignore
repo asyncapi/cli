@@ -4,6 +4,7 @@
 .idea
 /.nyc_output
 /dist
+.tsbuildinfo
 /dist/
 /lib
 /node_modules/
