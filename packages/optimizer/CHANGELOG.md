@@ -1,5 +1,11 @@
 # @asyncapi/optimizer
 
+## 2.0.1
+
+### Patch Changes
+
+- cfe4a7c: Publish CLI and workspace packages through the updated Changesets release workflow.
+
 ## 2.0.0
 
 ### Major Changes
