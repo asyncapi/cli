@@ -167,7 +167,7 @@
     "fsevents": "^2.3.3"
   },
   "scripts": {
-    "build": "npm run optimizer:build && npm run diff:build && npm run bundler:build && rimraf lib && node scripts/fetch-asyncapi-example.js && npm run generate:languages && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
+    "build": "turbo run build --filter=\"!@asyncapi/cli\" && rimraf lib && node scripts/fetch-asyncapi-example.js && npm run generate:languages && tsc && tsc-alias --project tsconfig.json && oclif manifest && echo \"Build Completed\"",
     "optimizer:build": "turbo run build --filter=@asyncapi/optimizer",
     "optimizer:test": "turbo run test --filter=@asyncapi/optimizer",
     "diff:build": "turbo run build --filter=@asyncapi/diff",

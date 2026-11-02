@@ -10,22 +10,6 @@ const { spawnSync } = require('node:child_process');
 
 const REPOSITORY = 'asyncapi/cli';
 const REGISTRY = 'https://registry.npmjs.org';
-// Publish independent libraries first; the CLI depends on all three.
-const WORKSPACES = [
-  {
-    file: 'packages/diff/package.json',
-    name: '@asyncapi/diff',
-  },
-  {
-    file: 'packages/optimizer/package.json',
-    name: '@asyncapi/optimizer',
-  },
-  {
-    file: 'packages/bundler/package.json',
-    name: '@asyncapi/bundler',
-  },
-  { file: 'package.json', name: '@asyncapi/cli' },
-];
 const ROOT = path.resolve(__dirname, '..');
 const SHA = /^[a-f0-9]{40}$/;
 const INTEGRITY = /^sha512-[A-Za-z0-9+/]{86}==$/;
@@ -60,18 +44,75 @@ function cliChangelog(root, version) {
   return notes;
 }
 
-function inventory(root) {
-  return WORKSPACES.map(({ file, name }) => {
-    const data = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
-    if (data.name !== name || data.private === true) {
-      throw new Error('Release workspace inventory changed; update its policy explicitly.');
+function workspaceFiles(root) {
+  const directory = fs.realpathSync(root);
+  const { workspaces = [] } = JSON.parse(fs.readFileSync(path.join(directory, 'package.json'), 'utf8'));
+  if (!Array.isArray(workspaces) || workspaces.some(pattern => typeof pattern !== 'string')) {
+    throw new Error('Workspaces must be an array of glob patterns.');
+  }
+  const patterns = workspaces.filter(pattern => !pattern.startsWith('!'));
+  const exclude = ['**/node_modules/**', ...workspaces.filter(pattern => pattern.startsWith('!')).map(pattern => pattern.slice(1))];
+  const matches = fs.globSync(patterns, { cwd: directory, exclude });
+  const files = new Set();
+  for (const match of ['.', ...matches]) {
+    const target = fs.realpathSync(path.resolve(directory, match));
+    const relative = path.relative(directory, target);
+    if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+      throw new Error('Release workspaces must not point outside the checkout.');
     }
-    return {
+    if (fs.statSync(target).isDirectory() && fs.existsSync(path.join(target, 'package.json'))) {
+      files.add(relative ? `${relative.split(path.sep).join('/')}/package.json` : 'package.json');
+    }
+  }
+  return [...files];
+}
+
+function orderPackages(packages) {
+  const pending = [...packages].sort((a, b) => a.name.localeCompare(b.name, 'en'));
+  const ordered = [];
+  const completed = new Set();
+  while (pending.length) {
+    const index = pending.findIndex(pkg =>
+      (pkg.file !== 'package.json' || pending.length === 1) &&
+      pkg.dependencies.every(name => completed.has(name))
+    );
+    if (index < 0) {
+      throw new Error('Workspace dependency cycle or runtime dependency on CLI prevents library-first publishing.');
+    }
+    const [pkg] = pending.splice(index, 1);
+    ordered.push(pkg);
+    completed.add(pkg.name);
+  }
+  return ordered;
+}
+
+function workspacePackages(root) {
+  const packages = [];
+  const names = new Set();
+  for (const file of workspaceFiles(root)) {
+    const data = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
+    if (data.private === true) {continue;}
+    if (typeof data.name !== 'string' || !(/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/).test(data.name) || names.has(data.name)) {
+      throw new Error('Invalid or duplicate workspace package name.');
+    }
+    names.add(data.name);
+    packages.push({
       name: data.name,
-      version: stableVersion(data.version),
+      version: data.version,
       file,
-      tag: file === 'package.json' ? `v${data.version}` : `${data.name}@${data.version}`,
-    };
+      dependencies: Object.keys({ ...data.dependencies, ...data.optionalDependencies }),
+    });
+  }
+  for (const pkg of packages) {
+    pkg.dependencies = pkg.dependencies.filter(name => names.has(name)).sort();
+  }
+  return orderPackages(packages);
+}
+
+function inventory(root) {
+  return workspacePackages(root).map(pkg => {
+    const version = stableVersion(pkg.version);
+    return { ...pkg, version, tag: pkg.file === 'package.json' ? `v${version}` : `${pkg.name}@${version}` };
   });
 }
 
@@ -427,6 +468,9 @@ function readManifest(root, directory, client, phase) {
         throw new Error('Release artifact inventory does not match the checkout.');
       }
     }
+    if (JSON.stringify(record.dependencies) !== JSON.stringify(pkg.dependencies)) {
+      throw new Error('Release artifact dependency graph does not match the checkout.');
+    }
     if (
       !INTEGRITY.test(record.integrity || '') ||
       (record.published &&
@@ -494,16 +538,19 @@ async function publish(root, directory, client) {
     pending.push(pkg);
   }
   const failures = [];
+  const failed = new Set();
   for (const pkg of pending) {
-    // The libraries are independent; the CLI requires all of them.
-    if (pkg.file === 'package.json' && failures.length) {
-      break;
+    if ((pkg.file === 'package.json' && failures.length) || pkg.dependencies.some(name => failed.has(name))) {
+      failed.add(pkg.name);
+      failures.push(`${pkg.name}@${pkg.version}: held back after a workspace publication failed.`);
+      continue;
     }
     try {
       console.log(`Publishing: ${pkg.name}@${pkg.version}`);
       client.publish(tarballPath(directory, pkg.tarball));
       console.log(`npm acknowledged publication: ${pkg.name}@${pkg.version}`);
     } catch (error) {
+      failed.add(pkg.name);
       failures.push(`${pkg.name}@${pkg.version}: ${error.message}`);
     }
   }
