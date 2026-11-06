@@ -1,16 +1,16 @@
 import Command from '@cli/internal/base';
-import bundle from '@asyncapi/bundler';
 import { existsSync, promises } from 'node:fs';
 import path from 'node:path';
-import bundle, { Document } from '@asyncapi/bundler';
-import { promises } from 'fs';
-import path from 'path';
+import bundle from '@asyncapi/bundler';
 import { Specification } from '@models/SpecificationFile';
 import { bundleFlags } from '@cli/internal/flags/bundle.flags';
 import { ApplicationError } from '@errors/application-error';
 import { CLI_ERROR_CODES } from '@errors/error-codes';
 
 const { writeFile } = promises;
+
+// @asyncapi/bundler does not export its Document class, so derive the type from bundle().
+type Document = Awaited<ReturnType<typeof bundle>>;
 
 export default class Bundle extends Command {
   static readonly description =
