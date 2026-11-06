@@ -1,9 +1,8 @@
 import Command from '@cli/internal/base';
-import bundle from '@asyncapi/bundler';
+import bundle, { Document } from '@asyncapi/bundler';
 import { promises } from 'fs';
 import path from 'path';
 import { Specification } from '@models/SpecificationFile';
-import { Document } from '@asyncapi/bundler/lib/document';
 import { bundleFlags } from '@cli/internal/flags/bundle.flags';
 
 const { writeFile } = promises;

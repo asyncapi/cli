@@ -15,8 +15,14 @@ export default [
       'test/fixtures/minimaltemplate',
       'test/fixtures/newtemplate',
       '.github/workflows/scripts',
-      'github-action',
+      'github-action/**/*',
+      '!github-action/lib/',
+      '!github-action/lib/bump-action-version.js',
       'scripts/**/*.js',
+      '!scripts/publish-trusted.js',
+      'packages/optimizer/**',
+      'packages/diff/**',
+      'packages/bundler/**',
     ],
   },
   js.configs.recommended,
@@ -203,10 +209,15 @@ export default [
     },
   },
   {
-    files: ['src/domains/models/Preview.ts', 'src/domains/models/Studio.ts', 'test/jest.setup.ts'],
+    files: ['src/domains/models/Preview.ts', 'src/domains/models/Studio.ts', 'src/domains/models/studio-runtime.ts', 'test/jest.setup.ts'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-var-requires': 'off',
     },
+  },
+  {
+    files: ['scripts/publish-trusted.js', 'github-action/lib/bump-action-version.js'],
+    languageOptions: { sourceType: 'commonjs' },
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
 ];

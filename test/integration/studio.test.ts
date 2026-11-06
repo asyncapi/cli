@@ -1,3 +1,4 @@
+import path from 'path';
 import { expect } from 'chai';
 import { start as startStudio } from '../../src/domains/models/Studio';
 import { startPreview } from '../../src/domains/models/Preview';
@@ -8,13 +9,25 @@ import {
   waitForServer,
 } from '../helpers/index';
 
+function isStudioInstalled(): boolean {
+  try {
+    const studioPath = path.dirname(
+      require.resolve('@asyncapi/studio/package.json'),
+    );
+    require.resolve('next', { paths: [studioPath] });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 describe('Test live studio', function () {
   this.timeout(120000);
 
   const port = 3210;
 
   before(async function () {
-    if (!(await isChromeAvailable())) {
+    if (!isStudioInstalled() || !(await isChromeAvailable())) {
       this.skip();
     }
 
@@ -34,19 +47,14 @@ describe('Test preview mode', function () {
   const port = 4321;
 
   before(async function () {
-    if (!(await isChromeAvailable())) {
+    if (!isStudioInstalled() || !(await isChromeAvailable())) {
       this.skip();
     }
 
-    startPreview(
-      './test/fixtures/asyncapi_v2.yml',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
+    startPreview('./test/fixtures/asyncapi_v2.yml', {
       port,
-      true,
-    );
+      noBrowser: true,
+    });
     await waitForServer(port);
   });
 

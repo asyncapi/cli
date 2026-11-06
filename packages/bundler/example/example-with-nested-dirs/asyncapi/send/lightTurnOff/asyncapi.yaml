@@ -1,0 +1,25 @@
+asyncapi: 3.0.0
+info:
+  title: Light Turn Off
+  version: 1.0.0
+channels:
+  lightTurnOff:
+    address: 'smartylighting/streetlights/1/0/action/{streetlightId}/turn/off'
+    messages:
+      turnOff:
+        $ref: '#/components/messages/turnOnOff'
+operations:
+  turnOff:
+    action: send
+    channel:
+      $ref: '#/channels/lightTurnOff'
+    messages:
+      - $ref: '#/channels/lightTurnOff/messages/turnOff'
+components:
+  messages:
+    turnOnOff:
+      name: turnOnOff
+      title: Turn on/off
+      summary: Command a particular streetlight to turn the lights on or off.
+      payload:
+        $ref: ./schema.json

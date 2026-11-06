@@ -1,4 +1,5 @@
 import { Flags } from '@oclif/core';
+import { studioInstallFlag } from '@cli/internal/flags/studio.flags';
 
 export const fileFlags = (exampleFlagDescription: string) => {
   return {
@@ -6,6 +7,7 @@ export const fileFlags = (exampleFlagDescription: string) => {
     'file-name': Flags.string({ char: 'n', description: 'name of the file' }),
     example: Flags.string({ char: 'e', description: exampleFlagDescription }),
     studio: Flags.boolean({ char: 's', description: 'open in Studio' }),
+    yes: studioInstallFlag(),
     port: Flags.integer({
       char: 'p',
       description: 'port in which to start Studio',

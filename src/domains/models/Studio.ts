@@ -1,46 +1,37 @@
-import { existsSync, promises as fPromises } from 'fs';
+import { promises as fPromises } from 'fs';
 import { SpecificationFileNotFound } from '@errors/specification-file';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
 import open from 'open';
-import path from 'path';
-import { version as studioVersion } from '@asyncapi/studio/package.json';
 import { blueBright, redBright } from 'picocolors';
+import {
+  DEFAULT_PORT,
+  getStudioVersion,
+  isValidFilePath,
+  resolveStudioNextInstance,
+  resolveStudioPath,
+} from '@models/studio-runtime';
+
+export { DEFAULT_PORT } from '@models/studio-runtime';
 
 const { readFile, writeFile } = fPromises;
 
 const sockets: any[] = [];
 const messageQueue: string[] = [];
 
-export const DEFAULT_PORT = 0;
-
-function isValidFilePath(filePath: string): boolean {
-  return existsSync(filePath);
-}
-
-type NextFactory = (config?: any) => any;
-
-// Using require here is necessary for dynamic module resolution
-function resolveStudioNextInstance(studioPath: string): NextFactory {
-  const resolvedNextPath = require.resolve('next', { paths: [studioPath] });
-  const nextModule = require(resolvedNextPath);
-  return nextModule.default ?? nextModule;
-}
- 
-export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:boolean): void {
+export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:boolean, studioPath?: string): void {
   if (filePath && !isValidFilePath(filePath)) {
     throw new SpecificationFileNotFound(filePath);
   }
 
-  // Locate @asyncapi/studio package
-  const studioPath = path.dirname(
-    require.resolve('@asyncapi/studio/package.json'),
-  );
-  const nextInstance = resolveStudioNextInstance(studioPath);
+  // Locate @asyncapi/studio package (resolved on-demand by the command, or
+  // fall back to node_modules resolution for bundled installs).
+  const resolvedStudioPath = studioPath ?? resolveStudioPath('Studio');
+  const nextInstance = resolveStudioNextInstance(resolvedStudioPath);
   const app = nextInstance({
     dev: false,
-    dir: studioPath,
+    dir: resolvedStudioPath,
     conf: {
       distDir: 'build',
     } as any,
@@ -155,7 +146,7 @@ export function start(filePath: string, port: number = DEFAULT_PORT, noBrowser?:
     server.listen(port, () => {
       const addr = server.address();
       const listenPort = (addr && typeof addr === 'object' && 'port' in addr) ? (addr as any).port : port;
-      const url = `http://localhost:${listenPort}?liveServer=${listenPort}&studio-version=${studioVersion}`;
+      const url = `http://localhost:${listenPort}?liveServer=${listenPort}&studio-version=${getStudioVersion(resolvedStudioPath)}`;
       console.log(`🎉 Connected to Live Server running at ${blueBright(url)}.`);
       console.log(`🌐 Open this URL in your web browser: ${blueBright(url)}`);
       console.log(
