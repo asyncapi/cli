@@ -6,8 +6,16 @@ export default class Context extends Command {
     'Manage short aliases for full paths to AsyncAPI documents';
 
   async run() {
+    await this.parse(Context);
     const Help = await loadHelpClass(this.config);
     const help = new Help(this.config);
-    help.showHelp(['config', 'context', '--help']);
+    if (!this.jsonEnabled()) {
+      await help.showHelp(['config', 'context', '--help']);
+    }
+    return this.result('Context command help retrieved.', {
+      topic: 'config context',
+      help: Context.description,
+      warnings: [],
+    });
   }
 }

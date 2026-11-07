@@ -49,6 +49,23 @@ describe('ConfigService', () => {
       } catch (e: any) {
         expect(e.message).to.include('Error reading config file');
         expect(e.message).to.include('permission denied');
+        expect(e.code).to.equal('CONFIG_READ_FAILED');
+        expect(e.exitCode).to.equal(57);
+        expect(e.cause).to.equal(err);
+      }
+    });
+
+    it('should throw CONFIG_FILE_INVALID for malformed JSON', async () => {
+      readFileStub.resolves('{ not json');
+
+      try {
+        await ConfigService.loadConfig();
+        expect.fail('should have thrown');
+      } catch (e: any) {
+        expect(e.message).to.match(/^Error reading config file: /);
+        expect(e.code).to.equal('CONFIG_FILE_INVALID');
+        expect(e.exitCode).to.equal(54);
+        expect(e.cause).to.be.instanceOf(SyntaxError);
       }
     });
   });

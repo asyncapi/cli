@@ -1,6 +1,8 @@
 import path from 'path';
 import os from 'os';
 import { promises as fs } from 'fs';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES } from '@errors/error-codes';
 
 const CONFIG_DIR = path.join(os.homedir(), '.asyncapi');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
@@ -34,7 +36,13 @@ export class ConfigService {
       if (err.code === 'ENOENT') {
         return {}; // no config yet
       }
-      throw new Error(`Error reading config file: ${err.message}`);
+      const code = err instanceof SyntaxError
+        ? CLI_ERROR_CODES.CONFIG_FILE_INVALID
+        : CLI_ERROR_CODES.CONFIG_READ_FAILED;
+      throw new ApplicationError(code, `Error reading config file: ${err?.message}`, {
+        cause: err,
+        details: { path: CONFIG_FILE },
+      });
     }
   }
 

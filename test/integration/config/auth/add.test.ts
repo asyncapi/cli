@@ -52,4 +52,13 @@ describe('config:auth:add', () => {
         expect(ctx.stderr).to.include('Ignored invalid header format');
       });
   });
+
+  test
+    .stdout()
+    .command(['config:auth:add', 'https://private.example/**', 'secret-token', '--json'])
+    .it('does not expose token values in structured output', (ctx) => {
+      const output = JSON.parse(ctx.stdout);
+      expect(output.data.tokenSource).to.equal('literal');
+      expect(ctx.stdout).not.to.contain('secret-token');
+    });
 });

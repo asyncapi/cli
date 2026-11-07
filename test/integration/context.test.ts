@@ -27,6 +27,15 @@ describe('config:context, positive scenario', () => {
         expect(ctx.stderr).to.equals('');
         done();
       });
+
+    test
+      .stdout()
+      .command(['config:context:current', '--json'])
+      .it('returns structured current context data', (ctx) => {
+        const output = JSON.parse(ctx.stdout);
+        expect(output.status).to.equal('success');
+        expect(output.data.context.name).to.equal(testHelper.context.current);
+      });
   });
 
   describe('config:context:list', () => {

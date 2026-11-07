@@ -22,6 +22,18 @@ export default class Api extends Command {
     );
 
     await app.init();
-    app.listen();
+    const { host, port, url } = await app.listen(this.jsonEnabled());
+
+    if (this.jsonEnabled()) {
+      this.emitStructuredOutput(this.result('Server started.', {
+        event: 'server.started',
+        mode: flags.mode,
+        host,
+        port,
+        url,
+        pid: process.pid,
+        warnings: [],
+      }));
+    }
   }
 }

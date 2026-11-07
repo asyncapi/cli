@@ -58,5 +58,15 @@ describe('config:analytics', () => {
         expect(ctx.stderr).to.equal('');
         done();
       });
+
+    test
+      .stdout()
+      .command(['config:analytics', '--status', '--json'])
+      .it('returns structured analytics status', (ctx) => {
+        const output = JSON.parse(ctx.stdout);
+        expect(output.status).to.equal('success');
+        expect(output.data.enabled).to.be.a('boolean');
+        expect(output.data.changed).to.equal(false);
+      });
   });
 });
