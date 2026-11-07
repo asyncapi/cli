@@ -39,7 +39,7 @@ runs:
   # This is the image that will be used to run the action.
   # Generated during the Changesets version PR. Keep inputs and arguments
   # synchronized with action.yml; the release workflow builds this image.
-  image: 'docker://asyncapi/github-action-for-cli:6.2.3'
+  image: 'docker://asyncapi/github-action-for-cli:6.3.0'
   args:
     - ${{ inputs.cli_version }}
     - ${{ inputs.command }}
