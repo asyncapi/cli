@@ -8,7 +8,6 @@ import type { ValidateFunction } from 'ajv';
 import { AsyncAPIDocument } from '@asyncapi/converter';
 import { ValidationService } from '@services/validation.service';
 import { Specification } from '@/domains/models/SpecificationFile';
-import { ParserOptions } from '@asyncapi/parser/cjs/parser';
 import { ValidationResult } from '@/interfaces';
 
 export interface ValidationMiddlewareOptions {
@@ -200,18 +199,10 @@ export async function validationMiddleware(
       );
     }
 
-    const parserConfig: ParserOptions = {
-      __unstable: {
-        resolver: {
-          resolvers: [
-            // @TODO: Add Cookie Based Resolvers after migration and understanding some
-            // details about how to use them in the new parser-js version.
-          ],
-        },
-      },
-    };
-
-    const validationService = new ValidationService(parserConfig);
+    const validationService = new ValidationService(
+      {},
+      { cookie: req.header('cookie') || undefined },
+    );
     const resolveURL =
       req.header('x-asyncapi-resolve-url') ||
       req.header('referer') ||
