@@ -333,11 +333,12 @@ export class ValidationService extends BaseService {
     const allRuleNames = Array.from(
       new Set(
         diagnostics
+          .filter((d) => d.severity === DiagnosticSeverity.Warning)
           .map((d) => d.code)
           .filter((c): c is string => typeof c === 'string'),
       ),
     );
-    return this.buildCustomParser(allRuleNames);
+    return this.buildParserWithSpecificWarningsSuppressed(allRuleNames);
   }
 
   /**
