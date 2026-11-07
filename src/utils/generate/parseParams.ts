@@ -7,7 +7,12 @@ export function paramParser(inputs?: string[]) {
     if (!input.includes('=')) {
       throw new Error(`Invalid param ${input}. It must be in the format of --param name1=value1 name2=value2 `);
     }
-    const [paramName, paramValue] = input.split(/=(.+)/, 2);
+    // Split on the first `=` only, so values may contain `=` and may be empty
+    // (e.g. `name=` sets an empty value). A capturing-group regex split dropped
+    // params with an empty value entirely.
+    const separatorIndex = input.indexOf('=');
+    const paramName = input.slice(0, separatorIndex);
+    const paramValue = input.slice(separatorIndex + 1);
     params[String(paramName)] = paramValue;
   }
   return params;
