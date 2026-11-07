@@ -32,6 +32,7 @@ export interface GeneratorOptions {
   noOverwriteGlobs: string[];
   mapBaseUrlToFolder: any;
   disabledHooks: Record<string, string>;
+  compile: boolean;
   registry: {
     url?: string;
     auth?: string;
@@ -71,6 +72,7 @@ export abstract class BaseGeneratorCommand extends Command {
       noOverwriteGlobs: flags['no-overwrite'],
       mapBaseUrlToFolder: parsedFlags.mapBaseUrlToFolder,
       disabledHooks: parsedFlags.disableHooks,
+      compile: flags.compile,
       registry: {
         url: flags['registry-url'],
         auth: flags['registry-auth'],
