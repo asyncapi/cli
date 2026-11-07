@@ -360,6 +360,24 @@ describe('validate', () => {
       });
   });
 
+  describe('validate command with --suppressAllWarnings flag', () => {
+    test
+      .stderr()
+      .stdout()
+      .command([
+        'validate',
+        path.join('test', 'fixtures', 'specification-invalid.yml'),
+        '--suppressAllWarnings'
+      ])
+      .it('should suppress warnings while still failing on errors', (ctx, done) => {
+        expect(ctx.stderr).to.include('have governance issues.');
+        expect(ctx.stdout).to.include('asyncapi-document-resolved');
+        expect(ctx.stdout).to.not.include('asyncapi-id');
+        expect(process.exitCode).to.equal(1);
+        done();
+      });
+  });
+
   describe('with --save-output flag', () => {
     beforeEach(() => {
       testHelper.createDummyContextFile();
