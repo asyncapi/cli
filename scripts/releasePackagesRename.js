@@ -3,7 +3,7 @@
 const { rename, access, mkdir } = require('fs').promises;
 const packageJson = require('../package.json');
 const path = require('path');
-const simpleGit = require('simple-git');
+const { simpleGit } = require('simple-git');
 const git = simpleGit({baseDir: process.cwd()});
 
 async function fileExists(checkPath) {

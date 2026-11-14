@@ -16,6 +16,7 @@ jobs:
     name: Generate and upload assets
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -36,18 +37,10 @@ jobs:
             npm_script: pack:windows
             dist_folder: win32
             extension: x64.exe
-          - os: ubuntu-latest
-            npm_script: pack:windows
-            dist_folder: win32
-            extension: x86.exe
           - os: macos-latest
             npm_script: pack:macos
             dist_folder: macos
-            extension: arm64.pkg
-          - os: macos-latest
-            npm_script: pack:macos
-            dist_folder: macos
-            extension: x64.pkg
+            extension: '*.pkg'
     
     container: ${{ matrix.container }}
     
@@ -112,13 +105,7 @@ jobs:
         run: npm run prepublishOnly
       - name: Assets generation
         shell: bash
-        run: |
-          npm run ${{ matrix.npm_script }}
-          if [[ "${{ matrix.alpine }}" == "true" ]]; then
-            npm run pack:rename alpine
-          else
-            npm run pack:rename
-          fi
+        run: npm run ${{ matrix.npm_script }}
       
       - name: Update release
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
