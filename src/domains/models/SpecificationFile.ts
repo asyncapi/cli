@@ -158,7 +158,16 @@ export class Specification {
       fileURL: targetUrl,
     });
   }
-}
+
+  static async fromStdin(): Promise<Specification> {
+    let spec = '';
+    process.stdin.setEncoding('utf8');
+    for await (const chunk of process.stdin) {
+      spec += chunk;
+    }
+    return new Specification(spec);
+  }
+
 
 const URL_LOAD_ERROR_NAME = new ErrorLoadingSpec('url').name;
 const FILE_LOAD_ERROR_NAME = new ErrorLoadingSpec('file').name;
@@ -303,6 +312,10 @@ export async function load(
   // NOSONAR
   try {
     if (filePathOrContextName) {
+      // Handle stdin input
+      if (filePathOrContextName === '-') {
+        return Specification.fromStdin();
+      }
       if (loadType?.file) {
         return Specification.fromFile(filePathOrContextName);
       }
