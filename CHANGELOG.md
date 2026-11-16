@@ -1,5 +1,13 @@
 # @asyncapi/cli
 
+## 6.3.1
+
+### Patch Changes
+
+- 28e0bcc: Fix installer generation and publish the GitHub Action image using native x64 and ARM64 builds.
+
+  Windows installers are x64 only, matching the existing Node.js 24 requirement.
+
 ## 6.3.0
 
 ### Minor Changes
