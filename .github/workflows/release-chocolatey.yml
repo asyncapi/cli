@@ -17,7 +17,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set Version
         id: release_version
@@ -59,17 +59,14 @@ jobs:
         run: |
           echo "Downloading release assets for version ${{ steps.release_version.outputs.version }}"
           mkdir -p ./dist/win32
-          curl -L "https://github.com/asyncapi/cli/releases/download/v${{ steps.release_version.outputs.version }}/asyncapi.x64.exe" -o "./dist/win32/asyncapi.x64.exe"
-          curl -L "https://github.com/asyncapi/cli/releases/download/v${{ steps.release_version.outputs.version }}/asyncapi.x86.exe" -o "./dist/win32/asyncapi.x86.exe"
+          curl --fail --location "https://github.com/asyncapi/cli/releases/download/v${{ steps.release_version.outputs.version }}/asyncapi.x64.exe" -o "./dist/win32/asyncapi.x64.exe"
+          if ($LASTEXITCODE -ne 0) { throw 'Windows installer download failed' }
 
       - name: Get Checksum of the release
         if: steps.check_new_version.outputs.new_version == 'true'
         id: release_checksum
         run: |
-          $checksum = (Get-FileHash -Path "./dist/win32/asyncapi.x86.exe" -Algorithm SHA256).Hash
           $checksum64 = (Get-FileHash -Path "./dist/win32/asyncapi.x64.exe" -Algorithm SHA256).Hash
-          echo "Setting checksum to $checksum"
-          echo "checksum=$checksum" >> $env:GITHUB_OUTPUT
           echo "Setting checksum64 to $checksum64"
           echo "checksum64=$checksum64" >> $env:GITHUB_OUTPUT
 
@@ -77,7 +74,7 @@ jobs:
         if: steps.check_new_version.outputs.new_version == 'true'
         run: |
           cd ./.github/workflows/deploy/chocolatey
-          pwsh -File ./replace.ps1 -version ${{ steps.release_version.outputs.version }} -checksum ${{ steps.release_checksum.outputs.checksum }} -checksum64 ${{ steps.release_checksum.outputs.checksum64 }}
+          pwsh -File ./replace.ps1 -version ${{ steps.release_version.outputs.version }} -checksum64 ${{ steps.release_checksum.outputs.checksum64 }}
 
       - name: Run Chocolatey Pack
         if: steps.check_new_version.outputs.new_version == 'true'
