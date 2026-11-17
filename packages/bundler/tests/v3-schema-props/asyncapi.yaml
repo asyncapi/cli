@@ -1,0 +1,31 @@
+asyncapi: 3.0.0
+info:
+  title: Signup
+  version: 1.0.0
+x-internal: false
+x-retries: 0
+servers:
+  production:
+    host: test.mosquitto.org
+    protocol: mqtt
+channels:
+  signup:
+    address: user/signup
+    servers:
+      - $ref: '#/servers/production'
+    messages:
+      signedUp:
+        payload:
+          $ref: './schemas.yaml#/Signup'
+operations:
+  sendSignup:
+    action: send
+    channel:
+      $ref: '#/channels/signup'
+    messages:
+      - $ref: '#/channels/signup/messages/signedUp'
+    bindings:
+      http:
+        method: POST
+        query:
+          $ref: './schemas.yaml#/Query'

@@ -1,0 +1,22 @@
+Signup:
+  type: object
+  properties:
+    name:
+      type: string
+    servers:
+      $ref: '#/ServerList'
+    serversCount:
+      $ref: '#/Count'
+Query:
+  type: object
+  properties:
+    channel:
+      $ref: '#/Chan'
+ServerList:
+  type: array
+  items:
+    type: string
+Count:
+  type: integer
+Chan:
+  type: string

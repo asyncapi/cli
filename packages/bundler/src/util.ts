@@ -175,7 +175,7 @@ export function orderPropsAccToAsyncAPISpec(
 
   // Merging of known AsyncAPI Object root properties in a familiar order.
   for (const prop of orderOfPropsAccToAsyncAPISpec) {
-    if (inputAsyncAPIObject[`${prop}`]) {
+    if (prop in inputAsyncAPIObject) {
       outputAsyncAPIObject[`${prop}`] = structuredClone(
         inputAsyncAPIObject[`${prop}`]
       );

@@ -372,6 +372,27 @@ describe('[integration testing] bundler should ', () => {
 
     expect(document.json()).toMatchObject(resultingObject);
   });
+
+  test('should dereference v3 schema properties named like Reference Object fields and keep falsy root extensions', async () => {
+    const document = await bundle('asyncapi.yaml', {
+      baseDir: path.resolve(process.cwd(), 'tests/v3-schema-props'),
+    });
+    const json = document.json();
+
+    expect(json['x-internal']).toBe(false);
+    expect(json['x-retries']).toBe(0);
+    expect(json.channels.signup.servers).toEqual([{ $ref: '#/servers/production' }]);
+    expect(json.channels.signup.messages.signedUp.payload.properties).toEqual({
+      name: { type: 'string' },
+      servers: { type: 'array', items: { type: 'string' } },
+      serversCount: { type: 'integer' },
+    });
+    expect(json.operations.sendSignup.channel).toEqual({ $ref: '#/channels/signup' });
+    expect(json.operations.sendSignup.messages).toEqual([{ $ref: '#/channels/signup/messages/signedUp' }]);
+    expect(json.operations.sendSignup.bindings.http.query.properties).toEqual({
+      channel: { type: 'string' },
+    });
+  });
 });
 
 describe('[unit testing]', () => {
