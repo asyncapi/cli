@@ -37,19 +37,13 @@ export async function parse(
       RefParserOptions = {
         dereference: {
           circular: false,
-          excludedPathMatcher: (path: string): any => {
+          // Skip only the Reference Object slots themselves, so schema properties that
+          // happen to be named `servers`, `channel` or `messages` are still dereferenced.
+          excludedPathMatcher: (path: string): boolean => {
             return (
               // prettier-ignore
-              (/#\/channels\/.*\/servers/).test(path) ||
-              (/#\/operations\/.*\/channel/).test(path) ||
-              (/#\/operations\/.*\/messages/).test(path) ||
-              (/#\/operations\/.*\/reply\/channel/).test(path) ||
-              (/#\/operations\/.*\/reply\/messages/).test(path) ||
-              (/#\/components\/channels\/.*\/servers/).test(path) ||
-              (/#\/components\/operations\/.*\/channel/).test(path) ||
-              (/#\/components\/operations\/.*\/messages/).test(path) ||
-              (/#\/components\/operations\/.*\/reply\/channel/).test(path) ||
-              (/#\/components\/operations\/.*\/reply\/messages/).test(path)
+              (/^#\/(components\/)?channels\/[^/]+\/servers$/).test(path) ||
+              (/^#\/(components\/)?operations\/[^/]+(\/reply)?\/(channel|messages)$/).test(path)
             );
           },
           onDereference: (path: string, value: AsyncAPIObject) => {
