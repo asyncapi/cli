@@ -23,16 +23,16 @@ CLI to work with your AsyncAPI files. Currently under development, we are workin
 <!-- tocstop -->
 
 ## Installation
-Learn how to install the AsyncAPI CLI by following the instructions in the [installation guide](/docs/installation.md). 
+Learn how to install the AsyncAPI CLI by following the instructions in the [installation guide](docs/installation.md). 
 
 ## Usage
-The [usage guide](/docs/usage.md) provides information about different ways to use the CLI.
+The [usage guide](docs/usage.md) provides information about different ways to use the CLI.
 
 ## Architecture
-The [architecture guide](/docs/architecture.md) provides information about the architecture. The bundler library lives in this repo at [`packages/bundler`](https://github.com/asyncapi/cli/tree/master/packages/bundler).
+The [architecture guide](docs/architecture.md) provides information about the architecture. The bundler library lives in this repo at [`packages/bundler`](https://github.com/asyncapi/cli/tree/master/packages/bundler).
 
 ## Debugging & Testing
-The [debugging & testing guide](/docs/debugging-testing.md) provides step-by-step instructions for debugging CLI commands, API endpoints, and services, along with comprehensive testing guidelines.
+The [debugging & testing guide](docs/debugging-testing.md) provides step-by-step instructions for debugging CLI commands, API endpoints, and services, along with comprehensive testing guidelines.
 
 ## Github Action
 
@@ -44,7 +44,7 @@ Read [CONTRIBUTING](https://github.com/asyncapi/.github/blob/master/CONTRIBUTING
 
 ### Set up development environment
 
-Read [DEVELOPMENT.md](/DEVELOPMENT.md) file for development setup.
+Read [DEVELOPMENT.md](DEVELOPMENT.md) file for development setup.
 
 Additional steps:
 
@@ -53,10 +53,10 @@ Additional steps:
 
 > This repository is an npm-workspaces + Turbo monorepo. The root package is `@asyncapi/cli` (workspaces
 > include `"."` so Changesets still versions it like today). `@asyncapi/optimizer` lives in
-> [`packages/optimizer/`](/packages/optimizer) and `@asyncapi/diff` lives in
-> [`packages/diff/`](/packages/diff). Both are published separately to npm.
+> [`packages/optimizer/`](packages/optimizer) and `@asyncapi/diff` lives in
+> [`packages/diff/`](packages/diff). Both are published separately to npm.
 > Use `npm run optimizer:build` / `npm run optimizer:test` and `npm run diff:build` / `npm run diff:test`
-> to work on those packages. See their specs: [optimizer](/docs/optimizer/spec.md), [diff](/docs/diff/spec.md).
+> to work on those packages. See their specs: [optimizer](docs/optimizer/spec.md), [diff](docs/diff/spec.md).
 
 The UX developed for the CLI should comply with the [Command Line Interface Guideline](https://clig.dev/)
 
