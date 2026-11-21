@@ -112,5 +112,26 @@ describe('parseParams utilities', () => {
         'Invalid --map-base-url flag. The mapping <url>:<folder> requires a valid http/https url'
       );
     });
+
+    it('should parse Windows absolute folder path with drive letter', () => {
+      const result = mapBaseURLParser('https://schemas.example.com/v1:D:/repo/schemas');
+      expect(result.url).to.equal('https://schemas.example.com/v1');
+      expect(result.folder).to.equal(path.resolve('D:/repo/schemas'));
+    });
+
+    it('should parse Windows absolute folder path with backslashes', () => {
+      const result = mapBaseURLParser('https://schemas.example.com/v1:D:\\repo\\schemas');
+      expect(result.url).to.equal('https://schemas.example.com/v1');
+      expect(result.folder).to.equal(path.resolve('D:\\repo\\schemas'));
+    });
+
+    it('should throw error when url or folder part is empty', () => {
+      expect(() => mapBaseURLParser(':/local/schemas')).to.throw(
+        'Invalid --map-base-url flag. A mapping <url>:<folder> with delimiter : expected.'
+      );
+      expect(() => mapBaseURLParser('https://example.com:')).to.throw(
+        'Invalid --map-base-url flag. A mapping <url>:<folder> with delimiter : expected.'
+      );
+    });
   });
 });
