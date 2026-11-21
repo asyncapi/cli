@@ -9,19 +9,20 @@ import {
   registryValidation
 } from './registry';
 
-export function parseGeneratorFlags(
+export async function parseGeneratorFlags(
   disableHooks?: string[],
   params?: string[],
   mapBaseUrl?: string,
   registryUrl?: string,
   registryAuth?: string,
   registryToken?: string
-): ParsedFlags {
-  return {
+): Promise<ParsedFlags> {
+  const parsed = {
     params: paramParser(params),
     disableHooks: disableHooksParser(disableHooks),
     mapBaseUrlToFolder: mapBaseURLParser(mapBaseUrl),
-    registryURLValidation: registryURLParser(registryUrl),
-    registryAuthentication: registryValidation(registryUrl, registryAuth, registryToken)
   } as ParsedFlags;
+  registryURLParser(registryUrl);
+  await registryValidation(registryUrl, registryAuth, registryToken);
+  return parsed;
 }

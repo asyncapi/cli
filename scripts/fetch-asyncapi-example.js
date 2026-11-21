@@ -25,6 +25,38 @@ const SPEC_EXAMPLES_ZIP_URL = 'https://github.com/asyncapi/spec/archive/refs/hea
 const EXAMPLE_DIRECTORY = path.join(__dirname, '../assets/examples');
 const TEMP_ZIP_NAME = 'spec-examples.zip';
 
+const shouldSkipFetching = (options = {}) => {
+  const force = options.force ?? (
+    process.argv.includes('--force') ||
+    process.argv.includes('-f') ||
+    process.env.FORCE_FETCH_EXAMPLES === 'true'
+  );
+  if (force) {
+    return false;
+  }
+
+  const exampleDirectory = options.exampleDirectory || EXAMPLE_DIRECTORY;
+  const examplesJsonPath = options.examplesJsonPath || path.join(exampleDirectory, 'examples.json');
+
+  if (!fs.existsSync(examplesJsonPath) || !fs.existsSync(exampleDirectory)) {
+    return false;
+  }
+
+  try {
+    const content = fs.readFileSync(examplesJsonPath, { encoding: 'utf-8' });
+    const examples = JSON.parse(content);
+    if (!Array.isArray(examples) || examples.length === 0) {
+      return false;
+    }
+
+    const files = fs.readdirSync(exampleDirectory);
+    const hasYamlFiles = files.some(file => file.endsWith('.yml') || file.endsWith('.yaml'));
+    return hasYamlFiles;
+  } catch (error) {
+    return false;
+  }
+};
+
 const fetchAsyncAPIExamplesFromExternalURL = () => {
   try {
     return new Promise((resolve, reject) => {
@@ -115,12 +147,38 @@ const listAllProtocolsForFile = (document) => {
 };
 
 const tidyUp = async () => {
-  fs.unlinkSync(TEMP_ZIP_NAME);
+  if (fs.existsSync(TEMP_ZIP_NAME)) {
+    fs.unlinkSync(TEMP_ZIP_NAME);
+  }
 };
 
-(async () => {
+const main = async (options = {}) => {
+  if (shouldSkipFetching(options)) {
+    console.log('AsyncAPI examples already exist. Skipping fetch (use --force or -f to re-fetch).');
+    return;
+  }
+
   await fetchAsyncAPIExamplesFromExternalURL();
   await unzipAsyncAPIExamples();
   await buildCLIListFromExamples();
   await tidyUp();
-})();
+};
+
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  shouldSkipFetching,
+  main,
+  fetchAsyncAPIExamplesFromExternalURL,
+  unzipAsyncAPIExamples,
+  buildCLIListFromExamples,
+  listAllProtocolsForFile,
+  tidyUp,
+  EXAMPLE_DIRECTORY,
+  SPEC_EXAMPLES_ZIP_URL,
+};

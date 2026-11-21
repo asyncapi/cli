@@ -7,11 +7,13 @@ export const analyticsFlags = () => {
       char: 'd',
       description: 'disable analytics',
       default: false,
+      exclusive: ['enable'],
     }),
     enable: Flags.boolean({
       char: 'e',
       description: 'enable analytics',
       default: false,
+      exclusive: ['disable'],
     }),
     status: Flags.boolean({
       char: 's',

@@ -33,6 +33,20 @@ describe('template', () => {
       done();
     });
 
+  test
+    .stdout()
+    .command([...generalOptions, '--output=./test/docs/json', '--force-write', '--json'])
+    .it('returns structured generation output', (ctx, done) => {
+      const result = JSON.parse(ctx.stdout);
+      expect(result.status).to.equal('success');
+      expect(result.data.template).to.equal('@asyncapi/minimaltemplate');
+      expect(result.data.generatedFiles).to.be.an('array').with.length.greaterThan(0);
+      expect(result.data.logs).to.be.an('array');
+      expect(result.data.watching).to.equal(false);
+      cleanup('./test/docs/json');
+      done();
+    });
+
   describe('should handle AsyncAPI v3 document correctly', () => {
     test
       .stderr()
@@ -46,6 +60,21 @@ describe('template', () => {
       .it('give error on disabled template', (ctx, done) => {
         expect(ctx.stderr).to.contain('Error: @asyncapi/minimaltemplate template does not support AsyncAPI v3 documents, please checkout some link\n');
         expect(ctx.stdout).to.equal('');
+        done();
+      });
+
+    test
+      .stdout()
+      .command([
+        'generate:fromTemplate',
+        asyncapiv3,
+        '@asyncapi/minimaltemplate',
+        '--json',
+      ])
+      .it('maps template incompatibility in JSON mode', (ctx, done) => {
+        const result = JSON.parse(ctx.stdout);
+        expect(result.status).to.equal('error');
+        expect(result.errors[0].code).to.equal('TEMPLATE_DOCUMENT_VERSION_UNSUPPORTED');
         done();
       });
   }).timeout(200000);
@@ -190,17 +219,22 @@ describe('template', () => {
 
   describe('should install template', () => {
     test
+      .stderr()
       .stdout()
       .command([
         'generate:fromTemplate',
         './test/fixtures/specification.yml',
         './test/fixtures/minimaltemplate',
         '--install',
+        '--debug',
+        nonInteractive,
         '--force-write',
         '--output=./test/docs/7'
       ])
       .it('should install template', (ctx, done) => {
         expect(ctx.stdout).to.contain('Template installation started because you passed --install flag.');
+        expect(ctx.stderr).not.to.contain('Generator Error');
+        expect(fs.existsSync('./test/docs/7/asyncapi.md')).to.equal(true);
         cleanup('./test/docs/7');
         done();
       });

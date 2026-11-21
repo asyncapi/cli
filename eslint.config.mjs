@@ -15,8 +15,11 @@ export default [
       'test/fixtures/minimaltemplate',
       'test/fixtures/newtemplate',
       '.github/workflows/scripts',
-      'github-action',
+      'github-action/**/*',
+      '!github-action/lib/',
+      '!github-action/lib/bump-action-version.js',
       'scripts/**/*.js',
+      '!scripts/publish-trusted.js',
       'packages/optimizer/**',
       'packages/diff/**',
       'packages/bundler/**',
@@ -211,5 +214,10 @@ export default [
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-var-requires': 'off',
     },
+  },
+  {
+    files: ['scripts/publish-trusted.js', 'github-action/lib/bump-action-version.js'],
+    languageOptions: { sourceType: 'commonjs' },
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
 ];

@@ -1,6 +1,6 @@
 {
   "name": "@asyncapi/optimizer",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "This library will optimize the AsyncAPI specification file.",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -42,7 +42,7 @@
     "debug": "^4.3.4",
     "js-yaml": "^4.1.0",
     "jsonpath-plus": "^10.1.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.18.1",
     "merge-deep": "^3.0.3"
   },
   "peerDependencies": {

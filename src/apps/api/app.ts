@@ -4,8 +4,11 @@ import config from 'config';
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
+import type { Server } from 'node:http';
 
 import { Controller } from '@/interfaces';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES } from '@errors/error-codes';
 
 // import { problemMiddleware } from './middlewares/problem.middleware';
 
@@ -16,6 +19,7 @@ import { loggerMiddleware } from './middlewares/logger.middleware';
 
 export class App {
   private app: express.Application;
+  private quiet = false;
 
   constructor(
     private readonly controllers: Controller[],
@@ -34,14 +38,48 @@ export class App {
     await this.initializeErrorHandling();
   }
 
-  public listen() {
-    this.app.listen(this.port, () => {
-      logger.info('=================================');
-      logger.info(`= ENV: ${this.env}`);
-      logger.info(
-        `= 🚀 AsyncAPI Server API listening on the port ${this.port}`,
-      );
-      logger.info('=================================');
+  public listen(quiet = false): Promise<{
+    server: Server;
+    host: string | null;
+    port: number | string;
+    url: string;
+  }> {
+    this.quiet = quiet;
+    return new Promise((resolve, reject) => {
+      const server = this.app.listen(this.port);
+      const onError = (error: NodeJS.ErrnoException) => {
+        const code = error.code === 'EADDRINUSE'
+          ? CLI_ERROR_CODES.SERVER_PORT_IN_USE
+          : CLI_ERROR_CODES.SERVER_START_FAILED;
+        const message = error.code === 'EADDRINUSE'
+          ? `Port ${this.port} is already in use.`
+          : `Failed to start API server on port ${this.port}: ${error.message}`;
+
+        reject(new ApplicationError(code, message, {
+          cause: error,
+          details: { port: this.port },
+        }));
+      };
+
+      server.once('error', onError);
+      server.once('listening', () => {
+        server.removeListener('error', onError);
+        const address = server.address();
+        const port = address && typeof address === 'object' ? address.port : this.port;
+        const host = address && typeof address === 'object' ? address.address : null;
+        const url = `http://localhost:${port}`;
+
+        if (!quiet) {
+          logger.info('=================================');
+          logger.info(`= ENV: ${this.env}`);
+          logger.info(
+            `= 🚀 AsyncAPI Server API listening on the port ${port}`,
+          );
+          logger.info('=================================');
+        }
+
+        resolve({ server, host, port, url });
+      });
     });
   }
 
@@ -90,7 +128,13 @@ export class App {
         crossOriginEmbedderPolicy: false,
       }),
     );
-    this.app.use(loggerMiddleware);
+    this.app.use((req, res, next) => {
+      if (this.quiet) {
+        next();
+        return;
+      }
+      loggerMiddleware(req, res, next);
+    });
   }
 
   private async initializeControllers() {

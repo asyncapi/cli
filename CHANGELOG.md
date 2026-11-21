@@ -1,5 +1,33 @@
 # @asyncapi/cli
 
+## 6.3.1
+
+### Patch Changes
+
+- 28e0bcc: Fix installer generation and publish the GitHub Action image using native x64 and ARM64 builds.
+
+  Windows installers are x64 only, matching the existing Node.js 24 requirement.
+
+## 6.3.0
+
+### Minor Changes
+
+- 1ace572: Add a global `--json` flag that returns a stable `{ status, message, data, errors }` envelope for every command, and replace the generic exit code `1` with categorized exit codes (10-19 validation, 20-29 generation, 30-39 file, 40-49 network, 50-59 CLI input/config, 60-69 server/runtime, 90-92 dependency/internal, 127 unknown command, 130 interrupted). Watch and server commands emit NDJSON lifecycle events in JSON mode. Scripts that checked for exit code `1` should switch to the new codes documented in `docs/codes.md`.
+
+### Patch Changes
+
+- 1bfd832: fix: prune the unused Next.js standalone build from `@asyncapi/studio` before packing so the Windows installer no longer exceeds the 260-character `MAX_PATH` limit.
+
+## 6.2.3
+
+### Patch Changes
+
+- cfe4a7c: Publish CLI and workspace packages through the updated Changesets release workflow.
+- Updated dependencies [cfe4a7c]
+  - @asyncapi/diff@0.6.1
+  - @asyncapi/optimizer@2.0.1
+  - @asyncapi/bundler@1.1.1
+
 ## 6.2.2
 
 ### Patch Changes

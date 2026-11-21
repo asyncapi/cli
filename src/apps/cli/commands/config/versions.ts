@@ -8,7 +8,9 @@ export default class Versions extends Command {
   static flags = helpFlag();
 
   async run() {
+    await this.parse(Versions);
     const dependencies: string[] = [];
+    const packages: Array<{ name: string; version: string }> = [];
     let dependency = '';
 
     // Preparation of the array with all dependencies '@asyncapi/*' along with
@@ -24,8 +26,10 @@ export default class Versions extends Command {
           // used in `@oclif` source code.
           const importedPJSON = await import(`${key}/package.json`);
           dependencies.push(`${key}/${importedPJSON.default.version}`);
+          packages.push({ name: key, version: importedPJSON.default.version });
         } catch {
           dependencies.push(`${key}/` + '`package.json` not found');
+          packages.push({ name: key, version: '`package.json` not found' });
         }
       }
     }
@@ -51,5 +55,16 @@ export default class Versions extends Command {
     }
 
     this.log(`Repository: ${blueBright(this.config.pjson.homepage)}`);
+    return this.result('AsyncAPI tool versions retrieved.', {
+      cli: {
+        name: this.config.pjson.name,
+        version: this.config.pjson.version,
+      },
+      node: process.version,
+      platform: process.platform,
+      packages,
+      repository: this.config.pjson.homepage,
+      warnings: [],
+    });
   }
 }

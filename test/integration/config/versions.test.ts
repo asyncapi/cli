@@ -23,5 +23,15 @@ describe('config', () => {
         expect(ctx.stderr).to.equal('');
         done();
       });
+
+    test
+      .stdout()
+      .command(['config:versions', '--json'])
+      .it('returns structured version data', (ctx) => {
+        const output = JSON.parse(ctx.stdout);
+        expect(output.status).to.equal('success');
+        expect(output.data.cli.name).to.equal('@asyncapi/cli');
+        expect(output.data.packages).to.be.an('array');
+      });
   });
 });

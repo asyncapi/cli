@@ -1,5 +1,7 @@
  
 import { expect, test } from '@oclif/test';
+import chokidar from 'chokidar';
+import sinon from 'sinon';
 
 const asyncapiv3 = './test/fixtures/specification-v3.yml';
 const asyncapiv3Diff = './test/fixtures/specification-v3-diff.yml';
@@ -20,6 +22,32 @@ const markdownJsonOutput = "\"## Unclassified\\n\\n\\n - **Path**: `/channels/li
 const markdownYamlOutput = '"## Unclassified\\n\\n\\n - **Path**: `/channels/light~1measured/publish/message/payload/x-parser-schema-id`\\n     - **Action**: edit\\n     - **Before**: <anonymous-schema-1>\\n     - **After**: <anonymous-schema-4>\\n    \\n - **Path**: `/channels/light~1measured/publish/message/payload/properties/sentAt/x-parser-schema-id`\\n     - **Action**: edit\\n     - **Before**: <anonymous-schema-4>\\n     - **After**: <anonymous-schema-7>\\n    \\n - **Path**: `/channels/light~1measured/publish/message/payload/properties/lumens/x-parser-schema-id`\\n     - **Action**: edit\\n     - **Before**: <anonymous-schema-3>\\n     - **After**: <anonymous-schema-6>\\n    \\n - **Path**: `/channels/light~1measured/publish/message/payload/properties/id/x-parser-schema-id`\\n     - **Action**: edit\\n     - **Before**: <anonymous-schema-2>\\n     - **After**: <anonymous-schema-5>\\n    \\n - **Path**: `/channels/light~1measured/publish/message/payload/properties/id/minimum`\\n     - **Action**: edit\\n     - **Before**: 0\\n     - **After**: 1\\n    \\n\\n## Non-breaking\\n\\n\\n - **Path**: `/channels/user~1signedup`\\n     - **Action**: add\\n     - <details>\\n            <summary> After </summary>\\n            \\n        ```yaml\\n        subscribe:\\n          message:\\n            payload:\\n              type: object\\n              properties:\\n                displayName:\\n                  type: string\\n                  description: Name of the user\\n                  x-parser-schema-id: <anonymous-schema-2>\\n                email:\\n                  type: string\\n                  format: email\\n                  description: Email of the user\\n                  x-parser-schema-id: <anonymous-schema-3>\\n              x-parser-schema-id: <anonymous-schema-1>\\n            x-parser-message-name: UserSignedUp\\n        \\n        ```            \\n        </details>  \\n        \\n    \\n - **Path**: `/info/title`\\n     - **Action**: edit\\n     - **Before**: Streetlights API\\n     - **After**: Streetlights API V2\\n    \\n - **Path**: `/components`\\n     - **Action**: add\\n     - <details>\\n            <summary> After </summary>\\n            \\n        ```yaml\\n        messages:\\n          UserSignedUp:\\n            payload:\\n              type: object\\n              properties:\\n                displayName:\\n                  type: string\\n                  description: Name of the user\\n                  x-parser-schema-id: <anonymous-schema-2>\\n                email:\\n                  type: string\\n                  format: email\\n                  description: Email of the user\\n                  x-parser-schema-id: <anonymous-schema-3>\\n              x-parser-schema-id: <anonymous-schema-1>\\n            x-parser-message-name: UserSignedUp\\n        \\n        ```            \\n        </details>  \\n        \\n    \\n\\n## Breaking\\n\\n\\n - **Path**: `/servers/mosquitto/protocol`\\n     - **Action**: edit\\n     - **Before**: mqtt\\n     - **After**: http\\n    \\n - **Path**: `/servers/mosquitto/url`\\n     - **Action**: edit\\n     - **Before**: mqtt://test.mosquitto.org\\n     - **After**: http://test.mosquitto.org\\n    \\n\\n"';
 
 describe('diff', () => {
+  test
+    .stub(chokidar, 'watch', (stub) => stub.returns({ on: sinon.stub() } as any))
+    .stderr()
+    .stdout()
+    .command([
+      'diff',
+      './test/fixtures/specification.yml',
+      './test/fixtures/asyncapi_v1.yml',
+      '--watch',
+      '--json',
+      '--no-error',
+    ])
+    .it('emits one compact watch.started result in JSON mode', (ctx) => {
+      const lines = ctx.stdout.trim().split('\n');
+      expect(lines).to.have.length(1);
+      const event = JSON.parse(lines[0]);
+      expect(Object.keys(event)).to.have.members(['status', 'message', 'data', 'errors']);
+      expect(event.data.event).to.equal('watch.started');
+      expect(event.data.watchedFiles).to.deep.equal([
+        './test/fixtures/specification.yml',
+        './test/fixtures/asyncapi_v1.yml',
+      ]);
+      expect(event.status).to.equal('warning');
+      expect(ctx.stderr).to.equal('');
+    });
+
   describe('comparing AsyncAPI v2 and v3 documents', () => {
     test
       .stderr()

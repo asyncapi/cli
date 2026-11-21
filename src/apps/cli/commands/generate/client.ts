@@ -6,15 +6,13 @@ import { listBakedInTemplates } from '@asyncapi/generator';
 import { intro, note } from '@clack/prompts';
 import { inverse, yellow } from 'picocolors';
 import { clientsFlags } from '@cli/internal/flags/generate/clients.flags';
-import { parseGeneratorFlags } from '@utils/generate/flags';
 import { promptForLanguage } from '@utils/generate/prompts';
 import { availableLanguages, AvailableLanguageType, getDefaultLanguage } from '@models/generate/ClientLanguages';
-import { GeneratorError } from '@errors/generator-error';
 
 export default class Client extends BaseGeneratorCommand {
-  static description = `Generates clients baked-in AsyncAPI Generator. Available for: ${availableLanguages.join(', ')}. If some language is not supported or you want to improve existing client, join us at https://github.com/asyncapi/generator`;
+  static readonly description = `Generates clients baked-in AsyncAPI Generator. Available for: ${availableLanguages.join(', ')}. If some language is not supported or you want to improve existing client, join us at https://github.com/asyncapi/generator`;
 
-  static examples = [
+  static readonly examples = [
     'asyncapi generate client javascript asyncapi.yaml --param version=1.0.0 singleFile=true --output ./docs --force-write'
   ];
 
@@ -23,18 +21,18 @@ export default class Client extends BaseGeneratorCommand {
     ...BaseGeneratorCommand.flags
   };
 
-  static args = {
+  static readonly args = {
     language: Args.string({ description: `The language you want the client generated for. Available target languages: ${availableLanguages.join(', ')}`, required: true }),
     ...BaseGeneratorCommand.args
   };
 
   async run() {
     const { args, flags } = await this.parse(Client); // NOSONAR
-    const interactive = !flags['no-interactive'];
+    const json = this.jsonEnabled();
+    const interactive = !flags['no-interactive'] && !json;
     let asyncapi = args['asyncapi'] ?? '';
     let language = args['language'] as AvailableLanguageType;
     let output = flags.output as string;
-    const { proxyPort, proxyHost } = flags;
     
     if (interactive) {
       intro(inverse('Client generation with AsyncAPI Generator'));
@@ -48,48 +46,25 @@ export default class Client extends BaseGeneratorCommand {
 
     const template = this.getTemplateName(language);
 
-    const parsedFlags = parseGeneratorFlags(
-      flags['disable-hook'],
-      flags['param'],
-      flags['map-base-url'],
-      flags['registry-url'],
-      flags['registry-auth'],
-      flags['registry-token']
-    );
+    if (json && !output) {
+      output = process.cwd();
+    }
+    if (json && !asyncapi) {
+      this.requireNonInteractiveArgs(asyncapi, output);
+    }
 
-    const options = await this.buildGeneratorOptions(flags, parsedFlags);
-    
-    // Apply proxy configuration using base class method
-    asyncapi = this.applyProxyConfiguration(asyncapi, proxyHost, proxyPort);
-    
-    const asyncapiInput = await this.loadAsyncAPIInput(asyncapi);
-
-    this.specFile = asyncapiInput;
     this.metricsMetadata.language = language;
 
-    const watchTemplate = flags['watch'];
-    const genOption = this.buildGenOption(flags, parsedFlags);
-
-    // Use GeneratorService for client generation
-    const specification = await this.loadSpecificationSafely(asyncapi);
-    const result = await this.generatorService.generate(
-      specification,
+    return this.runGeneration({
+      flags,
+      asyncapi,
       template,
       output,
-      options as any, // GeneratorService expects different options interface
-      genOption,
       interactive,
-    );
-    
-    if (!result.success) {
-      throw new GeneratorError(new Error(result.error));
-    }
-    
-    this.log(result.data?.logs?.join('\n'));
-
-    if (watchTemplate) {
-      await this.handleWatchMode(asyncapi, template, output, options, genOption, interactive);
-    }
+      message: 'Client generated successfully.',
+      extraData: { language },
+      printLogs: (logs) => this.log(logs.join('\n')),
+    });
   }
 
   private async parseArgs(args: Record<string, any>, output?: string): Promise<{ asyncapi: string; language: string; output: string; }> {
@@ -118,10 +93,12 @@ export default class Client extends BaseGeneratorCommand {
     })?.name;
 
     if (!template) {
-      this.log(`❌ Client generation for "${language}" is not yet available.`);
-      this.log(`✅ Available languages: ${availableLanguages.join(', ')}`);
-      this.log('🙏 Help us create the missing one. Start discussion at: https://github.com/asyncapi/generator/issues.');
-      this.exit(1);
+      if (!this.jsonEnabled()) {
+        this.log(`❌ Client generation for "${language}" is not yet available.`);
+        this.log(`✅ Available languages: ${availableLanguages.join(', ')}`);
+        this.log('🙏 Help us create the missing one. Start discussion at: https://github.com/asyncapi/generator/issues.');
+      }
+      throw this.generationError(new Error(`Unsupported generation language: ${language}.`));
     }
 
     return template;

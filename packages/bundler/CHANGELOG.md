@@ -1,5 +1,11 @@
 # @asyncapi/bundler
 
+## 1.1.1
+
+### Patch Changes
+
+- cfe4a7c: Publish CLI and workspace packages through the updated Changesets release workflow.
+
 ## 1.1.0
 
 ### Minor Changes

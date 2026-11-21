@@ -35,6 +35,16 @@ describe('new template', () => {
         expect(ctx.stdout).to.contains(successMessage('test-project'));
         done();
       });
+
+    test
+      .stdout()
+      .command(['new:template', '-n=test-project', '--json'])
+      .it('returns structured template data', (ctx) => {
+        const output = JSON.parse(ctx.stdout);
+        expect(output.status).to.equal('success');
+        expect(output.data.name).to.equal('test-project');
+        expect(output.data.createdFiles).to.include('package.json');
+      });
   });
 
   describe('when new project name already exists', () => {
@@ -63,4 +73,3 @@ describe('new template', () => {
       });
   });
 });
-

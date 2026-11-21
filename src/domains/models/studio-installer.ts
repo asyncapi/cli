@@ -4,19 +4,14 @@ import { spawnSync } from 'node:child_process';
 import { confirm, isCancel, cancel, spinner } from '@clack/prompts';
 import { blueBright } from 'picocolors';
 import type { Config } from '@oclif/core';
+import { ApplicationError } from '@errors/application-error';
+import { CLI_ERROR_CODES } from '@errors/error-codes';
 
 const STUDIO_DOWNLOAD_SIZE = '~450MB';
 
 const STUDIO_PKG = '@asyncapi/studio';
 
 const DEFAULT_STUDIO_VERSION_SPEC = 'latest';
-
-class StudioInstallError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'StudioInstallError';
-  }
-}
 
 export function getStudioVersionSpec(config: Pick<Config, 'pjson'>): string {
   const pjson = config.pjson as {
@@ -73,20 +68,23 @@ function resolveNpmExecutable(): string | undefined {
   return undefined;
 }
 
-function npmUnavailableError(): StudioInstallError {
-  return new StudioInstallError(
+function npmUnavailableError(): ApplicationError {
+  return new ApplicationError(
+    CLI_ERROR_CODES.STUDIO_RUNTIME_UNAVAILABLE,
     'npm was not found on PATH. Standalone AsyncAPI CLI installers do not bundle npm, but npm is required to download Studio on-demand. Install Node.js and npm from https://nodejs.org/, then run "asyncapi studio install --yes" again. You can continue using all non-Studio CLI commands without npm.',
   );
 }
 
-export function installStudio(dataDir: string, versionSpec: string): void {
+export function installStudio(dataDir: string, versionSpec: string, quiet = false): void {
   const npm = resolveNpmExecutable();
   if (!npm) {
     throw npmUnavailableError();
   }
 
   const s = spinner();
-  s.start(`Installing ${STUDIO_PKG}@${versionSpec} (${STUDIO_DOWNLOAD_SIZE})`);
+  if (!quiet) {
+    s.start(`Installing ${STUDIO_PKG}@${versionSpec} (${STUDIO_DOWNLOAD_SIZE})`);
+  }
 
   const result = spawnSync(
     npm,
@@ -107,23 +105,32 @@ export function installStudio(dataDir: string, versionSpec: string): void {
   );
 
   if (isExecutableNotFound(result.error)) {
-    s.stop('Studio installation could not start.');
+    if (!quiet) {
+      s.stop('Studio installation could not start.');
+    }
     throw npmUnavailableError();
   }
 
   if (result.status !== 0) {
-    s.stop('Studio installation failed.');
-    throw new StudioInstallError(
+    if (!quiet) {
+      s.stop('Studio installation failed.');
+    }
+    throw new ApplicationError(
+      CLI_ERROR_CODES.STUDIO_INSTALL_DOWNLOAD_FAILED,
       `Failed to install ${STUDIO_PKG}@${versionSpec}. Check your network connection and npm configuration, then retry with "asyncapi studio install --yes".`,
+      { cause: result.error, details: { status: result.status } },
     );
   }
 
-  s.stop('Studio installed.');
+  if (!quiet) {
+    s.stop('Studio installed.');
+  }
 }
 
 export interface EnsureStudioOptions {
   yes?: boolean;
   noInteractive?: boolean;
+  quiet?: boolean;
 }
 
 export type StudioInstallDecision = 'install' | 'prompt' | 'decline';
@@ -171,7 +178,8 @@ export async function ensureStudio(
   });
 
   if (decision === 'decline') {
-    throw new StudioInstallError(
+    throw new ApplicationError(
+      CLI_ERROR_CODES.STUDIO_NOT_INSTALLED,
       `Studio is not installed. It requires an additional ${STUDIO_DOWNLOAD_SIZE} download (${STUDIO_PKG}). ` +
         'Re-run this command in an interactive terminal and accept the prompt, ' +
         'pass "--yes" to install automatically, ' +
@@ -189,10 +197,13 @@ export async function ensureStudio(
       cancel(
         `Studio is required to run this command. Install it later by re-running and accepting the prompt, or run "npm install ${STUDIO_PKG}@${versionSpec} --prefix ${blueBright(dataDir)}".`,
       );
-      throw new StudioInstallError('Studio installation declined by user.');
+      throw new ApplicationError(
+        CLI_ERROR_CODES.STUDIO_INSTALL_DECLINED,
+        'Studio installation declined by user.',
+      );
     }
   }
 
-  installStudio(dataDir, versionSpec);
+  installStudio(dataDir, versionSpec, options.quiet);
   return dataDirStudioPath(dataDir);
 }

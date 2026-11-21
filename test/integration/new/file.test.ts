@@ -29,6 +29,16 @@ describe('new', () => {
         expect(ctx.stdout).to.equal('The specification.yaml has been successfully created.\n');
         done();
       });
+
+    test
+      .stdout()
+      .command(['new:file', '--no-tty', '-n=specification.yaml', '--json'])
+      .it('returns structured file data', (ctx) => {
+        const output = JSON.parse(ctx.stdout);
+        expect(output.status).to.equal('success');
+        expect(output.data.path).to.match(/specification\.yaml$/);
+        expect(output.data.format).to.equal('yaml');
+      });
   });
 
   describe('when asyncapi file already exists', () => {
@@ -50,9 +60,9 @@ describe('new', () => {
       .stderr()
       .stdout()
       .command(['new:file', '--no-tty', '-n=specification.yaml'])
-      .it('should inform about the existing file and finish the process', async (ctx,done) => {
-        expect(ctx.stderr).to.equal('');
-        expect(ctx.stdout).to.equal('A file named specification.yaml already exists. Please choose a different name.\n');
+      .it('should fail when the file already exists', async (ctx,done) => {
+        expect(ctx.stderr).to.contain('A file named specification.yaml already exists. Please choose a different name.');
+        expect(ctx.stdout).to.equal('');
         done();
       });
   });

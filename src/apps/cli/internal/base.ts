@@ -14,6 +14,14 @@ import { existsSync } from 'fs-extra';
 import { promises as fPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { homedir } from 'os';
+import { mapError } from './output/error-mapper';
+import { CLI_ERROR_CODES, EXIT_CODES } from '@errors/error-codes';
+import {
+  isStructuredOutput,
+  structuredSuccess,
+  StructuredOutput,
+  StructuredStatus,
+} from './output/types';
 
 const { readFile, writeFile, stat } = fPromises;
 
@@ -23,31 +31,106 @@ class DiscardSink implements Sink {
   }
 }
 
+// The command currently running, used by the process-wide SIGINT handler.
+let isActiveCommandJson: (() => boolean) | undefined;
+let sigintHandlerInstalled = false;
+
+function installSigintHandler(): void {
+  if (sigintHandlerInstalled || process.env.TEST) {
+    return;
+  }
+  sigintHandlerInstalled = true;
+  process.once('SIGINT', () => {
+    if (isActiveCommandJson?.()) {
+      const message = 'The command was interrupted.';
+      process.stdout.write(`${JSON.stringify({
+        status: 'error',
+        message,
+        data: { event: 'server.stopped', reason: 'signal' },
+        errors: [{ code: CLI_ERROR_CODES.INTERRUPTED, message }],
+      })}\n`);
+    }
+    // eslint-disable-next-line no-process-exit
+    process.exit(EXIT_CODES.INTERRUPTED);
+  });
+}
+
 export default abstract class extends Command {
+  static readonly enableJsonFlag = true;
   recorder = this.recorderFromEnv('asyncapi_adoption');
   parser = new Parser();
   metricsMetadata: MetricMetadata = {};
   specFile: Specification | undefined;
 
   async init(): Promise<void> {
+    process.exitCode = undefined;
+    isActiveCommandJson = () => this.jsonEnabled();
+    installSigintHandler();
     await super.init();
     const commandName: string = this.id || '';
     await this.recordActionInvoked(commandName, this.metricsMetadata);
   }
 
-  async catch(err: Error & { exitCode?: number }): Promise<void> {
-    try {
-      await super.catch(err);
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        if (e.message.includes('EEXIT: 0')) {
-          process.exitCode = 0;
-          return;
-        }
-        this.logToStderr(`${e.name}: ${e.message}`);
-        process.exitCode = 1;
-      }
+  // Overrides oclif's async catch(); handling is synchronous, so return a resolved promise.
+  catch(err: Error & { exitCode?: number }): Promise<void> {
+    this.parsed = true;
+    if (err.message.includes('EEXIT: 0')) {
+      process.exitCode = 0;
+      return Promise.resolve();
     }
+
+    const mapped = mapError(err);
+    process.exitCode = mapped.exitCode;
+    if (this.jsonEnabled()) {
+      this.logJson(this.toErrorJson(mapped));
+    } else {
+      this.logToStderr(`${err.name}: ${mapped.message}`);
+    }
+    return Promise.resolve();
+  }
+
+  protected result<T extends object>(
+    message: string,
+    data: T,
+    status: Exclude<StructuredStatus, 'error'> = 'success',
+  ): StructuredOutput<T> {
+    return structuredSuccess(message, data, status);
+  }
+
+  protected toSuccessJson(result: unknown): StructuredOutput {
+    if (isStructuredOutput(result)) {
+      return result;
+    }
+    const data = result && typeof result === 'object'
+      ? result as Record<string, unknown>
+      : {};
+    return structuredSuccess('Command completed successfully.', data);
+  }
+
+  protected toErrorJson(err: unknown): StructuredOutput {
+    const mapped = mapError(err);
+    let data: Record<string, unknown> | null = null;
+    if (mapped.details !== undefined) {
+      data = mapped.details && typeof mapped.details === 'object' && !Array.isArray(mapped.details)
+        ? mapped.details as Record<string, unknown>
+        : { details: mapped.details };
+    }
+    return {
+      status: 'error',
+      message: mapped.message,
+      data,
+      errors: [{ code: mapped.code, message: mapped.message }],
+    };
+  }
+
+  public emitStructuredOutput(output: StructuredOutput): void {
+    if (this.jsonEnabled()) {
+      process.stdout.write(`${JSON.stringify(output)}\n`);
+    }
+  }
+
+  public emitStructuredError(error: unknown): void {
+    this.emitStructuredOutput(this.toErrorJson(error));
   }
 
   async recordActionFinished(
@@ -147,7 +230,8 @@ export default abstract class extends Command {
 
     if (
       analyticsConfigFileContent.analyticsEnabled !== 'false' &&
-      process.env.CI !== 'true'
+      process.env.CI !== 'true' &&
+      !this.jsonEnabled()
     ) {
       switch (process.env.NODE_ENV) {
       case 'development':

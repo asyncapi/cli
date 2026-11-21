@@ -1,5 +1,11 @@
 # @asyncapi/diff
 
+## 0.6.1
+
+### Patch Changes
+
+- cfe4a7c: Publish CLI and workspace packages through the updated Changesets release workflow.
+
 ## 0.6.0
 
 ### Minor Changes

@@ -1,18 +1,14 @@
 import { Args } from '@oclif/core';
 import { BaseGeneratorCommand } from '@cli/internal/base/BaseGeneratorCommand';
-import { load, Specification } from '@models/SpecificationFile';
-import { ValidationError } from '@errors/validation-error';
-import { GeneratorError } from '@errors/generator-error';
 import { intro } from '@clack/prompts';
 import { inverse } from 'picocolors';
 import { fromTemplateFlags } from '@cli/internal/flags/generate/fromTemplate.flags';
-import { parseGeneratorFlags } from '@utils/generate/flags';
 import { promptForTemplate } from '@utils/generate/prompts';
 
 export default class Template extends BaseGeneratorCommand {
-  static description =
+  static readonly description =
     'Generates whatever you want using templates compatible with AsyncAPI Generator.';
-  static examples = [
+  static readonly examples = [
     'asyncapi generate fromTemplate asyncapi.yaml @asyncapi/html-template --param version=1.0.0 singleFile=true --output ./docs --force-write',
   ];
 
@@ -28,11 +24,11 @@ export default class Template extends BaseGeneratorCommand {
    
   async run() {
     const { args, flags } = await this.parse(Template); // NOSONAR
-    const interactive = !flags['no-interactive'];
+    const json = this.jsonEnabled();
+    const interactive = !flags['no-interactive'] && !json;
     let asyncapi = args['asyncapi'] ?? '';
     let template = args['template'] ?? '';
     let output = flags.output as string;
-    const { proxyPort, proxyHost } = flags;
     
     if (interactive) {
       intro(inverse('AsyncAPI Generator'));
@@ -43,64 +39,30 @@ export default class Template extends BaseGeneratorCommand {
       output = parsedArgs.output;
     }
 
-    const parsedFlags = parseGeneratorFlags(
-      flags['disable-hook'],
-      flags['param'],
-      flags['map-base-url'],
-      flags['registry-url'],
-      flags['registry-auth'],
-      flags['registry-token']
-    );
+    if (json && !output) {
+      output = process.cwd();
+    }
+    if (json && (!asyncapi || !template)) {
+      this.requireNonInteractiveArgs(asyncapi, output, { name: 'template', value: template });
+    }
 
-    const options = await this.buildGeneratorOptions(flags, parsedFlags);
-
-    // Apply proxy configuration using base class method
-    asyncapi = this.applyProxyConfiguration(asyncapi, proxyHost, proxyPort);
-    
-    const asyncapiInput = await this.loadAsyncAPIInput(asyncapi);
-
-    this.specFile = asyncapiInput;
     this.metricsMetadata.template = template;
 
-    const watchTemplate = flags['watch'];
-    const genOption = this.buildGenOption(flags, parsedFlags);
-
-    let specification: Specification;
-    try {
-      specification = await load(asyncapi);
-    } catch {
-      return this.error(
-        new ValidationError({
-           
-          type: 'invalid-file',
-          filepath: asyncapi,
-        }),
-        { exit: 1 },
-      );
-    }
-
-    const result = await this.generatorService.generate(
-      specification,
+    return this.runGeneration({
+      flags,
+      asyncapi,
       template,
       output,
-      options as any, // GeneratorService expects different options interface
-      genOption,
       interactive,
-    );
-    if (!result.success) {
-      throw new GeneratorError(new Error(result.error));
-    }
-
-    // Output logs in non-interactive mode
-    if (!interactive && result.data?.logs) {
-      for (const log of result.data.logs) {
-        this.log(log);
-      }
-    }
-    
-    if (watchTemplate) {
-      await this.handleWatchMode(asyncapi, template, output, options, genOption, interactive);
-    }
+      message: 'Files generated successfully.',
+      printLogs: (logs) => {
+        if (!interactive) {
+          for (const log of logs) {
+            this.log(log);
+          }
+        }
+      },
+    });
   }
 
   private async parseArgs(
