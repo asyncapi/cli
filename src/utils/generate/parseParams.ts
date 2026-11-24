@@ -34,14 +34,29 @@ export function disableHooksParser(inputs?: string[]) {
 export function mapBaseURLParser(input?: string) {
   if (!input) { return; }
   const mapBaseURLToFolder: any = {};
-  const re = /(.*):(.*)/g; // NOSONAR
-  let mapping: any[] | null = [];
-  if ((mapping = re.exec(input)) === null || mapping.length !== 3) {
+
+  // For Windows paths like <url>:D:/path or <url>:C:\path, split at the colon before the drive letter
+  let delimiterIndex = -1;
+  const winDriveMatch = /:([a-zA-Z]:(?:[\\/].*)?)$/.exec(input);
+  if (winDriveMatch) {
+    delimiterIndex = input.length - winDriveMatch[0].length;
+  } else {
+    delimiterIndex = input.lastIndexOf(':');
+  }
+
+  if (delimiterIndex === -1) {
     throw new Error('Invalid --map-base-url flag. A mapping <url>:<folder> with delimiter : expected.');
   }
 
-  mapBaseURLToFolder.url = mapping[1].replace(/\/$/, '');
-  mapBaseURLToFolder.folder = path.resolve(mapping[2]);
+  const rawUrl = input.slice(0, delimiterIndex);
+  const rawFolder = input.slice(delimiterIndex + 1);
+
+  if (!rawUrl || !rawFolder) {
+    throw new Error('Invalid --map-base-url flag. A mapping <url>:<folder> with delimiter : expected.');
+  }
+
+  mapBaseURLToFolder.url = rawUrl.replace(/\/$/, '');
+  mapBaseURLToFolder.folder = path.resolve(rawFolder);
 
   const isURL = /^https?:/;
   if (!isURL.test(mapBaseURLToFolder.url.toLowerCase())) {
