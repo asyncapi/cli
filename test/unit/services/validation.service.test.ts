@@ -171,6 +171,50 @@ describe('ValidationService', () => {
         expect(result.data?.diagnostics).to.be.an('array');
       }
     });
+
+    it('should suppress only warnings and preserve error diagnostics when suppressAllWarnings is true', async () => {
+      const specFile = new Specification(invalidAsyncAPI);
+
+      const result = await validationService.validateDocument(specFile, {
+        suppressAllWarnings: true
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.data?.status).to.equal('invalid');
+        expect(result.data?.diagnostics?.some((d: any) => d.severity === 0)).to.equal(true);
+        expect(result.data?.diagnostics?.some((d: any) => d.severity === 1)).to.equal(false);
+      }
+    });
+
+    it('should not throw on invalid-ref diagnostics when suppressAllWarnings is true', async () => {
+      const brokenRefSpec = new Specification(JSON.stringify({
+        asyncapi: '2.6.0',
+        info: {
+          title: 'Test Service',
+          version: '1.0.0'
+        },
+        channels: {
+          'user/signedup': {
+            subscribe: {
+              message: {
+                $ref: './non-existent-file.yaml#/messages/UserSignedUp'
+              }
+            }
+          }
+        }
+      }), { filepath: '/tmp/broken-ref-spec.json' });
+
+      const result = await validationService.validateDocument(brokenRefSpec, {
+        suppressAllWarnings: true
+      });
+
+      expect(result.success).to.equal(true);
+      if (result.success) {
+        expect(result.data?.status).to.equal('invalid');
+        expect(result.data?.diagnostics?.some((d: any) => d.code === 'invalid-ref')).to.equal(true);
+      }
+    });
   });
 
   describe('validateDocument() with external URLs', () => {
