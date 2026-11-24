@@ -205,12 +205,46 @@ describe('Error classes', () => {
       expect(err.message).to.include('20:1');
     });
 
-    it('should handle parser-error with empty validation errors', () => {
+    it('should fall back to a non-empty message for parser-error with empty validation errors', () => {
       const err = new ValidationError({
         type: 'parser-error',
         err: { validationErrors: [] },
       });
-      expect(err.message).to.equal('');
+      expect(err.message).to.equal('Unknown parser error');
+    });
+
+    it('should use a string err as the message for parser-error', () => {
+      // The validation service reports parse failures as a plain string
+      // ('Failed to parse document'); it used to produce an empty message.
+      const err = new ValidationError({
+        type: 'parser-error',
+        err: 'Failed to parse document',
+      });
+      expect(err.message).to.equal('Failed to parse document');
+    });
+
+    it('should use the message of a generic Error for parser-error', () => {
+      const err = new ValidationError({
+        type: 'parser-error',
+        err: new Error('Something went wrong'),
+      });
+      expect(err.message).to.equal('Something went wrong');
+    });
+
+    it('should surface the inner message when a ValidationError is wrapped in another one', () => {
+      // The diff command's catch block wraps the ValidationError thrown by
+      // parseDocuments in a second one; the inner message must survive.
+      const inner = new ValidationError({
+        type: 'parser-error',
+        err: 'Failed to parse document',
+      });
+      const err = new ValidationError({ type: 'parser-error', err: inner });
+      expect(err.message).to.equal('Failed to parse document');
+    });
+
+    it('should fall back to a non-empty message when err is undefined', () => {
+      const err = new ValidationError({ type: 'parser-error', err: undefined });
+      expect(err.message).to.equal('Unknown parser error');
     });
   });
 });
