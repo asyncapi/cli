@@ -42,7 +42,7 @@ To run all tests locally:
 
 3. Run your new tests using the commands mentioned above.
 
-> 📘 **For detailed debugging and testing guidelines**, see the [Debugging & Testing Guide](/docs/debugging-testing.md).
+> 📘 **For detailed debugging and testing guidelines**, see the [Debugging & Testing Guide](docs/debugging-testing.md).
 
 ## Release process
 
@@ -146,6 +146,6 @@ If you encounter any issues during development or testing, please check the foll
 4. For permission errors, try: `sudo chown -R $(whoami) ./lib ./node_modules`
 5. For path alias issues, rebuild the project: `npm run build`
 
-> 📘 **For comprehensive debugging help**, see the [Debugging & Testing Guide](/docs/debugging-testing.md).
+> 📘 **For comprehensive debugging help**, see the [Debugging & Testing Guide](docs/debugging-testing.md).
 
 If problems persist, please open an issue on the GitHub repository.
