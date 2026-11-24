@@ -1,51 +1,187 @@
 {
-    "asyncapi": "3.1.0",
-    "info": {
-      "title": "Account Service",
-      "version": "1.0.0",
-      "description": "This service is in charge of processing user signups"
-    },
-    "channels": {
-      "userSignedUp": {
-        "address": "user/signedup",
-        "messages": {
-          "UserSignedUp": {
-            "$ref": "#/components/messages/UserSignedUp"
-          }
+  "asyncapi": "3.1.0",
+  "info": {
+    "title": "Account Service",
+    "version": "1.0.0",
+    "description": "Publishes user account lifecycle events and shows how downstream services receive them."
+  },
+  "defaultContentType": "application/json",
+  "channels": {
+    "userEvents": {
+      "address": "user/events",
+      "title": "User events",
+      "description": "Carries signup, profile update, and deletion events on a single channel.",
+      "messages": {
+        "UserSignedUp": {
+          "$ref": "#/components/messages/UserSignedUp"
+        },
+        "UserUpdated": {
+          "$ref": "#/components/messages/UserUpdated"
+        },
+        "UserDeleted": {
+          "$ref": "#/components/messages/UserDeleted"
         }
       }
-    },
-    "operations": {
-      "onUserSignUp": {
-        "action": "receive",
-        "channel": {
-          "$ref": "#/channels/userSignedUp"
+    }
+  },
+  "operations": {
+    "publishUserEvent": {
+      "action": "send",
+      "title": "Publish a user event",
+      "description": "The account service sends an event when a user account changes.",
+      "channel": {
+        "$ref": "#/channels/userEvents"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/userEvents/messages/UserSignedUp"
         },
-        "messages": [
+        {
+          "$ref": "#/channels/userEvents/messages/UserUpdated"
+        },
+        {
+          "$ref": "#/channels/userEvents/messages/UserDeleted"
+        }
+      ]
+    },
+    "subscribeToUserEvents": {
+      "action": "receive",
+      "title": "Subscribe to user events",
+      "description": "Downstream services receive account events and handle each message type.",
+      "channel": {
+        "$ref": "#/channels/userEvents"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/userEvents/messages/UserSignedUp"
+        },
+        {
+          "$ref": "#/channels/userEvents/messages/UserUpdated"
+        },
+        {
+          "$ref": "#/channels/userEvents/messages/UserDeleted"
+        }
+      ]
+    }
+  },
+  "components": {
+    "messages": {
+      "UserSignedUp": {
+        "title": "User signed up",
+        "description": "A new user account was created.",
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "userId",
+            "displayName",
+            "email"
+          ],
+          "properties": {
+            "userId": {
+              "$ref": "#/components/schemas/UserId"
+            },
+            "displayName": {
+              "$ref": "#/components/schemas/DisplayName"
+            },
+            "email": {
+              "$ref": "#/components/schemas/EmailAddress"
+            }
+          }
+        },
+        "examples": [
           {
-            "$ref": "#/channels/userSignedUp/messages/UserSignedUp"
+            "name": "NewAccount",
+            "payload": {
+              "userId": "23ad9a7b-3535-445a-9085-57e7552774bd",
+              "displayName": "Sam Rivera",
+              "email": "sam@example.com"
+            }
+          }
+        ]
+      },
+      "UserUpdated": {
+        "title": "User profile updated",
+        "description": "At least one field in an existing user profile changed.",
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "userId",
+            "changes"
+          ],
+          "properties": {
+            "userId": {
+              "$ref": "#/components/schemas/UserId"
+            },
+            "changes": {
+              "type": "object",
+              "additionalProperties": false,
+              "minProperties": 1,
+              "properties": {
+                "displayName": {
+                  "$ref": "#/components/schemas/DisplayName"
+                },
+                "email": {
+                  "$ref": "#/components/schemas/EmailAddress"
+                }
+              }
+            }
+          }
+        },
+        "examples": [
+          {
+            "name": "UpdatedDisplayName",
+            "payload": {
+              "userId": "23ad9a7b-3535-445a-9085-57e7552774bd",
+              "changes": {
+                "displayName": "Sam Chen"
+              }
+            }
+          }
+        ]
+      },
+      "UserDeleted": {
+        "title": "User deleted",
+        "description": "A user account was removed.",
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "userId"
+          ],
+          "properties": {
+            "userId": {
+              "$ref": "#/components/schemas/UserId"
+            }
+          }
+        },
+        "examples": [
+          {
+            "name": "DeletedAccount",
+            "payload": {
+              "userId": "23ad9a7b-3535-445a-9085-57e7552774bd"
+            }
           }
         ]
       }
     },
-    "components": {
-      "messages": {
-        "UserSignedUp": {
-          "payload": {
-            "type": "object",
-            "properties": {
-              "displayName": {
-                "type": "string",
-                "description": "Name of the user"
-              },
-              "email": {
-                "type": "string",
-                "format": "email",
-                "description": "Email of the user"
-              }
-            }
-          }
-        }
+    "schemas": {
+      "UserId": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Unique identifier of the user account."
+      },
+      "DisplayName": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Name displayed on the user profile."
+      },
+      "EmailAddress": {
+        "type": "string",
+        "format": "email",
+        "description": "Email address associated with the user account."
       }
     }
   }
+}
