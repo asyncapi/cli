@@ -101,6 +101,18 @@ describe('parseParams utilities', () => {
       expect(result.url).to.equal('http://example.com/schemas');
     });
 
+    it('should keep a Windows drive letter in the folder', () => {
+      const result = mapBaseURLParser('https://schemas.example.com/v1:D:/repo/schemas');
+      expect(result.url).to.equal('https://schemas.example.com/v1');
+      expect(result.folder).to.equal(path.resolve('D:/repo/schemas'));
+    });
+
+    it('should keep the port in the URL when the folder has a drive letter', () => {
+      const result = mapBaseURLParser('http://localhost:8080/schemas:C:\\work\\schemas');
+      expect(result.url).to.equal('http://localhost:8080/schemas');
+      expect(result.folder).to.equal(path.resolve('C:\\work\\schemas'));
+    });
+
     it('should throw error for invalid format (no colon delimiter)', () => {
       expect(() => mapBaseURLParser('invalidmapping')).to.throw(
         'Invalid --map-base-url flag. A mapping <url>:<folder> with delimiter : expected.'

@@ -34,7 +34,8 @@ export function disableHooksParser(inputs?: string[]) {
 export function mapBaseURLParser(input?: string) {
   if (!input) { return; }
   const mapBaseURLToFolder: any = {};
-  const re = /(.*):(.*)/g; // NOSONAR
+  // the folder may start with a Windows drive (C:/ or C:\), so it keeps that colon
+  const re = /(.*?):((?:[a-zA-Z]:[\\/])?[^:]*)$/g; // NOSONAR
   let mapping: any[] | null = [];
   if ((mapping = re.exec(input)) === null || mapping.length !== 3) {
     throw new Error('Invalid --map-base-url flag. A mapping <url>:<folder> with delimiter : expected.');
